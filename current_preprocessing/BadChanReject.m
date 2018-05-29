@@ -8,10 +8,8 @@ for i = 1:length(bns)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
     load(fn,'globalVar');
     
-    %% Prep 1
     %Filtering 60 Hz line noise & harmonics
     noiseFiltData(globalVar);
-    
     %Chan info PROMPT
     globalVar.badChan = [globalVar.refChan globalVar.epiChan];
     
@@ -63,7 +61,7 @@ for i = 1:length(bns)
     data(:,globalVar.badChan)=[];
     chan_lbls(globalVar.badChan)=[];
   
-    %% Bad channel detection based on spikes in the raw data  
+    %% Step 2: Bad channel detection based on spikes in the raw data  
     nr_jumps=zeros(1,size(data,2));
     for k=1:size(data,2)
         nr_jumps(k)=length(find(diff(data(:,k))>80)); % find jumps>80uV
@@ -78,8 +76,7 @@ for i = 1:length(bns)
     
     % Add the bad channels to globalVar.badChan if you think they are bad bad!
     
-    %% Bad channel detection step 3: Check powerspectra of all channels
-    
+    %% Bad channel detection step 3: Bad channel detection based on powerspectra 
     set_ov=0; % overlap
     f = 0:250; % 
     data_pxx=zeros(length(f),size(data,2));
@@ -114,9 +111,8 @@ for i = 1:length(bns)
     data(:,bad_chan_spec)=[];
     chan_lbls(bad_chan_spec)=[];
     
-    %% Eyeball the rereferenced data after removing the bad channels
+    % Eyeball the rereferenced data after removing the bad channels
     data_down_car = car(data);
-    %% Brett's method (step 2) for detecting bad chans
     % Plot CAR data for eyeballing
     figureDim = [0 0 .5 1];
     figure('units', 'normalized', 'outerposition', figureDim)
