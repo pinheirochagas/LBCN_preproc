@@ -33,12 +33,13 @@ for i = 1:length(bns)
         data(:,n)=-wave; % invert: data are recorded inverted
         clear wave nl
     end
+    data_all = data;
     data=single(data);
     
     %% Run algorithm
     bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan];
     a=var(data);
-    b=find(a>(5*median(a)));
+    b=find(a>(5*median(a))); % 5 * greated than median. 
     c=find(a<(median(a)/5));
     if ~isempty([b c])
         disp(['additional bad channels: ' int2str(setdiff([b c],bad_chans))]);
@@ -107,12 +108,44 @@ for i = 1:length(bns)
     % Update globalVar.badChan 
     globalVar.badChan = [bad_chan_spec_lab globalVar.badChan];
     
-    % remove bad channels
-    data(:,bad_chan_spec)=[];
-    chan_lbls(bad_chan_spec)=[];
+    %% Bad channel detection step 4: Bad channel detection based on HFOs
+    [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
+    % pathological_event are in bipolar montage 
     
-    % Eyeball the rereferenced data after removing the bad channels
-    data_down_car = car(data);
+    %% Inspect all bad channels
+    % blue channels - detected in steps 1,2,3
+    % red channels - detected in step 4
+    % green channels - detected in both steps (1,2,3) and 4
+    
+    figureDim = [0 0 1 1];
+    figure('units', 'normalized', 'outerposition', figureDim)
+    for ii = unique([globalVar.badChan pathological_chan_id])
+        hold on
+        if ~isempty(find(pathological_chan_id == ii)) && ~isempty(find(globalVar.badChan == ii))
+            color_plot = [0 1 0];
+        elseif ~isempty(find(pathological_chan_id == ii)) && isempty(find(globalVar.badChan == ii))
+            color_plot = [1 0 0];
+        elseif isempty(find(pathological_chan_id == ii)) && ~isempty(find(globalVar.badChan == ii))
+            color_plot = [0 0 1];
+        end
+        plot(zscore(data_all(:,ii))+ii, 'Color', color_plot);
+    end
+    
+    subplot(2,1,2)
+    for ii = pathological_chan_id
+        hold on
+        plot(zscore(data_all(:,ii))+ii);
+    end
+    
+    % Update globalVar.badChan
+    globalVar.badChan = unique([pathological_chan_id globalVar.badChan]);
+    globalVar.pathological_event_bipolar_montage = pathological_event; 
+ 
+    %% Eyeball the rereferenced data after removing the bad channels
+    % remove bad channels
+    data_all(:,globalVar.badChan)=[];
+   
+    data_down_car = car(data_all);
     % Plot CAR data for eyeballing
     figureDim = [0 0 .5 1];
     figure('units', 'normalized', 'outerposition', figureDim)
@@ -120,6 +153,7 @@ for i = 1:length(bns)
         hold on
         plot(zscore(data_down_car(1:round(globalVar.iEEG_rate*20),iii))+iii);
     end
+    
     
     %% Re-referencing data to the common average reference CAR - and save
     elecs = setxor(1:globalVar.nchan,[globalVar.badChan globalVar.refChan globalVar.epiChan]); %

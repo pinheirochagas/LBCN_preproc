@@ -17,13 +17,28 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 % updated at each step of the preprocessing accordingly
 
 %% Branch 2 - data conversion - PEDRO
-SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, [], [])
+ref_chan = [];
+epi_chan = [];
+SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
 
 %% Branch 3 - event identifier 
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
 
-%% Branch 4 - bad channel rejection
+%% Branch 4 - bad channel rejection 
+% 1. Continuous data
+%      Step 0. epileptic channels based on clinical evaluation (manually inputed in the SaveDataNihonKohden)
+%      Step 1. based on the raw power
+%      Step 2. based on the spikes in the raw signal
+%      Step 3. based on the power spectrum deviation
+% 2. epoched data
+%      Step 1. based on the raw power
+%      Step 2. based on the spikes in the raw signal
+%      Step 3. based on the spikes in the HFB signal
+
 BadChanReject(sbj_name, project_name, block_names, dirs) 
+
+%%  time-frequency analyses - AMY
+
 
 %% Branch 5 - epoching and identification of bad epochs
 lockevent = trailinfo.allonsets(:,1); % e.g. lock to stim onset
@@ -56,6 +71,7 @@ get_bad_epochs_calculia_production
 epoched
 data.wave (freq x trial x time)
 	.trialinfo (Pedro will provide code to convert to table)
+        trialinfo.bad_trial: 0 for bad and 1 for good. 
 	.fsample
 	.time
 	.label
@@ -68,7 +84,9 @@ data.wave (trial x time) - non decomposed
 	.label    
     
 % Branch 6 - plotting OY AND YO
-GammaAvg_calculia_production
+[data] = LoadDataAnalyze(subj, );
+
+GammaAvg_calculia_production (data, clomun)
 
 
 %% Medium-long term projects
