@@ -43,7 +43,7 @@ for bi = 1:length(block_names)
     load(fn,'globalVar');
     
     dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn];
-    dir_out = [dirs.data_root,'/',datatype,'Data/','/EpochData/','/',sbj_name,'/',bn];
+    dir_out = [dirs.data_root,'/',datatype,'Data/','/',sbj_name,'/',bn, '/EpochData/'];
     
     if nargin < 5 || isempty(elecs)
         elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
@@ -100,7 +100,7 @@ for bi = 1:length(block_names)
         globalVar.bad_epochs(ei).badtrials = badtrials;
         
         save(fn_out,'data')
-        disp('Data epoching: Block ', num2str(bi),', Elec ',num2str(el))
+        disp(['Data epoching: Block ', num2str(bi),', Elec ',num2str(el)])
     end
     
     % save updated globalVar (with bad epochs)

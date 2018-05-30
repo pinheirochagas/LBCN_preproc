@@ -36,13 +36,13 @@ EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project depen
 %      Step 3. based on the power spectrum deviation
 BadChanReject(sbj_name, project_name, block_names, dirs) 
 
-%%  Time-frequency analyses - AMY
+%% Branch 5 - Time-frequency analyses - AMY
 % Creates the first instance of data structure 
 WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], 'HFB', [], [], [], []) % only for HFB
 WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true, false) % across frequencies of interest
 
 
-%% Branch 5 - Epoching and identification of bad epochs
+%% Branch 6 - Epoching and identification of bad epochs
 % Bad epochs identification
 %      Step 1. based on the raw signal
 %      Step 2. based on the spikes in the raw signal
@@ -50,12 +50,15 @@ WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true
 
 EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 5, 'HFB', [],[])
 
+%% Branch 7 - plotting OY AND YO
+for i = 1:elect
+[data()] = LoadDataAnalyze(subj, etc);
+end
+data.mni_coordinates
+data.native_coordinates
 
-lockevent = trailinfo.allonsets(:,1); % e.g. lock to stim onset
-lockevent = trailinfo.RT_lock; % e.g. lock to RT
+GammaAvg_calculia_production (data, clomun)
 
-epoch_data 
-get_bad_epochs_calculia_production
 
 %% Branch 6 - time-frequency analyses - AMY
 %substitute for wavelet filter 
@@ -93,10 +96,6 @@ get_bad_epochs_calculia_production
 % 	.time
 % 	.label    
     
-% Branch 6 - plotting OY AND YO
-[data] = LoadDataAnalyze(subj;
-
-GammaAvg_calculia_production (data, clomun)
 
 
 %% Medium-long term projects
