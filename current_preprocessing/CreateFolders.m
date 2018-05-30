@@ -1,15 +1,11 @@
 function CreateFolders(sbj_name, project_name, block_name, dirs)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
-                'reRefData', 'SpecData', 'NormData'};
+                'SpecData', 'HFBData'};
             
-dir_names = {'data_dir', 'CAR_dir', 'Comp_dir', 'Filt_dir', ...
-              'reRef_dir', 'Spec_dir', 'HFB_dir'};         
-            
-
 %% Per subject
 for i = 1:length(folder_names)
-    folders.(dir_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name);
+    folders.(folder_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name);
 end
 folders.psych_dir = sprintf('%s/%s',dirs.psych_root,sbj_name);
 folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
@@ -17,7 +13,7 @@ folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
 fieldname_folders = fieldnames(folders);
 
 for i = 1:length(fieldname_folders)
-    if ~exist(folders.(fieldname_folders{i}));
+    if ~exist(folders.(fieldname_folders{i}))
         mkdir(folders.(fieldname_folders{i}));
     end
 end
@@ -35,7 +31,7 @@ for bn = 1:length(block_name)
     end
     end
     % Save globalVariable
-    fn = [folders.data_dir '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];
+    fn = [folders.originalData '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];
     save(fn,'globalVar');
 end
     

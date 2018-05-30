@@ -17,8 +17,8 @@ for i = 1:length(bns)
     %This part saves data.mat
     
     % Format the data
-    sub_info.data.name = sprintf('%s/fiEEG%s_',globalVar.Filt_dir,bn);
-    sub_info.Pdiode.name = sprintf('%s/Pdio%s_02',globalVar.data_dir,bn);
+    sub_info.data.name = sprintf('%s/fiEEG%s_',globalVar.FiltData,bn);
+    sub_info.Pdiode.name = sprintf('%s/Pdio%s_02',globalVar.originalData,bn);
     
     data_nr=1;
     load([sub_info.data(data_nr).name '01.mat'])
@@ -129,12 +129,6 @@ for i = 1:length(bns)
             color_plot = [0 0 1];
         end
         plot(zscore(data_all(:,ii))+ii, 'Color', color_plot);
-    end
-    
-    subplot(2,1,2)
-    for ii = pathological_chan_id
-        hold on
-        plot(zscore(data_all(:,ii))+ii);
     end
     
     % Update globalVar.badChan

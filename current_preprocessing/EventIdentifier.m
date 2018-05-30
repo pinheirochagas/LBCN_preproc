@@ -42,7 +42,7 @@ for i = 1:length(block_names)
     
     %return
     %% reading analog channel from neuralData directory
-    load(sprintf('%s/Pdio%s_01.mat',globalVar.data_dir,block_name)); % going to be present in the globalVar
+    load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,block_name)); % going to be present in the globalVar
      
     
     %% varout is anlg (single percision)
@@ -143,8 +143,8 @@ for i = 1:length(block_names)
     
     %% Updating the events with onsets. 
     trialinfo = K.slist;
-    trialinfo.RT = RT' % from PsychToolBox! 
-    trialinfo.sbj_resp = sbj_resp' % from PsychToolBox! 
+    trialinfo.RT = RT'; % from PsychToolBox! 
+    trialinfo.sbj_resp = sbj_resp'; % from PsychToolBox! 
     trialinfo.allonsets = all_stim_onset;
     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
     

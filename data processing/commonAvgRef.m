@@ -9,7 +9,7 @@ function commonAvgRef(globalVar,str)
 %% variable names
 sbj_name= globalVar.sbj_name;
 block_name= globalVar.block_name;
-data_dir= globalVar.data_dir;
+data_dir= globalVar.originalData;
 
 %% Removing Bad Channels
 % epiChan= globalVar.epiChan; %excluding channels with epileptic activity
@@ -33,15 +33,15 @@ if strcmp(str,'orig')
     fprintf('Making CAR\n')
     CAR = zeros(1,globalVar.chanLength,'single');
     for ci = elecs
-        ['Reading: ' sprintf('%s/iEEG%s_%.2d.mat',globalVar.data_dir,block_name,ci)]
-        load(sprintf('%s/iEEG%s_%.2d.mat',globalVar.data_dir,block_name,ci));
+        ['Reading: ' sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ci)]
+        load(sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ci));
         wave= wave - mean(wave);                    % remove mean before CAR
         CAR = CAR + wave;             % sum CAR in groups
         clear wave
     end
     
     CAR= CAR/cnt; % common average reference
-    save(sprintf('%s/CAR%s.mat',globalVar.CAR_dir,block_name),'CAR');
+    save(sprintf('%s/CAR%s.mat',globalVar.CARData,block_name),'CAR');
     
     % figure, plot((1:length(CAR))/iEEG_rate,CAR/cnt),hold on
     % plot((1:length(CAR))/iEEG_rate,wave)
@@ -50,17 +50,16 @@ if strcmp(str,'orig')
     for ii = 1:globalVar.nchan(end)
         fprintf('Subtracting CAR from data\n')
 %         if ii~= [globalVar.refChan, globalVar.badCahan];
-            ['Reading: ' sprintf('%s/iEEG%s_%.2d.mat',globalVar.data_dir,block_name,ii)]
-            load(sprintf('%s/iEEG%s_%.2d.mat',globalVar.data_dir,block_name,ii));
+            ['Reading: ' sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ii)]
+            load(sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ii));
             
             wave = wave - CAR;
-            ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,block_name, ii)]
-            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,block_name, ii),'wave');
+            ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii)]
+            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii),'wave');
             clear wave
 %         end
         
     end
-    
     
 elseif strcmp(str,'noiseFilt')
     fprintf('Making CAR from notch filtered data\n')
@@ -68,15 +67,15 @@ elseif strcmp(str,'noiseFilt')
     %% Calculating Common Average Reference
     CAR = zeros(1,globalVar.chanLength,'single');
     for ci = elecs
-        ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.Filt_dir,block_name,ci)]
-        load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.Filt_dir,block_name,ci));
+        ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ci)]
+        load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ci));
         wave= wave - mean(wave);                    % remove mean before CAR
         CAR = CAR + wave;             % sum CAR in groups
         clear wave
     end
     
     CAR= CAR/cnt; % common average reference
-    save(sprintf('%s/CAR%s.mat',globalVar.CAR_dir,block_name),'CAR');
+    save(sprintf('%s/CAR%s.mat',globalVar.CARData,block_name),'CAR');
     
     % figure, plot((1:length(CAR))/iEEG_rate,CAR/cnt),hold on
     % plot((1:length(CAR))/iEEG_rate,wave)
@@ -87,54 +86,19 @@ elseif strcmp(str,'noiseFilt')
     %for ii= 65:globalVar.nchan(end) %for patients with depth electrodes
     for ii = 1:globalVar.nchan(end)
 %         if ii~= globalVar.refChan
-            ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.Filt_dir,block_name,ii)]
-            load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.Filt_dir,block_name,ii));
+            ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ii)]
+            load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ii));
             wave = wave - CAR;
-            ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,block_name, ii)]
+            ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii)]
             
-            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,block_name, ii),'wave');
+            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii),'wave');
             clear wave
 %         end
         
     end
  
 
-elseif strcmp(str,'artRep')
-    fprintf('Making CAR from notch filtered and artifact-rejected data\n')
-    %% Calculating Common Average Reference
-    CAR = zeros(1,globalVar.chanLength,'single');
-    for ci = elecs
-        fprintf(['Reading: ' sprintf('%s/aiEEG%s_%.2d.mat',globalVar.Art_dir,globalVar.block_name,ci) '\n']);
-        load(sprintf('%s/aiEEG%s_%.2d.mat',globalVar.Art_dir,globalVar.block_name,ci)); % contains "wave" var
-        wave = wave - mean(wave);                    % remove mean before CAR
-        CAR = CAR + wave;             % sum CAR in groups
-        clear wave
-    end
 
-    CAR= CAR/cnt; % common average reference
-    save(sprintf('%s/CAR%s.mat',globalVar.CAR_dir,globalVar.block_name),'CAR','elecs');
-
-    % figure, plot((1:length(CAR))/iEEG_rate,CAR/cnt),hold on
-    % plot((1:length(CAR))/iEEG_rate,wave)
-    
-    %% Subtracting the common average reference from all channels
-    fprintf('Subtracting CAR from data\n')
-    for ii = 1:globalVar.nchan(end)
-        if ii~= globalVar.refChan
-            fn = sprintf('%s/aiEEG%s_%.2d.mat',globalVar.Art_dir,globalVar.block_name,ii);
-            ['Reading: ' fn]
-            load(fn);
-            avgbeforeCAR(ci) = mean(wave);
-
-            wave = wave - CAR;
-            ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,globalVar.block_name, ii)]
-            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CAR_dir,globalVar.block_name, ii),'wave');
-            avgafterCAR(ci) = mean(wave);
-            clear wave 
-        end
-    end
-    
-    save(sprintf('%s/chanavgs_%s.mat',globalVar.CAR_dir,globalVar.block_name),'avgbeforeCAR','avgafterCAR');
 
 else
     error('str variable should be orig, noiseFilt, or artRep')

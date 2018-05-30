@@ -4,6 +4,7 @@ AddPaths('Pedro_iMAC')
 % BlockBySubj
 
 %% Copy the data from the server
+% EDF file to 
 
 %% Initialize Directories
 project_name = 'Calculia_production';
@@ -22,7 +23,10 @@ epi_chan = [];
 SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
 
 %% Branch 3 - event identifier 
+% For each class of tasks: 
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
+% RT from voice in case
+%   plug the voice RT to the trailinfo
 
 %% Branch 4 - bad channel rejection 
 % 1. Continuous data
@@ -30,17 +34,23 @@ EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project depen
 %      Step 1. based on the raw power
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the power spectrum deviation
-% 2. epoched data
-%      Step 1. based on the raw power
+BadChanReject(sbj_name, project_name, block_names, dirs) 
+
+%%  Time-frequency analyses - AMY
+% Creates the first instance of data structure 
+WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], 'HFB', [], [], [], []) % only for HFB
+WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true, false) % across frequencies of interest
+
+
+%% Branch 5 - Epoching and identification of bad epochs
+% Bad epochs identification
+%      Step 1. based on the raw signal
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the spikes in the HFB signal
 
-BadChanReject(sbj_name, project_name, block_names, dirs) 
-
-%%  time-frequency analyses - AMY
+EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 5, 'HFB', [],[])
 
 
-%% Branch 5 - epoching and identification of bad epochs
 lockevent = trailinfo.allonsets(:,1); % e.g. lock to stim onset
 lockevent = trailinfo.RT_lock; % e.g. lock to RT
 
@@ -49,17 +59,17 @@ get_bad_epochs_calculia_production
 
 %% Branch 6 - time-frequency analyses - AMY
 %substitute for wavelet filter 
-data.wave   (freq x time)
-	.fsample
-	.time
-	.label
+% data.wave   (freq x time)
+% 	.fsample
+% 	.time
+% 	.label
 
 
 % change output to fildtrip 
-data.wave  (1 x time)
-	.fsample
-	.time
-	.label
+% data.wave  (1 x time)
+% 	.fsample
+% 	.time
+% 	.label
 
 % Branch 3 - cleaning - AMY 
 get_bad_epochs_calculia_production
@@ -68,23 +78,23 @@ get_bad_epochs_calculia_production
 
 % Branch 5 - epoching - AMY
 % to be added
-epoched
-data.wave (freq x trial x time)
-	.trialinfo (Pedro will provide code to convert to table)
-        trialinfo.bad_trial: 0 for bad and 1 for good. 
-	.fsample
-	.time
-	.label
-
-epoched
-data.wave (trial x time) - non decomposed
-	.trialinfo (Pedro will provide code to convert to table)
-	.fsample
-	.time
-	.label    
+% epoched
+% data.wave (freq x trial x time)
+% 	.trialinfo (Pedro will provide code to convert to table)
+%         trialinfo.bad_trial: 0 for bad and 1 for good. 
+% 	.fsample
+% 	.time
+% 	.label
+% 
+% epoched
+% data.wave (trial x time) - non decomposed
+% 	.trialinfo (Pedro will provide code to convert to table)
+% 	.fsample
+% 	.time
+% 	.label    
     
 % Branch 6 - plotting OY AND YO
-[data] = LoadDataAnalyze(subj, );
+[data] = LoadDataAnalyze(subj;
 
 GammaAvg_calculia_production (data, clomun)
 
