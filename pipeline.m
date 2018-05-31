@@ -26,6 +26,11 @@ SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_cha
 % For each class of tasks: 
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
 % RT from voice in case
+segment_audio_mic() % coorect this function
+
+
+
+
 %   plug the voice RT to the trailinfo
 
 %% Branch 4 - bad channel rejection 
@@ -48,19 +53,12 @@ WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the spikes in the HFB signal
 
-EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 5, 'HFB', [],[])
+EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 6, 'HFB', [],[])
 
 %% Branch 7 - plotting OY AND YO
-for i = 1:elect
-[data()] = LoadDataAnalyze(subj, etc, stimlock);
-end
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trial',[])
 
-plots(data, columns)
 
-data.mni_coordinates
-data.native_coordinates
-
-GammaAvg_calculia_production (data, clomun)
 
 
 %% Branch 6 - time-frequency analyses - AMY

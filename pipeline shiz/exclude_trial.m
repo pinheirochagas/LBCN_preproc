@@ -15,10 +15,11 @@ chan=cell(length(pChan),2);
 % for i = 1:length(pChan)
 %     chan(i,:) = strsplit(pChan{i},'-');
 % end
-
+T = length(onsetTS);
 onsetTS = onsetTS*fsample;
 bef_time = bef_time*fsample;
 aft_time = aft_time*fsample;
+win_size = fsample/10;
 
 for i = 1:length(pChan)
     try
@@ -35,26 +36,25 @@ for i = 1:length(pChan)
 end
 
 bad_epochs = cell(1,length(chanNames));
-bad_indices = cell(1,length(chanNames));
+bad_indices = cell(T,length(chanNames));
 for i = 1:length(chanNames)
     n = 1;
-    T = length(onsetTS);
     ind = unique([find(strcmp(chan(:,1),chanNames(i)) == 1 );find(strcmp(chan(:,2),chanNames(i)) == 1 )]);
     target = pTS(ind);
-    pind = [target-100 target+100];
+    pind = [target-win_size target+win_size];
     pindc = [];
     if ~isempty(target)
         for l = 1:length(target)
             pindc = [pindc pind(l,1):pind(l,2)];
         end
     end
-    for k = 1:T
-        behInd = onsetTS(k) + (-(bef_time):aft_time);
+    for k = 1:T % Across trials 
+        behInd = onsetTS(k) + bef_time:aft_time;
         if sum(ismember(pindc,behInd)) ~= 0
             bad_epochs{i}(n) = k;
-            bad_indices{i} = (target/fsample)';
             n = n+1;
-        end
+            bad_indices{k,i}=find(ismember(behInd,target));
+        end        
     end
 end
 

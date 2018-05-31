@@ -1,8 +1,6 @@
 function EventIdentifier (sbj_name, project_name, block_names, dirs)
 %% Globar Variable elements
 
-block_name= 'E18-309_0021';
-
 
 %% loop across blocks
 for i = 1:length(block_names)
@@ -42,7 +40,7 @@ for i = 1:length(block_names)
     
     %return
     %% reading analog channel from neuralData directory
-    load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,block_name)); % going to be present in the globalVar
+    load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,bn)); % going to be present in the globalVar
      
     
     %% varout is anlg (single percision)
@@ -140,17 +138,23 @@ for i = 1:length(block_names)
         disp('behavioral data and photodiod mismatch'),return
     end
     
+    %% Segment audio grom mic
+    % adapt: segment_audio_mic 
+%      load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+%      K.slist = slist; 
+  
     
     %% Updating the events with onsets. 
     trialinfo = K.slist;
+    trialinfo.block = repmat(i,size(K.slist,1),1);
     trialinfo.RT = RT'; % from PsychToolBox! 
     trialinfo.sbj_resp = sbj_resp'; % from PsychToolBox! 
     trialinfo.allonsets = all_stim_onset;
-    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
+    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
     
     
     %% Save trialinfo   
-    fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,block_name);
+    fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
     save(fn, 'trialinfo');
     
 end
