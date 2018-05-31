@@ -60,6 +60,10 @@ for bi = 1:length(block_names)
         lockevent = [];
     end
     
+    %% Get HFO bad trials:
+    pTS = globalVar.pathological_event_bipolar_montage;
+    [bad_epochs_HFO, bad_indices_HFO] = exclude_trial(pTS.ts,pTS.channel, lockevent, globalVar.channame, bef_time, aft_time, globalVar.iEEG_rate);
+
     for ei = 1:length(elecs)
         el = elecs(ei);
         
@@ -86,19 +90,23 @@ for bi = 1:length(block_names)
             [badtrials, badinds] = epoch_reject_raw(data.wave,thr_raw,thr_diff);
         end
         
-        % add Su's method
-        
-        
         data.trialinfo.badtrial = badtrials;
+        badtrial_su = zeros(size(data.trialinfo,1),1,1);
+        badtrial_su(bad_epochs_HFO{el}) = 1;
+        data.trialinfo.badtrial_su = logical(badtrial_su);
+        
         data.trialinfo.badinds_raw = badinds.raw'; % based on the raw signal
         data.trialinfo.badinds_diff = badinds.diff'; % based on spikes in the raw signal
         data.trialinfo.badinds_all = badinds.all';
-        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Add indices of bad timepoints HFO
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         globalVar.bad_epochs(ei).badinds.raw = badinds.raw;
         globalVar.bad_epochs(ei).badinds.diff = badinds.diff;
         globalVar.bad_epochs(ei).badinds = badinds.all;
         globalVar.bad_epochs(ei).badtrials = badtrials;
         
+       
         save(fn_out,'data')
         disp(['Data epoching: Block ', num2str(bi),', Elec ',num2str(el)])
     end

@@ -29,6 +29,9 @@ for bn = 1:length(block_name)
     if ~exist(globalVar.(fieldname_folders{i}))
         mkdir(globalVar.(fieldname_folders{i}));
     end
+    if ~exist([globalVar.(fieldname_folders{i}) '/EpochData'])
+        mkdir([globalVar.(fieldname_folders{i}) '/EpochData']);
+    end    
     end
     % Save globalVariable
     fn = [folders.originalData '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];

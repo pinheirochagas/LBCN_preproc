@@ -52,8 +52,11 @@ EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 5, 'HFB', 
 
 %% Branch 7 - plotting OY AND YO
 for i = 1:elect
-[data()] = LoadDataAnalyze(subj, etc);
+[data()] = LoadDataAnalyze(subj, etc, stimlock);
 end
+
+plots(data, columns)
+
 data.mni_coordinates
 data.native_coordinates
 
