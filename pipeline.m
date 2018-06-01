@@ -49,9 +49,13 @@ WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], 'Spec', [], [], 
 %      Step 1. based on the raw signal
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the spikes in the HFB signal
+bl_correct.run = 'baseline_correct'; % or 'no_baseline_correct'
+bl_correct.lockevent = 'stim';
+bl_correct.window = [-.2 0];
 
-EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 6, 'HFB', [],[])
-EpochDataAll(sbj_name, project_name, block_names, dirs,[],'resp', -6, 1, 'HFB', [],[])
+EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 6, 'HFB', [],[], bl_correct)
+EpochDataAll(sbj_name, project_name, block_names, dirs,[],'resp', -6, 1, 'HFB', [],[], bl_correct)
+% Baseline correction option
 
 %% Branch 7 - plotting OY AND YO
 plot_params = [];
@@ -67,6 +71,8 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_ad
 % Input baseline correction flag to have the option. 
 % Include the lines option
 %%%%%%%%%%%%%%%%%%%%%%%
+
+PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column,conds,noise_method,plot_params)
 
 %% Branch 6 - time-frequency analyses - AMY
 %substitute for wavelet filter 
