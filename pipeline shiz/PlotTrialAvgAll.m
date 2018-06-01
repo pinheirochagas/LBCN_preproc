@@ -42,7 +42,8 @@ if nargin < 12 || isempty(plot_params)
     plot_params.ylabel = 'z-scored power';
     plot_params.freq_range = [70 180];
     plot_params.bl_win = [-0.2 0];
-    plot_params.xlim = [-0.2 6];
+%     plot_params.xlim = [-0.2 6];
+    plot_params.xlim = [-6 1];
 end
 
 if nargin < 11 || isempty(noise_method)

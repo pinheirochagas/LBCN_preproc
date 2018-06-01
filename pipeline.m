@@ -1,10 +1,6 @@
 % Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
-% Manually edit this function to include the name of the blocks:
 % BlockBySubj
-
-%% Copy the data from the server
-% EDF file to 
 
 %% Initialize Directories
 project_name = 'Calculia_production';
@@ -13,9 +9,13 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %% Create folders
 sbj_name = 'S18_124';
 block_names = BlockBySubj(sbj_name,project_name); 
+% Manually edit this function to include the name of the blocks:
 CreateFolders(sbj_name, project_name, block_names, dirs) 
 % this creates the fist instance of globalVar which is going to be 
 % updated at each step of the preprocessing accordingly
+
+%% Manually copy the EDF and behavioral files to their folders
+% Script in terminal? 
 
 %% Branch 2 - data conversion - PEDRO
 ref_chan = [];
@@ -25,13 +25,10 @@ SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_cha
 %% Branch 3 - event identifier 
 % For each class of tasks: 
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
-% RT from voice in case
-segment_audio_mic() % coorect this function
+% Make sure there is no nan in the last event (which in MMR is critical, since there is only one event per trial)
+% Multiply pdio by -1? 
+% input the number of initial pulses - GET FUNCTION FROM YING. 
 
-
-
-
-%   plug the voice RT to the trailinfo
 
 %% Branch 4 - bad channel rejection 
 % 1. Continuous data
@@ -44,8 +41,8 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 %% Branch 5 - Time-frequency analyses - AMY
 % Creates the first instance of data structure 
 WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], 'HFB', [], [], [], []) % only for HFB
-WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true, false) % across frequencies of interest
-
+WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
+% Creat a diagnostic panel unifying all the figures
 
 %% Branch 6 - Epoching and identification of bad epochs
 % Bad epochs identification
@@ -54,12 +51,22 @@ WaveletFilterAll(sbj_name, project_name, block_names, dirs, [], [], [], [], true
 %      Step 3. based on the spikes in the HFB signal
 
 EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 6, 'HFB', [],[])
+EpochDataAll(sbj_name, project_name, block_names, dirs,[],'resp', -6, 1, 'HFB', [],[])
 
 %% Branch 7 - plotting OY AND YO
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trial',[])
+plot_params = [];
+plot_params.smooth = 
 
-
-
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'none',[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
+%%%%%%%%%%%%%%%%%%%%
+% Baseline correction has always to consider the stim lock, not the resp
+% lock! 
+%%%%%%%%%%%%%%%%%%%%%%
+% Allow conds to be any kind of class, logical, str, cell, double, etc. 
+% Input baseline correction flag to have the option. 
+% Include the lines option
+%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 6 - time-frequency analyses - AMY
 %substitute for wavelet filter 

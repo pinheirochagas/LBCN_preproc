@@ -138,10 +138,10 @@ for i = 1:length(block_names)
         disp('behavioral data and photodiod mismatch'),return
     end
     
-    %% Segment audio grom mic
+    %% Segment audio from mic
     % adapt: segment_audio_mic 
-%      load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-%      K.slist = slist; 
+     load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+     K.slist = slist;
   
     
     %% Updating the events with onsets. 
@@ -149,9 +149,10 @@ for i = 1:length(block_names)
     trialinfo.block = repmat(i,size(K.slist,1),1);
     trialinfo.RT = RT'; % from PsychToolBox! 
     trialinfo.sbj_resp = sbj_resp'; % from PsychToolBox! 
-    trialinfo.allonsets = all_stim_onset;
-    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
-    
+    trialinfo.allonsets = round(all_stim_onset);
+%     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
+    trialinfo.RT_lock = round(K.slist.onset_prod/(globalVar.Pdio_rate));
+    % update that
     
     %% Save trialinfo   
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);

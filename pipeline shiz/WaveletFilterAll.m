@@ -22,6 +22,10 @@ if strcmp(freq_band,'HFB')
     freqs = 2.^(6.2:0.1:7.5);
     norm = true;
     avgfreq = true;
+    
+elseif strcmp(freq_band,'Spec')
+    freqs = 2.^([0:0.5:2,2.3:0.3:5,5.2:0.2:8]);
+   
 elseif nargin < 6 || isempty(freq_band)
     freqs = 2.^([0:0.5:2,2.3:0.3:5,5.2:0.2:8]);
 end

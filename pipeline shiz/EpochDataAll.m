@@ -74,6 +74,11 @@ for bi = 1:length(block_names)
         
         % epoch data
         load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
+        
+        %%%%%%%%%%%%%%%%%%%%
+        % QUICK AND DIRTY FIX
+        %%%%%%%%%%%%%%%%%%%%%
+        
         fn_out = sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_out,datatype,locktype,bn,el);
         if strcmp(datatype,'CAR')
             ep_data = EpochData(wave,lockevent,bef_time,aft_time,globalVar.iEEG_rate);
