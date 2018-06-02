@@ -11,7 +11,7 @@ function data_blc = BaselineCorrect(data,bl_win,noise_method)
 %                       'trial':    exclude noisy trials (set to NaN)
 %                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
 
-if ndims(data)==3
+if ndims(data.wave)==3
     datatype = 'Spec';
 else
     datatype = 'NonSpec';

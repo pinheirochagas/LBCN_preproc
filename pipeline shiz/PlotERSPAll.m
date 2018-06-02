@@ -32,10 +32,13 @@ if nargin < 10 || isempty(plot_params)
     plot_params.textsize = 20;
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'Freq (Hz)';
-    plot_params.cmap = cbrewer2('RdBu');
-    plot_params.cmap = plot_params.cmap(end:-1:1,:);
+%     plot_params.cmap = cbrewer2('RdBu');
+    load('RdBuCmap.mat','cm')
+    plot_params.cmap = cm;
+%     plot_params.cmap = plot_params.cmap(end:-1:1,:);
     plot_params.clim = [-2 2];
     plot_params.bl_win = [-0.5 0];
+    plot_params.sm = 0.05;
 end
 
 if nargin < 9 || isempty(noise_method)
@@ -48,7 +51,7 @@ if nargin < 5 || isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
-dir_out = [dirs.results_root,'/',project_name,'/',sbj_name,'/Figures/',datatype,'Data/',locktype,'lock'];
+dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/SpecData/',locktype,'lock'];
 
 if ~exist(dir_out)
     mkdir(dir_out)
@@ -64,12 +67,12 @@ for ei = 1:length(elecs)
     for bi = 1:length(block_names)
         bn = block_names{bi};
         dir_in = [dirs.data_root,'/SpecData/',sbj_name,'/',bn,'/EpochData/'];
-        load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el));
+        load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el)); 
         
         data_blc = BaselineCorrect(data,plot_params.bl_win,noise_method); % baseline correct within block
-        
+       
         % concatenante EEG data along trial dimension (across blocks)
-        data_all.wave = cat(2,data_all.wave,data_blc.wave);
+        data_all.wave = cat(2,data_all.wave,data.wave);
         
         % concatenate trial info
         data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
@@ -79,11 +82,24 @@ for ei = 1:length(elecs)
     if nargin < 8 || isempty(conds)
         conds = unique(data.trialinfo.(column));
     end
+    
+    % Keep all original fields of data 
+    fieldnames_data = fieldnames(data);
+    for i = 1:length(fieldnames_data)
+        if ~strcmp(fieldnames_data{i}, 'wave') && ~strcmp(fieldnames_data{i}, 'trialinfo')
+            data_all.(fieldnames_data{i}) = data.(fieldnames_data{i});
+        else
+        end
+    end
+    
     data_all.time = data.time;
+    data_all.time = data.time;
+    data_all.time = data.time;
+
     data_all.fsample = data.fsample;
     plot_params.xlim = [data_all.time(1) data_all.time(end)];
     
-    PlotERSP(data_all,column,conds,col,plot_params)
+    PlotERSP(data_all,column,conds,plot_params)
     fn_out = sprintf('%s/%s_%s_%s_ERSP_%slock.png',dir_out,sbj_name,data.label,project_name,locktype);
     saveas(gcf,fn_out)
     close

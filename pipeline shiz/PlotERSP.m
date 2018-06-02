@@ -39,7 +39,7 @@ gusWin= gausswin(winSize)/sum(gausswin(winSize));
 
 %% 
 
-plot_data = cell(1,conds);
+plot_data = cell(1,length(conds));
 % ntrials = size(data.wave,2);
 
 for ci = 1:ncategs
@@ -56,9 +56,10 @@ end
 % plot data
 for ci = 1:ncategs
     subplot(1,ncategs+1,ci)
-    data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
+    data_tmp = abs(squeeze(nanmean(plot_data{ci},2))); % average across trials
     data_tmp = convn(data_tmp,gusWin','same');
-    imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
+    imagesc(data.time,1:length(data.freqs),data_tmp)
+%     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
     axis xy
     hold on
     colormap(plot_params.cmap);
@@ -73,10 +74,10 @@ for ci = 1:ncategs
 end
 
 set(gcf,'color','w')
-set(gcf,'fontsize',plot_params.textsize)
+set(gca,'fontsize',plot_params.textsize)
 
 if strcmp(plot_params.label,'name')
-    suptitle(data.chanlabel)
+    suptitle(data.label)
 elseif strcmp(plot_params.label,'number')
     suptitle('Elec ',num2str(el))
 end

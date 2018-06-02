@@ -1,6 +1,23 @@
 function EventIdentifier (sbj_name, project_name, block_names, dirs)
 %% Globar Variable elements
 
+switch project_name
+    case 'MMR'
+        n_stim_per_trial = 1;
+        n_initpulse = 12;
+    case 'Memoria_math'
+        n_stim_per_trial = 5;
+        n_initpulse = 12;
+    case 'Memoria_memory'
+        n_stim_per_trial = 4;
+        n_initpulse = 12;
+    case 'Calculia'
+        n_stim_per_trial = 5;
+        n_initpulse = 12;
+    case 'Calculia_production'
+        n_stim_per_trial = 3;
+        n_initpulse = 0; % maybe change to 12
+end
 
 %% loop across blocks
 for i = 1:length(block_names)
@@ -45,7 +62,12 @@ for i = 1:length(block_names)
     
     %% varout is anlg (single percision)
     downRatio= round(globalVar.Pdio_rate/iEEG_rate);
-    pdio= decimate(double(anlg),downRatio)*-1; % down sample to the iEEG rate and make it positive
+    if max(anlg) < max(abs(anlg))
+       pdio= decimate(double(anlg),downRatio)*-1; % down sample to the iEEG rate and make it positive ?
+    else
+       pdio= decimate(double(anlg),downRatio); % down sample to the iEEG rate and make it positive ?
+    end
+   
     clear anlg
     
     pdio = pdio/max(pdio)*2;
@@ -62,9 +84,8 @@ for i = 1:length(block_names)
     pdio_offset= offset/iEEG_rate;
     
     % %remove onset flash
-    
-    % pdio_onset(1:12)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
-    % pdio_offset(1:12)=[]; %
+    pdio_onset(1:n_initpulse)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
+    pdio_offset(1:n_initpulse)=[]; %
     
     
     %get osnets from diode
@@ -80,7 +101,6 @@ for i = 1:length(block_names)
     stim_dur= stim_offset - stim_onset;
     
     %% Get trials, insturuction onsets
-    n_stim_per_trial = 3;
     all_stim_onset = NaN*ones(lsi,n_stim_per_trial); %% the second input is project dependent
     
     rest_onset = [];
@@ -99,7 +119,6 @@ for i = 1:length(block_names)
     %%% WHY IS THE LAST EVETN OF THE LAST TRIAL NAN???? Doesnt matter much
     %%% cause we are using only the 1 column.
     
-        
     %plot each presentation in trial
     figureDim = [0 0 1 1];
     figure('units', 'normalized', 'outerposition', figureDim)
@@ -139,19 +158,23 @@ for i = 1:length(block_names)
     end
     
     %% Segment audio from mic
-    % adapt: segment_audio_mic 
-     load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-     K.slist = slist;
-  
+    % adapt: segment_audio_mic
+    switch project_name
+        case 'Calculia_EBS'
+        case 'Calculia_production'
+            load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+            K.slist = slist;
+    end
     
-    %% Updating the events with onsets. 
+    
+    %% Updating the events with onsets 
     trialinfo = K.slist;
     trialinfo.block = repmat(i,size(K.slist,1),1);
     trialinfo.RT = RT'; % from PsychToolBox! 
     trialinfo.sbj_resp = sbj_resp'; % from PsychToolBox! 
-    trialinfo.allonsets = round(all_stim_onset);
+    trialinfo.allonsets = all_stim_onset;
 %     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
-    trialinfo.RT_lock = round(K.slist.onset_prod/(globalVar.Pdio_rate));
+    trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
     % update that
     
     %% Save trialinfo   
