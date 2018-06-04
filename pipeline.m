@@ -9,21 +9,39 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
 sbj_name = 'S18_124';
+sbj_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
 sbj_name = 'S14_64_SP';
 
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
+
+% retrieve data format
+data_format = 'nihon_kohden';
+
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
 
-%% Manually copy the EDF and behavioral files to their folders
-% Script in terminal?
+%% Copy the iEEG and behavioral files from server to local folders
+% Login to the server first?
+% Should we rename the channels at this stage to match the new naming?
+% This would require a table with chan names retrieved from the PPT
+parfor i = 1:length(block_names)
+    CopyFilesServer(sbj_extended_name,project_name,block_names{i},data_format,dirs)
+end
+
 
 %% Branch 2 - data conversion - PEDRO
 ref_chan = [];
 epi_chan = [];
-SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
+empty_chan = []; % Do we need that? 
+if strcmp(data_format, 'edf')
+    SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
+elseif strcmp(data_format, 'nihon_kohden')
+    SaveDataDecimate(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
+else
+    error('Data format has to be either edf or nihon_kohden') 
+end
 
 %% Branch 3 - event identifier
 % For each class of tasks:
@@ -86,6 +104,21 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_ad
 
 PlotERSPAll(sbj_name,project_name,block_names,dirs,105,'stim','conds_addsub',[],'none',[])
 % cbrewer 2. FIX
+
+
+%% Branch 8 - integrate brain and electrodes location MNI and native and other info
+% Lin's help
+% Save to globalVar
+
+% demographics 
+    % date of implantation
+    % birth data
+    % age
+    % gender
+    % handedness
+    % IQ full
+    % IQ verbal
+    % ressection?
 
 
 %% Branch 6 - time-frequency analyses - AMY
