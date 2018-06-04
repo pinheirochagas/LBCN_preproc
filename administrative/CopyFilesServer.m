@@ -28,16 +28,14 @@ if strcmp(data_format, 'nihon_kohden')
 elseif strcmp(data_format, 'edf')
     
     data_ieeg_path = sprintf('%sSHICEP_%s/Data_ECoG/%s/%s/%s',dirs.server_root,sbj_name, project_name);
-    data_behavior_path = sprintf('%sSHICEP_%s/Analyzed Data/%s/Beh/',dirs.server_root,sbj_name, project_name);
+    data_behavior_path = sprintf('%sSHICEP_%s/Data_Behavioral/%s/Beh/',dirs.server_root,sbj_name, project_name);
     
-    iEEG_name = dir(fullfile(data_ieeg_path, sprintf('%s.mat', block_name)));
-    soda_name = dir(fullfile(data_behavior_path, sprintf('sodata.%s*.mat', block_name)));
+    iEEG_name = dir(fullfile(data_ieeg_path, sprintf('%s*.edf', block_name)));
+    fn = [iEEG_name.folder '/' iEEG_name.name];
+    copyfile(fn, globalVar.originalData)
 
-    
-    
-    data_dir = [dirs.original_data '/' sbj_name '/' bn]; % directory for saving data
-    fname =  [dirs.original_data '/' sbj_name '/' bn '/' bn '.edf'];
-    % complete
+    soda_name = dir(fullfile(data_behavior_path, sprintf('sodata.%s*.mat', block_name)));
+    % for the moment let it manual to complete
 else
 end
 

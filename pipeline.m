@@ -34,7 +34,7 @@ end
 %% Branch 2 - data conversion - PEDRO
 ref_chan = [];
 epi_chan = [];
-empty_chan = []; % Do we need that? 
+empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
 elseif strcmp(data_format, 'nihon_kohden')

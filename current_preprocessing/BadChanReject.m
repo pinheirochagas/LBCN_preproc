@@ -37,7 +37,7 @@ for i = 1:length(bns)
     data=single(data);
     
     %% Run algorithm
-    bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan];
+    bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan globalVar.emptyChan];
     a=var(data);
     b=find(a>(5*median(a))); % 5 * greated than median. 
     c=find(a<(median(a)/5));
