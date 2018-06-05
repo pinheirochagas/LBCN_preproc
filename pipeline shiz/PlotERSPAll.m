@@ -39,6 +39,7 @@ if nargin < 10 || isempty(plot_params)
     plot_params.clim = [-2 2];
     plot_params.bl_win = [-0.5 0];
     plot_params.sm = 0.05;
+    plot_params.blc = true;
 end
 
 if nargin < 9 || isempty(noise_method)
@@ -67,10 +68,14 @@ for ei = 1:length(elecs)
     for bi = 1:length(block_names)
         bn = block_names{bi};
         dir_in = [dirs.data_root,'/SpecData/',sbj_name,'/',bn,'/EpochData/'];
-        load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el)); 
         
-        data_blc = BaselineCorrect(data,plot_params.bl_win,noise_method); % baseline correct within block
-       
+        if plot_params.blc
+            load(sprintf('%s/SpeciEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,locktype,bn,el));
+        else
+            load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el));
+        end
+        
+               
         % concatenante EEG data along trial dimension (across blocks)
         data_all.wave = cat(2,data_all.wave,data.wave);
         

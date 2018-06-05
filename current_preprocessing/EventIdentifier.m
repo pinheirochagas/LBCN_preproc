@@ -125,10 +125,10 @@ for i = 1:length(block_names)
     subplot(2,3,1:3)
     hold on
     plot(pdio)
-    plot(all_stim_onset(:,1)*iEEG_rate,0.9*ones(lsi,1),'r*');
-    plot(all_stim_onset(:,2)*iEEG_rate,0.7*ones(lsi,1),'b*');
-    plot(all_stim_onset(:,3)*iEEG_rate,0.5*ones(lsi,1),'g*');
     
+    for i = 1:size(all_stim_onset,2)
+        plot(all_stim_onset(:,1)*iEEG_rate,0.9*ones(lsi,1),'r*');
+    end
     
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial

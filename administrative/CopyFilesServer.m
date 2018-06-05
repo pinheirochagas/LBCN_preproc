@@ -1,7 +1,12 @@
 function CopyFilesServer(sbj_name,project_name, block_name,data_format,dirs)
 
+
 % Load globalVar
-fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_name);
+sbj_name_split = strsplit(sbj_name, '_');
+sbj_name_anno = [sbj_name_split{1} '_' sbj_name_split{2}];
+
+    
+fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name_anno,project_name,sbj_name_anno,block_name);
 load(fn,'globalVar');
 % Data path server
 

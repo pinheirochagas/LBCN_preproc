@@ -1,4 +1,4 @@
-function data_blc = BaselineCorrect(data,bl_win,noise_method)
+function data_blc = BaselineCorrect(data,bl_win)
 % This function baseline corrects epoched data based on specified baseline
 % window. It also rejects noisy trials or noisy timepts (i.e. sets to NaN)
 % if specified in noise_method variable
@@ -13,13 +13,13 @@ function data_blc = BaselineCorrect(data,bl_win,noise_method)
 %                       'trial':    exclude noisy trials (set to NaN)
 %                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
 
-if ndims(data)==3
+if ndims(data.wave)==3
     datatype = 'Spec';
 else
     datatype = 'NonSpec';
 end
 
-% If baseline data is a separate input, eliminate bad trials of baseline data
+%% If baseline data is a separate input, eliminate bad trials of baseline data
 if isstruct(bl_win)
     sep_bl = true;
     if strcmp(datatype,'Spec')
@@ -32,27 +32,12 @@ else
     bl_inds = data.time >= bl_win(1) & data.time <= bl_win(2);
 end
 
-if strcmp(noise_method,'trial')
-    if strcmp(datatype,'Spec')
-        data.wave(:,data.trialinfo.badtrials,:)=NaN;
-    else
-        data.wave(data.trialinfo.badtrials,:)=NaN;
-    end
-elseif strcmp(noise_method,'timepts')
-    for ti = 1:ntrials
-        if strcmp(datatype,'Spec')
-            data.wave(:,ti,data.trialinfo.badinds{ti})=NaN;
-        else
-            data.wave(ti,data.trialinfo.badinds{ti})=NaN;
-        end
-    end
-end
-
+%% Extract data from baseline period and compute baseline
 if strcmp(datatype,'Spec')
     if sep_bl
-        bl_data = abs(bl_win.wave);
+        bl_data = abs(bl_win.wave(:,~data.trialinfo.badtrials,:));
     else
-        bl_data = abs(data.wave(:,:,bl_inds));
+        bl_data = abs(data.wave(:,~data.trialinfo.badtrials,bl_inds));
     end
     tmp_dims = size(bl_data);
     bl_data = reshape(bl_data,[tmp_dims(1),tmp_dims(2)*tmp_dims(3)]);
@@ -61,11 +46,11 @@ if strcmp(datatype,'Spec')
     bl_sd = nanstd(bl_data,[],2);
     bl_sd = repmat(bl_sd,[1,size(data.wave,2),size(data.wave,3)]);
        
-else
+else % e.g. HFB data, no frequency dimension
     if sep_bl
-        bl_data = bl_win.wave;
+        bl_data = bl_win.wave(~data.trialinfo.badtrials,:);
     else
-        bl_data = data.wave(:,bl_inds);
+        bl_data = data.wave(~data.trialinfo.badtrials,bl_inds);
     end
     bl_mn = nanmean(bl_data(:));
     bl_sd = nanstd(bl_data(:));

@@ -1,4 +1,4 @@
-function SaveDataNihonKohden(sbj_name, project_name, block_name, dirs, refChan, epiChan)
+function SaveDataNihonKohden(sbj_name, project_name, block_name, dirs, refChan, epiChan, emptyChan)
 
 %% load the data to define and eliminate bad channels
 
@@ -81,6 +81,7 @@ for i = 1:length(block_name)
     globalVar.nchan = length(globalVar.channame);
     globalVar.refChan = refChan;
     globalVar.epiChan = epiChan; 
+    globalVar.emptyChan = emptyChan;
     
     save(fn,'globalVar');
     disp('globalVar updated')

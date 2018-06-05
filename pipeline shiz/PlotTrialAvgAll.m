@@ -41,9 +41,8 @@ if nargin < 12 || isempty(plot_params)
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';
     plot_params.freq_range = [70 180];
-    plot_params.bl_win = [-0.2 0];
-%     plot_params.xlim = [-0.2 6];
-    plot_params.xlim = [-6 1];
+%     plot_params.xlim = [data.time(1), data.time(end)];
+    plot_params.blc = true;
 end
 
 if nargin < 11 || isempty(noise_method)
@@ -86,15 +85,21 @@ for ei = 1:length(elecs)
     for bi = 1:length(block_names)
         bn = block_names{bi};
         dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn,'/EpochData/'];
-        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,el));
         
-        data_blc = BaselineCorrect(data,plot_params.bl_win,noise_method); % baseline correct within block
+        if plot_params.blc
+            load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,el));
+        else
+            load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,el));
+        end
+        % Set xlim
+        plot_params.xlim = [data.time(1), data.time(end)];
+
         
         % concatenante EEG data
         if strcmp(datatype,'Spec')
-            data_all.wave = cat(2,data_all.wave,data_blc.wave);
+            data_all.wave = cat(2,data_all.wave,data.wave);
         else 
-            data_all.wave = cat(1,data_all.wave,data_blc.wave);
+            data_all.wave = cat(1,data_all.wave,data.wave);
         end
         
         % concatenate trial info

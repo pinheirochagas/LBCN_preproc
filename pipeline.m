@@ -9,7 +9,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
 sbj_name = 'S18_124';
-sbj_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
+sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
 sbj_name = 'S14_64_SP';
 
 block_names = BlockBySubj(sbj_name,project_name);
@@ -17,6 +17,7 @@ block_names = BlockBySubj(sbj_name,project_name);
 
 % retrieve data format
 data_format = 'nihon_kohden';
+data_format = 'edf';
 
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
@@ -36,9 +37,9 @@ ref_chan = [];
 epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
-    SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
+    SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
 elseif strcmp(data_format, 'nihon_kohden')
-    SaveDataDecimate(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan) %
+    SaveDataDecimate(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
 else
     error('Data format has to be either edf or nihon_kohden') 
 end
@@ -67,40 +68,34 @@ parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
 end
 
-%% Branch 6 - Epoching and identification of bad epochs
+%% Branch 6 - Epoching, identification of bad epochs and baseline correction
 % Bad epochs identification
 %      Step 1. based on the raw signal
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the spikes in the HFB signal
-bl_correct.run = 'baseline_correct'; % or 'no_baseline_correct'
-bl_correct.lockevent = 'stim';
-bl_correct.window = [-.2 0];
-bl_correct.noise_method = 'timestmps';
-
+blc_params.run = true; % or false
+blc_params.locktype = 'stim';
+blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
-%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[])
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[])
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
-EpochDataAll(sbj_name, project_name, block_names, dirs,[],'stim', [], 6, 'HFB', [],[], bl_correct)
-EpochDataAll(sbj_name, project_name, block_names, dirs,[],'resp', -6, 1, 'HFB', [],[], bl_correct)
-% Baseline correction option
+parfor i = 1:length(block_names)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'HFB', [],[], blc_params)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'Spec', [],[], blc_params)
+end
 
 %% Branch 7 - plotting OY AND YO
 plot_params = [];
 plot_params.smooth =
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'none',[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[])
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
-%%%%%%%%%%%%%%%%%%%%
-% Baseline correction has always to consider the stim lock, not the resp
-% lock!
-%%%%%%%%%%%%%%%%%%%%%%
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
-%%%%%%%%%%%%%%%%%%%%%%%
 
 PlotERSPAll(sbj_name,project_name,block_names,dirs,105,'stim','conds_addsub',[],'none',[])
 % cbrewer 2. FIX
@@ -121,48 +116,8 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,105,'stim','conds_addsub',[],
     % ressection?
 
 
-%% Branch 6 - time-frequency analyses - AMY
-%substitute for wavelet filter
-% data.wave   (freq x time)
-% 	.fsample
-% 	.time
-% 	.label
-
-
-% change output to fildtrip
-% data.wave  (1 x time)
-% 	.fsample
-% 	.time
-% 	.label
-
-% Branch 3 - cleaning - AMY
-get_bad_epochs_calculia_production
-% add su' method
-
-
-% Branch 5 - epoching - AMY
-% to be added
-% epoched
-% data.wave (freq x trial x time)
-% 	.trialinfo (Pedro will provide code to convert to table)
-%         trialinfo.bad_trial: 0 for bad and 1 for good.
-% 	.fsample
-% 	.time
-% 	.label
-%
-% epoched
-% data.wave (trial x time) - non decomposed
-% 	.trialinfo (Pedro will provide code to convert to table)
-% 	.fsample
-% 	.time
-% 	.label
-
-
-
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
-
-
 
 
 % 2. Stimuli identity to TTL

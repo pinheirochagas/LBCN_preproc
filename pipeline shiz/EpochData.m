@@ -25,9 +25,9 @@ end
 for i = 1:ntrials
     inds = start_inds(i)+bef_ind:start_inds(i)+aft_ind;
     if nfreq > 1
-        epoched_data.wave(:,i,:)=data(:,inds);
+        epoched_data.wave(:,i,:)=data.wave(:,inds);
     else
-        epoched_data.wave(i,:)=data(inds);
+        epoched_data.wave(i,:)=data.wave(inds);
     end
 end
 

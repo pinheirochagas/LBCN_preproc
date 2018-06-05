@@ -16,9 +16,9 @@ chan=cell(length(pChan),2);
 %     chan(i,:) = strsplit(pChan{i},'-');
 % end
 T = length(onsetTS);
-onsetTS = onsetTS*fsample;
-bef_time = bef_time*fsample;
-aft_time = aft_time*fsample;
+onsetTS = round(onsetTS*fsample);
+bef_time = round(bef_time*fsample);
+aft_time = round(aft_time*fsample);
 win_size = fsample/10;
 
 for i = 1:length(pChan)
@@ -49,7 +49,7 @@ for i = 1:length(chanNames)
         end
     end
     for k = 1:T % Across trials 
-        behInd = onsetTS(k) + bef_time:aft_time;
+        behInd = onsetTS(k) + (bef_time:aft_time);
         if sum(ismember(pindc,behInd)) ~= 0
             bad_epochs{i}(n) = k;
             n = n+1;
