@@ -65,5 +65,5 @@ end
 wave_out.freqs = freqs;
 wave_out.wavelet_span = span;
 wave_out.time = time(1:ds:end);
-wave_out.fsample = fsample/ds;
+wave_out.fsample = round(fsample/ds);
 

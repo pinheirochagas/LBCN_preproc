@@ -44,6 +44,22 @@ else
     error('Data format has to be either edf or nihon_kohden') 
 end
 
+% Convert berhavioral data to trialinfo
+OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs)
+
+
+%%Plug into OrganizeTrialInfoCalculiaProduction, OrganizeTrialInfoNumberConcatActive, OrganizeTrialInfoCalculiaEBS
+
+    %% Segment audio from mic
+    % adapt: segment_audio_mic
+    switch project_name
+        case 'Calculia_EBS'
+        case 'Calculia_production'
+            load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+            K.slist = slist;
+    end
+%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Branch 3 - event identifier
 % For each class of tasks:
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
@@ -65,7 +81,7 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 % Creates the first instance of data structure
 parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
+%     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
@@ -79,7 +95,7 @@ blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
 parfor i = 1:length(block_names)
@@ -88,10 +104,9 @@ parfor i = 1:length(block_names)
 end
 
 %% Branch 7 - plotting OY AND YO
-plot_params = [];
-plot_params.smooth =
-
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[])
+PlotTrialAvgAll(sbj_name,project_name,block_names(2),dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[])
+
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.

@@ -28,38 +28,11 @@ for i = 1:length(block_names)
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
     iEEG_rate=globalVar.iEEG_rate;
     
-    %% Reading PsychData BAHAVIORAL DATA
-    
-    % ---------------------------------------------
-    % Create specific subfunctions to extract the relevant info for each
-    % project_name
-    soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
-    K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
-        
-    lsi= length(K.theData);
-    
-    SOT= nan(1,lsi);
-    sbj_resp= nan(1,lsi);
-    RT = [K.theData.RT];
-    for si= 1:lsi %
-        if (~isempty(K.theData(si).flip))
-            SOT(si)= K.theData(si).flip.StimulusOnsetTime; %% time between
-            if ~isnan(str2num(K.theData(si).keys))
-                sbj_resp(si)= str2num(K.theData(si).keys(1));
-            else
-                sbj_resp(si)= NaN;
-            end
-        end
-    end
-    %
 
-    % ---------------------------------------------
-    
-    %return
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,bn)); % going to be present in the globalVar
      
-    
+   
     %% varout is anlg (single percision)
     downRatio= round(globalVar.Pdio_rate/iEEG_rate);
     if max(anlg) < max(abs(anlg))
@@ -101,38 +74,38 @@ for i = 1:length(block_names)
     stim_dur= stim_offset - stim_onset;
     
     %% Get trials, insturuction onsets
-    all_stim_onset = NaN*ones(lsi,n_stim_per_trial); %% the second input is project dependent
+    all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)'; %% the second input is project dependent
+    %reshape onsets to account for the number of events in each trial
     
-    rest_onset = [];
-    rest_offset = [];
-       
-    % SIMPLIFY THAT AND MAKE IT PROJECT DEPENDENT
-    
-    counter = 1;
-    for ti = 1:lsi
-        end_counter = min(counter+n_stim_per_trial,length(stim_onset));
-        numinds = end_counter-counter;
-        all_stim_onset(ti,1:numinds) = stim_onset(counter:counter+numinds-1);
-        counter = counter + n_stim_per_trial;
-    end
-    
-    %%% WHY IS THE LAST EVETN OF THE LAST TRIAL NAN???? Doesnt matter much
-    %%% cause we are using only the 1 column.
-    
-    %plot each presentation in trial
+   % Plot photodiode segmented data
     figureDim = [0 0 1 1];
     figure('units', 'normalized', 'outerposition', figureDim)
     subplot(2,3,1:3)
     hold on
     plot(pdio)
-    
-    for i = 1:size(all_stim_onset,2)
-        plot(all_stim_onset(:,1)*iEEG_rate,0.9*ones(lsi,1),'r*');
+   
+    % Event onset
+    for i = 1:size(stim_onset,2)
+        plot(stim_onset(i)*iEEG_rate,0.9*ones(length(stim_onset),1),'r*');
     end
     
+    
+    %% Load trialinfo 
+    % ---------------------------------------------
+    % Create specific subfunctions to extract the relevant info for each
+    % project_name
+    load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
+
+    % Add the all_stim_onset
+    event_trials = find(~strcmp(trialinfo.condNames, 'rest'));
+    rest_trials = find(strcmp(trialinfo.condNames, 'rest'));
+
+    StimulusOnsetTime = trialinfo.StimulusOnsetTime(event_trials);
+        
+      
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial
-    df_SOT= diff(SOT);
+    df_SOT= diff(StimulusOnsetTime)';
     % df_stim_onset= diff(stim_onset_fifth); %fifth? why?
     df_stim_onset = diff(all_stim_onset(:,1))';
     %plot overlay
@@ -157,25 +130,22 @@ for i = 1:length(block_names)
         disp('behavioral data and photodiod mismatch'),return
     end
     
-    %% Segment audio from mic
-    % adapt: segment_audio_mic
-    switch project_name
-        case 'Calculia_EBS'
-        case 'Calculia_production'
-            load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-            K.slist = slist;
-    end
-    
     
     %% Updating the events with onsets 
-    trialinfo = K.slist;
-    trialinfo.block = repmat(i,size(K.slist,1),1);
-    trialinfo.RT = RT'; % from PsychToolBox! 
-    trialinfo.sbj_resp = sbj_resp'; % from PsychToolBox! 
-    trialinfo.allonsets = all_stim_onset;
-%     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
-    trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
+    trialinfo.allonsets(event_trials,:) = all_stim_onset;
+    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
+%     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
     % update that
+    
+    % Include the rest events FIX THIS, REST EVENT ONSET SEEMS ODD!!!
+%     if ~isempty(rest_trials)
+%         for i = 1:length(rest_trials)
+%             onset_rest(i,1) = trialinfo.allonsets(rest_trials(i)-1,end) + trialinfo.RT(rest_trials(i)-1) + ISI?;
+%         end
+%     else
+%     end
+%     trialinfo.allonsets(rest_trials,:) = onset_rest;
+    
     
     %% Save trialinfo   
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);

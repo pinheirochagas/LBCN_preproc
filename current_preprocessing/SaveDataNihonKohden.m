@@ -15,7 +15,7 @@ for i = 1:length(block_name)
     
     % Downsampling parametere
     target_fs = 1000; % 
-    target_fs_comp = target_fs/5; % reduced fs for spectral data 
+    target_fs_comp = round(target_fs/5); % reduced fs for spectral data 
     
     if fs <= target_fs
         ecog_ds = 1;
