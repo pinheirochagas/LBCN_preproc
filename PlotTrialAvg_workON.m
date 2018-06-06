@@ -1,4 +1,4 @@
-function PlotTrialAvg(data,column,conds,col,plot_params, noise_method)
+function PlotTrialAvg(data,column,varargin)
 
 % plots average timecourse for each condition, separately for each electrode
 % INPUTS:
@@ -18,18 +18,106 @@ function PlotTrialAvg(data,column,conds,col,plot_params, noise_method)
 %                       .freq_range: frequency range to extract (only applies to spectral data)
 %                       .bl_win: baseline correction window
 %                       .xlim
+
+[datatype, plot_params, col, conds] = parseArgs(varargin)
+
 load('cdcol.mat')
+
+
+
+%% 
+
+winSize = floor(data.fsample*plot_params.sm);
+gusWin= gausswin(winSize)/sum(gausswin(winSize));
+
+plot_data = cell(1,ncategs);
+
+if strcmp(datatype,'Spec')
+    freq_inds = data.freqs >= plot_params.freq_range(1) & data.freqs <= plot_params.freq_range(2);
+    data.wave = squeeze(nanmean(abs(data.wave(freq_inds,:,:))));  % avg across freq. domain
+end
+
+% organize trials by categories
+for ci = 1:ncategs
+    trials = ismember(data.trialinfo.(column),conds{ci});
+    plot_data{ci}=cat(1,plot_data{ci},data.wave(trials,:));
+end
+
+
+% smooth and plot data
+for ci = 1:ncategs
+    plot_data{ci} = convn(plot_data{ci},gusWin','same');
+    lineprops.col{1} = col(ci,:);
+    if plot_params.single_trial == true
+        plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5])
+    else
+    if ~strcmp(plot_params.eb,'none')
+        lineprops.style= '-';
+        lineprops.width = plot_params.lw;
+        lineprops.edgestyle = '-';
+        if strcmp(plot_params.eb,'ste')
+            mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+            hold on
+        else %'std'
+            mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
+            hold on
+        end
+    end
+    end
+    h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',col(ci,:));
+    hold on
+end
+xlim(plot_params.xlim)
+
+xlabel(plot_params.xlabel);
+ylabel(plot_params.ylabel)
+
+set(gcf,'color','w')
+set(gca,'fontsize',plot_params.textsize)
+box off
+
+if (plot_params.legend)
+    leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
+    legend boxoff
+    set(leg,'fontsize',14)
+end
+
+if strcmp(plot_params.label,'name')
+    title(data.label)
+elseif strcmp(plot_params.label,'number')
+    title('Elec ',num2str(el))
+end
+
+plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
+plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
+
+box on % Pedro concluded
+
+
+
+    function [datatype, plot_params, col, conds] = parseArgs(args)
+        % Prelocate args
+        pvalues = [];
+        args = stripArgs(args);
+        while ~isempty(args)
+            switch(lower(args{1}))
+                case 'pvalues'
+                    pvalues = args{2};
+                    args = args(2:end);
+                otherwise
+                    error('Unsupported argument "%s"!', args{1});
+            end
+            args = stripArgs(args(2:end));
+        end
+    end
+
+
 
 if ndims(data.wave)==3 % if spectral data
     datatype = 'Spec';
 else
     datatype = 'NonSpec';
 end
-
-if isempty(noise_method)
-    noise_method = 'trials';
-end
-
 
 if nargin < 5 || isempty(plot_params)
     plot_params.single_trial = false;
@@ -63,79 +151,4 @@ if nargin < 3 || isempty(conds)
     conds = unique(data.trialinfo.(column));
 end
 ncategs = length(conds);
-
-%%
-
-winSize = floor(data.fsample*plot_params.sm);
-gusWin= gausswin(winSize)/sum(gausswin(winSize));
-
-plot_data = cell(1,ncategs);
-
-if strcmp(datatype,'Spec')
-    freq_inds = data.freqs >= plot_params.freq_range(1) & data.freqs <= plot_params.freq_range(2);
-    data.wave = squeeze(nanmean(abs(data.wave(freq_inds,:,:))));  % avg across freq. domain
-end
-
-% organize trials by categories
-if strcmp(noise_method, 'trials')
-    for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci}) && data.trialinfo.badtrials == false;
-        plot_data{ci}=cat(1,plot_data{ci},data.wave(trials,:));
-    end
-else
-    for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci});
-        plot_data{ci}=cat(1,plot_data{ci},data.wave(trials,:));
-    end
-end
-
-% smooth and plot data
-for ci = 1:ncategs
-    plot_data{ci} = convn(plot_data{ci},gusWin','same');
-    lineprops.col{1} = col(ci,:);
-    if plot_params.single_trial == true
-        plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5])
-    else
-        if ~strcmp(plot_params.eb,'none')
-            lineprops.style= '-';
-            lineprops.width = plot_params.lw;
-            lineprops.edgestyle = '-';
-            if strcmp(plot_params.eb,'ste')
-                mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
-                hold on
-            else %'std'
-                mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
-                hold on
-            end
-        end
-    end
-    h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',col(ci,:));
-    hold on
-end
-xlim(plot_params.xlim)
-
-xlabel(plot_params.xlabel);
-ylabel(plot_params.ylabel)
-
-set(gcf,'color','w')
-set(gca,'fontsize',plot_params.textsize)
-box off
-
-if (plot_params.legend)
-    leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
-    legend boxoff
-    set(leg,'fontsize',14)
-end
-
-if strcmp(plot_params.label,'name')
-    title(data.label)
-elseif strcmp(plot_params.label,'number')
-    title('Elec ',num2str(el))
-end
-
-plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
-plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
-
-box on % Pedro concluded
-
 

@@ -32,6 +32,7 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,l
 load('cdcol.mat')
 
 if nargin < 12 || isempty(plot_params)
+    plot_params.single_trial = true;
     plot_params.eb = 'ste';
     plot_params.lw = 3;
     plot_params.legend = true;
@@ -114,7 +115,7 @@ for ei = 1:length(elecs)
     data_all.fsample = data.fsample;
     data_all.label = data.label;
     
-    PlotTrialAvg(data_all,column,conds,col,plot_params)
+    PlotTrialAvg(data_all,column,conds,col,plot_params, noise_method)
     fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,locktype);
     saveas(gcf,fn_out)
     close

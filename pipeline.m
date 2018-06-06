@@ -105,9 +105,10 @@ end
 
 %% Branch 7 - plotting OY AND YO
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[])
-PlotTrialAvgAll(sbj_name,project_name,block_names(2),dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[])
-
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
+
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[])
+
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
