@@ -64,11 +64,11 @@ if nargin < 8 || isempty(fs_targ)
     fs_targ = globalVar.fs_comp;
 end
 
-for ei = 1:length(elecs)
+for ei = 42%:length(elecs)
     el = elecs(ei);
     load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
     % First instance of data structure
-    data = WaveletFilter(wave,globalVar.iEEG_rate,globalVar.fs_comp,freqs,span,norm, avgfreq);
+    data = WaveletFilter(wave,globalVar.iEEG_rate,fs_targ,freqs,span,norm, avgfreq);
     data.label = globalVar.channame{el};
     if strcmp(freq_band,'HFB')
         fn_out = sprintf('%s/HFBiEEG%s_%.2d.mat',dir_out,bn,el);

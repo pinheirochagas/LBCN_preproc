@@ -117,7 +117,7 @@ for ei = 1:length(elecs)
     clear ep_data
     data.trialinfo = trialinfo;
     
-    % epoch rejection
+    %% Epoch rejection
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before
         %epoch rejection
@@ -126,13 +126,17 @@ for ei = 1:length(elecs)
         [badtrials, badinds] = epoch_reject_raw(data.wave,thr_raw,thr_diff);
     end
     
+    %% Method 2, SU's
+    badtrials_SU = LBCN_filt_bad_trial(data.wave',data.fsample*5);
+   
     
     %% Update trailinfo and globalVar with bad trials and bad indices
     data.trialinfo.badtrials_raw = badtrials;
     badtrial_HFO = zeros(size(data.trialinfo,1),1,1);
     badtrial_HFO(bad_epochs_HFO{el}) = 1;
     data.trialinfo.badtrials_HFO = logical(badtrial_HFO);
-    data.trialinfo.badtrials = data.trialinfo.badtrials_HFO | data.trialinfo.badtrials_raw;
+    data.trialinfo.badtrials_SU = badtrials_SU'; % based on spikes in the raw signal
+    data.trialinfo.badtrials = data.trialinfo.badtrials_HFO | data.trialinfo.badtrials_raw | data.trialinfo.badtrials_SU;
     
     data.trialinfo.badinds_raw = badinds.raw'; % based on the raw signal
     data.trialinfo.badinds_diff = badinds.diff'; % based on spikes in the raw signal

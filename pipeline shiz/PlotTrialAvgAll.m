@@ -32,7 +32,7 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,l
 load('cdcol.mat')
 
 if nargin < 12 || isempty(plot_params)
-    plot_params.single_trial = true;
+    plot_params.single_trial = false;
     plot_params.eb = 'ste';
     plot_params.lw = 3;
     plot_params.legend = true;

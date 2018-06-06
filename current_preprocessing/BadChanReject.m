@@ -102,11 +102,10 @@ for i = 1:length(bns)
     
     % Prompt for bad channels
     bad_chan_spec = promptBadChanSpec; % of the remaining channels
-    bad_chan_spec_lab = chan_lbls(bad_chan_spec); % returns the original channel number
     close all
     
     % Update globalVar.badChan 
-    globalVar.badChan = [bad_chan_spec_lab globalVar.badChan];
+    globalVar.badChan = [bad_chan_spec globalVar.badChan];
     
     %% Bad channel detection step 4: Bad channel detection based on HFOs
     [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
