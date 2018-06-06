@@ -5,6 +5,8 @@ parpool(16) % initialize number of cores
 %% Initialize Directories
 project_name = 'Calculia_production';
 project_name = 'MMR';
+project_name = 'Memoria';
+
 dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
@@ -16,7 +18,7 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % retrieve data format
-data_format = 'nihon_kohden';
+data_format = 'TDT';
 data_format = 'edf';
 
 CreateFolders(sbj_name, project_name, block_names, dirs)
@@ -46,6 +48,8 @@ end
 
 % Convert berhavioral data to trialinfo
 OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs)
+OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+
 %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
 
 %%Plug into OrganizeTrialInfoCalculiaProduction, OrganizeTrialInfoNumberConcatActive, OrganizeTrialInfoCalculiaEBS
@@ -63,6 +67,8 @@ OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs)
 %% Branch 3 - event identifier
 % For each class of tasks:
 EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
+EventIdentifier_Amy (sbj_name, project_name, block_names, dirs)
+
 % Make sure there is no nan in the last event (which in MMR is critical, since there is only one event per trial)
 % Multiply pdio by -1?
 % input the number of initial pulses - GET FUNCTION FROM YING.

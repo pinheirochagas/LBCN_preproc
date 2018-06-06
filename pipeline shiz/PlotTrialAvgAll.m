@@ -42,7 +42,7 @@ if nargin < 12 || isempty(plot_params)
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';
     plot_params.freq_range = [70 180];
-%     plot_params.xlim = [data.time(1), data.time(end)];
+    plot_params.xlim = [-.2, 2];
     plot_params.blc = true;
 end
 
@@ -93,7 +93,7 @@ for ei = 1:length(elecs)
             load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,el));
         end
         % Set xlim
-        plot_params.xlim = [data.time(1), data.time(end)];
+%         plot_params.xlim = [data.time(1), data.time(end)];
 
         
         % concatenante EEG data
