@@ -46,7 +46,7 @@ end
 
 % Convert berhavioral data to trialinfo
 OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs)
-
+%%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
 
 %%Plug into OrganizeTrialInfoCalculiaProduction, OrganizeTrialInfoNumberConcatActive, OrganizeTrialInfoCalculiaEBS
 
