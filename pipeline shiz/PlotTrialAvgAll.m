@@ -37,12 +37,12 @@ if nargin < 12 || isempty(plot_params)
     plot_params.lw = 3;
     plot_params.legend = true;
     plot_params.label = 'name';
-    plot_params.sm = 0.05;
+    plot_params.sm = 0.1;
     plot_params.textsize = 20;
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';
     plot_params.freq_range = [70 180];
-    plot_params.xlim = [-.2, 2];
+    plot_params.xlim = [-.2, 7];
     plot_params.blc = true;
 end
 
@@ -51,8 +51,8 @@ if nargin < 11 || isempty(noise_method)
 end
 
 if nargin < 10 || isempty(col)
-    col = [cdcol.carmine;
-        cdcol.ultramarine;
+    col = [cdcol.ultramarine;
+        cdcol.carmine;
         cdcol.grassgreen;
         cdcol.lilac;
         cdcol.yellow;
@@ -117,6 +117,7 @@ for ei = 1:length(elecs)
     
     PlotTrialAvg(data_all,column,conds,col,plot_params, noise_method)
     fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,locktype);
+%     savePNG(gcf, 600, fn_out)
     saveas(gcf,fn_out)
     close
 end

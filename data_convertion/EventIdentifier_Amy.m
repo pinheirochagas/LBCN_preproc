@@ -113,10 +113,8 @@ for i = 1:length(block_names)
     plot(pdio)
    
     % Event onset
-    for i = 1:size(stim_onset,2)
-        plot(stim_onset(i)*iEEG_rate,0.9*ones(length(stim_onset),1),'r*');
-    end
-    
+    plot(stim_onset*iEEG_rate,0.9*ones(length(stim_onset),1),'r*');
+
     
 
     %% Comparing photodiod with behavioral data

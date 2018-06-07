@@ -100,7 +100,7 @@ blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 7, 'HFB', [],[], blc_params)
 %     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
@@ -114,6 +114,9 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_ad
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[])
+
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],[],'trials',[])
+
 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.

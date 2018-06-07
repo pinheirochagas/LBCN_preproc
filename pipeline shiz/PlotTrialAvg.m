@@ -47,8 +47,8 @@ if nargin < 5 || isempty(plot_params)
 end
 
 if nargin < 4 || isempty(col)
-    col = [cdcol.carmine;
-        cdcol.ultramarine;
+    col = [cdcol.ultramarine;
+        cdcol.carmine;
         cdcol.grassgreen;
         cdcol.lilac;
         cdcol.yellow;
@@ -133,8 +133,20 @@ elseif strcmp(plot_params.label,'number')
     title('Elec ',num2str(el))
 end
 
-plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
+%% Plot lines to mark events
+y_lim = ylim;
+
+if size(data.trialinfo.allonsets,2) > 1
+    time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
+    for i = 1:length(time_events)
+        plot([time_events(i) time_events(i)],y_lim,'Color', [0 0 0], 'LineWidth',2)
+    end
+else
+    
+end
+plot([0 0],y_lim,'Color', [0 0 0], 'LineWidth',2)
 plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
+ylim(y_lim)
 
 box on % Pedro concluded
 

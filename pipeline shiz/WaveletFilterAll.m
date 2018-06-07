@@ -19,7 +19,7 @@ function WaveletFilterAll(sbj_name, project_name, bn, dirs,elecs,freq_band,span,
 
 
 if strcmp(freq_band,'HFB')
-    freqs = 2.^(6.2:0.1:7.5);
+    freqs = 2.^(5.7:0.05:7.5);
     norm = true;
     avgfreq = true;
     
