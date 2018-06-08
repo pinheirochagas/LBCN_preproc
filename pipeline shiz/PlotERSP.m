@@ -1,5 +1,5 @@
 % function PlotERSP(sbj,task,column,elecs,conds,noise_method,plot_params)
-function PlotERSP(data,column,conds,plot_params)
+function PlotERSP(data,column,conds,plot_params, noise_method)
 % plots spectrogram for each condition, separately for each electrode
 % INPUTS:
 %       data: spectral data(freq x trials x time)
@@ -29,6 +29,7 @@ if nargin < 4 || isempty(plot_params)
     plot_params.sm = 0.05;
 end
 
+
 if nargin < 3 || isempty(conds)
     conds = unique(data.trialinfo.(column));
 end
@@ -42,10 +43,30 @@ gusWin= gausswin(winSize)/sum(gausswin(winSize));
 plot_data = cell(1,length(conds));
 % ntrials = size(data.wave,2);
 
-for ci = 1:ncategs
-    trials = ismember(data.trialinfo.(column),conds{ci});
-    plot_data{ci}=data.wave(:,trials,:);
+
+% organize trials by categories
+if strcmp(noise_method, 'trials')
+    for ci = 1:ncategs
+        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.badtrials == false;
+        plot_data{ci}=data.wave(:,trials,:);
+    end
+else
+    for ci = 1:ncategs
+        trials = ismember(data.trialinfo.(column),conds{ci});
+        plot_data{ci}=data.wave(:,trials,:);
+    end
 end
+
+
+% for ci = 1:ncategs
+%     trials = ismember(data.trialinfo.(column),conds{ci});
+%     plot_data{ci}=data.wave(:,trials,:);
+% end
+
+
+
+% Set the range of the plot
+plot_params.clim = [-prctile(abs(data.wave(:)), 80) prctile(abs(data.wave(:)), 80)];
 
 
 freq_ticks = 1:4:length(data.freqs);
@@ -54,12 +75,15 @@ for i = 1:length(freq_ticks)
     freq_labels{i}=num2str(round(data.freqs(freq_ticks(i))));
 end
 % plot data
+figureDim = [0 0 .8 .4];
+figure('units', 'normalized', 'outerposition', figureDim)
 for ci = 1:ncategs
     subplot(1,ncategs+1,ci)
-    data_tmp = abs(squeeze(nanmean(plot_data{ci},2))); % average across trials
-    data_tmp = convn(data_tmp,gusWin','same');
+    data_tmp = squeeze(nanmean(abs(plot_data{ci}),2)); % average across trials
+    data_tmp_all{ci} = convn(data_tmp,gusWin','same');
+    imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
     imagesc(data.time,1:length(data.freqs),data_tmp)
-%     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
+    colorbar
     axis xy
     hold on
     colormap(plot_params.cmap);
@@ -70,11 +94,30 @@ for ci = 1:ncategs
     xlabel(plot_params.xlabel);
     ylabel(plot_params.ylabel)
     xlim(plot_params.xlim)
+    set(gca,'fontsize',plot_params.textsize)
     box off
 end
 
-set(gcf,'color','w')
+% Plot the difference
+subplot(1,ncategs+1,ci+1)
+data_tmp_diff = data_tmp_all{1} - data_tmp_all{2};
+imagesc(data.time,1:length(data.freqs),data_tmp_diff,plot_params.clim/2)
+colorbar
+%     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
+axis xy
+hold on
+colormap(plot_params.cmap);
+set(gca,'YTick',freq_ticks)
+set(gca,'YTickLabel',freq_labels)
+plot([0 0],ylim,'k-','LineWidth',3)
+title('difference')
+xlabel(plot_params.xlabel);
+ylabel(plot_params.ylabel)
+xlim(plot_params.xlim)
 set(gca,'fontsize',plot_params.textsize)
+box off
+
+set(gcf,'color','w')
 
 if strcmp(plot_params.label,'name')
     suptitle(data.label)

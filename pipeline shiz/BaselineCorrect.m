@@ -13,6 +13,8 @@ function data_blc = BaselineCorrect(data,bl_win)
 %                       'trial':    exclude noisy trials (set to NaN)
 %                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
 
+bl_reject_thr = 2; % reject bad timepoints within baseline period (that weren't rejected by prev methods)
+
 if ndims(data.wave)==3
     datatype = 'Spec';
 else
@@ -41,6 +43,9 @@ if strcmp(datatype,'Spec')
     end
     tmp_dims = size(bl_data);
     bl_data = reshape(bl_data,[tmp_dims(1),tmp_dims(2)*tmp_dims(3)]);
+    
+    bl_data(zscore(bl_data,[],2)>bl_reject_thr)=NaN; % Additional rejection of spiky indices 
+    
     bl_mn = nanmean(bl_data,2);
     bl_mn = repmat(bl_mn,[1,size(data.wave,2),size(data.wave,3)]);
     bl_sd = nanstd(bl_data,[],2);

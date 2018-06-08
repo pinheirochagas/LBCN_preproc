@@ -11,6 +11,7 @@ function [epoched_data] = EpochData(data,lockevent,bef_time,aft_time)
 
 nfreq = size(data.wave,1);  % determine if single timeseries or spectral data (i.e. multiple frequencies)
 ntrials = size(lockevent,1);
+siglength = size(data.wave,2);
 start_inds = floor(lockevent*data.fsample);
 bef_ind = floor(bef_time*data.fsample);
 aft_ind = floor(aft_time*data.fsample);
@@ -23,11 +24,15 @@ else
 end
 
 for i = 1:ntrials
-    inds = start_inds(i)+bef_ind:start_inds(i)+aft_ind;
+    if (siglength>=start_inds(i)+aft_ind)
+        inds = (start_inds(i)+bef_ind):(start_inds(i)+aft_ind);
+    else  % if recording ended before the of the full last epoch
+        inds = (start_inds(i)+bef_ind):siglength;
+    end
     if nfreq > 1
-        epoched_data.wave(:,i,:)=data.wave(:,inds);
+        epoched_data.wave(:,i,1:length(inds))=data.wave(:,inds);
     else
-        epoched_data.wave(i,:)=data.wave(inds);
+        epoched_data.wave(i,1:length(inds))=data.wave(inds);
     end
 end
 

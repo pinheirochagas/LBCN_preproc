@@ -1,4 +1,4 @@
-function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,locktype,column,conds,col,noise_method,plot_params)
+function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,locktype,column,conds,col,noise_method,plot_params, xlim)
 
 
 %% INPUTS
@@ -41,8 +41,8 @@ if nargin < 12 || isempty(plot_params)
     plot_params.textsize = 20;
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';
-    plot_params.freq_range = [70 180];
-    plot_params.xlim = [-.2, 7];
+    plot_params.freq_range = [52 180];
+    plot_params.xlim = xlim;
     plot_params.blc = true;
 end
 
@@ -117,8 +117,7 @@ for ei = 1:length(elecs)
     
     PlotTrialAvg(data_all,column,conds,col,plot_params, noise_method)
     fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,locktype);
-%     savePNG(gcf, 600, fn_out)
-    saveas(gcf,fn_out)
+    savePNG(gcf, 300, fn_out)
     close
 end
 

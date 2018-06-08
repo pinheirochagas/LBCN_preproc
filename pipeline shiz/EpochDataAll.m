@@ -127,8 +127,7 @@ for ei = 1:length(elecs)
     end
     
     %% Method 2, SU's
-    badtrials_SU = LBCN_filt_bad_trial(data.wave',data.fsample*5);
-   
+    badtrials_SU = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample*5);
     
     %% Update trailinfo and globalVar with bad trials and bad indices
     data.trialinfo.badtrials_raw = badtrials;

@@ -43,7 +43,7 @@ if nargin < 10 || isempty(plot_params)
 end
 
 if nargin < 9 || isempty(noise_method)
-    noise_method = 'trial';
+    noise_method = 'trials';
 end
 
 if nargin < 5 || isempty(elecs)
@@ -104,7 +104,7 @@ for ei = 1:length(elecs)
     data_all.fsample = data.fsample;
     plot_params.xlim = [data_all.time(1) data_all.time(end)];
     
-    PlotERSP(data_all,column,conds,plot_params)
+    PlotERSP(data_all,column,conds,plot_params, noise_method)
     fn_out = sprintf('%s/%s_%s_%s_ERSP_%slock.png',dir_out,sbj_name,data.label,project_name,locktype);
     saveas(gcf,fn_out)
     close

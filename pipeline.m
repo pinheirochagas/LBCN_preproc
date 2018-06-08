@@ -12,7 +12,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %% Create folders
 sbj_name = 'S18_124';
 sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
-sbj_name = 'S14_64_SP';
+sbj_name = 'S14_69b_RT';
 
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
@@ -65,13 +65,7 @@ OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-% For each class of tasks:
-EventIdentifier(sbj_name, project_name, block_names, dirs) % maybe project dependent
-EventIdentifier_Amy (sbj_name, project_name, block_names, dirs)
-
-% Make sure there is no nan in the last event (which in MMR is critical, since there is only one event per trial)
-% Multiply pdio by -1?
-% input the number of initial pulses - GET FUNCTION FROM YING.
+EventIdentifier(sbj_name, project_name, block_names, dirs) 
 
 
 %% Branch 4 - bad channel rejection
@@ -87,7 +81,7 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 % Creates the first instance of data structure
 parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-%     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
+    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
@@ -100,8 +94,8 @@ blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 7, 'HFB', [],[], blc_params)
-%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
 parfor i = 1:length(block_names)
@@ -110,19 +104,21 @@ parfor i = 1:length(block_names)
 end
 
 %% Branch 7 - plotting OY AND YO
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[])
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[])
+x_lim = [-.2 2];
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],[],'trials',[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
+
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],[],'trials',[],x_lim)
 
 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
 
-PlotERSPAll(sbj_name,project_name,block_names,dirs,105,'stim','conds_addsub',[],'none',[])
+PlotERSPAll(sbj_name,project_name,block_names,dirs,39,'stim','condNames',[],'trials',[], x_lim)
 % cbrewer 2. FIX
 
 

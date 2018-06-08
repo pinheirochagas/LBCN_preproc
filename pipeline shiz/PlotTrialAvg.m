@@ -41,7 +41,7 @@ if nargin < 5 || isempty(plot_params)
     plot_params.textsize = 20;
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';
-    plot_params.freq_range = [70 180];
+    plot_params.freq_range = [52 180];
     plot_params.bl_win = [-0.2 0];
     plot_params.xlim = [-0.2 3];
 end
@@ -101,6 +101,10 @@ for ci = 1:ncategs
             lineprops.width = plot_params.lw;
             lineprops.edgestyle = '-';
             if strcmp(plot_params.eb,'ste')
+                if size(plot_data{ci},1) == 1
+                    plot_data{ci} = [plot_data{ci}; plot_data{ci}]; % plot_data has to have at least 2 trials for sd
+                else
+                end
                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
                 hold on
             else %'std'

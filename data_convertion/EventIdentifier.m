@@ -1,4 +1,4 @@
-function EventIdentifier_Amy (sbj_name, project_name, block_names, dirs)
+function EventIdentifier (sbj_name, project_name, block_names, dirs)
 %% Globar Variable elements
 
 switch project_name

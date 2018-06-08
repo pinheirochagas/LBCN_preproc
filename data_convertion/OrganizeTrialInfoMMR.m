@@ -12,7 +12,7 @@ for i = 1:length(block_names)
     
     % start trialinfo
     trialinfo = table;
-    trialinfo.wlist = K.wlist';
+    trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % to account for different MMR versions
     
     for i = 1:length(K.theData)
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
@@ -80,18 +80,26 @@ for i = 1:length(block_names)
     end
     
     %% Correct for rest trials
-    rest_inds = sort(K.rest_inds);
-    rest_inds = rest_inds + (1:length(rest_inds));
+    % To accound for different versions of MMR
+    if isfield(K, 'rest_inds')
+        rest_inds = sort(K.rest_inds);
+    elseif isfield(K, 'ind')
+        rest_inds = sort(K.ind);
+    else
+    end
+    
     ntrials_total = size(trialinfo,1) + length(rest_inds);
-    trialinfoNew = table;
-    trialinfoNew(setdiff(1:ntrials_total,rest_inds),:)=trialinfo;
-    trialinfoNew.condNames(rest_inds)={'rest'};
-    trialinfoNew.conds_math_memory(rest_inds)={'rest'};
-    trialinfoNew.wlist(rest_inds)={'+'};
-    trialinfoNew.RT(rest_inds)=NaN;
-    trialinfoNew.allonsets(rest_inds)=NaN;
-
-    trialinfo = trialinfoNew;
+    
+    % To accomodate the rest trials
+%     trialinfoNew = table;
+%     trialinfoNew(setdiff(1:ntrials_total,rest_inds),:)=trialinfo;
+%     trialinfoNew.condNames(rest_inds)={'rest'};
+%     trialinfoNew.conds_math_memory(rest_inds)={'rest'};
+%     trialinfoNew.wlist(rest_inds)={'+'};
+%     trialinfoNew.RT(rest_inds)=NaN;
+%     trialinfoNew.allonsets(rest_inds)=NaN;
+% 
+%     trialinfo = trialinfoNew;
     
     % Save
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
