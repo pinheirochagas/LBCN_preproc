@@ -118,7 +118,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 % Input baseline correction flag to have the option.
 % Include the lines option
 
-PlotERSPAll(sbj_name,project_name,block_names,dirs,39,'stim','condNames',[],'trials',[], x_lim)
+PlotERSPAll(sbj_name,project_name,block_names,dirs,39,'stim','condNames',[],'trials',[])
 % cbrewer 2. FIX
 
 

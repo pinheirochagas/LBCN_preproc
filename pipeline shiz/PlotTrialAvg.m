@@ -80,12 +80,12 @@ end
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
         trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.badtrials == false;
-        plot_data{ci}=cat(1,plot_data{ci},data.wave(trials,:));
+        plot_data{ci}=data.wave(trials,:);
     end
 else
     for ci = 1:ncategs
         trials = ismember(data.trialinfo.(column),conds{ci});
-        plot_data{ci}=cat(1,plot_data{ci},data.wave(trials,:));
+        plot_data{ci}=data.wave(trials,:);
     end
 end
 

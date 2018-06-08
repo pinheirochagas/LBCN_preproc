@@ -96,6 +96,8 @@ for ci = 1:ncategs
     xlim(plot_params.xlim)
     set(gca,'fontsize',plot_params.textsize)
     box off
+    y_lim = ylim;
+    plotLines(data, y_lim)
 end
 
 % Plot the difference
@@ -117,6 +119,11 @@ xlim(plot_params.xlim)
 set(gca,'fontsize',plot_params.textsize)
 box off
 
+%% Plot lines to mark events
+
+plotLines(data, y_lim)
+
+
 set(gcf,'color','w')
 
 if strcmp(plot_params.label,'name')
@@ -125,4 +132,22 @@ elseif strcmp(plot_params.label,'number')
     suptitle('Elec ',num2str(el))
 end
 
+end
+
+
+function plotLines(data, y_lim)
+
+if size(data.trialinfo.allonsets,2) > 1
+    time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
+    for i = 1:length(time_events)
+        plot([time_events(i) time_events(i)],y_lim,'Color', [0 0 0], 'LineWidth',2)
+    end
+else
+    
+end
+plot([0 0],y_lim,'Color', [0 0 0], 'LineWidth',2)
+plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
+ylim(y_lim)
+
+end
 
