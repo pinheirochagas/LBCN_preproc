@@ -66,7 +66,7 @@ end
 
 
 % Set the range of the plot
-plot_params.clim = [-prctile(abs(data.wave(:)), 80) prctile(abs(data.wave(:)), 80)];
+plot_params.clim = [-prctile(data.wave(:), 90) prctile(data.wave(:), 90)];
 
 
 freq_ticks = 1:4:length(data.freqs);
@@ -79,10 +79,10 @@ figureDim = [0 0 .8 .4];
 figure('units', 'normalized', 'outerposition', figureDim)
 for ci = 1:ncategs
     subplot(1,ncategs+1,ci)
-    data_tmp = squeeze(nanmean(abs(plot_data{ci}),2)); % average across trials
+    data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
     data_tmp_all{ci} = convn(data_tmp,gusWin','same');
     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-    imagesc(data.time,1:length(data.freqs),data_tmp)
+%     imagesc(data.time,1:length(data.freqs),data_tmp)
     colorbar
     axis xy
     hold on

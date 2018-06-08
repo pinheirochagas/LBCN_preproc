@@ -1,4 +1,4 @@
-function SaveDataDecimate(sbj_name, project_name, block_name, dirs, refChan, epiChan)
+function SaveDataDecimate(sbj_name, project_name, block_name, fs, dirs, refChan, epiChan, empty_chan)
 
 %% load the data to define and eliminate bad channels
 
@@ -6,30 +6,24 @@ function SaveDataDecimate(sbj_name, project_name, block_name, dirs, refChan, epi
 for i = 1:length(block_name)
     bn = block_name{i};
     data_dir = [dirs.original_data '/' sbj_name '/' bn]; % directory for saving data
-    fname =  [dirs.original_data '/' sbj_name '/' bn '/' bn '.edf'];
-    [hdr, D] = edfread(fname);
     
-    fs = size(D,2)/(hdr.records * hdr.duration);
-    % hdr.records = number of chuncks 
-    % hdr.duration = duration of each chunck 
-    
-    % Downsampling parametere
     target_fs = 1000; % 
     target_fs_comp = target_fs/5; % reduced fs for spectral data 
     
-    if fs <= target_fs
-        ecog_ds = 1;
-    else
-        ecog_ds = round(fs/target_fs); % decimate factor
+%     if fs <= target_fs
+%         ecog_ds = 1;
+%     else
+%         ecog_ds = round(fs/target_fs); % decimate factor
+%     end
+%     pdio_ds = 1; %downsample for photodiode signals
+
+    % List all the files in that folder
+    all_iEEG = dir(fullfile(data_dir, '*.mat'));
+    for i = 1:length(all_iEEG)
+        channame_tmp = strsplit(channames(i).name, {'_', '.'});
+        channame{i} = channame_tmp{end-1};
     end
-    pdio_ds = 1; %downsample for photodiode signals
-
-    % Take the indices of the channels of interest
-    pdio_oldinds = find(contains(hdr.label, 'DC'));
-    pdio_newinds = [1:length(pdio_oldinds)]; %how to save data
-    ecog_oldinds = find(~contains(hdr.label, 'EKG') & ~contains(hdr.label, 'DC') & ~contains(hdr.label, 'REF') & ~contains(hdr.label, 'Annotations')); %index in EDF file
-    ecog_newinds = 1:length(ecog_oldinds);
-
+    
     % Loop across channels
     channame = cell(size(ecog_newinds));
     for ei = 1:length(ecog_oldinds)
@@ -81,7 +75,8 @@ for i = 1:length(block_name)
     globalVar.nchan = length(globalVar.channame);
     globalVar.refChan = refChan;
     globalVar.epiChan = epiChan; 
-    
+    globalVar.epiChan = empty_chan; 
+
     save(fn,'globalVar');
     disp('globalVar updated')
 

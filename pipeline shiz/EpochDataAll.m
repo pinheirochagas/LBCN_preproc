@@ -25,10 +25,10 @@ if nargin < 12 || isempty(blc)
     blc.win = [-0.2 0];
 end
 if nargin < 11 || isempty(thr_diff)
-    thr_diff = 8;
+    thr_diff = 10;
 end
 if nargin < 10 || isempty(thr_raw)
-    thr_raw = 8;
+    thr_raw = 10;
 end
 if nargin < 9 || isempty(datatype)
     datatype = 'CAR';
@@ -120,14 +120,17 @@ for ei = 1:length(elecs)
     %% Epoch rejection
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before
-        %epoch rejection
+        % Epoch rejection method 1
         [badtrials, badinds] = epoch_reject_raw(squeeze(nanmean(abs(data.wave),1)),thr_raw,thr_diff);
+        % Epoch rejection method 2
+        badtrials_SU = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample*5);
     else % CAR or HFB (i.e. 1 frequency)
+        % Epoch rejection method 1
         [badtrials, badinds] = epoch_reject_raw(data.wave,thr_raw,thr_diff);
+        % Epoch rejection method 1
+        badtrials_SU = LBCN_filt_bad_trial(data.wave',data.fsample*5);
     end
-    
-    %% Method 2, SU's
-    badtrials_SU = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample*5);
+   
     
     %% Update trailinfo and globalVar with bad trials and bad indices
     data.trialinfo.badtrials_raw = badtrials;
@@ -146,14 +149,14 @@ for ei = 1:length(elecs)
         data.trialinfo.badinds{ui} = badinds_all(:)';
     end
     
-    globalVar.bad_epochs(el).badtrials_raw = data.trialinfo.badtrials_raw;
-    globalVar.bad_epochs(el).badtrials_HFO = data.trialinfo.badtrials_HFO;
-    globalVar.bad_epochs(el).badtrials = data.trialinfo.badtrials;
-    
-    globalVar.bad_epochs(el).badinds_raw = data.trialinfo.badinds_raw;
-    globalVar.bad_epochs(el).badinds_diff = data.trialinfo.badinds_diff;
-    globalVar.bad_epochs(el).badinds_HFO = data.trialinfo.badinds_HFO;
-    globalVar.bad_epochs(el).badinds = data.trialinfo.badinds;
+%     globalVar.bad_epochs(el).badtrials_raw = data.trialinfo.badtrials_raw;
+%     globalVar.bad_epochs(el).badtrials_HFO = data.trialinfo.badtrials_HFO;
+%     globalVar.bad_epochs(el).badtrials = data.trialinfo.badtrials;
+%     
+%     globalVar.bad_epochs(el).badinds_raw = data.trialinfo.badinds_raw;
+%     globalVar.bad_epochs(el).badinds_diff = data.trialinfo.badinds_diff;
+%     globalVar.bad_epochs(el).badinds_HFO = data.trialinfo.badinds_HFO;
+%     globalVar.bad_epochs(el).badinds = data.trialinfo.badinds;
     
     
     %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
@@ -164,6 +167,11 @@ for ei = 1:length(elecs)
             data_blc = BaselineCorrect(data,blc.win);
         end
         data.wave = data_blc.wave;
+        
+        % store the phase separately for spectral data
+        if strcmp(datatype,'Spec')
+            data.phase = data_blc.phase;
+        end
     end
     
     %% Update data structure

@@ -16,7 +16,7 @@ if strcmp(data_format, 'nihon_kohden')
     data_behavior_path = sprintf('%sSHICEP_%s/Analyzed Data/%s/Beh/',dirs.server_root,sbj_name, project_name);
     
     % List all iEEG files
-    iEEG_names = dir(fullfile(data_ieeg_path, 'iEEG*.mat'));
+    iEEG_names = dir(fullfile(data_ieeg_path, '*.mat')); % actually take all channels, including pdio
     % Copy iEEG files to corresponding folder
     for i = 1:length(iEEG_names)
         fn = [iEEG_names(i).folder '/' iEEG_names(i).name];

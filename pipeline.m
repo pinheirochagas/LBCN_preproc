@@ -13,6 +13,9 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 sbj_name = 'S18_124';
 sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
 sbj_name = 'S14_69b_RT';
+sbj_name = 'S14_64_SP';
+sbj_extended_name = 'S14_64_SP';
+
 
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
@@ -41,7 +44,7 @@ empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
 elseif strcmp(data_format, 'nihon_kohden')
-    SaveDataDecimate(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
+    SaveDataDecimate(sbj_name, project_name, block_names, fs, dirs, ref_chan, epi_chan, empty_chan) %
 else
     error('Data format has to be either edf or nihon_kohden') 
 end
@@ -94,7 +97,7 @@ blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
-%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
+    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
@@ -142,3 +145,5 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,39,'stim','condNames',[],'tri
 
 
 % 2. Stimuli identity to TTL
+
+
