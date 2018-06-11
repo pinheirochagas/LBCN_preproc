@@ -54,12 +54,16 @@ for f = 1:numel(freqs)
     wave_out.wave(f,:) = wave_tmp(:,1:ds:end);                       % downsample
 end
 
-if (norm)
-    wave_out.wave = zscore(abs(wave_out.wave),[],2).*exp(1i*angle(wave_out.wave)); % normalize amplitude, but keep phase information
-end
+
 
 if (avgfreq)
-    wave_out.wave = nanmean(abs(wave_out.wave));  % average amplitude across frequencies
+    if (norm)
+        amp = zscore(abs(wave_out.wave),[],2);
+        wave_out.wave = nanmean(amp);
+    else
+        wave_out.wave = nanmean(abs(wave_out.wave));  % average amplitude across frequencies
+    end
+    
 end
 
 wave_out.freqs = freqs;

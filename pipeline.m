@@ -7,7 +7,7 @@ project_name = 'Calculia_production';
 project_name = 'MMR';
 project_name = 'Memoria';
 
-dirs = InitializeDirs('Pedro_NeuroSpin4T', project_name);
+dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
 sbj_name = 'S18_124';
