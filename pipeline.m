@@ -7,11 +7,11 @@ project_name = 'Calculia_production';
 project_name = 'MMR';
 project_name = 'Memoria';
 
-dirs = InitializeDirs('Pedro_iMAC', project_name);
+dirs = InitializeDirs('Pedro_NeuroSpin4T', project_name);
 
 %% Create folders
 sbj_name = 'S18_124';
-sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters? 
+sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters?
 sbj_name = 'S14_69b_RT';
 sbj_name = 'S14_64_SP';
 sbj_extended_name = 'S14_64_SP';
@@ -27,6 +27,8 @@ data_format = 'edf';
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
+
+
 
 %% Copy the iEEG and behavioral files from server to local folders
 % Login to the server first?
@@ -46,7 +48,7 @@ if strcmp(data_format, 'edf')
 elseif strcmp(data_format, 'nihon_kohden')
     SaveDataDecimate(sbj_name, project_name, block_names, fs, dirs, ref_chan, epi_chan, empty_chan) %
 else
-    error('Data format has to be either edf or nihon_kohden') 
+    error('Data format has to be either edf or nihon_kohden')
 end
 
 % Convert berhavioral data to trialinfo
@@ -57,18 +59,18 @@ OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 
 %%Plug into OrganizeTrialInfoCalculiaProduction, OrganizeTrialInfoNumberConcatActive, OrganizeTrialInfoCalculiaEBS
 
-    %% Segment audio from mic
-    % adapt: segment_audio_mic
-    switch project_name
-        case 'Calculia_EBS'
-        case 'Calculia_production'
-            load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-            K.slist = slist;
-    end
+%% Segment audio from mic
+% adapt: segment_audio_mic
+switch project_name
+    case 'Calculia_EBS'
+    case 'Calculia_production'
+        load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+        K.slist = slist;
+end
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs) 
+EventIdentifier(sbj_name, project_name, block_names, dirs)
 
 
 %% Branch 4 - bad channel rejection
@@ -106,6 +108,11 @@ parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'Spec', [],[], blc_params)
 end
 
+% DONE PREPROCESSING. 
+% Eventually replace globalVar to update dirs in case of working from an
+% with an external hard drive
+UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
+
 %% Branch 7 - plotting OY AND YO
 x_lim = [-.2 2];
 
@@ -129,15 +136,15 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,39,'stim','condNames',[],'tri
 % Lin's help
 % Save to globalVar
 
-% demographics 
-    % date of implantation
-    % birth data
-    % age
-    % gender
-    % handedness
-    % IQ full
-    % IQ verbal
-    % ressection?
+% demographics
+% date of implantation
+% birth data
+% age
+% gender
+% handedness
+% IQ full
+% IQ verbal
+% ressection?
 
 
 %% Medium-long term projects
