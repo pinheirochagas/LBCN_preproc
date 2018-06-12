@@ -24,22 +24,22 @@ function [badind, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data
 
 
 if nargin < 3 || isempty(spk_thr)
-    spk_thr = 3.5;
+    spk_thr = 4;
 end
 if nargin < 4 || isempty(tapers)
     tapers = 0;
 end
 if nargin < 5 || isempty(exwin)
-    exwin = 15;
+    exwin = 10;
 end
 if nargin < 6 || isempty(amp)
-    amp = 1/2;
+    amp = 2/3;
 end
 
 [b,a] = butter(2,[2 70]/(fs/2));
-[b2,a2] = butter(2,[70 200]/(fs/2));
+[b2,a2] = butter(2,70/(fs/2),'high');
 [b3,a3]=butter(2,20/(fs/2));
-[b4,a4]=butter(2,[16 200]/(fs/2));
+% [b4,a4]=butter(2,[16 200]/(fs/2));
 tn = size(data_raw,2);
 dn = size(data_raw,1);
 badind = false(1,tn);
@@ -203,7 +203,7 @@ for j = find(~badind)
             %             end
             %            dat = dnew;
             if tapers
-                checkhf=filtfilt(b4,a4,dat);
+                %checkhf=filtfilt(b4,a4,dat);
                 dnew = checkhf;
                 intv=window(:,2)-window(:,1);
                 %dnew = checkhf;

@@ -47,7 +47,7 @@ plot_data = cell(1,length(conds));
 % organize trials by categories
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.badtrials == false;
+        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.bad_epochs == false;
         plot_data{ci}=data.wave(:,trials,:);
     end
 else

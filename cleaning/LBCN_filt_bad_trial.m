@@ -29,7 +29,7 @@ if nargin < 5
     resamp = 0;
 end
 [b,a] = butter(2,[4 70]/(fs/2));
-[b2,a2] = butter(2,[80 200]/(fs/2));
+[b2,a2] = butter(2,70/(fs/2),'high');
 tn = size(data_raw,2);
 dn = size(data_raw,1);
 badind = false(1,tn);

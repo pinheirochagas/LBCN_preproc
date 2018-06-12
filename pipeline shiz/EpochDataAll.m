@@ -25,10 +25,10 @@ if nargin < 12 || isempty(blc)
     blc.win = [-0.2 0];
 end
 if nargin < 11 || isempty(thr_diff)
-    thr_diff = 10;
+    thr_diff = 15;
 end
 if nargin < 10 || isempty(thr_raw)
-    thr_raw = 10;
+    thr_raw = 15;
 end
 if nargin < 9 || isempty(datatype)
     datatype = 'CAR';
@@ -58,8 +58,10 @@ end
 fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
 load(fn,'globalVar');
 
+dir_CAR = [dirs.data_root,'/originalData/',sbj_name,'/',bn];
 dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn];
 dir_out = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn, '/EpochData'];
+
 
 if nargin < 5 || isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
@@ -98,15 +100,26 @@ bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate/globalVar.fs_comp))
 for ei = 1:length(elecs)
     el = elecs(ei);
     
-    % epoch data
+    %% Load data type of choice
     load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
     
-    if strcmp(datatype,'CAR')
-        data.wave = wave;
-        data.fsample = globalVar.iEEG_rate;
-        data.label = globalVar.channames{el};
-    end
+    %% Load Common Average data for bad epochs detection
+    load(sprintf('%s/iEEG%s_%.2d.mat',dir_CAR,bn,el));
+    % Plug channel info
+    data_CAR.wave = wave;
+    data_CAR.freqs = data.freqs;
+    data_CAR.wavelet_span = data.wavelet_span;
+    data_CAR.time = data.time;
+    data_CAR.fsample = data.fsample;
+    data_CAR.label = data.label;
     
+    %% Epoch Common Average
+    ep_data_CAR = EpochData(data_CAR,lockevent,bef_time,aft_time);
+    data_CAR.wave = ep_data_CAR.wave;
+    data_CAR.time = ep_data_CAR.time;
+    clear ep_data_CAR
+    
+    %% Epoch data type of choice
     if sep_bl
         bl_data = EpochData(data,bl_lockevent,blc.win(1),blc.win(2));
     end
@@ -118,45 +131,48 @@ for ei = 1:length(elecs)
     data.trialinfo = trialinfo;
     
     %% Epoch rejection
+    [be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data.fsample);
+    [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
+    [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data.fsample);
+    
+    if strcmp(datatype,'Spec')
+        %if spectral data, average across frequency dimension before epoch rejection
+        [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);
+    else % CAR or HFB (i.e. 1 frequency)
+        [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data.wave',data.fsample);
+    end
+    
+
+    % Organize bad indices
+    for i = 1:size(spkts,2)
+        bad_inds_raw{i,1} = find(spkts(:,i) == 1);
+    end
+    
+    % Inspect bad epochs
+    %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
+
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before
-        % Epoch rejection method 1
-        [badtrials, badinds] = epoch_reject_raw(squeeze(nanmean(abs(data.wave),1)),thr_raw,thr_diff);
-        % Epoch rejection method 2
-        badtrials_SU = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample*5);
+        %epoch rejection
+        CompareBadEpochs(be, data_CAR, squeeze(nanmean(abs(data.wave),1)), datatype, dir_CAR, bn, el)
     else % CAR or HFB (i.e. 1 frequency)
-        % Epoch rejection method 1
-        [badtrials, badinds] = epoch_reject_raw(data.wave,thr_raw,thr_diff);
-        % Epoch rejection method 1
-        badtrials_SU = LBCN_filt_bad_trial(data.wave',data.fsample*5);
+        CompareBadEpochs(be, data_CAR, data.wave, datatype, dir_CAR, bn, el) 
     end
-   
-    
+
     %% Update trailinfo and globalVar with bad trials and bad indices
-    data.trialinfo.badtrials_raw = badtrials;
-    badtrial_HFO = zeros(size(data.trialinfo,1),1,1);
-    badtrial_HFO(bad_epochs_HFO{el}) = 1;
-    data.trialinfo.badtrials_HFO = logical(badtrial_HFO);
-    data.trialinfo.badtrials_SU = badtrials_SU'; % based on spikes in the raw signal
-    data.trialinfo.badtrials = data.trialinfo.badtrials_HFO | data.trialinfo.badtrials_raw | data.trialinfo.badtrials_SU;
+    data.trialinfo.bad_epochs_raw = be.bad_epochs_raw_su2' | be.bad_epochs_spec_su2';
+    bad_epochs_HFO_tmp = zeros(size(data.trialinfo,1),1,1);
+    bad_epochs_HFO_tmp(bad_epochs_HFO{el}) = 1;
+    data.trialinfo.bad_epochs_HFO = logical(bad_epochs_HFO_tmp);
+    data.trialinfo.bad_epochs = data.trialinfo.bad_epochs_raw | data.trialinfo.bad_epochs_HFO;
     
-    data.trialinfo.badinds_raw = badinds.raw'; % based on the raw signal
-    data.trialinfo.badinds_diff = badinds.diff'; % based on spikes in the raw signal
-    data.trialinfo.badinds_HFO = bad_indices_HFO(:,el); % based on spikes in the raw signal
+    data.trialinfo.bad_inds_raw = bad_inds_raw; % based on the raw signal
+    data.trialinfo.bad_inds_HFO = bad_indices_HFO(:,el); % based on spikes in the raw signal
     
-    for ui = 1:length(data.trialinfo.badinds_raw)
-        badinds_all = union_several(data.trialinfo.badinds_raw{ui,:}, data.trialinfo.badinds_diff{ui,:},data.trialinfo.badinds_HFO{ui,:});
-        data.trialinfo.badinds{ui} = badinds_all(:)';
+    for ui = 1:length(data.trialinfo.bad_inds_raw)
+        bad_inds_all = union_several(data.trialinfo.bad_inds_raw{ui,:},data.trialinfo.bad_inds_HFO{ui,:});
+        data.trialinfo.bad_inds{ui} = bad_inds_all(:)';
     end
-    
-%     globalVar.bad_epochs(el).badtrials_raw = data.trialinfo.badtrials_raw;
-%     globalVar.bad_epochs(el).badtrials_HFO = data.trialinfo.badtrials_HFO;
-%     globalVar.bad_epochs(el).badtrials = data.trialinfo.badtrials;
-%     
-%     globalVar.bad_epochs(el).badinds_raw = data.trialinfo.badinds_raw;
-%     globalVar.bad_epochs(el).badinds_diff = data.trialinfo.badinds_diff;
-%     globalVar.bad_epochs(el).badinds_HFO = data.trialinfo.badinds_HFO;
-%     globalVar.bad_epochs(el).badinds = data.trialinfo.badinds;
     
     
     %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')

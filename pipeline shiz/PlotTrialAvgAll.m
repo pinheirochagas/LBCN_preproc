@@ -51,8 +51,8 @@ if nargin < 11 || isempty(noise_method)
 end
 
 if nargin < 10 || isempty(col)
-    col = [cdcol.ultramarine;
-        cdcol.carmine;
+    col = [cdcol.carmine;
+        cdcol.ultramarine;
         cdcol.grassgreen;
         cdcol.lilac;
         cdcol.yellow;

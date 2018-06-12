@@ -47,8 +47,8 @@ if nargin < 5 || isempty(plot_params)
 end
 
 if nargin < 4 || isempty(col)
-    col = [cdcol.ultramarine;
-        cdcol.carmine;
+    col = [cdcol.carmine;
+        cdcol.ultramarine;
         cdcol.grassgreen;
         cdcol.lilac;
         cdcol.yellow;
@@ -79,7 +79,7 @@ end
 % organize trials by categories
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.badtrials == false;
+        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.bad_epochs == false;
         plot_data{ci}=data.wave(trials,:);
     end
 else

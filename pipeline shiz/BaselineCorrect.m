@@ -33,9 +33,9 @@ if isstruct(bl_win)
         bl_win.wave = abs(bl_win.wave);
     end
     if strcmp(datatype,'Spec')
-        bl_win.wave(:,data.trialinfo.badtrials,:) = NaN;
+        bl_win.wave(:,data.trialinfo.bad_epochs,:) = NaN;
     else
-        bl_win.wave(data.trialinfo.badtrials,:) = NaN;
+        bl_win.wave(data.trialinfo.bad_epochs,:) = NaN;
     end
 else
     sep_bl = false;
@@ -45,9 +45,9 @@ end
 %% Extract data from baseline period and compute baseline
 if strcmp(datatype,'Spec')
     if sep_bl
-        bl_data = bl_win.wave(:,~data.trialinfo.badtrials,:);
+        bl_data = bl_win.wave(:,~data.trialinfo.bad_epochs,:);
     else
-        bl_data = data.wave(:,~data.trialinfo.badtrials,bl_inds);
+        bl_data = data.wave(:,~data.trialinfo.bad_epochs,bl_inds);
     end
     tmp_dims = size(bl_data);
     bl_data = reshape(bl_data,[tmp_dims(1),tmp_dims(2)*tmp_dims(3)]);
@@ -66,9 +66,9 @@ if strcmp(datatype,'Spec')
        
 else % e.g. HFB data, no frequency dimension
     if sep_bl
-        bl_data = bl_win.wave(~data.trialinfo.badtrials,:);
+        bl_data = bl_win.wave(~data.trialinfo.bad_epochs,:);
     else
-        bl_data = data.wave(~data.trialinfo.badtrials,bl_inds);
+        bl_data = data.wave(~data.trialinfo.bad_epochs,bl_inds);
     end
     bl_mn = nanmean(bl_data(:));
     bl_sd = nanstd(bl_data(:));
