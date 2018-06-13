@@ -58,13 +58,6 @@ else
 end
 
 
-% for ci = 1:ncategs
-%     trials = ismember(data.trialinfo.(column),conds{ci});
-%     plot_data{ci}=data.wave(:,trials,:);
-% end
-
-
-
 % Set the range of the plot
 plot_params.clim = [-prctile(data.wave(:), 90) prctile(data.wave(:), 90)];
 

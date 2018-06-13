@@ -27,8 +27,12 @@ for i = 1:length(bns)
     
     data=zeros(ttot,globalVar.nchan); % initialize data variable
     for n=1:globalVar.nchan % cycle through channels
-        if n<10,nl=['0' num2str(n)]; else nl=num2str(n); end % lame hack-around for channel names
-        load([sub_info.data(data_nr).name nl '.mat'],'wave'),
+        if n<10
+            nl=['0' num2str(n)]; 
+        else
+            nl=num2str(n);
+        end % lame hack-around for channel names
+        load([sub_info.data(data_nr).name nl '.mat'],'wave')
         wave=wave.'; %because has incorrect ordering for efficiency, should be time x 1
         data(:,n)=-wave; % invert: data are recorded inverted
         clear wave nl

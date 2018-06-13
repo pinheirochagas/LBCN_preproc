@@ -27,21 +27,13 @@ for i = 1:length(block_names)
     
 
     %% reading analog channel from neuralData directory
-    load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,bn)); % going to be present in the globalVar
+    load(sprintf('%s/Pdio%s_02.mat',globalVar.originalData,bn)); % going to be present in the globalVar
      
    
-    %% varout is anlg (single percision)
-    downRatio= round(globalVar.Pdio_rate/iEEG_rate);
-    if max(anlg) < max(abs(anlg))
-       pdio= decimate(double(anlg),downRatio)*-1; % down sample to the iEEG rate and make it positive ?
-    else
-       pdio= decimate(double(anlg),downRatio); % down sample to the iEEG rate and make it positive ?
-    end
-   
+    %% varout is anlg (single precision)
+    pdio = anlg/max(double(anlg))*2;
     clear anlg
-    
-    pdio = pdio/max(pdio)*2;
-    
+
     
     %% Thresholding the signal
     ind_above= pdio > 0.5;
@@ -50,8 +42,8 @@ for i = 1:length(block_names)
     onset= find(ind_df==1);
     offset= find(ind_df==-1);
     clear ind_df
-    pdio_onset= onset/iEEG_rate;
-    pdio_offset= offset/iEEG_rate;
+    pdio_onset= onset/globalVar.Pdio_rate;
+    pdio_offset= offset/globalVar.Pdio_rate;
     
     % %remove onset flash
     pdio_onset(1:n_initpulse)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
@@ -113,9 +105,8 @@ for i = 1:length(block_names)
     plot(pdio)
    
     % Event onset
-    plot(stim_onset*iEEG_rate,0.9*ones(length(stim_onset),1),'r*');
+    plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');
 
-    
 
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial
@@ -129,12 +120,12 @@ for i = 1:length(block_names)
     
     %plot diffs, across experiment and histogram
     subplot(2,3,5)
-    plot(df), ylim([-.005 .005]);
+    plot(df);
     title('Diff. behavior diode (exp)');
     xlabel('Trial number');
     ylabel('Time (ms)');
     subplot(2,3,6)
-    hist(df), xlim([-.005 .005])
+    hist(df)
     title('Diff. behavior diode (hist)');
     xlabel('Time (ms)');
     ylabel('Count');

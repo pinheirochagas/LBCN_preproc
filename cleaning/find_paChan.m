@@ -18,6 +18,15 @@ if nargin<4
 end
 
 z=1;
+
+% If channames are only numbers, add iEEG before
+if isempty(join(regexp(string(chanNames{1}),'[a-z]','Match','ignorecase'),''))
+    for i = 1:length(chanNames)
+        chanNames{i} = ['iEEG' chanNames{i}];
+    end
+else
+end
+
 %Create bipolar for HFO and spike detection
 fprintf('%s\n','---- Creating bipolar montage ----')
 for i=1:size(eeg,2)-1

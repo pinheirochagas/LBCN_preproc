@@ -12,12 +12,19 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %% Create folders
 sbj_name = 'S18_124';
 sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters?
+
 sbj_name = 'S14_69b_RT';
+
 sbj_name = 'S14_64_SP';
 sbj_extended_name = 'S14_64_SP';
 
 
 sbj_extended_name = 'S18_123'; % TEST HERE
+
+sbj_name = 'S13_57_TVD';
+
+
+[refChan, badChan, epiChan, emptyChan, fs_iEEG, fs_Pdio] = GetMarkedChansFS ('S13_57_TVD')
 
 
 block_names = BlockBySubj(sbj_name,project_name);
@@ -48,8 +55,11 @@ epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
-elseif strcmp(data_format, 'nihon_kohden')
-    SaveDataDecimate(sbj_name, project_name, block_names, fs, dirs, ref_chan, epi_chan, empty_chan) %
+elseif strcmp(data_format, 'TDT')
+    SaveDataDecimate(sbj_name, project_name, block_names, 1525.88, 24414.1, dirs, ref_chan, epi_chan, empty_chan)
+    % Ask nico to make table of fsamples 
+    % Should we decimate the old sampling rate at all? - powerspectrum
+    % looks funny....
 else
     error('Data format has to be either edf or nihon_kohden')
 end
@@ -73,7 +83,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs)
+EventIdentifier(sbj_name, project_name, block_names, dirs) % old ones, photo = 2
 
 
 %% Branch 4 - bad channel rejection
@@ -82,11 +92,11 @@ EventIdentifier(sbj_name, project_name, block_names, dirs)
 %      Step 1. based on the raw power
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the power spectrum deviation
+% Creates the first instance of data structure inside car() function
 BadChanReject(sbj_name, project_name, block_names, dirs)
 % Creat a diagnostic panel unifying all the figures
 
 %% Branch 5 - Time-frequency analyses - AMY
-% Creates the first instance of data structure
 parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
@@ -105,7 +115,11 @@ parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
-    
+%%% CHECK BAD INDICES HFO. WHEN IS DOWNSAMPLING HAPPENING? 
+%Error using EpochDataAll (line 195)
+%Reference to non-existent field 'fs_comp'.
+
+
 parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'HFB', [],[], blc_params)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'Spec', [],[], blc_params)
@@ -117,14 +131,24 @@ end
 UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - plotting OY AND YO
-x_lim = [-.2 2];
+x_lim = [-.2 5];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
+
+
+
+    col = [cdcol.ultramarine;
+        cdcol.carmine;
+        cdcol.grassgreen;
+        cdcol.lilac;
+        cdcol.yellow;
+        cdcol.turquoiseblue];
+
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 % %%
 % Error using PlotTrialAvgAll (line 107)
 % All tables in the bracketed expression must have the same number of variables.

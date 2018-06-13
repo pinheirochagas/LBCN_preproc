@@ -26,10 +26,6 @@ if nargin < 3 || isempty(span)
     span = 1;
 end
 
-if nargin < 4 || isempty(fs_targ)
-    fs_targ = data.fsample;
-end
-
 if ~strcmp(freqs,'HFB') && (nargin < 5 || isempty(norm))
     norm = false;
 end
@@ -44,18 +40,20 @@ data = data(:)'; % make sure signal is a row vector
 time =(1:length(data))/fsample;
 siglength_ds = length(time(1:ds:end));
 wave_out.wave = zeros(numel(freqs),siglength_ds,'single');
+wave_out.phase = zeros(numel(freqs),siglength_ds,'single');
 
+% Spectral data, frequencies saved separately 
 for f = 1:numel(freqs)
     freq = freqs(f);
     sigma = span/freq;
     t = -4*sigma:1/fsample:4*sigma;
     wavelet = exp(-(t.^2)/(2*sigma^2)).*exp(1i*2*pi*freq*t);    % wavelet = gaussian * complex sinusoid
     wave_tmp = conv(data,conj(wavelet),'same');                 % convolve signal with wavelet
-    wave_out.wave(f,:) = wave_tmp(:,1:ds:end);                       % downsample
+    wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end));             % downsample and converting the complex to real numbers
+    wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 
 end
 
-
-
+% HFB or another frequency band (averaging across frequencies)
 if (avgfreq)
     if (norm)
         amp = zscore(abs(wave_out.wave),[],2);

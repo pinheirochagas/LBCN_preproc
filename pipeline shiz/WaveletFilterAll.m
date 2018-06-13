@@ -61,14 +61,18 @@ if nargin < 5 || isempty(elecs)
 end
 
 if nargin < 8 || isempty(fs_targ)
-    fs_targ = globalVar.fs_comp;
+    if avgfreq
+        fs_targ = 200;
+    else
+        fs_targ = 500;
+    end
 end
 
 for ei = 1:length(elecs)
     el = elecs(ei);
     load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
-    % First instance of data structure
-    data = WaveletFilter(wave,globalVar.iEEG_rate,fs_targ,freqs,span,norm, avgfreq);
+    
+    data = WaveletFilter(data.wave,data.fsample,fs_targ,freqs,span,norm,avgfreq);
     data.label = globalVar.channame{el};
     if strcmp(freq_band,'HFB')
         fn_out = sprintf('%s/HFBiEEG%s_%.2d.mat',dir_out,bn,el);
@@ -76,7 +80,7 @@ for ei = 1:length(elecs)
         fn_out = sprintf('%s/SpeciEEG%s_%.2d.mat',dir_out,bn,el);
     end
     save(fn_out,'data')
-            disp(['Wavelet filtering: Block ', bn,', Elec ',num2str(el)])
+    disp(['Wavelet filtering: Block ', bn,', Elec ',num2str(el)])
 end
 
 end

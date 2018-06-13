@@ -37,7 +37,7 @@ if nargin < 12 || isempty(plot_params)
     plot_params.lw = 3;
     plot_params.legend = true;
     plot_params.label = 'name';
-    plot_params.sm = 0.1;
+    plot_params.sm = 0.05;
     plot_params.textsize = 20;
     plot_params.xlabel = 'Time (s)';
     plot_params.ylabel = 'z-scored power';

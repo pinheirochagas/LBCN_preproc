@@ -100,7 +100,7 @@ switch task
             case 'S13_56_THS'
                 BN = {'THS_07','THS_08'};
             case 'S13_57_TVD'
-                BN = {'TVD_13','TVD_14'};
+                BN = {'TVD_08','TVD_10','TVD_13','TVD_14'};
             case 'S13_59_SRR'
                 BN = {'SRR_02','SRR_03'};
             case 'S13_60_DY'

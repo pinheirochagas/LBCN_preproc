@@ -21,10 +21,10 @@ else
     datatype = 'NonSpec';
 end
 
-if  ~isreal(data.wave)
-    phase = angle(data.wave);
-    data.wave = abs(data.wave);  % for spectral data (that is complex), just extract envelope
-end
+% if  ~isreal(data.wave)
+%     phase = angle(data.wave);
+%     data.wave = abs(data.wave);  % for spectral data (that is complex), just extract envelope
+% end
 
 %% If baseline data is a separate input, eliminate bad trials of baseline data
 if isstruct(bl_win)
@@ -59,10 +59,7 @@ if strcmp(datatype,'Spec')
     bl_sd = repmat(bl_sd,[1,size(data.wave,2),size(data.wave,3)]);
     
     data_blc.wave = (data.wave-bl_mn)./bl_sd;
-    data_blc.phase = phase;
-%     phase = angle(data.wave);
-%     data_blc.wave = amp.*exp(1i*phase);  %%%****
-%     data_blc.wave = amp;
+    data_blc.phase = data.phase;
        
 else % e.g. HFB data, no frequency dimension
     if sep_bl
@@ -74,10 +71,7 @@ else % e.g. HFB data, no frequency dimension
     bl_sd = nanstd(bl_data(:));
     
     data_blc.wave = (data.wave-bl_mn)./bl_sd;
-    
 end
-
-
 
 data_blc.time = data.time;
 data_blc.fsample = data.fsample;

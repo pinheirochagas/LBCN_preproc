@@ -58,7 +58,7 @@ end
 fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
 load(fn,'globalVar');
 
-dir_CAR = [dirs.data_root,'/originalData/',sbj_name,'/',bn];
+% dir_CAR = [dirs.data_root,'/originalData/',sbj_name,'/',bn];
 dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn];
 dir_out = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn, '/EpochData'];
 
@@ -95,7 +95,8 @@ end
 pTS = globalVar.pathological_event_bipolar_montage;
 [bad_epochs_HFO, bad_indices_HFO] = exclude_trial(pTS.ts,pTS.channel, lockevent, globalVar.channame, bef_time, aft_time, globalVar.iEEG_rate);
 % Put the indices to the final sampling rate
-bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate/globalVar.fs_comp)), bad_indices_HFO, 'UniformOutput',false);
+bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO, 'UniformOutput',false); %%% CHECK THAT
+% bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate/globalVar.fs_comp)), bad_indices_HFO, 'UniformOutput',false);
 
 for ei = 1:length(elecs)
     el = elecs(ei);
@@ -104,14 +105,15 @@ for ei = 1:length(elecs)
     load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
     
     %% Load Common Average data for bad epochs detection
-    load(sprintf('%s/iEEG%s_%.2d.mat',dir_CAR,bn,el));
+    data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
+
     % Plug channel info
-    data_CAR.wave = wave;
+    data_CAR.wave = data_CAR_tpm.data.wave;
     data_CAR.freqs = data.freqs;
     data_CAR.wavelet_span = data.wavelet_span;
-    data_CAR.time = data.time;
-    data_CAR.fsample = data.fsample;
+    data_CAR.fsample = data_CAR_tpm.data.fsample;
     data_CAR.label = data.label;
+    clear data_CAR_tpm
     
     %% Epoch Common Average
     ep_data_CAR = EpochData(data_CAR,lockevent,bef_time,aft_time);
@@ -131,9 +133,9 @@ for ei = 1:length(elecs)
     data.trialinfo = trialinfo;
     
     %% Epoch rejection
-    [be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data.fsample);
+    [be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
-    [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data.fsample);
+    [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
     
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before epoch rejection
@@ -142,22 +144,12 @@ for ei = 1:length(elecs)
         [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data.wave',data.fsample);
     end
     
-
     % Organize bad indices
     for i = 1:size(spkts,2)
         bad_inds_raw{i,1} = find(spkts(:,i) == 1);
     end
     
-    % Inspect bad epochs
-    %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
-
-    if strcmp(datatype,'Spec')
-        %if spectral data, average across frequency dimension before
-        %epoch rejection
-        CompareBadEpochs(be, data_CAR, squeeze(nanmean(abs(data.wave),1)), datatype, dir_CAR, bn, el)
-    else % CAR or HFB (i.e. 1 frequency)
-        CompareBadEpochs(be, data_CAR, data.wave, datatype, dir_CAR, bn, el) 
-    end
+    
 
     %% Update trailinfo and globalVar with bad trials and bad indices
     data.trialinfo.bad_epochs_raw = be.bad_epochs_raw_su2' | be.bad_epochs_spec_su2';
@@ -174,6 +166,11 @@ for ei = 1:length(elecs)
         data.trialinfo.bad_inds{ui} = bad_inds_all(:)';
     end
     
+    
+    %% Inspect bad epochs
+    be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
+    %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
+    CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
     
     %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
     if blc.run
@@ -195,7 +192,7 @@ for ei = 1:length(elecs)
     if strcmp(datatype,'CAR')
         data.fsample = globalVar.iEEG_rate;
     else
-        data.fsample = globalVar.fs_comp;
+        data.fsample = globalVar.iEEG_rate; %%% here again. 
     end
     
     % Naming specs based on the epoching parameters

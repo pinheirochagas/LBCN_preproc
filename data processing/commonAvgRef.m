@@ -7,9 +7,7 @@ function commonAvgRef(globalVar,str)
 
 
 %% variable names
-sbj_name= globalVar.sbj_name;
 block_name= globalVar.block_name;
-data_dir= globalVar.originalData;
 
 %% Removing Bad Channels
 % epiChan= globalVar.epiChan; %excluding channels with epileptic activity
@@ -25,7 +23,7 @@ chRank(globalVar.refChan) = 0;
 chRank(globalVar.epiChan) = 0;
 cnt= sum(chRank);
 
-elecs = setxor([1:globalVar.nchan],[globalVar.badChan,globalVar.refChan,globalVar.epiChan]);
+elecs = setxor(1:globalVar.nchan,[globalVar.badChan,globalVar.refChan,globalVar.epiChan]);
 
 if strcmp(str,'orig')
     fprintf('Making CAR from original data\n')
@@ -35,12 +33,12 @@ if strcmp(str,'orig')
     for ci = elecs
         ['Reading: ' sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ci)]
         load(sprintf('%s/iEEG%s_%.2d.mat',globalVar.originalData,block_name,ci));
-        wave= wave - mean(wave);                    % remove mean before CAR
+        wave = wave - mean(wave);                    % remove mean before CAR
         CAR = CAR + wave;             % sum CAR in groups
         clear wave
     end
     
-    CAR= CAR/cnt; % common average reference
+    CAR = CAR/cnt; % common average reference
     save(sprintf('%s/CAR%s.mat',globalVar.CARData,block_name),'CAR');
     
     % figure, plot((1:length(CAR))/iEEG_rate,CAR/cnt),hold on
@@ -69,7 +67,7 @@ elseif strcmp(str,'noiseFilt')
     for ci = elecs
         ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ci)]
         load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ci));
-        wave= wave - mean(wave);                    % remove mean before CAR
+        wave = wave - mean(wave);                    % remove mean before CAR
         CAR = CAR + wave;             % sum CAR in groups
         clear wave
     end
@@ -88,18 +86,13 @@ elseif strcmp(str,'noiseFilt')
 %         if ii~= globalVar.refChan
             ['Reading: ' sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ii)]
             load(sprintf('%s/fiEEG%s_%.2d.mat',globalVar.FiltData,block_name,ii));
-            wave = wave - CAR;
+            data.wave = wave - CAR;
+            data.fsample = globalVar.iEEG_rate;
             ['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii)]
-            
-            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii),'wave');
+            save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii),'data');
             clear wave
-%         end
-        
     end
  
-
-
-
 else
     error('str variable should be orig, noiseFilt, or artRep')
 end
