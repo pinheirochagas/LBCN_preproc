@@ -137,6 +137,8 @@ for ei = 1:length(elecs)
     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
     [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
     
+    % bad epochs in su's function is the spkevtind
+    
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before epoch rejection
         [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);

@@ -1,37 +1,34 @@
 function EventIdentifier (sbj_name, project_name, block_names, dirs)
 %% Globar Variable elements
 
-switch project_name
-    case 'MMR'
-        n_stim_per_trial = 1;
-        n_initpulse = 12;
-    case 'Memoria'
-        n_stim_per_trial = 5;
-        n_initpulse = 12;
-    case 'Calculia'
-        n_stim_per_trial = 5;
-        n_initpulse = 12;
-    case 'Calculia_production'
-        n_stim_per_trial = 3;
-        n_initpulse = 0; % maybe change to 12
-end
-
 %% loop across blocks
 for i = 1:length(block_names)
     bn = block_names{i};
+    
+    switch project_name
+        case 'MMR'
+            n_stim_per_trial = 1;
+        case 'Memoria'
+            n_stim_per_trial = 5;
+        case 'Calculia'
+            n_stim_per_trial = 5;
+        case 'Calculia_production'
+            n_stim_per_trial = 3;
+    end
     
     %% Load globalVar
     
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
     iEEG_rate=globalVar.iEEG_rate;
     
-
+    
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_02.mat',globalVar.originalData,bn)); % going to be present in the globalVar
-     
-   
+    
+    
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg))*2;
+    [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     clear anlg
 
     
@@ -46,9 +43,9 @@ for i = 1:length(block_names)
     pdio_offset= offset/globalVar.Pdio_rate;
     
     % %remove onset flash
-    pdio_onset(1:n_initpulse)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
-    pdio_offset(1:n_initpulse)=[]; %
-    
+    pdio_onset(1:n_initpulse_onset)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
+    pdio_offset(1:n_initpulse_offset)=[]; %
+    clear n_initpulse_onset; clear n_initpulse_offset;
     
     %get osnets from diode
     pdio_dur= pdio_offset - pdio_onset;
@@ -62,19 +59,19 @@ for i = 1:length(block_names)
     
     stim_dur= stim_offset - stim_onset;
     
-        %% Load trialinfo 
+    %% Load trialinfo
     % ---------------------------------------------
     % Create specific subfunctions to extract the relevant info for each
     % project_name
     load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
-
+    
     % Add the all_stim_onset
     event_trials = find(~strcmp(trialinfo.condNames, 'rest'));
     rest_trials = find(strcmp(trialinfo.condNames, 'rest'));
-
+    
     StimulusOnsetTime = trialinfo.StimulusOnsetTime(event_trials,1); % **
-        
-      
+    
+    
     
     %% Get trials, insturuction onsets
     %% modified for Memoria
@@ -91,23 +88,23 @@ for i = 1:length(block_names)
         end
     else
         
-    all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
+        all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
     % the second input is project dependent
     %reshape onsets to account for the number of events in each trial
     
-%%
-   % Plot photodiode segmented data
+    %%
+    % Plot photodiode segmented data
     figureDim = [0 0 1 1];
     figure('units', 'normalized', 'outerposition', figureDim)
     subplot(2,3,1:3)
     hold on
     plot(pdio)
-   
+    
     % Event onset
     plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');
-
-
+    
+    
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial
     df_SOT= diff(StimulusOnsetTime)';
@@ -129,30 +126,30 @@ for i = 1:length(block_names)
     title('Diff. behavior diode (hist)');
     xlabel('Time (ms)');
     ylabel('Count');
-
+    
     %flag large difference
     if ~all(abs(df)<.1)
         disp('behavioral data and photodiod mismatch'),return
     end
     
     
-    %% Updating the events with onsets 
+    %% Updating the events with onsets
     trialinfo.allonsets(event_trials,:) = all_stim_onset;
-    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
-%     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
+    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
+    %     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
     % update that
     
     % Include the rest events FIX THIS, REST EVENT ONSET SEEMS ODD!!!
-%     if ~isempty(rest_trials)
-%         for i = 1:length(rest_trials)
-%             onset_rest(i,1) = trialinfo.allonsets(rest_trials(i)-1,end) + trialinfo.RT(rest_trials(i)-1) + ISI?;
-%         end
-%     else
-%     end
-%     trialinfo.allonsets(rest_trials,:) = onset_rest;
+    %     if ~isempty(rest_trials)
+    %         for i = 1:length(rest_trials)
+    %             onset_rest(i,1) = trialinfo.allonsets(rest_trials(i)-1,end) + trialinfo.RT(rest_trials(i)-1) + ISI?;
+    %         end
+    %     else
+    %     end
+    %     trialinfo.allonsets(rest_trials,:) = onset_rest;
     
     
-    %% Save trialinfo   
+    %% Save trialinfo
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
     save(fn, 'trialinfo');
     
@@ -160,3 +157,33 @@ end
 
 
 end
+
+
+
+% 
+%     switch project_name
+%         case 'MMR'
+%             n_stim_per_trial = 1;
+%             n_initpulse_onset = 12;
+%             n_initpulse_offset = 12;
+%         case 'Memoria'
+%             n_stim_per_trial = 5;
+%             n_initpulse_onset = 12;
+%             n_initpulse_offset = 12;
+%         case 'Calculia'
+%             n_stim_per_trial = 5;
+%             n_initpulse_onset = 12;
+%             n_initpulse_offset = 12;
+%         case 'Calculia_production'
+%             n_stim_per_trial = 3;
+%             n_initpulse_onset = 0;
+%             n_initpulse_offset = 12; % maybe change to 12
+%     end
+%     
+%     % Correct for different initiation TTL pulses
+%     switch bn
+%         case 'S14_64_SP_02'
+%             n_initpulse_onset = 13;
+%             n_initpulse_offset = 14;
+%     end
+%     
