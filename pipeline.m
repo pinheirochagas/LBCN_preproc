@@ -63,7 +63,7 @@ empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
 elseif strcmp(data_format, 'TDT')
-    SaveDataDecimate(sbj_name, project_name, block_names, 1525.88, 24414.1, dirs, ref_chan, epi_chan, empty_chan)
+    SaveDataDecimate(sbj_name, project_name, block_names, 1525.88, 24414.1, dirs, ref_chan, epi_chan, empty_chan) %% DZa 3051.76
     % Ask nico to make table of fsamples 
     % Should we decimate the old sampling rate at all? - powerspectrum
     % looks funny....
@@ -90,7 +90,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % old ones, photo = 2
+EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % old ones, photo = 2
 
 
 %% Branch 4 - bad channel rejection
