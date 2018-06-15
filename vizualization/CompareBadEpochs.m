@@ -20,9 +20,13 @@ order_subplots = [1 3 5 7 9 2 4 6 8 10];
 for i = 1:length(fieldnames_be)
     subplot(length(fieldnames_be),2,order_subplots(i))
     
-    plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
-    hold on
-    plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    if ismember(1, be.(fieldnames_be{i}))
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
+        hold on
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    else
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    end
     
     title([fieldnames_be{i} ' Raw data'], 'Interpreter', 'none');
     xlim([data_CAR.time(1) data_CAR.time(end)])
@@ -33,9 +37,13 @@ end
 for i = 1:length(fieldnames_be)
     subplot(length(fieldnames_be),2,order_subplots(i+length(fieldnames_be)))
     
-    plot(data.time, data.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
-    hold on
-    plot(data.time, data.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    if ismember(1, be.(fieldnames_be{i}))
+        plot(data.time, data.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
+        hold on
+        plot(data.time, data.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    else
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    end
     
     title([fieldnames_be{i} ' ' datatype], 'Interpreter', 'none');
     xlim([data.time(1) data.time(end)])
