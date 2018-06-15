@@ -1,4 +1,4 @@
-function [refChan, badChan, epiChan, emptyChan, fs_iEEG, fs_Pdio] = GetMarkedChansFS(sbj_name)
+function [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name)
 
 % Load table
 T = readtable('/Users/pinheirochagas/Downloads/subject_info_chan_fs.xlsx');
@@ -17,7 +17,6 @@ refChan = T.refChan{:};
 badChan = T.badChan{:};
 epiChan = T.epiChan{:};
 emptyChan = T.emptyChan{:};
-fs_iEEG = T.fs_iEEG;
-fs_Pdio = T.fs_Pdio;
+
 
 end

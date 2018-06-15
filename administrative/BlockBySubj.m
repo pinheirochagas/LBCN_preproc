@@ -466,6 +466,8 @@ switch task
         switch sbj
             case 'S17_105_TA'
                 BN = {'E17-58_0035'};
+            case 'S11_31_DZa'
+                BN = {'DZ1211-15'};
         end
         
     case 'Memoria_EBS'

@@ -20,12 +20,14 @@ order_subplots = [1 3 5 7 9 2 4 6 8 10];
 for i = 1:length(fieldnames_be)
     subplot(length(fieldnames_be),2,order_subplots(i))
     
-    if ismember(1, be.(fieldnames_be{i}))
+    if ismember(1, be.(fieldnames_be{i})) && ismember(0, be.(fieldnames_be{i}))
         plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
         hold on
         plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
-    else
+    elseif ~ismember(1, be.(fieldnames_be{i}))
         plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    elseif ~ismember(0, be.(fieldnames_be{i}))
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
     end
     
     title([fieldnames_be{i} ' Raw data'], 'Interpreter', 'none');
@@ -37,12 +39,14 @@ end
 for i = 1:length(fieldnames_be)
     subplot(length(fieldnames_be),2,order_subplots(i+length(fieldnames_be)))
     
-    if ismember(1, be.(fieldnames_be{i}))
+    if ismember(1, be.(fieldnames_be{i})) && ismember(0, be.(fieldnames_be{i}))
         plot(data.time, data.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
         hold on
         plot(data.time, data.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
-    else
+    elseif ~ismember(1, be.(fieldnames_be{i}))
         plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 0,:), 'Color', 'k', 'LineWidth', line_width)
+    elseif ~ismember(0, be.(fieldnames_be{i}))
+        plot(data_CAR.time, data_CAR.wave(be.(fieldnames_be{i}) == 1,:), 'Color', 'r', 'LineWidth', line_width)
     end
     
     title([fieldnames_be{i} ' ' datatype], 'Interpreter', 'none');
@@ -57,7 +61,7 @@ set(gcf,'color','w');
 
 fn = sprintf('%s/EpochData/bad_epochs_%s_%s_%i.tiff',globalVar.CARData,bn,datatype,el);
 f = getframe(gcf);
-imwrite(f.cdata,fn, 'Resolution', 20)
+imwrite(f.cdata,fn, 'Resolution', 36)
 
 close all
 

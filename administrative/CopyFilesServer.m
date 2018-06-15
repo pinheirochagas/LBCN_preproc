@@ -1,4 +1,4 @@
-function CopyFilesServer(sbj_name,project_name, block_name,data_format,dirs)
+function CopyFilesServer(sbj_name,project_name, block_name,data_format,dirs, data_ieeg_path)
 
 
 % Load globalVar
@@ -6,14 +6,14 @@ sbj_name_split = strsplit(sbj_name, '_');
 sbj_name_anno = [sbj_name_split{1} '_' sbj_name_split{2}];
 
     
-fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name_anno,project_name,sbj_name_anno,block_name);
+fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_name);
 load(fn,'globalVar');
 % Data path server
 
-if strcmp(data_format, 'nihon_kohden')
+if strcmp(data_format, 'TDT')
     
-    data_ieeg_path = sprintf('%sSHICEP_%s/%s(Data ECoG)/TDT Data/%s/%s',dirs.server_root,sbj_name, sbj_name, sbj_name, block_name);
-    data_behavior_path = sprintf('%sSHICEP_%s/Analyzed Data/%s/Beh/',dirs.server_root,sbj_name, project_name);
+%     data_ieeg_path = sprintf('%sSHICEP_%s/%s(Data ECoG)/TDT Data/%s/%s',dirs.server_root,sbj_name, sbj_name, sbj_name, block_name);
+%     data_behavior_path = sprintf('%sSHICEP_%s/Analyzed Data/%s/Beh/',dirs.server_root,sbj_name, project_name);
     
     % List all iEEG files
     iEEG_names = dir(fullfile(data_ieeg_path, '*.mat')); % actually take all channels, including pdio
@@ -25,10 +25,10 @@ if strcmp(data_format, 'nihon_kohden')
     end
     
     % Copy behavioral file
-    soda_name = dir(fullfile(data_behavior_path, sprintf('sodata.%s*.mat', block_name)));
-    fn = [soda_name.folder '/' soda_name.name];
-    copyfile(fn, globalVar.psych_dir)
-    disp(sprintf('Copied behavioral file %s to %s', fn, globalVar.originalData))
+%     soda_name = dir(fullfile(data_behavior_path, sprintf('sodata.%s*.mat', block_name)));
+%     fn = [soda_name.folder '/' soda_name.name];
+%     copyfile(fn, globalVar.psych_dir)
+%     disp(sprintf('Copied behavioral file %s to %s', fn, globalVar.originalData))
     
 elseif strcmp(data_format, 'edf')
     

@@ -3,104 +3,88 @@ AddPaths('Pedro_iMAC')
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
-project_name = 'Calculia_production';
+%project_name = 'Calculia_production';
 project_name = 'MMR';
-project_name = 'Memoria';
+%project_name = 'Memoria';
 project_name = 'MFA';
 project_name = '7Heaven';
-project_name = 'Scramble';
-
-
+project_name = 'Scrambled';
 
 dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
-sbj_name = 'S18_124';
-sbj_extended_name = 'S18_124_JR2'; % Why some subjects have these additional letters?
-
-sbj_name = 'S14_69b_RT';
-
-sbj_name = 'S14_64_SP';
-sbj_extended_name = 'S14_64_SP';
-
-
-sbj_extended_name = 'S18_123'; % TEST HERE
-
-sbj_name = 'S13_57_TVD';
-
+%sbj_name = 'S18_124';
+%sbj_name = 'S14_69b_RT';
+%sbj_name = 'S14_64_SP';
+%sbj_name = 'S13_57_TVD';
 sbj_name = 'S11_31_DZa';
 
-
-[refChan, badChan, epiChan, emptyChan, fs_iEEG, fs_Pdio] = GetMarkedChansFS ('S13_57_TVD')
-
-
+%% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
-% retrieve data format
-data_format = 'TDT';
-data_format = 'edf';
-
+%% Create subject folders
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
 
+%% Get iEEG and Pdio sampling rate and data format
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
 
+%% Get marked channels
+[refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
+ref_chan = [];
+epi_chan = [];
+empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 %% Copy the iEEG and behavioral files from server to local folders
 % Login to the server first?
 % Should we rename the channels at this stage to match the new naming?
 % This would require a table with chan names retrieved from the PPT
+
+dirs_server_root = '/Volumes/neurology_jparvizi$/SHICEP_S11_31_DZ/S11_31a_DZa(Data ECoG)/TDT Data'; % manually retrieved
 parfor i = 1:length(block_names)
-    CopyFilesServer(sbj_extended_name,project_name,block_names{i},data_format,dirs)
+    CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs, [dirs_server_root block_names{i}])
 end
 
 
 %% Branch 2 - data conversion - PEDRO
-ref_chan = [];
-epi_chan = [];
-empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
 elseif strcmp(data_format, 'TDT')
-    SaveDataDecimate(sbj_name, project_name, block_names, 1525.88, 24414.1, dirs, ref_chan, epi_chan, empty_chan) %% DZa 3051.76
-    % Ask nico to make table of fsamples 
-    % Should we decimate the old sampling rate at all? - powerspectrum
-    % looks funny....
+    SaveDataDecimate(sbj_name, project_name, block_names, fs_iEEG, fs_Pdio, dirs, ref_chan, epi_chan, empty_chan) %% DZa 3051.76
 else
-    error('Data format has to be either edf or nihon_kohden')
+    error('Data format has to be either edf or TDT format')
 end
 
-% Convert berhavioral data to trialinfo
-OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs)
+%% Convert berhavioral data to trialinfo
+OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
 OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
-
-%%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
-
-%%Plug into OrganizeTrialInfoCalculiaProduction, OrganizeTrialInfoNumberConcatActive, OrganizeTrialInfoCalculiaEBS
-
-%% Segment audio from mic
-% adapt: segment_audio_mic
-switch project_name
-    case 'Calculia_EBS'
-    case 'Calculia_production'
-        load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-        K.slist = slist;
-end
-%%%%%%%%%%%%%%%%%%%%%%%
+%Plug into OrganizeTrialInfoCalculiaProduction
+%OrganizeTrialInfoNumberConcatActive
+%OrganizeTrialInfoCalculiaEBS
+% %% Segment audio from mic
+% % adapt: segment_audio_mic
+% switch project_name
+%     case 'Calculia_EBS'
+%     case 'Calculia_production'
+%         load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
+%         K.slist = slist;
+% end
+% %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
 EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % old ones, photo = 2
 
 
 %% Branch 4 - bad channel rejection
+BadChanReject(sbj_name, project_name, block_names, dirs)
 % 1. Continuous data
 %      Step 0. epileptic channels based on clinical evaluation (manually inputed in the SaveDataNihonKohden)
 %      Step 1. based on the raw power
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the power spectrum deviation
 % Creates the first instance of data structure inside car() function
-BadChanReject(sbj_name, project_name, block_names, dirs)
 % Creat a diagnostic panel unifying all the figures
 
 %% Branch 5 - Time-frequency analyses - AMY
@@ -110,10 +94,6 @@ parfor i = 1:length(block_names)
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-% Bad epochs identification
-%      Step 1. based on the raw signal
-%      Step 2. based on the spikes in the raw signal
-%      Step 3. based on the spikes in the HFB signal
 blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
@@ -122,17 +102,18 @@ parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
-%%% CHECK BAD INDICES HFO. WHEN IS DOWNSAMPLING HAPPENING? 
-%Error using EpochDataAll (line 195)
-%Reference to non-existent field 'fs_comp'.
-
 
 parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'HFB', [],[], blc_params)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'Spec', [],[], blc_params)
 end
+% Bad epochs identification
+%      Step 1. based on the raw signal
+%      Step 2. based on the spikes in the raw signal
+%      Step 3. based on the spikes in the HFB signal
 
-% DONE PREPROCESSING. 
+
+%% DONE PREPROCESSING. 
 % Eventually replace globalVar to update dirs in case of working from an
 % with an external hard drive
 UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
@@ -142,24 +123,16 @@ x_lim = [-.2 2];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
-
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
-
-
-
-    col = [cdcol.ultramarine;
-        cdcol.carmine;
-        cdcol.grassgreen;
-        cdcol.lilac;
-        cdcol.yellow;
-        cdcol.turquoiseblue];
+col = [cdcol.ultramarine;
+    cdcol.carmine;
+    cdcol.grassgreen;
+    cdcol.lilac;
+    cdcol.yellow;
+    cdcol.turquoiseblue];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
-% %%
-% Error using PlotTrialAvgAll (line 107)
-% All tables in the bracketed expression must have the same number of variables.
-% %% 
 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
