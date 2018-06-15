@@ -62,9 +62,9 @@ end
 
 if nargin < 8 || isempty(fs_targ)
     if avgfreq
-        fs_targ = 200;
-    else
         fs_targ = 500;
+    else
+        fs_targ = 200;
     end
 end
 

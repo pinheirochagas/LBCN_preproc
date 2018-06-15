@@ -6,6 +6,11 @@ parpool(16) % initialize number of cores
 project_name = 'Calculia_production';
 project_name = 'MMR';
 project_name = 'Memoria';
+project_name = 'MFA';
+project_name = '7Heaven';
+project_name = 'Scramble';
+
+
 
 dirs = InitializeDirs('Pedro_iMAC', project_name);
 
@@ -22,6 +27,8 @@ sbj_extended_name = 'S14_64_SP';
 sbj_extended_name = 'S18_123'; % TEST HERE
 
 sbj_name = 'S13_57_TVD';
+
+sbj_name = 'S11_31_DZa';
 
 
 [refChan, badChan, epiChan, emptyChan, fs_iEEG, fs_Pdio] = GetMarkedChansFS ('S13_57_TVD')
@@ -83,7 +90,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs) % old ones, photo = 2
+EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % old ones, photo = 2
 
 
 %% Branch 4 - bad channel rejection
@@ -99,7 +106,7 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 %% Branch 5 - Time-frequency analyses - AMY
 parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, false) % across frequencies of interest
+    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction

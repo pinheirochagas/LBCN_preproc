@@ -133,11 +133,15 @@ for ei = 1:length(elecs)
     data.trialinfo = trialinfo;
     
     %% Epoch rejection
+    
     [be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
     [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
-    
-    % bad epochs in su's function is the spkevtind
+%     
+%     [badinds, filtered_beh,be.bad_epochs_raw_su1,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
+%     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
+%     [badinds, filtered_beh,be.bad_epochs_raw_su2,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
+% ASK SU TO CLARIFY THAT -  % bad epochs in su's function is the spkevtind?
     
     if strcmp(datatype,'Spec')
         %if spectral data, average across frequency dimension before epoch rejection
@@ -172,6 +176,7 @@ for ei = 1:length(elecs)
     %% Inspect bad epochs
     be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
     %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
+    
     CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
     
     %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
@@ -212,6 +217,7 @@ end
 %% save updated globalVar (with bad epochs)
 fn = [dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',bn,'.mat'];
 save(fn,'globalVar')
+
 end
 
 

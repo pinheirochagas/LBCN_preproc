@@ -17,6 +17,7 @@ function [badind, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_raw,f
 %           spkts -- time stamps of spikes. These time stamps can be set to NaN for later plots. 
 %   Su Liu
 %   suliu@stanford.edu.
+% text_su = fileread('su_txt.txt')
 
 
 if nargin < 3 || isempty(spk_thr)

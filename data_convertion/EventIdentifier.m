@@ -1,4 +1,4 @@
-function EventIdentifier (sbj_name, project_name, block_names, dirs)
+function EventIdentifier (sbj_name, project_name, block_names, dirs, pdio_chan)
 %% Globar Variable elements
 
 %% loop across blocks
@@ -23,7 +23,7 @@ for i = 1:length(block_names)
     
     
     %% reading analog channel from neuralData directory
-    load(sprintf('%s/Pdio%s_02.mat',globalVar.originalData,bn)); % going to be present in the globalVar
+    load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
     
     
     %% varout is anlg (single precision)
