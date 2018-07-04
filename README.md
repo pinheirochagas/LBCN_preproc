@@ -1,2 +1,2 @@
-# Automated preprocessing pipeline for iEEG data
-LBCN Stanford University
+# Preprocessing pipeline for iEEG data
+Matlab based, automatized preprocessing pipeline with minimal external dependencies. 
