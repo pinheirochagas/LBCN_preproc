@@ -1,2 +1,2 @@
 # Preprocessing pipeline for iEEG data
-Matlab based, automatized preprocessing pipeline with minimal external dependencies. 
+Matlab based, with minimal external dependencies. 
