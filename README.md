@@ -1,1 +1,2 @@
-# Automated preprocessing pipeline for iEEG data - LBCN Stanford University. 
+# Automated preprocessing pipeline for iEEG data
+# LBCN Stanford University
