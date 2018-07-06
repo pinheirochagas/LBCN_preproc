@@ -17,7 +17,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S11_31_DZa';
+sbj_name = 'S18_125';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
@@ -74,7 +74,7 @@ OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % old ones, photo = 2
+EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % old ones, photo = 2
 
 
 %% Branch 4 - bad channel rejection
@@ -90,7 +90,7 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 %% Branch 5 - Time-frequency analyses - AMY
 parfor i = 1:length(block_names)
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
+%     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
@@ -100,7 +100,7 @@ blc_params.win = [-.2 0];
 
 parfor i = 1:length(block_names)
     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
 parfor i = 1:length(block_names)
@@ -116,17 +116,17 @@ end
 %% DONE PREPROCESSING. 
 % Eventually replace globalVar to update dirs in case of working from an
 % with an external hard drive
-UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
+%UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - plotting OY AND YO
-x_lim = [-.2 2];
+x_lim = [-.2 .7];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
-col = [cdcol.ultramarine;
-    cdcol.carmine;
+col = [cdcol.carmine;
+    cdcol.ultramarine;
     cdcol.grassgreen;
     cdcol.lilac;
     cdcol.yellow;
@@ -162,5 +162,36 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 
 % 2. Stimuli identity to TTL
+
+
+%% Behavioral analysis
+% Load behavioral data
+load()
+
+datatype = 'HFB'
+plot_params.blc = true
+locktype = 'stim'
+data_all.trialinfo = [];
+for i = 1:length(block_names)
+    bn = block_names {i};
+    dir_in = [dirs.data_root,'/','HFB','Data/',sbj_name,'/',bn,'/EpochData/'];
+    
+    if plot_params.blc
+        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    else
+        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    end
+    % concatenate trial info
+    data_all.trialinfo = [data_all.trialinfo; data.trialinfo]; 
+end
+
+data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
+acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
+mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
+sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
+
+boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.CorrectResult(data_calc.Accuracy == 1))
+
+
 
 
