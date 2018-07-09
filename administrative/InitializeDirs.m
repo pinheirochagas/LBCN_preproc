@@ -9,6 +9,8 @@ elseif strcmp(user,'Amy_iMAC')
     dirs.comp_root = sprintf('/Volumes/LBCN8T/Stanford/data'); % location of analysis_ECOG folder
 elseif strcmp(user,'Ying_iMAC')
     dirs.comp_root = sprintf('/Users/yingfang/Documents/data'); % location of analysis_ECOG folder
+elseif strcmp(user,'Nico_laptop')
+    comp_root = sprintf('/Users/parvizilab/Documents/data/'); % location of analysis_ECOG folder
 end
 
 dirs.server_root = '/Volumes/neurology_jparvizi$/';
