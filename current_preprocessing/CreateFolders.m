@@ -1,7 +1,7 @@
 function CreateFolders(sbj_name, project_name, block_name, dirs)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
-    'SpecData', 'HFBData'};
+    'SpecData', 'HFBData', 'Freesurfer'};
 
 %% Per subject
 for i = 1:length(folder_names)
@@ -18,6 +18,8 @@ for i = 1:length(fieldname_folders)
     end
 end
 
+fieldname_folders = fieldname_folders(~strcmp(fieldname_folders, 'Freesurfer'));
+
 %% Per block - create folders and globalVar
 globalVar.sbj_name = sbj_name;
 globalVar.project_name = project_name;
@@ -29,7 +31,7 @@ for bn = 1:length(block_name)
         if ~exist(globalVar.(fieldname_folders{i}))
             mkdir(globalVar.(fieldname_folders{i}));
         end
-        if strcmp(fieldname_folders{i}, 'psych_dir') || strcmp(fieldname_folders{i}, 'result_dir')
+        if strcmp(fieldname_folders{i}, 'psych_dir') || strcmp(fieldname_folders{i}, 'result_dir') || strcmp(fieldname_folders{i}, 'originalData') 
         else
             if ~exist([globalVar.(fieldname_folders{i}) '/EpochData'])
                 mkdir([globalVar.(fieldname_folders{i}) '/EpochData']);

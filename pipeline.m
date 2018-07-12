@@ -17,13 +17,14 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S18_125';
+sbj_name = 'S18_126';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 %% Create subject folders
+% SWITCH TO SUBJECT FIRST!!! ???
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
@@ -31,11 +32,14 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
 
-%% Get marked channels
+%% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
 ref_chan = [];
 epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
+
+subjVar.demographics = GetDemographics(sbj_name);
+
 
 %% Copy the iEEG and behavioral files from server to local folders
 % Login to the server first?
@@ -98,9 +102,9 @@ blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
 
-parfor i = 1:length(block_names)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
-%     EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+for i = 1:length(block_names)
+    EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
+%     EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
 parfor i = 1:length(block_names)
@@ -143,8 +147,33 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
-% Lin's help
-% Save to globalVar
+% Load and convert Freesurfer to Matlab
+cortex = getcort(dirs, sbj_name);
+coords = importCoordsFreesurfer('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/DR_MT1.PIAL');
+elect_names = importElectNames('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/DR_MT1.electrodeNames');
+
+
+
+
+
+subplot(3,1,1)
+ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'l', 2)
+f = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+
+
+subplot(3,1,2)
+plot(mean(data.wave(data.trialinfo.isCalc == 1,:)))
+
+
+subjVar = [];
+subjVar.cortex = cortex;
+subjVar.elect_coords = coords;
+subjVar.elect_names = elect_names;
+subjVar.demographics;
+
+
+% Load the electrodes
+
 
 % demographics
 % date of implantation
@@ -155,6 +184,13 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 % IQ full
 % IQ verbal
 % ressection?
+
+
+%% Copy subjects
+
+
+
+copyfile(fn, globalVar.originalData)
 
 
 %% Medium-long term projects

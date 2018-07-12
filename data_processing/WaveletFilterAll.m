@@ -25,6 +25,7 @@ if strcmp(freq_band,'HFB')
     
 elseif strcmp(freq_band,'Spec')
     freqs = 2.^([0:0.5:2,2.3:0.3:5,5.2:0.2:8]);
+%     freqs = 1:200;
     
 elseif strcmp(freq_band,'SpecDense')
     freqs = 2.^([0:0.25:2,2.15:0.15:5,5.1:0.1:8]);
