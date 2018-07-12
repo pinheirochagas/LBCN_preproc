@@ -2,7 +2,7 @@ function dirs = InitializeDirs(user,project_name)
 % initialize directories
 
 if strcmp(user, 'Pedro_iMAC')
-    dirs.comp_root = sprintf('/Volumes/LBCN8T/Stanford/data'); % location of analysis_ECOG folder
+    dirs.comp_root = sprintf('/Volumes/LBCN8T/Stanford/data2'); % location of analysis_ECOG folder
 elseif strcmp(user,'Pedro_NeuroSpin4T')
     dirs.comp_root = sprintf('/Volumes/NeuroSpin4T/Stanford/data'); % location of analysis_ECOG folder
 elseif strcmp(user,'Amy_iMAC')

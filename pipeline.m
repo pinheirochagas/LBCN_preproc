@@ -17,7 +17,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S18_126';
+sbj_name = 'S18_125';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
@@ -187,16 +187,13 @@ subjVar.demographics;
 
 
 %% Copy subjects
-
-
-
-copyfile(fn, globalVar.originalData)
-
-
+subjs_to_copy = {'S18_125'};
+parfor i = 1:lenght(subjs_to_copy)
+    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/LBCN8T/Stanford/data2/psychData', dirs.data_root, '/Volumes/LBCN8T/Stanford/data2/neuralData')
+    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
+end
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
-
-
 % 2. Stimuli identity to TTL
 
 

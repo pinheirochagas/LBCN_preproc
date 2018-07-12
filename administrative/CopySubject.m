@@ -1,6 +1,26 @@
-function [outputArg1,outputArg2] = CopySubject(subj_name, dirs)
+function CopySubject(subj_name, s_psychData, d_psychData, s_neuralData, d_neuralData)
+% s source 
+% d destination
 
-    source.comp_roop = dirs.comp_root
+%% psychData
+if ~exist([d_psychData subj_name])
+    copyfile([s_psychData '/' subj_name], [d_psychData '/' subj_name])
+else
+end
+
+%% neuralData
+neuralData_folders = {'originalData', 'CARData', 'CompData', 'FiltData', ...
+    'SpecData', 'HFBData'};
+
+for i = 1:length(neuralData_folders)
+    
+    if ~exist([d_psychData '/' neuralData_folders{i} '/' subj_name])
+        disp(['copying ' neuralData_folders{i}])
+        copyfile([s_neuralData '/' neuralData_folders{i} '/' subj_name], [d_neuralData '/' neuralData_folders{i} '/' subj_name])
+    else
+    end
+    
+end
 
 
 end
