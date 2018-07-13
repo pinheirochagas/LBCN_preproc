@@ -69,9 +69,12 @@ if  ~isfield(cfg,'rmDepths'),       rmDepths = 0;   else    rmDepths = cfg.rmDep
 
 
 % FreeSurfer Subject Directory
-fsDir=dirs.freesurfer;
+subDir=dirs.freesurfer;
+subj = dir(dirs.freesurfer);
+subj = subj(end).name;
+subDir = [subDir '/' subj];
 avgDir=fsDir_local;
-subDir=fullfile(fsDir,subj);
+% subDir=fullfile(fsDir,subj);
 
 
 if ~exist(avgDir,'dir')
@@ -86,7 +89,7 @@ end
 % Take care of electrode names, hemisphere, and type
 if isempty(elecNames)
     % Import electrode names
-    elecFname=fullfile(subDir,[subj '.electrodeNames']);
+    elecFname=fullfile(subDir,'elec_recon',[subj '.electrodeNames']);
     elecInfo=csv2Cell(elecFname,' ',2);
     elecNames=elecInfo(:,1);
     nElec=size(elecInfo,1);
@@ -123,7 +126,7 @@ end
 % Take care of electrode coordinates in participant space
 if isempty(elecCoord) % no electrode coordinates have been passed in the function call:
     % Import electrode PIAL coordinates
-    coordFname=fullfile(subDir,[subj '.PIAL']);
+    coordFname=fullfile(subDir,'elec_recon',[subj '.PIAL']);
     coordCsv=csv2Cell(coordFname,' ',2);
     elecCoord=zeros(nElec,3);
     for a=1:nElec,
@@ -147,7 +150,7 @@ if universalYes(rmDepths),
     nElec=length(elecNames);
     isSubdural=isSubdural(keepIds);
 else
-    [avgCoordsDepths, elecNamesDepths]=depths2AvgBrain(subj);
+    [avgCoordsDepths, elecNamesDepths]=depths2AvgBrainCustom(dirs);
 end
 
 

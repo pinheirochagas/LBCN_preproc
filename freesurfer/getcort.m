@@ -4,8 +4,13 @@ cortex = [];
 cortex.left = [];
 cortex.right = [];
 
-left_path = fullfile(dirs.freesurfer, subj, 'lh.pial'); % paths to lh/rh.pial
-right_path = fullfile(dirs.freesurfer, subj, 'rh.pial'); % paths to lh/rh.pial
+subDir=dirs.freesurfer;
+subj = dir(dirs.freesurfer);
+subj = subj(end).name;
+subDir = [subDir subj];
+
+left_path = fullfile(subDir,'surf', 'lh.PIAL'); % paths to lh/rh.pial
+right_path = fullfile(subDir,'surf','rh.PIAL'); % paths to lh/rh.pial
 [cortex.left.vert, cortex.left.tri] = read_surf(left_path);
 [cortex.right.vert, cortex.right.tri] = read_surf(right_path);
 

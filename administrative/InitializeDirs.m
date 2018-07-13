@@ -26,5 +26,6 @@ dirs.ROI = sprintf('%s/ECoG Patient Info/ROIs',dirs.comp_root);
 dirs.original_data = [dirs.data_root '/originalData'];
 dirs.freesurfer = [dirs.data_root '/Freesurfer'];
 
+
 end
 
