@@ -1,5 +1,9 @@
 %% Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
+
+
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
@@ -149,11 +153,17 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
 cortex = getcort(dirs, sbj_name);
-coords = importCoordsFreesurfer('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/DR_MT1.PIAL');
-elect_names = importElectNames('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/DR_MT1.electrodeNames');
+coords = importCoordsFreesurfer('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/S18_125.PIAL');
+elect_names = importElectNames('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/S18_125.electrodeNames');
 
 
+% Convert electrode coordinates from native to MNI space
+% This required iELVIS
+% Set a global variable pointing to the Freesurfer folder in the server
+% Therefore, also adapting the previous functions (probably no need to copy the Freesurfer files to the local computer)
+% We also have to have the 'complete' name of the subject (S18_125 - SHICEP_S18_125)
 
+[avgCoords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom(sbj_name,[],dirs, fsDir_local)
 
 
 subplot(3,1,1)
