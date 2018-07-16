@@ -1,4 +1,4 @@
-function elect_names = importElectNames(filename)
+function elect_names = importElectNames(dirs)
 %IMPORTFILE Import numeric data from a text file as a matrix.
 %   DRMT1 = IMPORTFILE(FILENAME) Reads data from text file FILENAME for the
 %   default selection.
@@ -28,6 +28,12 @@ end
 formatSpec = '%s%C%C%*s%*s%[^\n\r]';
 
 %% Open the text file.
+subDir=dirs.freesurfer;
+subj = dir(subDir);
+subj = subj(end).name;
+subDir = [subDir '/' subj];
+filename=fullfile(subDir,'elec_recon',[subj '.electrodeNames']);
+
 fileID = fopen(filename,'r');
 
 %% Read columns of data according to the format.

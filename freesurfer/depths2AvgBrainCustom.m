@@ -29,9 +29,9 @@ function [avgCoords, elecNames, isLeft]=depths2AvgBrainCustom(dirs)
 
 %% FreeSurfer Subject Directory
 subDir=dirs.freesurfer;
-subj = dir(dirs.freesurfer);
+subj = dir(subDir);
 subj = subj(end).name;
-subDir = [subDir '/' subj];
+subDir = [subDir subj];
 
 
 if ~exist(subDir,'dir')

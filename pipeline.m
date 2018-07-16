@@ -15,7 +15,6 @@ project_name = '7Heaven';
 project_name = 'Scrambled';
 
 dirs = InitializeDirs('Pedro_iMAC', project_name);
-dirs.freesurfer = '/Volumes/neurology_jparvizi$/SHICEP_S18_125/Freesurfer/DR_MT1/';
 
 %% Create folders
 %sbj_name = 'S18_124';
@@ -154,21 +153,11 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
 cortex = getcort(dirs, sbj_name);
-coords = importCoordsFreesurfer('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/S18_125.PIAL');
-elect_names = importElectNames('/Volumes/LBCN8T/Stanford/data/neuralData/Freesurfer/S18_125/S18_125.electrodeNames');
-% FIX THIS SHIT
+coords = importCoordsFreesurfer(dirs);
+elect_names = importElectNames(dirs);
 
-% Convert electrode coordinates from native to MNI space
-% This required iELVIS
-% We hacked Elvis 2 functions: sub2AvgBrain.m and depth2AvgBrain.m became =
-% sub2AvgBrainCustom.m and depth2AvgBrainCustom.m became 
-% This was to more dinamically defina the freesurferpath. 
 
-% Set a global variable pointing to the Freesurfer folder in the server
-% Therefore, also adapting the previous functions (probably no need to copy the Freesurfer files to the local computer)
-% We also have to have the 'complete' name of the subject (S18_125 - SHICEP_S18_125)
-
-[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom(sbj_name,[],dirs, fsDir_local);
+[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 
 subplot(3,1,1)
 ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'l', 2)
@@ -179,15 +168,15 @@ subplot(3,1,2)
 plot(mean(data.wave(data.trialinfo.isCalc == 1,:)))
 
 
+%% Create subjVar
 subjVar = [];
 subjVar.cortex = cortex;
-subjVar.elect_coords = coords;
+subjVar.elect_native = coords;
 subjVar.elect_MNI = MNI_coords;
 subjVar.elect_names = elect_names;
-subjVar.demographics;
+subjVar.demographics = GetDemographics(sbj_name, dirs);
+save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
 
-
-% Load the electrodes
 
 
 % demographics

@@ -1,4 +1,4 @@
-function [avgCoords, elecNames, isLeft, avgVids, subVids]=sub2AvgBrainCustom(subj,cfg, dirs, fsDir_local)
+function [avgCoords, elecNames, isLeft, avgVids, subVids]=sub2AvgBrainCustom(cfg, dirs, fsDir_local)
 %function [avgCoords, elecNames, isLeft, avgVids, subVids]=sub2AvgBrain(subj,cfg)
 %
 % This function maps electrodes from patient space to the FreeSurfer average
@@ -69,10 +69,10 @@ if  ~isfield(cfg,'rmDepths'),       rmDepths = 0;   else    rmDepths = cfg.rmDep
 
 
 % FreeSurfer Subject Directory
-subDir=dirs.freesurfer;
-subj = dir(dirs.freesurfer);
+subDir = dirs.freesurfer;
+subj = dir(subDir);
 subj = subj(end).name;
-subDir = [subDir '/' subj];
+subDir = [subDir subj];
 avgDir=fsDir_local;
 % subDir=fullfile(fsDir,subj);
 
