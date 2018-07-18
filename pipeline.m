@@ -14,6 +14,7 @@ project_name = 'MFA';
 project_name = '7Heaven';
 project_name = 'Scrambled';
 
+% Make sure your are connected to CISCO and logged in the server
 dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 %% Create folders
