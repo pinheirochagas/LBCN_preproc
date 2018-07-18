@@ -38,11 +38,9 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 
 %% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-ref_chan = [];
-epi_chan = [];
-empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
-
-subjVar.demographics = GetDemographics(sbj_name);
+% ref_chan = [];
+% epi_chan = [];
+% empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
 %% Copy the iEEG and behavioral files from server to local folders
@@ -152,7 +150,7 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
-cortex = getcort(dirs, sbj_name);
+cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
 

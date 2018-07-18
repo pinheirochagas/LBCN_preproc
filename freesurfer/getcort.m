@@ -1,4 +1,4 @@
-function cortex = getcort(dirs, subj)
+function cortex = getcort(dirs)
 
 cortex = [];
 cortex.left = [];
