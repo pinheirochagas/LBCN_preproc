@@ -71,7 +71,8 @@ if  ~isfield(cfg,'rmDepths'),       rmDepths = 0;   else    rmDepths = cfg.rmDep
 % FreeSurfer Subject Directory
 subDir = dirs.freesurfer;
 subj = dir(subDir);
-subj = subj(end).name;
+subj=subj(~ismember({subj.name},{'.','..', '.DS_Store'}) & horzcat(subj.isdir) == 1);
+subj = subj.name;
 subDir = [subDir subj];
 avgDir=fsDir_local;
 % subDir=fullfile(fsDir,subj);
