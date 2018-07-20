@@ -199,6 +199,12 @@ end
 % 1. Creat subfunctions of the EventIdentifier specific to each project
 % 2. Stimuli identity to TTL
 
+%% Concatenate all trials all channels
+plot_params.blc = true;
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
+
+
+
 
 %% Behavioral analysis
 % Load behavioral data
