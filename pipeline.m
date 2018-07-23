@@ -13,6 +13,8 @@ project_name = 'MMR';
 project_name = 'MFA';
 project_name = '7Heaven';
 project_name = 'Scrambled';
+project_name = 'UCLA';
+
 
 % Make sure your are connected to CISCO and logged in the server
 dirs = InitializeDirs('Pedro_iMAC', project_name);
@@ -22,7 +24,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S18_125';
+sbj_name = 'S11_29_RB';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
@@ -33,15 +35,18 @@ block_names = BlockBySubj(sbj_name,project_name);
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
+% At this stage, paste the EDF or TDT files into the originalData folder
+% and the behavioral files into the psychData
+% (unless if using CopyFilesServer, which is still under development)
 
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
 
 %% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-% ref_chan = [];
-% epi_chan = [];
-% empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
+ref_chan = [];
+epi_chan = [17, 95, 77, 63, 91, 35, 48, 51, 59];
+empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
 %% Copy the iEEG and behavioral files from server to local folders
@@ -49,10 +54,10 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 % Should we rename the channels at this stage to match the new naming?
 % This would require a table with chan names retrieved from the PPT
 
-dirs_server_root = '/Volumes/neurology_jparvizi$/SHICEP_S11_31_DZ/S11_31a_DZa(Data ECoG)/TDT Data'; % manually retrieved
-parfor i = 1:length(block_names)
-    CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs, [dirs_server_root block_names{i}])
-end
+% dirs_server_root = '/Volumes/neurology_jparvizi$/SHICEP_S11_31_DZ/S11_31a_DZa(Data ECoG)/TDT Data'; % manually retrieved
+% parfor i = 1:length(block_names)
+%     CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs, [dirs_server_root block_names{i}])
+% end
 
 
 %% Branch 2 - data conversion - PEDRO
@@ -67,6 +72,8 @@ end
 %% Convert berhavioral data to trialinfo
 OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
 OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? 
+
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
 %OrganizeTrialInfoCalculiaEBS
@@ -81,7 +88,8 @@ OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % old ones, photo = 2
+EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % old ones, photo = 2
+% Fix it for UCLA
 
 
 %% Branch 4 - bad channel rejection
@@ -91,13 +99,17 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 %      Step 1. based on the raw power
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the power spectrum deviation
+%      Step 4. Bad channel detection based on HFOs
+
 % Creates the first instance of data structure inside car() function
-% Creat a diagnostic panel unifying all the figures
+% TODO: Create a diagnostic panel unifying all the figures
 
 %% Branch 5 - Time-frequency analyses - AMY
-parfor i = 1:length(block_names)
+for i = 1:length(block_names)
+    parfor ei = 1:length(elecs)
+        
     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-%     WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
+    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
@@ -107,7 +119,7 @@ blc_params.win = [-.2 0];
 
 for i = 1:length(block_names)
     EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
-%     EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+    EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
 end
 
 parfor i = 1:length(block_names)
@@ -141,12 +153,13 @@ col = [cdcol.carmine;
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
 
+% TODO: 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
 
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory',[],'trials',[])
-% cbrewer 2. FIX
+% TODO: Fix cbrewer 2
 
 
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
@@ -155,16 +168,12 @@ cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
 
-
+% Convert electrode coordinates from native to MNI space
 [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 
-subplot(3,1,1)
+% Plot brain and coordinates
 ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'l', 2)
 f = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
-
-
-subplot(3,1,2)
-plot(mean(data.wave(data.trialinfo.isCalc == 1,:)))
 
 
 %% Create subjVar
@@ -175,8 +184,6 @@ subjVar.elect_MNI = MNI_coords;
 subjVar.elect_names = elect_names;
 subjVar.demographics = GetDemographics(sbj_name, dirs);
 save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
-
-
 
 % demographics
 % date of implantation
@@ -202,7 +209,6 @@ end
 %% Concatenate all trials all channels
 plot_params.blc = true;
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-
 
 
 

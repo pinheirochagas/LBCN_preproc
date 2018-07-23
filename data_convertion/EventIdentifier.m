@@ -8,6 +8,8 @@ for i = 1:length(block_names)
     switch project_name
         case 'MMR'
             n_stim_per_trial = 1;
+        case 'UCLA'
+            n_stim_per_trial = 1;
         case 'Memoria'
             n_stim_per_trial = 5;
         case 'Calculia'

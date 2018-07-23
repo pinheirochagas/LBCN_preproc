@@ -1,7 +1,7 @@
 function CreateFolders(sbj_name, project_name, block_name, dirs)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
-    'SpecData', 'HFBData', 'Freesurfer'};
+    'SpecData', 'HFBData'};
 
 %% Per subject
 for i = 1:length(folder_names)
@@ -17,8 +17,6 @@ for i = 1:length(fieldname_folders)
         mkdir(folders.(fieldname_folders{i}));
     end
 end
-
-fieldname_folders = fieldname_folders(~strcmp(fieldname_folders, 'Freesurfer'));
 
 %% Per block - create folders and globalVar
 globalVar.sbj_name = sbj_name;
