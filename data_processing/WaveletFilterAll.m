@@ -1,4 +1,4 @@
-function WaveletFilterAll(sbj_name, project_name, bn, dirs,elecs,freq_band,span,fs_targ, norm, avgfreq)
+function WaveletFilterAll(sbj_name, project_name, bn, dirs,el,freq_band,span,fs_targ, norm, avgfreq)
 %% INPUTS
 %   sbj_name: subject name
 %   project_name: name of task
@@ -57,9 +57,9 @@ else
 end
 
 % Eletrode definition
-if nargin < 5 || isempty(elecs)
-    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
-end
+% if nargin < 5 || isempty(el)
+%     elects = setdiff(1:globalVar.nchan,globalVar.refChan);
+% end
 
 if nargin < 8 || isempty(fs_targ)
     if avgfreq
@@ -69,19 +69,18 @@ if nargin < 8 || isempty(fs_targ)
     end
 end
 
-for ei = 1:length(elecs)
-    el = elecs(ei);
-    load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
-    
-    data = WaveletFilter(data.wave,data.fsample,fs_targ,freqs,span,norm,avgfreq);
-    data.label = globalVar.channame{el};
-    if strcmp(freq_band,'HFB')
-        fn_out = sprintf('%s/HFBiEEG%s_%.2d.mat',dir_out,bn,el);
-    else
-        fn_out = sprintf('%s/SpeciEEG%s_%.2d.mat',dir_out,bn,el);
-    end
-    save(fn_out,'data')
-    disp(['Wavelet filtering: Block ', bn,', Elec ',num2str(el)])
+%% Per electrode
+load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
+
+data = WaveletFilter(data.wave,data.fsample,fs_targ,freqs,span,norm,avgfreq);
+data.label = globalVar.channame{el};
+if strcmp(freq_band,'HFB')
+    fn_out = sprintf('%s/HFBiEEG%s_%.2d.mat',dir_out,bn,el);
+else
+    fn_out = sprintf('%s/SpeciEEG%s_%.2d.mat',dir_out,bn,el);
 end
+save(fn_out,'data')
+disp(['Wavelet filtering: Block ', bn,', Elec ',num2str(el)])
+
 
 end

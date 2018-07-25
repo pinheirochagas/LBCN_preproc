@@ -1,4 +1,4 @@
-function EpochDataAll(sbj_name, project_name, bn, dirs,elecs,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc)
+function EpochDataAll(sbj_name, project_name, bn, dirs,el,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc)
 
 %% INPUTS:
 %   sbj_name: subject name
@@ -63,9 +63,9 @@ dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn];
 dir_out = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn, '/EpochData'];
 
 
-if nargin < 5 || isempty(elecs)
-    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
-end
+% if nargin < 5 || isempty(elecs)
+%     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+% end
 
 % load trialinfo
 load([dirs.result_root,'/',project_name,'/',sbj_name,'/',bn,'/trialinfo_',bn,'.mat'])
@@ -98,125 +98,124 @@ pTS = globalVar.pathological_event_bipolar_montage;
 bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO, 'UniformOutput',false); %%% CHECK THAT
 % bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate/globalVar.fs_comp)), bad_indices_HFO, 'UniformOutput',false);
 
-for ei = 1:length(elecs)
-    el = elecs(ei);
-    
-    %% Load data type of choice
-    load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
-    
-    %% Load Common Average data for bad epochs detection
-    data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
+%% Per electrode
 
-    % Plug channel info
-    data_CAR.wave = data_CAR_tpm.data.wave;
-    data_CAR.freqs = data.freqs;
-    data_CAR.wavelet_span = data.wavelet_span;
-    data_CAR.fsample = data_CAR_tpm.data.fsample;
-    data_CAR.label = data.label;
-    clear data_CAR_tpm
-    
-    %% Epoch Common Average
-    ep_data_CAR = EpochData(data_CAR,lockevent,bef_time,aft_time);
-    data_CAR.wave = ep_data_CAR.wave;
-    data_CAR.time = ep_data_CAR.time;
-    clear ep_data_CAR
-    
-    %% Epoch data type of choice
-    if sep_bl
-        bl_data = EpochData(data,bl_lockevent,blc.win(1),blc.win(2));
-    end
-    ep_data = EpochData(data,lockevent,bef_time,aft_time);
-    
-    data.wave = ep_data.wave;
-    data.time = ep_data.time;
-    clear ep_data
-    data.trialinfo = trialinfo;
-    
-    %% Epoch rejection
-    
-    [be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
-    [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
-    [be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
-%     
+%% Load data type of choice
+load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
+
+%% Load Common Average data for bad epochs detection
+data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
+
+% Plug channel info
+data_CAR.wave = data_CAR_tpm.data.wave;
+data_CAR.freqs = data.freqs;
+data_CAR.wavelet_span = data.wavelet_span;
+data_CAR.fsample = data_CAR_tpm.data.fsample;
+data_CAR.label = data.label;
+clear data_CAR_tpm
+
+%% Epoch Common Average
+ep_data_CAR = EpochData(data_CAR,lockevent,bef_time,aft_time);
+data_CAR.wave = ep_data_CAR.wave;
+data_CAR.time = ep_data_CAR.time;
+clear ep_data_CAR
+
+%% Epoch data type of choice
+if sep_bl
+    bl_data = EpochData(data,bl_lockevent,blc.win(1),blc.win(2));
+end
+ep_data = EpochData(data,lockevent,bef_time,aft_time);
+
+data.wave = ep_data.wave;
+data.time = ep_data.time;
+clear ep_data
+data.trialinfo = trialinfo;
+
+%% Epoch rejection
+
+[be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
+[be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
+[be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
+%
 %     [badinds, filtered_beh,be.bad_epochs_raw_su1,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
 %     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
 %     [badinds, filtered_beh,be.bad_epochs_raw_su2,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
 % ASK SU TO CLARIFY THAT -  % bad epochs in su's function is the spkevtind?
-    
-    if strcmp(datatype,'Spec')
-        %if spectral data, average across frequency dimension before epoch rejection
-        [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);
-    else % CAR or HFB (i.e. 1 frequency)
-        [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data.wave',data.fsample);
-    end
-    
-    % Organize bad indices
-    for i = 1:size(spkts,2)
-        bad_inds_raw{i,1} = find(spkts(:,i) == 1);
-    end
-    
-    
 
-    %% Update trailinfo and globalVar with bad trials and bad indices
-    data.trialinfo.bad_epochs_raw = be.bad_epochs_raw_su2' | be.bad_epochs_spec_su2';
-    bad_epochs_HFO_tmp = zeros(size(data.trialinfo,1),1,1);
-    bad_epochs_HFO_tmp(bad_epochs_HFO{el}) = 1;
-    data.trialinfo.bad_epochs_HFO = logical(bad_epochs_HFO_tmp);
-    data.trialinfo.bad_epochs = data.trialinfo.bad_epochs_raw | data.trialinfo.bad_epochs_HFO;
-    
-    data.trialinfo.bad_inds_raw = bad_inds_raw; % based on the raw signal
-    data.trialinfo.bad_inds_HFO = bad_indices_HFO(:,el); % based on spikes in the raw signal
-    
-    for ui = 1:length(data.trialinfo.bad_inds_raw)
-        bad_inds_all = union_several(data.trialinfo.bad_inds_raw{ui,:},data.trialinfo.bad_inds_HFO{ui,:});
-        data.trialinfo.bad_inds{ui} = bad_inds_all(:)';
-    end
-    
-    
-    %% Inspect bad epochs
-    be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
-    %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
-    
-    CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
-    
-    %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
-    if blc.run
-        if sep_bl
-            data_blc = BaselineCorrect(data,bl_data);
-        else
-            data_blc = BaselineCorrect(data,blc.win);
-        end
-        data.wave = data_blc.wave;
-        
-        % store the phase separately for spectral data
-        if strcmp(datatype,'Spec')
-            data.phase = data_blc.phase;
-        end
-    end
-    
-    %% Update data structure
-    data.label = globalVar.channame{el};
-    if strcmp(datatype,'CAR')
-        data.fsample = globalVar.iEEG_rate;
-    else
-        data.fsample = globalVar.iEEG_rate; %%% here again. 
-    end
-    
-    % Naming specs based on the epoching parameters
-    if blc.run == true
-        bl_tag = 'bl_corr_';
-    else
-        bl_tag = [];
-    end
-    fn_out = sprintf('%s/%siEEG_%slock_%s%s_%.2d.mat',dir_out,datatype,locktype,bl_tag,bn,el);
-    
-    save(fn_out,'data')
-    disp(['Data epoching: Block ', bn, ' ' bl_tag,' Elec ',num2str(el)])
+if strcmp(datatype,'Spec')
+    %if spectral data, average across frequency dimension before epoch rejection
+    [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);
+else % CAR or HFB (i.e. 1 frequency)
+    [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data.wave',data.fsample);
 end
 
+% Organize bad indices
+for i = 1:size(spkts,2)
+    bad_inds_raw{i,1} = find(spkts(:,i) == 1);
+end
+
+
+
+%% Update trailinfo and globalVar with bad trials and bad indices
+data.trialinfo.bad_epochs_raw = be.bad_epochs_raw_su2' | be.bad_epochs_spec_su2';
+bad_epochs_HFO_tmp = zeros(size(data.trialinfo,1),1,1);
+bad_epochs_HFO_tmp(bad_epochs_HFO{el}) = 1;
+data.trialinfo.bad_epochs_HFO = logical(bad_epochs_HFO_tmp);
+data.trialinfo.bad_epochs = data.trialinfo.bad_epochs_raw | data.trialinfo.bad_epochs_HFO;
+
+data.trialinfo.bad_inds_raw = bad_inds_raw; % based on the raw signal
+data.trialinfo.bad_inds_HFO = bad_indices_HFO(:,el); % based on spikes in the raw signal
+
+for ui = 1:length(data.trialinfo.bad_inds_raw)
+    bad_inds_all = union_several(data.trialinfo.bad_inds_raw{ui,:},data.trialinfo.bad_inds_HFO{ui,:});
+    data.trialinfo.bad_inds{ui} = bad_inds_all(:)';
+end
+
+
+%% Inspect bad epochs
+be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
+%     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
+
+CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
+
+%% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
+if blc.run
+    if sep_bl
+        data_blc = BaselineCorrect(data,bl_data);
+    else
+        data_blc = BaselineCorrect(data,blc.win);
+    end
+    data.wave = data_blc.wave;
+    
+    % store the phase separately for spectral data
+    if strcmp(datatype,'Spec')
+        data.phase = data_blc.phase;
+    end
+end
+
+%% Update data structure
+data.label = globalVar.channame{el};
+if strcmp(datatype,'CAR')
+    data.fsample = globalVar.iEEG_rate;
+else
+    data.fsample = globalVar.iEEG_rate; %%% here again.
+end
+
+% Naming specs based on the epoching parameters
+if blc.run == true
+    bl_tag = 'bl_corr_';
+else
+    bl_tag = [];
+end
+fn_out = sprintf('%s/%siEEG_%slock_%s%s_%.2d.mat',dir_out,datatype,locktype,bl_tag,bn,el);
+
+save(fn_out,'data')
+disp(['Data epoching: Block ', bn, ' ' bl_tag,' Elec ',num2str(el)])
+
+
 %% save updated globalVar (with bad epochs)
-fn = [dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',bn,'.mat'];
-save(fn,'globalVar')
+% fn = [dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',bn,'.mat'];
+% save(fn,'globalVar')
 
 end
 

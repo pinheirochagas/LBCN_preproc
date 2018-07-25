@@ -14,6 +14,7 @@ project_name = 'MFA';
 project_name = '7Heaven';
 project_name = 'Scrambled';
 project_name = 'UCLA';
+project_name = 'Calculia';
 
 
 % Make sure your are connected to CISCO and logged in the server
@@ -24,14 +25,17 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S11_29_RB';
+% sbj_name = 'S11_29_RB';
+sbj_name = 'S14_75_TB';
+
+% sbj_name = 'S12_42_NC';
+
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 %% Create subject folders
-% SWITCH TO SUBJECT FIRST!!! ???
 CreateFolders(sbj_name, project_name, block_names, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
@@ -45,7 +49,7 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 %% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
 ref_chan = [];
-epi_chan = [17, 95, 77, 63, 91, 35, 48, 51, 59];
+epi_chan = [33, 44, 48, 57:64];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
@@ -104,12 +108,16 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 % Creates the first instance of data structure inside car() function
 % TODO: Create a diagnostic panel unifying all the figures
 
-%% Branch 5 - Time-frequency analyses - AMY
+%% Branch 5 - Time-frequency analyses
+% Load elecs info
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        
-    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'HFB', [], [], [], []) % only for HFB
-    WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, [], 'Spec', [], [], true, []) % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
+    end
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
@@ -118,13 +126,17 @@ blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
 
 for i = 1:length(block_names)
-    EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'HFB', [],[], blc_params)
-    EpochDataAll_par(sbj_name, project_name, block_names{i}, dirs,[],'stim', [], 5, 'Spec', [],[], blc_params)
+    parfor ei = 1:length(elecs)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+    end
 end
 
-parfor i = 1:length(block_names)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'HFB', [],[], blc_params)
-    EpochDataAll(sbj_name, project_name, block_names{i}, dirs,[],'resp', -5, 1, 'Spec', [],[], blc_params)
+for i = 1:length(block_names)
+    parfor ei = 1:length(elecs)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -5, 1, 'HFB', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -5, 1, 'Spec', [],[], blc_params)
+    end
 end
 % Bad epochs identification
 %      Step 1. based on the raw signal
@@ -138,7 +150,7 @@ end
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - plotting OY AND YO
-x_lim = [-.2 .7];
+x_lim = [-.2 5];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
@@ -172,7 +184,7 @@ elect_names = importElectNames(dirs);
 [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 
 % Plot brain and coordinates
-ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'l', 2)
+ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'l', 1)
 f = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
 
 

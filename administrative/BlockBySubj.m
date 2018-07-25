@@ -7,7 +7,7 @@ switch task
             case 'S14_64_SP'
                 BN = {'S14_64_SP_09'};
         end
-    case 'calculia'
+    case 'Calculia'
         switch sbj
             case 'S14_62_JW'
                 BN = {'S14_62_42','S14_62_43','S14_62_44'};
@@ -127,6 +127,8 @@ switch task
                 BN = {'S14_73_AY_04','S14_73_AY_05'};
             case 'S14_74_OD'
                 BN = {'S14_74_OD_02','S14_74_OD_03'};
+            case 'S14_75_TB'
+                BN = {'S14_75_TB_02','S14_75_TB_03', 'S14_75_TB_11'};
             case 'S14_76_AA'
                 BN = {'S14_76_AA_02','S14_76_AA_03','S14_76_AA_21','S14_76_AA_22'};
             case 'S14_78_RS'
@@ -192,7 +194,7 @@ switch task
             case 'S18_124'
                 BN = {'E18-309_0004','E18-309_0005'};
             case 'S18_125'
-                BN = {'E18-542_0007','E18-542_0008'};
+                BN = {'E18-542_0007','E18-542_0008'};             
             otherwise
                 BN = [];
         end
