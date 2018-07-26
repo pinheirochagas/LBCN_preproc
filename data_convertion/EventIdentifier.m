@@ -1,4 +1,4 @@
-function EventIdentifier (sbj_name, project_name, block_names, dirs, pdio_chan)
+function EventIdentifier (sbj_name, project_name, block_names, dirs, pdio_chan, exception)
 %% Globar Variable elements
 
 %% loop across blocks
@@ -16,6 +16,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 5;
         case 'Calculia_production'
             n_stim_per_trial = 3;
+        case 'Calculia_China'
+            n_stim_per_trial = 5;
     end
     
     %% Load globalVar
@@ -29,10 +31,15 @@ for i = 1:length(block_names)
     
     
     %% varout is anlg (single precision)
-    pdio = anlg/max(double(anlg))*2;
+    pdio = anlg/max(double(anlg));
     [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     clear anlg
-
+    
+    if strcmp(project_name, 'UCLA')
+        n_initpulse_onset = 12; n_initpulse_offset = 12;
+    else
+    end
+    % FIX THIS MORE ELLEGANTLY
     
     %% Thresholding the signal
     ind_above= pdio > 0.5;
@@ -52,7 +59,7 @@ for i = 1:length(block_names)
     %get osnets from diode
     pdio_dur= pdio_offset - pdio_onset;
     IpdioI= [pdio_onset(2:end)-pdio_offset(1:end-1) 0];
-    isi_ind = find(IpdioI > 0.2);
+    isi_ind = find(IpdioI > 0.1);
     
     stim_offset= [pdio_offset(isi_ind) pdio_offset(end)];
     stim_onset= [pdio_onset(isi_ind) pdio_onset(end)];
@@ -95,6 +102,12 @@ for i = 1:length(block_names)
     % the second input is project dependent
     %reshape onsets to account for the number of events in each trial
     
+    if exception == 1
+        all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+    else
+    end
+    
+    
     %%
     % Plot photodiode segmented data
     figureDim = [0 0 1 1];
@@ -112,10 +125,29 @@ for i = 1:length(block_names)
     df_SOT= diff(StimulusOnsetTime)';
     % df_stim_onset= diff(stim_onset_fifth); %fifth? why?
     df_stim_onset = diff(all_stim_onset(:,1))';
+
     %plot overlay
     subplot(2,3,4)
-    plot(df_SOT,'o','MarkerSize',8,'LineWidth',3),hold on, plot(df_stim_onset,'r*')
+    plot(df_SOT,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox
+    hold on
+    plot(df_stim_onset,'r*') % photodiode/trigger 
     df= df_SOT - df_stim_onset;
+    
+    %%
+%     psychtoolbox = trialinfo.StimulusOnsetTime - trialinfo.StimulusOnsetTime(1);
+%     trigger = all_stim_onset - all_stim_onset(1);
+%     
+%     plot(psychtoolbox, 'o')
+%     hold on
+%     plot(trigger, 'r*')
+%     
+%     psychtoolbox1 = psychtoolbox(:,1)
+%     trigger1 = trigger(:,1)
+%     
+%     [r,m,b] = regression(psychtoolbox1',1:length(psychtoolbox1))
+%     [r,m,b] = regression(trigger1',1:length(trigger1))
+    
+    %%
     
     %plot diffs, across experiment and histogram
     subplot(2,3,5)

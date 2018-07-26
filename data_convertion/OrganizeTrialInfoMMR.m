@@ -17,8 +17,11 @@ for i = 1:length(block_names)
     for i = 1:length(K.theData)
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
     end
-    trialinfo.RT = vertcat(K.theData(:).RT);
-    
+    for i = 1:length(K.theData)
+        trialinfo.RT(i,1) = K.theData(i).RT(1); % Becase some cases had 2 equal values for RT in the same trial
+    end    
+%     trialinfo.RT = vertcat(K.theData(:).RT);
+
     condNames= {'self-internal','other','self-external','autobio','math','rest','fact'};
     conds_math_memory = {'memory','memory','memory','memory','math','rest','memory'};
     

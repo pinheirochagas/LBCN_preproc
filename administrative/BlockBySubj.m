@@ -37,6 +37,12 @@ switch task
                 BN = [];
         end
         
+    case 'Calculia_China'
+        switch sbj
+            case 'YYQ'
+                BN = {'YYQ_01'};
+        end
+        
     case 'Calculia_production'
         switch sbj
             case 'S18_124'

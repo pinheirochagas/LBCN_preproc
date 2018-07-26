@@ -1,4 +1,4 @@
-function CreateFolders(sbj_name, project_name, block_name, dirs)
+function CreateFolders(sbj_name, project_name, block_name, center, dirs)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
     'SpecData', 'HFBData'};
@@ -21,6 +21,8 @@ end
 %% Per block - create folders and globalVar
 globalVar.sbj_name = sbj_name;
 globalVar.project_name = project_name;
+globalVar.center = center;
+
 
 for bn = 1:length(block_name)
     globalVar.block_name = block_name{bn};

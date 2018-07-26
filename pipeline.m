@@ -15,6 +15,7 @@ project_name = '7Heaven';
 project_name = 'Scrambled';
 project_name = 'UCLA';
 project_name = 'Calculia';
+project_name = 'Calculia_China';
 
 
 % Make sure your are connected to CISCO and logged in the server
@@ -25,23 +26,30 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-% sbj_name = 'S11_29_RB';
-sbj_name = 'S14_75_TB';
+sbj_name = 'S11_29_RB';
+% sbj_name = 'S14_75_TB';
 
 % sbj_name = 'S12_42_NC';
+sbj_name = 'YYQ';
 
+% Center
+center = 'China';
+center = 'Stanford';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 %% Create subject folders
-CreateFolders(sbj_name, project_name, block_names, dirs)
+CreateFolders(sbj_name, project_name, block_names, center, dirs)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
 % At this stage, paste the EDF or TDT files into the originalData folder
 % and the behavioral files into the psychData
 % (unless if using CopyFilesServer, which is still under development)
+
+
+%%%%%%%%%%%%%%%% ADD CENTER TO THE GLOBAL VAR
 
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
@@ -49,7 +57,7 @@ CreateFolders(sbj_name, project_name, block_names, dirs)
 %% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
 ref_chan = [];
-epi_chan = [33, 44, 48, 57:64];
+epi_chan = [17, 95, 77, 63, 91, 35, 48, 51, 59];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
@@ -77,7 +85,7 @@ end
 OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
 OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? 
-
+OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? 
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
 %OrganizeTrialInfoCalculiaEBS
@@ -92,8 +100,9 @@ OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial m
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % old ones, photo = 2
+EventIdentifier(sbj_name, project_name, block_names(2), dirs, 2, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
 % Fix it for UCLA
+% subject 'S11_29_RB' exception = 1 for block 2 
 
 
 %% Branch 4 - bad channel rejection
@@ -115,7 +124,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
 end
@@ -127,8 +136,8 @@ blc_params.win = [-.2 0];
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
     end
 end
 
@@ -184,9 +193,28 @@ elect_names = importElectNames(dirs);
 [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 
 % Plot brain and coordinates
-ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'l', 1)
-f = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+% transform coords
+% coords(:,1) = coords(:,1) + 5;
+% coords(:,2) = coords(:,2) + 5;
+% coords(:,3) = coords(:,3) - 5;
 
+figureDim = [0 0 1 .4];
+figure('units', 'normalized', 'outerposition', figureDim)
+
+views = [1 2 4];
+hemisphere = 'right';
+
+for i = 1:length(views)
+    subplot(1,length(views),i)
+    ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
+    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+%     if i > 2
+%         f1.Parent.OuterPosition(3) = f1.Parent.OuterPosition(3)/2;
+%     else
+%     end
+end
+
+    ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), 2)
 
 %% Create subjVar
 subjVar = [];

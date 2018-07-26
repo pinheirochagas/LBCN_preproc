@@ -5,9 +5,20 @@ function SaveDataNihonKohden(sbj_name, project_name, block_name, dirs, refChan, 
 % Loop across blocks
 for i = 1:length(block_name)
     bn = block_name{i};
+    
+    % Load globalVar
+    fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
+    load(fn,'globalVar');
+    
     data_dir = [dirs.original_data '/' sbj_name '/' bn]; % directory for saving data
     fname =  [dirs.original_data '/' sbj_name '/' bn '/' bn '.edf'];
-    [hdr, D] = edfread(fname);
+    
+    if strcmp(globalVar.center, 'Stanford')
+        [hdr, D] = edfread(fname);
+    elseif strcmp(globalVar.center, 'China')
+        [hdr, D] = edfread_China(fname);
+    else
+    end    
     
     fs = size(D,2)/(hdr.records * hdr.duration);
     % hdr.records = number of chuncks 
@@ -70,8 +81,6 @@ for i = 1:length(block_name)
     % Prompt asking to visually identify the photodiode channel
     % add the photodiode channel label the globalVar
     
-    fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
-    load(fn,'globalVar');
     
     globalVar.iEEG_rate = fs/ecog_ds;
     globalVar.Pdio_rate = fs/pdio_ds;

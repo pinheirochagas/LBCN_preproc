@@ -19,8 +19,10 @@ for i = 1:length(block_names)
     end
     trialinfo.RT = vertcat(K.theData(:).RT);
     
-    condNames= {'self-internal','other','self-external','autobio','math','rest','fact', 'autobio'};
-    conds_math_memory = {'memory','memory','memory','memory','math','rest', 'memory', 'memory'};
+    condNames= {'internal-self','internal-other','internal-dist-other',...
+        'external-self','external-other','external-Dis-other',...
+        'math','episodic','rest'};
+    conds_math_memory = {'memory','memory','memory','memory','memory','memory', 'math', 'memory', 'rest'};
     
     % Add calculation info
     for i = 1:size(trialinfo,1)
