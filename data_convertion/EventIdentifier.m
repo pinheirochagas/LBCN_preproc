@@ -35,10 +35,10 @@ for i = 1:length(block_names)
     [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     clear anlg
     
-    if strcmp(project_name, 'UCLA')
-        n_initpulse_onset = 12; n_initpulse_offset = 12;
-    else
-    end
+%     if strcmp(project_name, 'UCLA')
+     n_initpulse_onset = 12; n_initpulse_offset = 12;
+%     else
+%     end
     % FIX THIS MORE ELLEGANTLY
     
     %% Thresholding the signal

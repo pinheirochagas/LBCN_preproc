@@ -1,9 +1,6 @@
 %% Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
 
-
-fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
@@ -17,47 +14,44 @@ project_name = 'UCLA';
 project_name = 'Calculia';
 project_name = 'Calculia_China';
 
-
-% Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Pedro_iMAC', project_name);
-
 %% Create folders
 %sbj_name = 'S18_124';
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
-sbj_name = 'S11_29_RB';
+% sbj_name = 'S11_29_RB';
 % sbj_name = 'S14_75_TB';
-
 % sbj_name = 'S12_42_NC';
-sbj_name = 'YYQ';
+% sbj_name = 'YYQ';
+sbj_name = 'S13_55_JJC';
 
 % Center
-center = 'China';
+% center = 'China';
 center = 'Stanford';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
+% Make sure your are connected to CISCO and logged in the server
+dirs = InitializeDirs('Pedro_iMAC', project_name);
+
+
+%% Get iEEG and Pdio sampling rate and data format
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
+
 %% Create subject folders
-CreateFolders(sbj_name, project_name, block_names, center, dirs)
+CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format)
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
 % At this stage, paste the EDF or TDT files into the originalData folder
 % and the behavioral files into the psychData
 % (unless if using CopyFilesServer, which is still under development)
 
-
-%%%%%%%%%%%%%%%% ADD CENTER TO THE GLOBAL VAR
-
-%% Get iEEG and Pdio sampling rate and data format
-[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
-
 %% Get marked channels and demographics
 [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
 ref_chan = [];
-epi_chan = [17, 95, 77, 63, 91, 35, 48, 51, 59];
+epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
@@ -65,11 +59,9 @@ empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 % Login to the server first?
 % Should we rename the channels at this stage to match the new naming?
 % This would require a table with chan names retrieved from the PPT
-
-% dirs_server_root = '/Volumes/neurology_jparvizi$/SHICEP_S11_31_DZ/S11_31a_DZa(Data ECoG)/TDT Data'; % manually retrieved
-% parfor i = 1:length(block_names)
-%     CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs, [dirs_server_root block_names{i}])
-% end
+parfor i = 1:length(block_names)
+    CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs)
+end
 
 
 %% Branch 2 - data conversion - PEDRO
@@ -82,10 +74,16 @@ else
 end
 
 %% Convert berhavioral data to trialinfo
-OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
-OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
-OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? 
-OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? 
+switch project_name
+    case 'MMR'
+        OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
+    case 'Memoria'
+        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+    case 'UCLA'
+        OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+    case 'CalculiaChina'
+        OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+end
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
 %OrganizeTrialInfoCalculiaEBS
@@ -100,7 +98,7 @@ OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names(2), dirs, 2, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
+EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
 
@@ -108,7 +106,7 @@ EventIdentifier(sbj_name, project_name, block_names(2), dirs, 2, 1) % new ones, 
 %% Branch 4 - bad channel rejection
 BadChanReject(sbj_name, project_name, block_names, dirs)
 % 1. Continuous data
-%      Step 0. epileptic channels based on clinical evaluation (manually inputed in the SaveDataNihonKohden)
+%      Step 0. epileptic channels based on clinical evaluation from table_.xls
 %      Step 1. based on the raw power
 %      Step 2. based on the spikes in the raw signal
 %      Step 3. based on the power spectrum deviation
@@ -124,8 +122,8 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
 end
 
@@ -136,8 +134,8 @@ blc_params.win = [-.2 0];
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
     end
 end
 
@@ -150,7 +148,7 @@ end
 % Bad epochs identification
 %      Step 1. based on the raw signal
 %      Step 2. based on the spikes in the raw signal
-%      Step 3. based on the spikes in the HFB signal
+%      Step 3. based on the spikes in the HFB signal or other freq bands
 
 
 %% DONE PREPROCESSING. 
@@ -158,7 +156,8 @@ end
 % with an external hard drive
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
-%% Branch 7 - plotting OY AND YO
+%% Branch 7 - Plotting
+load('cdcol.mat')
 x_lim = [-.2 5];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
@@ -185,6 +184,7 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
@@ -202,19 +202,33 @@ figureDim = [0 0 1 .4];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 views = [1 2 4];
-hemisphere = 'right';
+hemisphere = 'left';
 
+% Plot electrodes as dots
 for i = 1:length(views)
     subplot(1,length(views),i)
     ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
     f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+    alpha(0.5)
+
 %     if i > 2
 %         f1.Parent.OuterPosition(3) = f1.Parent.OuterPosition(3)/2;
 %     else
 %     end
 end
 
-    ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), 2)
+% Plot electrodes as text
+views = [1 4];
+
+for v = 1:length(views)
+    subplot(1,length(views),v)
+    ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(v))
+    for i = 1:length(elecs)
+        hold on
+        text(coords(i,1),coords(i,2),coords(i,3), num2str(elecs(i)), 'FontSize', 20);
+    end
+    alpha(0.5)
+end
 
 %% Create subjVar
 subjVar = [];

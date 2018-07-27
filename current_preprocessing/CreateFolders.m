@@ -5,7 +5,7 @@ folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
 
 %% Per subject
 for i = 1:length(folder_names)
-    folders.(folder_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name);
+    folders.(folder_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name, data_format);
 end
 folders.psych_dir = sprintf('%s/%s',dirs.psych_root,sbj_name);
 folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
@@ -38,10 +38,27 @@ for bn = 1:length(block_name)
             end
         end
     end
+    %% Original folders from the server
+    % iEEG data
+    if strcmp(data_format, 'TDT')
+        msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
+        globalVar.iEEG_data_server_path = [uigetdir('/Volumes/neurology_jparvizi$/') '/'];
+    elseif strcmp(data_format, 'edf')
+        msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
+        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' '/']);
+        globalVar.iEEG_data_server_path = [FILENAME, PATHNAME];
+    else
+    end
+    % Behavioral data
+    msgbox(['Choose file path for behavioral data on the server for block' block_name{bn}])
+    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' '/']);
+    globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
+
     % Save globalVariable
     fn = [folders.originalData '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];
     save(fn,'globalVar');
 end
+
 
 
 end

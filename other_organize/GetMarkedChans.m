@@ -18,5 +18,4 @@ badChan = T.badChan{:};
 epiChan = T.epiChan{:};
 emptyChan = T.emptyChan{:};
 
-
 end
