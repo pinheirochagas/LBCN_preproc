@@ -1,11 +1,19 @@
-function CreateFolders(sbj_name, project_name, block_name, center, dirs)
+function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
     'SpecData', 'HFBData'};
 
+% Subject folder name
+all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'))
+for i = 1:length(all_folders)
+    tpm(i) = contains(all_folders(i).name, sbj_name);
+end
+sbj_folder_name = all_folders(find(tpm == 1)).name;
+
+
 %% Per subject
 for i = 1:length(folder_names)
-    folders.(folder_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name, data_format);
+    folders.(folder_names{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_names{i},sbj_name);
 end
 folders.psych_dir = sprintf('%s/%s',dirs.psych_root,sbj_name);
 folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
@@ -42,16 +50,19 @@ for bn = 1:length(block_name)
     % iEEG data
     if strcmp(data_format, 'TDT')
         msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
-        globalVar.iEEG_data_server_path = [uigetdir('/Volumes/neurology_jparvizi$/') '/'];
+        disp(['Choose server folder for iEEG data of block ' block_name{bn}])
+        globalVar.iEEG_data_server_path = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
     elseif strcmp(data_format, 'edf')
         msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
-        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' '/']);
+        disp(['Choose server folder for iEEG data of block ' block_name{bn}])
+        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
         globalVar.iEEG_data_server_path = [FILENAME, PATHNAME];
     else
     end
     % Behavioral data
     msgbox(['Choose file path for behavioral data on the server for block' block_name{bn}])
-    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' '/']);
+    disp(['Choose file path for behavioral data on the server for block' block_name{bn}])
+    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
     globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
 
     % Save globalVariable

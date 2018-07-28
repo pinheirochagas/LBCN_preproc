@@ -20,10 +20,10 @@ project_name = 'Calculia_China';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
-% sbj_name = 'S14_75_TB';
+sbj_name = 'S14_75_TB';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
-sbj_name = 'S13_55_JJC';
+% sbj_name = 'S13_55_JJC';
 
 % Center
 % center = 'China';
@@ -123,7 +123,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
 end
 
@@ -135,7 +135,7 @@ blc_params.win = [-.2 0];
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
     end
 end
 
