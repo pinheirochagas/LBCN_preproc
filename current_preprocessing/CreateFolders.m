@@ -4,7 +4,7 @@ folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
     'SpecData', 'HFBData'};
 
 % Subject folder name
-all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'))
+all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
 for i = 1:length(all_folders)
     tpm(i) = contains(all_folders(i).name, sbj_name);
 end
@@ -49,19 +49,16 @@ for bn = 1:length(block_name)
     %% Original folders from the server
     % iEEG data
     if strcmp(data_format, 'TDT')
-        msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
-        disp(['Choose server folder for iEEG data of block ' block_name{bn}])
+        waitfor(msgbox(['Choose server folder for iEEG data of block ' block_name{bn}]));
         globalVar.iEEG_data_server_path = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
     elseif strcmp(data_format, 'edf')
-        msgbox(['Choose server folder for iEEG data of block ' block_name{bn}])
-        disp(['Choose server folder for iEEG data of block ' block_name{bn}])
+        waitfor(msgbox(['Choose server file for iEEG data of block ' block_name{bn}]));
         [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
-        globalVar.iEEG_data_server_path = [FILENAME, PATHNAME];
+        globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
     else
     end
     % Behavioral data
-    msgbox(['Choose file path for behavioral data on the server for block' block_name{bn}])
-    disp(['Choose file path for behavioral data on the server for block' block_name{bn}])
+    waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
     [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
     globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
 

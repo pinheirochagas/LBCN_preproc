@@ -6,7 +6,7 @@ parpool(16) % initialize number of cores
 %% Initialize Directories
 %project_name = 'Calculia_production';
 project_name = 'MMR';
-%project_name = 'Memoria';
+project_name = 'Memoria';
 project_name = 'MFA';
 project_name = '7Heaven';
 project_name = 'Scrambled';
@@ -20,7 +20,7 @@ project_name = 'Calculia_China';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
-sbj_name = 'S14_75_TB';
+sbj_name = 'S18_126_DF';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
@@ -208,7 +208,7 @@ hemisphere = 'left';
 for i = 1:length(views)
     subplot(1,length(views),i)
     ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
-    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'b', 'MarkerSize', 40);
     alpha(0.5)
 
 %     if i > 2
@@ -216,6 +216,8 @@ for i = 1:length(views)
 %     else
 %     end
 end
+light('Position',[1 0 0])
+
 
 % Plot electrodes as text
 views = [1 4];
@@ -229,6 +231,14 @@ for v = 1:length(views)
     end
     alpha(0.5)
 end
+
+
+% Plot two hemispheres
+ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'left', 1)
+ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'right', 1)
+f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
+f1 = plot3(coords(e,1),coords(e,2),coords(e,3), '.', 'Color', 'r', 'MarkerSize', 40);
+text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 %% Create subjVar
 subjVar = [];
