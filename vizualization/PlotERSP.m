@@ -68,14 +68,16 @@ for i = 1:length(freq_ticks)
     freq_labels{i}=num2str(round(data.freqs(freq_ticks(i))));
 end
 % plot data
-figureDim = [0 0 .8 .4];
-figure('units', 'normalized', 'outerposition', figureDim)
-for ci = 1:ncategs
-    subplot(1,ncategs+1,ci)
-    data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
-    data_tmp_all{ci} = convn(data_tmp,gusWin','same');
+
+ 
+if ncategs == 1
+    figureDim = [0 0 .3 .4];
+    figure('units', 'normalized', 'outerposition', figureDim)
+
+    data_tmp = squeeze(nanmean(plot_data{1},2)); % average across trials
+    data_tmp_all = convn(data_tmp,gusWin','same');
     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-%     imagesc(data.time,1:length(data.freqs),data_tmp)
+    %     imagesc(data.time,1:length(data.freqs),data_tmp)
     colorbar
     axis xy
     hold on
@@ -83,7 +85,7 @@ for ci = 1:ncategs
     set(gca,'YTick',freq_ticks)
     set(gca,'YTickLabel',freq_labels)
     plot([0 0],ylim,'k-','LineWidth',3)
-    title(conds{ci})
+    title(conds)
     xlabel(plot_params.xlabel);
     ylabel(plot_params.ylabel)
     xlim(plot_params.xlim)
@@ -91,26 +93,54 @@ for ci = 1:ncategs
     box off
     y_lim = ylim;
     plotLines(data, y_lim)
+    
+else
+    figureDim = [0 0 .8 .4];
+    figure('units', 'normalized', 'outerposition', figureDim)
+
+    for ci = 1:ncategs
+        subplot(1,ncategs+1,ci)
+        data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
+        data_tmp_all{ci} = convn(data_tmp,gusWin','same');
+        imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
+        %     imagesc(data.time,1:length(data.freqs),data_tmp)
+        colorbar
+        axis xy
+        hold on
+        colormap(plot_params.cmap);
+        set(gca,'YTick',freq_ticks)
+        set(gca,'YTickLabel',freq_labels)
+        plot([0 0],ylim,'k-','LineWidth',3)
+        title(conds{ci})
+        xlabel(plot_params.xlabel);
+        ylabel(plot_params.ylabel)
+        xlim(plot_params.xlim)
+        set(gca,'fontsize',plot_params.textsize)
+        box off
+        y_lim = ylim;
+        plotLines(data, y_lim)
+    end
+    
+    % Plot the difference
+    subplot(1,ncategs+1,ci+1)
+    data_tmp_diff = data_tmp_all{1} - data_tmp_all{2};
+    imagesc(data.time,1:length(data.freqs),data_tmp_diff,plot_params.clim/2)
+    colorbar
+    axis xy
+    hold on
+    colormap(plot_params.cmap);
+    set(gca,'YTick',freq_ticks)
+    set(gca,'YTickLabel',freq_labels)
+    plot([0 0],ylim,'k-','LineWidth',3)
+    title('difference')
+    xlabel(plot_params.xlabel);
+    ylabel(plot_params.ylabel)
+    xlim(plot_params.xlim)
+    set(gca,'fontsize',plot_params.textsize)
+    box off
+    
 end
 
-% Plot the difference
-subplot(1,ncategs+1,ci+1)
-data_tmp_diff = data_tmp_all{1} - data_tmp_all{2};
-imagesc(data.time,1:length(data.freqs),data_tmp_diff,plot_params.clim/2)
-colorbar
-%     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-axis xy
-hold on
-colormap(plot_params.cmap);
-set(gca,'YTick',freq_ticks)
-set(gca,'YTickLabel',freq_labels)
-plot([0 0],ylim,'k-','LineWidth',3)
-title('difference')
-xlabel(plot_params.xlabel);
-ylabel(plot_params.ylabel)
-xlim(plot_params.xlim)
-set(gca,'fontsize',plot_params.textsize)
-box off
 
 %% Plot lines to mark events
 

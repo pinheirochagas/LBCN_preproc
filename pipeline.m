@@ -133,18 +133,19 @@ end
 blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
+tmax = 7;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'HFB', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'Spec', [],[], blc_params)
     end
 end
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -5, 1, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -5, 1, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -tmax, 1, 'HFB', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -tmax, 1, 'Spec', [],[], blc_params)
     end
 end
 % Bad epochs identification
@@ -160,14 +161,14 @@ end
 
 %% Branch 7 - Plotting
 load('cdcol.mat')
-x_lim = [-.2 5];
+x_lim = [-.2 tmax];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
-col = [cdcol.carmine;
-    cdcol.ultramarine;
+col = [cdcol.ultramarine;
+    cdcol.carmine;
     cdcol.grassgreen;
     cdcol.lilac;
     cdcol.yellow;
@@ -175,6 +176,7 @@ col = [cdcol.carmine;
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_calc',[],col,'trials',[],x_lim)
+
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_all',[],col,'trials',[],x_lim)
 
 % TODO: 
@@ -182,7 +184,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_al
 % Input baseline correction flag to have the option.
 % Include the lines option
 
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_addsub',[],'trials',[])
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],'trials',[])
 % TODO: Fix cbrewer 2
 
 
