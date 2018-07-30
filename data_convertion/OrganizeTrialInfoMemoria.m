@@ -50,17 +50,24 @@ for i = 1:length(block_names)
     counter = 1;
     nblocks = ntrials/K.bSize;
     mathtype = cell(ntrials,1);
+    conds_all = cell(ntrials,1);
     for bi = 1:nblocks
         inds = counter:(counter+K.bSize-1);
         if K.bType(bi)==2
             mathtype(inds)={'digit'};
+            conds_all(inds)={'digit'};
         elseif K.bType(bi)==3
             mathtype(inds)={'numword'};
+            conds_all(inds)={'numword'};
+        elseif K.bType(bi)==1
+            conds_all(inds)={'autobio'};
         end
         counter = counter+K.bSize;
     end
     
     trialinfo.mathtype = mathtype;
+    trialinfo.conds_all = conds_all;
+    
     
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
 end

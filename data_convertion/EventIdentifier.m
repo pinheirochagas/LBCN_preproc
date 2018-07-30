@@ -28,8 +28,7 @@ for i = 1:length(block_names)
     
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
-    
-    
+        
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
     [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
@@ -42,7 +41,12 @@ for i = 1:length(block_names)
     % FIX THIS MORE ELLEGANTLY
     
     %% Thresholding the signal
-    ind_above= pdio > 0.5;
+    if strcmp(project_name, 'Calculia_production')
+        ind_above= pdio < -5;
+    else
+        ind_above= pdio > 0.5;
+    end
+    
     ind_df= diff(ind_above);
     clear ind_above
     onset= find(ind_df==1);
@@ -93,8 +97,7 @@ for i = 1:length(block_names)
         for ti = 1:ntrials
             inds = counter:(counter+trialinfo.nstim(ti)-1);
             all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
-            counter = counter+trialinfo.nstim(ti);
-        end
+            counter = counter+trialinfo.nstim(ti);        end
     else
         
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
@@ -122,6 +125,8 @@ for i = 1:length(block_names)
     
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial
+%     StimulusOnsetTime = StimulusOnsetTime(1:size(all_stim_onset,1)); % This is temporary for incomplete recordings
+    
     df_SOT= diff(StimulusOnsetTime)';
     % df_stim_onset= diff(stim_onset_fifth); %fifth? why?
     df_stim_onset = diff(all_stim_onset(:,1))';
@@ -167,7 +172,11 @@ for i = 1:length(block_names)
     end
     
     
+    
     %% Updating the events with onsets
+
+%     trialinfo = trialinfo(1:size(all_stim_onset,1),:)  % This is temporary for incomplete recordings
+%     event_trials = event_trials(1:size(all_stim_onset,1),:) % This is temporary for incomplete recordings
     trialinfo.allonsets(event_trials,:) = all_stim_onset;
     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
     %     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);

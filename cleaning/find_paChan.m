@@ -1,6 +1,6 @@
 function [pathological_chan_id,pathological_event]=find_paChan(eeg,chanNames,fs,thr)
 %   Find possible pathological channels with HFO and spikes.
-%   Pathological (irritative) channels are defined as channels with event 
+%   Pathological (irritative) channels are defined as channels with event
 %   occuerrnce rate > [thr] times of the average HFO+spike rate
 %   eeg:        miltichannel EEG data in columns.
 %   chanNames:  channel labels.
@@ -18,28 +18,35 @@ if nargin<4
 end
 
 z=1;
-
-% If channames are only numbers, add iEEG before
-if isempty(join(regexp(string(chanNames{1}),'[a-z]','Match','ignorecase'),''))
-    for i = 1:length(chanNames)
-        chanNames{i} = ['iEEG' chanNames{i}];
-    end
-else
-end
-
 %Create bipolar for HFO and spike detection
 fprintf('%s\n','---- Creating bipolar montage ----')
-for i=1:size(eeg,2)-1
-    name1 = join(regexp(string(chanNames{i}),'[a-z]','Match','ignorecase'),'');
-    name2 = join(regexp(string(chanNames{i+1}),'[a-z]','Match','ignorecase'),'');
-    if strcmp(name1,name2)
-        eeg_bi(:,z)=eeg(:,i)-eeg(:,i+1);
+
+%%%%%%%change
+if strcmp(chanNames{1,1},'01')
+    labels=str2double(chanNames);
+    [new_labels,orig_order]=sort(labels);
+    
+    for i=1:size(eeg,2)-1
+        eeg_bi(:,z)=eeg(:,orig_order(i))-eeg(:,orig_order(i+1));
         chan{1,z}=sprintf('%s-%s',chanNames{i},chanNames{i+1});
         z=z+1;
-    else
-        continue
+        
+    end
+else
+    
+    for i=1:size(eeg,2)-1
+        name1 = join(regexp(string(chanNames{i}),'[a-z]','Match','ignorecase'),'');
+        name2 = join(regexp(string(chanNames{i+1}),'[a-z]','Match','ignorecase'),'');
+        if strcmp(name1,name2)
+            eeg_bi(:,z)=eeg(:,i)-eeg(:,i+1);
+            chan{1,z}=sprintf('%s-%s',chanNames{i},chanNames{i+1});
+            z=z+1;
+        else
+            continue
+        end
     end
 end
+%%% change
 
 %Detecting events
 
@@ -107,8 +114,12 @@ pathological_chan=unique(monochan(:));
 pathological_event.ts=event.timestamp;
 pathological_event.channel=pChan;
 
-for i=1:length(pathological_chan)
-    pathological_chan_id(i)=find(strcmp(pathological_chan{i},chanNames));
+if isempty(pathological_chan)
+    pathological_chan_id=[];
+else
+    for i=1:length(pathological_chan)
+        pathological_chan_id(i)=find(strcmp(pathological_chan{i},chanNames));
+    end
 end
 
 

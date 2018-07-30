@@ -4,7 +4,7 @@ AddPaths('Pedro_iMAC')
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
-%project_name = 'Calculia_production';
+project_name = 'Calculia_production';
 project_name = 'MMR';
 project_name = 'Memoria';
 project_name = 'MFA';
@@ -20,7 +20,7 @@ project_name = 'Calculia_China';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
-sbj_name = 'S18_126_DF';
+sbj_name = 'S18_126';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
@@ -83,6 +83,8 @@ switch project_name
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'CalculiaChina'
         OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+    case 'Calculia_production'
+        OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
 end
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
@@ -98,7 +100,7 @@ end
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
+EventIdentifier(sbj_name, project_name, block_names, dirs, 1, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
 
@@ -135,7 +137,7 @@ blc_params.win = [-.2 0];
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], 5, 'Spec', [],[], blc_params)
     end
 end
 
@@ -172,13 +174,15 @@ col = [cdcol.carmine;
     cdcol.turquoiseblue];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_calc',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_all',[],col,'trials',[],x_lim)
 
 % TODO: 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
 
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory',[],'trials',[])
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_addsub',[],'trials',[])
 % TODO: Fix cbrewer 2
 
 
