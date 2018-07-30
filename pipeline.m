@@ -26,7 +26,7 @@ sbj_name = 'S18_126';
 % sbj_name = 'S13_55_JJC';
 
 % Center
-% center = 'China';
+center = 'China';
 center = 'Stanford';
 
 %% Get block names
