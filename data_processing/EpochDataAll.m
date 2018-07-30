@@ -70,7 +70,7 @@ dir_out = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn, '/EpochData'];
 % load trialinfo
 load([dirs.result_root,'/',project_name,'/',sbj_name,'/',bn,'/trialinfo_',bn,'.mat'])
 % Select only trials that are not rest
-trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
+% trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
 
 
 if strcmp(locktype,'stim')

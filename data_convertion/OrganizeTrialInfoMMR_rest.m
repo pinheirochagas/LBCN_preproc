@@ -23,6 +23,7 @@ for i = 1:length(block_names)
     end
     
     trialinfo.RT = RTb;
+    clear RTb
     % trialinfo.RT = vertcat(K.theData(:).RT);%RTb;%
     
     condNames= {'self-internal','other','self-external','autobio','math','rest','fact'};

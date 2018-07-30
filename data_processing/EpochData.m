@@ -24,15 +24,18 @@ else
 end
 
 for i = 1:ntrials
-    if (siglength>=start_inds(i)+aft_ind)
-        inds = (start_inds(i)+bef_ind):(start_inds(i)+aft_ind);
-    else  % if recording ended before the of the full last epoch
-        inds = (start_inds(i)+bef_ind):siglength;
-    end
-    if nfreq > 1
-        epoched_data.wave(:,i,1:length(inds))=data.wave(:,inds);
+    if isnan(start_inds(i)) %%%%
     else
-        epoched_data.wave(i,1:length(inds))=data.wave(inds);
+        if (siglength>=start_inds(i)+aft_ind)
+            inds = (start_inds(i)+bef_ind):(start_inds(i)+aft_ind);
+        else  % if recording ended before the of the full last epoch
+            inds = (start_inds(i)+bef_ind):siglength;
+        end
+        if nfreq > 1
+            epoched_data.wave(:,i,1:length(inds))=data.wave(:,inds);
+        else
+            epoched_data.wave(i,1:length(inds))=data.wave(inds);
+        end
     end
 end
 

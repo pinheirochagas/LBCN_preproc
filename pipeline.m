@@ -15,7 +15,7 @@ project_name = 'Calculia';
 project_name = 'Calculia_China';
 
 %% Create folders
-%sbj_name = 'S18_124';
+sbj_name = 'S18_124';
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
@@ -26,7 +26,7 @@ sbj_name = 'S18_126';
 % sbj_name = 'S13_55_JJC';
 
 % Center
-center = 'China';
+% center = 'China';
 center = 'Stanford';
 
 %% Get block names
@@ -76,7 +76,8 @@ end
 %% Convert berhavioral data to trialinfo
 switch project_name
     case 'MMR'
-        OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
+%         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
+        OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
         OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
     case 'UCLA'
@@ -86,6 +87,7 @@ switch project_name
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
 end
+
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
 %OrganizeTrialInfoCalculiaEBS
@@ -133,12 +135,12 @@ end
 blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
-tmax = 7;
+tmax = 5;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'Spec', [],[], blc_params)
     end
 end
 
@@ -162,17 +164,18 @@ end
 %% Branch 7 - Plotting
 load('cdcol.mat')
 x_lim = [-.2 tmax];
+col = [cdcol.carmine;
+    cdcol.ultramarine;
+    cdcol.grassgreen;
+    cdcol.lilac;
+    cdcol.yellow;
+    cdcol.turquoiseblue];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
-col = [cdcol.ultramarine;
-    cdcol.carmine;
-    cdcol.grassgreen;
-    cdcol.lilac;
-    cdcol.yellow;
-    cdcol.turquoiseblue];
+
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_calc',[],col,'trials',[],x_lim)
@@ -184,7 +187,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_al
 % Input baseline correction flag to have the option.
 % Include the lines option
 
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],'trials',[])
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'trials',[])
 % TODO: Fix cbrewer 2
 
 
