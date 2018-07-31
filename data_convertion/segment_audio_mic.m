@@ -60,7 +60,25 @@ for i = 1:length(onset_offset)
     plot(onset_offset{i}(1):onset_offset{i}(2),zeros(length(anlg(onset_offset{i}(1):onset_offset{i}(2))),1), 'LineWidth', 50, 'Color', 'red')
     text(onset_offset{i}(1),0, num2str(i), 'FontSize', 30)
 end
-% if needed, correct timing manually
+
+%% Play and type in excel sheet (better to use another computer with google drive sheets)
+clc
+for i = 23:length(onset_offset)
+    soundsc(anlg(onset_offset{i}(1)-1000:onset_offset{i}(2)+1000), 10000); % -+5000 just to hear better
+    i
+    waitforbuttonpress
+    clc
+end
+
+%% Trim out some meaningles sounds
+onset_offset = onset_offset(1:end-1);
+
+% Manual inspection
+i = 5
+soundsc(anlg(onset_offset{i}(1):onset_offset{i}(2)+10000), 10000); % -+5000 just to hear better
+
+
+%% if needed, correct timing manually
 [xi,~] = getpts
 t = 1; 
 start(t) = floor(xi(1))
@@ -69,19 +87,7 @@ finish(t) = floor(xi(2))
 
 
 
-%% Play
-clc
-for i = 1:length(onset_offset)
-    soundsc(anlg(onset_offset{i}(1)-1000:onset_offset{i}(2)+1000), 10000); % -+5000 just to hear better
-    i
-    waitforbuttonpress
-    clc
-end
-i = 5
-soundsc(anlg(onset_offset{i}(1):onset_offset{i}(2)+10000), 10000); % -+5000 just to hear better
 
-%% Trim out some meaningles sounds
-onset_offset = onset_offset(1:end-1)
 
 
 

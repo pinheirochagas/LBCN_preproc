@@ -53,13 +53,13 @@ for bn = 1:length(block_name)
         globalVar.iEEG_data_server_path = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
     elseif strcmp(data_format, 'edf')
         waitfor(msgbox(['Choose server file for iEEG data of block ' block_name{bn}]));
-        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
+        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name,'.edf'],'All Files (*.*)','MultiSelect','on');
         globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
     else
     end
     % Behavioral data
     waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
-    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name,'.edf'],'All Files (*.*)','MultiSelect','on');    
+    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
     globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
 
     % Save globalVariable

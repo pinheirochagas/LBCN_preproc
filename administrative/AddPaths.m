@@ -8,7 +8,7 @@ elseif strcmp(user,'Pedro_NeuroSpin4T')
 elseif strcmp(user,'Amy_iMAC')
     comp_root = sprintf('/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/'); % location of analysis_ECOG folder
 elseif strcmp(user,'Ying_iMAC')
-    comp_root = sprintf('/Users/yingfang/Documents/toolbox/lbcn_preproc_v3/'); % location of analysis_ECOG folder
+    comp_root = sprintf('/Users/yingfang/Documents/toolbox/lbcn_preproc/'); % location of analysis_ECOG folder
 elseif strcmp(user,'Clara_iMAC')
     comp_root = sprintf('/Users/csava/Documents/code/lbcn_preproc/'); % location of analysis_ECOG folder
     addpath(genpath('/Users/csava/Documents/code/iELVis/'))
