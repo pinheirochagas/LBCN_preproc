@@ -1,15 +1,14 @@
-%% Segment and play answers MMR EBS !!!
-% 
-clear all
-sbj_name = 'S18_126';
-project_name = 'Calculia_production';
-block_names = BlockBySubj(sbj_name,project_name);
-bn = 1;
-load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{bn}),'globalVar');
-load(sprintf('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/%s/%s/Pdio%s_02.mat',sbj_name, block_names{bn}, block_names{bn}))
+function segment_audio_mic(sbj_name,project_name, block_name) 
 
-soda_name = dir(fullfile(globalVar.psych_dir, '*.mat'));
-load([globalVar.psych_dir '/' soda_name.name], 'slist'); % block 55 %% FIND FILE IN THE FOLDER AUTO
+
+% Load globalVar 
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names),'globalVar');
+
+% Load mic electrode
+load(sprintf('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/%s/%s/Pdio%s_02.mat',sbj_name, block_names, block_names))
+
+% Load trialinfo
+load([dirs.result_root,'/',project_name,'/',sbj_name,'/',block_name,'/trialinfo_',block_name,'.mat'])
 
  
 
@@ -17,12 +16,13 @@ load([globalVar.psych_dir '/' soda_name.name], 'slist'); % block 55 %% FIND FILE
 normic = anlg./(max(abs(anlg)));
 
 %% Define threshold and silence
-thrh = 1.1; % this probably depends on the microfone and session
 min_silence = 20000; % this depends on the task - it should be around 3 seconds 
 
 %% Envelope
 samples = 1000;
 [up,lo] = envelope(normic,samples,'rms');
+thrh = 0.2; % this probably depends on the microfone and session
+
 
 %% Start and end points
 % find cut point start
@@ -62,21 +62,26 @@ for i = 1:length(onset_offset)
 end
 % if needed, correct timing manually
 [xi,~] = getpts
-t = 47; 
+t = 1; 
 start(t) = floor(xi(1))
 finish(t) = floor(xi(2))
 
 
 
+
 %% Play
-pause(2)
+clc
 for i = 1:length(onset_offset)
-    soundsc(anlg(onset_offset{i}(1)-5000:onset_offset{i}(2)+5000), 10000); % -+5000 just to hear better
+    soundsc(anlg(onset_offset{i}(1)-1000:onset_offset{i}(2)+1000), 10000); % -+5000 just to hear better
     i
-    pause(3)
+    waitforbuttonpress
+    clc
 end
-i = 75
+i = 5
 soundsc(anlg(onset_offset{i}(1):onset_offset{i}(2)+10000), 10000); % -+5000 just to hear better
+
+%% Trim out some meaningles sounds
+onset_offset = onset_offset(1:end-1)
 
 
 
@@ -107,3 +112,4 @@ slist.trial_number = []
 %% Save 
 save([globalVar.psych_dir '/' subject_ID '_' blocks{bn} '_slist.mat'], 'slist'); % block 55 %% FIND FILE IN THE FOLDER AUTO
 
+end

@@ -88,6 +88,9 @@ switch project_name
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
 end
 
+
+segment_audio_mic
+
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
 %OrganizeTrialInfoCalculiaEBS

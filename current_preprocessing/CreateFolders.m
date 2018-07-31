@@ -59,7 +59,7 @@ for bn = 1:length(block_name)
     end
     % Behavioral data
     waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
-    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
+    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name,'.edf'],'All Files (*.*)','MultiSelect','on');    
     globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
 
     % Save globalVariable
