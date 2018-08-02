@@ -18,6 +18,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 3;
         case 'Calculia_China'
             n_stim_per_trial = 5;
+        case 'Number_comparison'
+            n_stim_per_trial = 1;
     end
     
     %% Load globalVar
@@ -35,7 +37,7 @@ for i = 1:length(block_names)
     clear anlg
     
 %     if strcmp(project_name, 'UCLA')
-%      n_initpulse_onset = 12; n_initpulse_offset = 12;
+     n_initpulse_onset = 12; n_initpulse_offset = 12;
 %     else
 %     end
     % FIX THIS MORE ELLEGANTLY

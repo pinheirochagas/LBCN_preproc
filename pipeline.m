@@ -13,17 +13,18 @@ project_name = 'Scrambled';
 project_name = 'UCLA';
 project_name = 'Calculia';
 project_name = 'Calculia_China';
+project_name = 'Number_comparison';
 
 %% Create folders
-sbj_name = 'S18_124';
+% sbj_name = 'S18_124';
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
-sbj_name = 'S18_126';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
+sbj_name = 'S18_126';
 
 % Center
 % center = 'China';
@@ -41,7 +42,9 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
 
 %% Create subject folders
-CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format)
+CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format) 
+%%% IMPROVE uigetfile to go directly to subject folder %%%
+
 % this creates the fist instance of globalVar which is going to be
 % updated at each step of the preprocessing accordingly
 % At this stage, paste the EDF or TDT files into the originalData folder
@@ -62,6 +65,7 @@ empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 parfor i = 1:length(block_names)
     CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs)
 end
+% In the case of number comparison, one has also to copy the stim lists
 
 
 %% Branch 2 - data conversion - PEDRO
@@ -86,6 +90,8 @@ switch project_name
         OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+    case 'Number_comparison'
+        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?        
 end
 
 
