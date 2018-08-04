@@ -18,8 +18,12 @@ for i = 1:length(block_name)
     elseif strcmp(globalVar.center, 'China')
         [hdr, D] = edfread_China(fname);
     else
-    end    
+    end
     
+    %% Add Exception for when channels don' have labels
+    hdr.label =  hdr.label(~strcmp(hdr.label, 'POL')); 
+    D = D(~strcmp(hdr.label, 'POL'),:);
+            
     fs = size(D,2)/(hdr.records * hdr.duration);
     % hdr.records = number of chuncks 
     % hdr.duration = duration of each chunck 
@@ -57,8 +61,14 @@ for i = 1:length(block_name)
         % Clean channel name
         channame_tpm = hdr.label{ecog_oldinds(ei)};
         channame_tpm = strrep(channame_tpm,'POL','');
-        channame{ei} = strrep(channame_tpm,'Ref','');
         
+        % This is to correct some chan labels from China
+        if contains(channame_tpm, 'EEG') && contains (channame_tpm, '-')
+            channame_tpm = strrep(channame_tpm,'EEG','');
+            channame{ei} = strrep(channame_tpm,'-Ref','');
+        else
+            channame{ei} = strrep(channame_tpm,'Ref','');
+        end    
         save(fp,'wave','fs','channame')
         disp(['Saving chan ',chanlbl,' ',channame{ei}])
     end

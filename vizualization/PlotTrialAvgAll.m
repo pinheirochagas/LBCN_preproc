@@ -116,7 +116,7 @@ for ei = 1:length(elecs)
     data_all.label = data.label;
     
     PlotTrialAvg(data_all,column,conds,col,plot_params, noise_method)
-    fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,locktype);
+    fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,column,locktype);
     savePNG(gcf, 300, fn_out)
     close
 end

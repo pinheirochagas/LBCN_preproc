@@ -1,9 +1,6 @@
 function trialinfo = OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs)
 %% Get and prepare behavioral trialinfo
 
-
-
-
 for i = 1:length(block_names)
     results_table = table;
     stim_table = table;
@@ -109,6 +106,36 @@ for i = 1:length(block_names)
     for i = 1:length(theData)
         trialinfo.StimulusOnsetTime(i) = theData(i).flip.StimulusOnsetTime;
     end
+    
+    % Add some conditions
+    trialinfo.dist_num = discretize(abs(trialinfo.num1-trialinfo.num2cat),4);
+    trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);
+    
+    for i = 1:size(trialinfo,1)
+        if trialinfo.condNames(i) == 1
+            trialinfo.conds_num_lum{i} = 'number';
+        else
+            trialinfo.conds_num_lum{i} = 'brightness';
+        end
+        
+        if trialinfo.condNames(i) == 1 && trialinfo.stim_type(i) == 1
+            trialinfo.conds_num_lum_digit_dot{i} = 'brightness_digit';
+        elseif trialinfo.condNames(i) == 1 && trialinfo.stim_type(i) == 2
+            trialinfo.conds_num_lum_digit_dot{i} = 'brightness_dot';
+        elseif trialinfo.condNames(i) == 2 && trialinfo.stim_type(i) == 1
+            trialinfo.conds_num_lum_digit_dot{i} = 'number_digit';
+        elseif trialinfo.condNames(i) == 2 && trialinfo.stim_type(i) == 2
+            trialinfo.conds_num_lum_digit_dot{i} = 'number_dot';
+        end
+    end
+    
+    for i = 1:size(trialinfo,1)
+        if strcmp(trialinfo.conds_num_lum{i}, 'number')
+            trialinfo.conds_num_lum_digit_dot_distance{i} = [trialinfo.conds_num_lum_digit_dot{i} '_' num2str(trialinfo.dist_num(i))];
+        else
+            trialinfo.conds_num_lum_digit_dot_distance{i} = [trialinfo.conds_num_lum_digit_dot{i} '_' num2str(trialinfo.dist_lum(i))];
+        end    
+    end    
     
     %% Save trialinfo
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');

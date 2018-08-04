@@ -484,6 +484,7 @@ switch task
             case 'S15_89b_JQ'
                 BN = {'E17-152_0038'};
         end
+        
     case 'Number_comparison'
         switch sbj
             case 'S14_69b_RT'
@@ -494,7 +495,17 @@ switch task
                 BN = {'E17-789_0017','E17-789_0018','E17-789_0029','E17-789_0030'};
             case 'S18_126'
                 BN = {'E18-602_0042','E18-602_0043','E18-602_0044','E18-602_0045'};
+            case 'G18_19'
+                BN = {'G019_comparison_01'};
         end
+        
+    case 'Calculia_China'
+        switch sbj
+            case 'G18_19'
+                BN = {'G019_calculate_01','G019_calculate_02'};
+        end        
+        
+        
     otherwise
         BN = [];
 end

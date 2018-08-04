@@ -128,7 +128,7 @@ box off
 if (plot_params.legend)
     leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
     legend boxoff
-    set(leg,'fontsize',14)
+    set(leg,'fontsize',14, 'Interpreter', 'none')
 end
 
 if strcmp(plot_params.label,'name')

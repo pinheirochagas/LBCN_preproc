@@ -24,11 +24,11 @@ project_name = 'Number_comparison';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
-sbj_name = 'S18_126';
+sbj_name = 'G18_19';
 
 % Center
-% center = 'China';
-center = 'Stanford';
+center = 'China';
+% center = 'Stanford';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
@@ -39,7 +39,7 @@ dirs = InitializeDirs('Pedro_iMAC', project_name);
 
 
 %% Get iEEG and Pdio sampling rate and data format
-[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name);
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
 CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format) 
@@ -71,6 +71,7 @@ end
 %% Branch 2 - data conversion - PEDRO
 if strcmp(data_format, 'edf')
     SaveDataNihonKohden(sbj_name, project_name, block_names, dirs, ref_chan, epi_chan, empty_chan) %
+    % MAYBE NOT CHANGE DC CHANNEL LABELS. No need to call them PDIO? 
 elseif strcmp(data_format, 'TDT')
     SaveDataDecimate(sbj_name, project_name, block_names, fs_iEEG, fs_Pdio, dirs, ref_chan, epi_chan, empty_chan) %% DZa 3051.76
 else
@@ -86,7 +87,7 @@ switch project_name
         OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
-    case 'CalculiaChina'
+    case 'Calculia_China'
         OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
@@ -95,7 +96,7 @@ switch project_name
 end
 
 
-segment_audio_mic
+% ADD segment_audio_mic
 
 %Plug into OrganizeTrialInfoCalculiaProduction
 %OrganizeTrialInfoNumberConcatActive
@@ -111,7 +112,11 @@ segment_audio_mic
 % %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs, 1, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician
+if strcmp(project_name, 'Number_comparison')
+    event_numcomparison_current(sbj_name, project_name, block_names, dirs) %% MERGE THIS
+else
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
 
@@ -141,10 +146,10 @@ for i = 1:length(block_names)
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-blc_params.run = true; % or false
+blc_params.run = false; % or false
 blc_params.locktype = 'stim';
-blc_params.win = [-.2 0];
-tmax = 5;
+blc_params.win = [-.5 0];
+tmax = 7;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
@@ -153,10 +158,11 @@ for i = 1:length(block_names)
     end
 end
 
+
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -tmax, 1, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -tmax, 1, 'Spec', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', tmax, 1, 'Spec', [],[], blc_params)
     end
 end
 % Bad epochs identification
@@ -180,23 +186,50 @@ col = [cdcol.carmine;
     cdcol.yellow;
     cdcol.turquoiseblue];
 
+col = [cdcol.grassgreen;
+    cdcol.lilac;
+    cdcol.yellow;
+    cdcol.turquoiseblue;
+    cdcol.carmine;
+    cdcol.ultramarine
+    cdcol.cobaltblue];
+
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
 
-
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_calc',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_all',[],col,'trials',[],x_lim)
+x_lim = [-tmax 1];
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
+
+
+
+% Number comparison
+% load a given trialinfo
+load([dirs.result_root,'/',project_name,'/',sbj_name,'/',block_names{1},'/trialinfo_',block_names{1},'.mat'])
+conds_dist = unique(trialinfo.conds_num_lum_digit_dot_distance)
+conds_number_digit = conds_dist(contains(conds_dist, 'number_digit'));
+conds_number_dot = conds_dist(contains(conds_dist, 'number_dot'));
+conds_brightness_dot = conds_dist(contains(conds_dist, 'brightness_dot'));
+conds_brightness_digit= conds_dist(contains(conds_dist, 'brightness_digit'));
+
+
+col = gray(4)
+col = col*0.85
+
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot_distance',conds_brightness_digit,col,'trials',[],x_lim)
 
 % TODO: 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
 
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],'trials',[])
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'trials',[])
+
 % TODO: Fix cbrewer 2
 
 
@@ -320,7 +353,14 @@ acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
 mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
 sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
 
-boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.CorrectResult(data_calc.Accuracy == 1))
+boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
+set(gca,'fontsize',20)
+ylabel('RT (sec.)')
+xlabel('Min operand')
+
+
+%% MMR
+data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 
 
