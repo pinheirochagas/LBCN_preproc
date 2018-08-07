@@ -87,7 +87,6 @@ switch project_name
         OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
         OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
-        OrganizeTrialInfoMemoria_GS_Veb(sbj_name, project_name, block_names, dirs)
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_China'

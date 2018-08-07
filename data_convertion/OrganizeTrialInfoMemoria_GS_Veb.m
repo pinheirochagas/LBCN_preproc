@@ -1,4 +1,4 @@
-function OrganizeTrialInfoMemoria_GS_Veb(sbj_name, project_name, block_names, dirs)
+function OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 
 condNames= {'autobio','math'};
 nstim_per_trial = [4 5];
