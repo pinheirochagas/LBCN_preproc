@@ -24,11 +24,13 @@ project_name = 'Number_comparison';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
+sbj_name = 'S18_126';
+
 sbj_name = 'G18_19';
 
 % Center
 center = 'China';
-% center = 'Stanford';
+center = 'Stanford';
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
@@ -85,6 +87,7 @@ switch project_name
         OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
         OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+        OrganizeTrialInfoMemoria_GS_Veb(sbj_name, project_name, block_names, dirs)
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_China'

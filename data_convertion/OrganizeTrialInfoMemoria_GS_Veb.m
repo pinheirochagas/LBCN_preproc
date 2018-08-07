@@ -12,14 +12,14 @@ for i = 1:length(block_names)
     % Load behavioral file
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
-    
-    RT = [K.theData(:).RT]';
+      
     ntrials = length(K.conds);
     
     trialinfo = table;
-    
-    % trialinfo.nstim = nan(ntrials,1);
-    
+    trialinfo.wlist = K.wlist';
+    trialinfo.RT = [K.theData(:).RT]';
+    trialinfo.keys = vertcat(K.theData(:).keys);
+        
     conds = cell(ntrials,1);
     nstim_all = nan(ntrials,1);
     for ci = 1:length(condNames)
@@ -44,10 +44,9 @@ for i = 1:length(block_names)
         end
         
     end
-    trialinfo.wlist = K.wlist';
+
     trialinfo.StimulusOnsetTime = allonset;
-    trialinfo.RT = RT;
-    trialinfo.keys = vertcat(K.theData(:).keys);
+
     
     counter = 1;
     nblocks = ntrials/K.bSize;
@@ -92,21 +91,29 @@ for i = 1:length(block_names)
     %% Define Math variables
     for i = 1:size(trialinfo,1)
         % Calculation info
-        [C,matches] = strsplit(trialinfo.wlist{i},{'+','-','=', 'and', 'is'},'CollapseDelimiters',true);
-        if sum(isstrprop(C{1}, 'digit')) > 0
+        [C,matches] = strsplit(trialinfo.wlist{i},{'+','-','=', 'and', 'is', 'plus', 'equals'},'CollapseDelimiters',true);
+        if strcmp(trialinfo.condNames(i), 'math')
             isCalc = 1;
-            Operand1 = str2num((C{1}));
-            Operand2 = str2num((C{2}));
-            if strmatch(matches{1}, '-') == 1
+            if strcmp(trialinfo.mathtype(i), 'digit')
+                Operand1 = str2num((C{1}));
+                Operand2 = str2num((C{2}));
+                PresResult = str2num((C{3}));
+            else
+                Operand1 = words2num((C{1}));
+                Operand2 = words2num((C{2}));
+                PresResult = words2num((C{3}));
+            end
+            
+            if strcmp(matches{1}, '-') == 1 || strcmp(matches{1}, 'minus') == 1
                 Operator = -1;
             else
                 Operator = 1;
             end
             CorrectResult = Operand1 + Operand2*Operator;
-            PresResult = str2num((C{3}(1:3))); % this is because sometimes there is a wrong character after the last digit
+%             PresResult = str2num((C{3}(1:3))); % this is because sometimes there is a wrong character after the last digit
             Deviant = CorrectResult - PresResult;
             AbsDeviant = abs(Deviant);
-            if (Deviant == 0 && strcmp(trialinfo.keys{i}, '1') == 1) || (Deviant ~= 0 && strcmp(trialinfo.keys{i}, '2') == 1)
+            if (Deviant == 0 && strcmp(trialinfo.keys(i), '1') == 1) || (Deviant ~= 0 && strcmp(trialinfo.keys(i), '2') == 1)
                 trialinfo.Accuracy(i,1) = 1;
             else
                 trialinfo.Accuracy(i,1) = 0;
