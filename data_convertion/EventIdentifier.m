@@ -23,10 +23,8 @@ for i = 1:length(block_names)
     end
     
     %% Load globalVar
-    
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
     iEEG_rate=globalVar.iEEG_rate;
-    
     
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
@@ -36,8 +34,12 @@ for i = 1:length(block_names)
     [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     clear anlg
     
+    if strcmp(sbj_name, 'S17_110_SC') ||strcmp(sbj_name,'S12_38_LK')||strcmp(sbj_name,'S13_47_JT2')
+        n_initpulse_onset=12;
+        n_initpulse_offset=12;
+    end
 %     if strcmp(project_name, 'UCLA')
-     n_initpulse_onset = 12; n_initpulse_offset = 12;
+%      n_initpulse_onset = 12; n_initpulse_offset = 12;
 %     else
 %     end
     % FIX THIS MORE ELLEGANTLY
@@ -66,7 +68,7 @@ for i = 1:length(block_names)
     pdio_dur= pdio_offset - pdio_onset;
     IpdioI= [pdio_onset(2:end)-pdio_offset(1:end-1) 0];
     isi_ind = find(IpdioI > 0.1);
-    
+    clear stim_offset stim_onset
     stim_offset= [pdio_offset(isi_ind) pdio_offset(end)];
     stim_onset= [pdio_onset(isi_ind) pdio_onset(end)];
     % stim_onset = [stim_onset(1:115) stim_onset(117:end)];
@@ -81,12 +83,36 @@ for i = 1:length(block_names)
     load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
     
     % Add the all_stim_onset
+    
     event_trials = find(~strcmp(trialinfo.condNames, 'rest'));
     rest_trials = find(strcmp(trialinfo.condNames, 'rest'));
     
     StimulusOnsetTime = trialinfo.StimulusOnsetTime(event_trials,1); % **
     
+    %% match the trigger onset with behaviral data
+    beh_sot_all=trialinfo.StimulusOnsetTime(event_trials,:);
+    beh_sot_all=beh_sot_all(~isnan(beh_sot_all));
+    beh_sot=sort(reshape(beh_sot_all,1,numel(beh_sot_all)));
+    beh_sot=beh_sot-beh_sot(1)+stim_onset(1);
     
+    if length(stim_onset)<length(beh_sot)
+        disp('Warning: Missing trigger in Pdio.');
+        stim_onset(1,length(stim_onset)+1:length(beh_sot))=nan;
+        for i=1:length(beh_sot)
+            if stim_onset(i)-beh_sot(i)>1
+                stim_onset(1,i+1:end+1)=stim_onset(1,i:end);
+                stim_onset(i)=beh_sot(i);
+                disp('Complementing')
+            end
+        end
+        stim_onset=stim_onset(~isnan(stim_onset));
+        disp('Notice:  Trigger has been Complemented.')
+        figure;
+        plot(beh_sot,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox
+        hold on
+        plot(stim_onset,'r*') % photodiode/trigger
+       
+    end
     
     %% Get trials, insturuction onsets
     %% modified for Memoria
@@ -99,7 +125,8 @@ for i = 1:length(block_names)
         for ti = 1:ntrials
             inds = counter:(counter+trialinfo.nstim(ti)-1);
             all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
-            counter = counter+trialinfo.nstim(ti);        end
+            counter = counter+trialinfo.nstim(ti);        
+        end
     else
         
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';

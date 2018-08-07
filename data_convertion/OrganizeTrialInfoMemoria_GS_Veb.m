@@ -27,7 +27,7 @@ for i = 1:length(block_names)
         nstim_all(K.conds==ci) = nstim_per_trial(ci);
     end
     trialinfo.condNames = conds;
-    trialinfo.nstim = nstim_all;
+    %trialinfo.nstim = nstim_all;
     trialinfo.stim1 = cell(ntrials,1);
     trialinfo.stim2 = cell(ntrials,1);
     trialinfo.stim3 = cell(ntrials,1);
@@ -37,6 +37,7 @@ for i = 1:length(block_names)
     allonset = nan(ntrials,max(nstim_per_trial));
     for i = 1:ntrials
         split_stim = strsplit(K.wlist{i},',');
+        trialinfo.nstim(i) =length([K.theData(i).flip.StimulusOnsetTime]);%
         for ii = 1:trialinfo.nstim(i)
             allonset(i,ii)=K.theData(i).flip(ii).StimulusOnsetTime;
             trialinfo.(['stim',num2str(ii)])(i)=split_stim(ii);
@@ -46,6 +47,7 @@ for i = 1:length(block_names)
     trialinfo.wlist = K.wlist';
     trialinfo.StimulusOnsetTime = allonset;
     trialinfo.RT = RT;
+    trialinfo.keys = vertcat(K.theData(:).keys);
     
     counter = 1;
     nblocks = ntrials/K.bSize;
@@ -86,6 +88,60 @@ for i = 1:length(block_names)
     newcondNames(specindx)={'autobio-specific'};
     newcondNames(genindx)={'autobio-general'};
     trialinfo.newcondNames=newcondNames;
+    
+    %% Define Math variables
+    for i = 1:size(trialinfo,1)
+        % Calculation info
+        [C,matches] = strsplit(trialinfo.wlist{i},{'+','-','=', 'and', 'is'},'CollapseDelimiters',true);
+        if sum(isstrprop(C{1}, 'digit')) > 0
+            isCalc = 1;
+            Operand1 = str2num((C{1}));
+            Operand2 = str2num((C{2}));
+            if strmatch(matches{1}, '-') == 1
+                Operator = -1;
+            else
+                Operator = 1;
+            end
+            CorrectResult = Operand1 + Operand2*Operator;
+            PresResult = str2num((C{3}(1:3))); % this is because sometimes there is a wrong character after the last digit
+            Deviant = CorrectResult - PresResult;
+            AbsDeviant = abs(Deviant);
+            if (Deviant == 0 && strcmp(trialinfo.keys{i}, '1') == 1) || (Deviant ~= 0 && strcmp(trialinfo.keys{i}, '2') == 1)
+                trialinfo.Accuracy(i,1) = 1;
+            else
+                trialinfo.Accuracy(i,1) = 0;
+            end
+            
+        elseif strmatch(trialinfo.wlist{i}, '+') == 1
+            isCalc = 0;
+            Operand1 = nan;
+            Operand2 = nan;
+            Operator = nan;
+            CorrectResult = nan;
+            PresResult = nan;
+            Deviant = nan;
+            AbsDeviant = nan;
+        else
+            isCalc = 0;
+            Operand1 = nan;
+            Operand2 = nan;
+            Operator = nan;
+            CorrectResult = nan;
+            PresResult = nan;
+            Deviant = nan;
+            AbsDeviant = nan;
+        end
+        trialinfo.isCalc(i,1) = isCalc;
+        trialinfo.Operand1(i,1) = Operand1;
+        trialinfo.Operand2(i,1) = Operand2;
+        trialinfo.OperandMin(i,1) = min(Operand1,Operand2);
+        trialinfo.OperandMax(i,1) = max(Operand1,Operand2);
+        trialinfo.Operator(i,1) = Operator;
+        trialinfo.CorrectResult(i,1) = CorrectResult;
+        trialinfo.PresResult(i,1) = PresResult;
+        trialinfo.Deviant(i,1) = Deviant;
+        trialinfo.AbsDeviant(i,1) = AbsDeviant;
+    end
     
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
 end
