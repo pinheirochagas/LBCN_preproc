@@ -113,7 +113,7 @@ end
 
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
-    event_numcomparison_current(sbj_name, project_name, block_names, dirs) %% MERGE THIS
+    event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
     EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
@@ -148,8 +148,8 @@ end
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
 blc_params.run = false; % or false
 blc_params.locktype = 'stim';
-blc_params.win = [-.5 0];
-tmax = 7;
+blc_params.win = [-.2 0];
+tmax = 5;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
@@ -220,7 +220,7 @@ conds_brightness_digit= conds_dist(contains(conds_dist, 'brightness_digit'));
 col = gray(4)
 col = col*0.85
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot_distance',conds_brightness_digit,col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot_distance',conds_number_digit,col,'trials',[],x_lim)
 
 % TODO: 
 % Allow conds to be any kind of class, logical, str, cell, double, etc.

@@ -1,4 +1,4 @@
-function event_numcomparison_current(sbj_name, project_name, block_names, dirs)
+function event_numcomparison_current(sbj_name, project_name, block_names, dirs, pdio_chan)
 
 for i = 1:length(block_names)
     %% Load globalVar
@@ -7,7 +7,7 @@ for i = 1:length(block_names)
     iEEG_rate=globalVar.iEEG_rate;
     
     % Load trigger channel
-    load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData,bn));
+    load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
 
     % Load soda
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
