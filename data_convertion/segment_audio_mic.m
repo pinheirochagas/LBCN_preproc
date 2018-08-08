@@ -1,4 +1,4 @@
-function segment_audio_mic(sbj_name,project_name, block_name) 
+function segment_audio_mic(sbj_name,project_name, dirs, block_names) 
 
 
 % Load globalVar 
@@ -8,7 +8,7 @@ load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,pr
 load(sprintf('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/%s/%s/Pdio%s_02.mat',sbj_name, block_names, block_names))
 
 % Load trialinfo
-load([dirs.result_root,'/',project_name,'/',sbj_name,'/',block_name,'/trialinfo_',block_name,'.mat'])
+load([dirs.result_root,'/',project_name,'/',sbj_name,'/',block_names,'/trialinfo_',block_names,'.mat'])
 
  
 

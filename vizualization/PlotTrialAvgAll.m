@@ -76,6 +76,8 @@ if ~exist(dir_out)
 else
 end
 
+
+
 %% loop through electrodes and plot
 
 for ei = 1:length(elecs)
@@ -105,12 +107,17 @@ for ei = 1:length(elecs)
         
         % concatenate trial info
         data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
+        
+        
 
     end
-
+    % Transform column into gategorical variable
+    data_all.trialinfo.(column) = categorical(data_all.trialinfo.(column));
+    
     if nargin < 9 || isempty(conds)
-        conds = unique(data.trialinfo.(column));
-    end
+        conds = categories(data_all.trialinfo.(column));
+    end    
+    
     data_all.time = data.time;
     data_all.fsample = data.fsample;
     data_all.label = data.label;

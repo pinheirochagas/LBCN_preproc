@@ -60,7 +60,7 @@ if nargin < 4 || isempty(col)
 end
 
 if nargin < 3 || isempty(conds)
-    conds = unique(data.trialinfo.(column));
+    conds = categories(data.trialinfo.(column));
 end
 ncategs = length(conds);
 
@@ -79,12 +79,12 @@ end
 % organize trials by categories
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.bad_epochs == false;
+        trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
         plot_data{ci}=data.wave(trials,:);
     end
 else
     for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci});
+        trials = data.trialinfo.(column) == conds{ci};
         plot_data{ci}=data.wave(trials,:);
     end
 end

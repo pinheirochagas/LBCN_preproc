@@ -25,8 +25,8 @@ project_name = 'Number_comparison';
 % sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
 sbj_name = 'S18_126';
-
 sbj_name = 'G18_19';
+sbj_name = 'S17_116';
 
 % Center
 center = 'China';
@@ -98,6 +98,9 @@ switch project_name
 end
 
 
+segment_audio_mic(sbj_name,project_name, dirs, block_names{1}) 
+
+
 % ADD segment_audio_mic
 
 %Plug into OrganizeTrialInfoCalculiaProduction
@@ -148,10 +151,10 @@ for i = 1:length(block_names)
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-blc_params.run = false; % or false
+blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
-tmax = 5;
+tmax = 7;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
@@ -181,8 +184,8 @@ end
 %% Branch 7 - Plotting
 load('cdcol.mat')
 x_lim = [-.2 tmax];
-col = [cdcol.carmine;
-    cdcol.ultramarine;
+col = [cdcol.ultramarine;
+    cdcol.carmine;
     cdcol.grassgreen;
     cdcol.lilac;
     cdcol.yellow;
@@ -207,6 +210,8 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 x_lim = [-tmax 1];
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
+col = cool(15)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','Operand2',[],col,'trials',[],x_lim)
 
 
 % Number comparison
@@ -241,6 +246,7 @@ fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
+V = importVolumes(dirs);
 
 % Convert electrode coordinates from native to MNI space
 [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
@@ -293,9 +299,12 @@ f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize',
 f1 = plot3(coords(e,1),coords(e,2),coords(e,3), '.', 'Color', 'r', 'MarkerSize', 40);
 text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
+
+
 %% Create subjVar
 subjVar = [];
 subjVar.cortex = cortex;
+subjVar.V = V;
 subjVar.elect_native = coords;
 subjVar.elect_MNI = MNI_coords;
 subjVar.elect_names = elect_names;
