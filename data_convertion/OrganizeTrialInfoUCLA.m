@@ -9,14 +9,22 @@ for i = 1:length(block_names)
     % Load behavioral file
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
-    K.conds(end+1) = 8; % CHECK IF THIS IS SYSTEMATIC
+%     K.conds(end+1) = 8; % CHECK IF THIS IS SYSTEMATIC
     % start trialinfo
     trialinfo = table;
-    trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % to account for different MMR versions
+    trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % 
     
     for i = 1:length(K.theData)
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
     end
+    
+    for i = 1:length(K.theData)
+        if isempty(K.theData(i).RT)
+            K.theData(i).RT = nan;
+        else
+        end
+end
+
     trialinfo.RT = vertcat(K.theData(:).RT);
     
     condNames= {'internal-self','internal-other','internal-dist-other',...
@@ -78,8 +86,15 @@ for i = 1:length(block_names)
         trialinfo.PresResult(i,1) = PresResult;
         trialinfo.Deviant(i,1) = Deviant;
         trialinfo.AbsDeviant(i,1) = AbsDeviant;
+        if isempty(K.theData(i).flip)
+            trialinfo.StimulusOnsetTime(i,1) = nan;
+        else
         trialinfo.StimulusOnsetTime(i,1) = K.theData(i).flip.StimulusOnsetTime;
+        end
     end
+
+%% Correct for nan in trigger
+trialinfo = trialinfo(~isnan(trialinfo.StimulusOnsetTime),:);
     
     %% Correct for rest trials
     % To accound for different versions of MMR

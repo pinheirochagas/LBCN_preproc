@@ -16,28 +16,31 @@ project_name = 'Calculia_China';
 project_name = 'Number_comparison';
 
 %% Create folders
+[DOCID,GID] = getGoogleSheetInfo(project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_number = 1;
+sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 %sbj_name = 'S14_69b_RT';
 %sbj_name = 'S14_64_SP';
 %sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
 % sbj_name = 'S12_42_NC';
-% sbj_name = 'YYQ';
 % sbj_name = 'S13_55_JJC';
-sbj_name = 'S18_126';
-sbj_name = 'G18_19';
-sbj_name = 'S17_116';
+% sbj_name = 'S18_126';
+% sbj_name = 'G18_19';
+% sbj_name = 'S17_116';
 
 % Center
-center = 'China';
-center = 'Stanford';
+% center = 'China'; or Stanford 
+center = googleSheet.center{sbj_number}
 
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Pedro_iMAC', project_name);
+dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name);
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -120,7 +123,7 @@ segment_audio_mic(sbj_name,project_name, dirs, block_names{1})
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -154,7 +157,7 @@ end
 blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
-tmax = 7;
+tmax = 5;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
@@ -184,8 +187,8 @@ end
 %% Branch 7 - Plotting
 load('cdcol.mat')
 x_lim = [-.2 tmax];
-col = [cdcol.ultramarine;
-    cdcol.carmine;
+col = [ cdcol.carmine;
+   cdcol.ultramarine;
     cdcol.grassgreen;
     cdcol.lilac;
     cdcol.yellow;
@@ -291,7 +294,10 @@ for v = 1:length(views)
     alpha(0.5)
 end
 
-
+for i = 1:9
+    subplot(3,3,i)
+    ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'left', i)
+end
 % Plot two hemispheres
 ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'left', 1)
 ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'right', 1)

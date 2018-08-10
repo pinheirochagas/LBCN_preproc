@@ -1,4 +1,4 @@
-function dirs = InitializeDirs(user,project_name)
+function dirs = InitializeDirs(user,project_name,sbj_name)
 % initialize directories
 
 if strcmp(user, 'Pedro_iMAC')
@@ -25,7 +25,13 @@ dirs.cortex = sprintf('%s/ECoG Patient Info/Cortex/Native_cortex',dirs.comp_root
 dirs.ROI = sprintf('%s/ECoG Patient Info/ROIs',dirs.comp_root);
 dirs.original_data = [dirs.data_root '/originalData'];
 waitfor(msgbox('Choose freesurfer folder from the server'));
-dirs.freesurfer = [uigetdir('/Volumes/neurology_jparvizi$/') '/'];
+% Subject folder name
+all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
+for i = 1:length(all_folders)
+    tpm(i) = contains(all_folders(i).name, sbj_name);
+end
+sbj_folder_name = all_folders(find(tpm == 1)).name;
+dirs.freesurfer = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
 
 end
 

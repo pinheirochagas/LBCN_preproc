@@ -168,6 +168,8 @@ if hemi=='l'
             loc_view(0,0)
         case 7
             loc_view(295,10)
+        case 8
+            loc_view(5,90)
     end
 %     set(l,'Position',[-1 0 1])   
 else 
@@ -186,6 +188,8 @@ else
             loc_view(0,0)
         case 7
             loc_view(65,10)
+        case 8
+            loc_view(5,90)
     end
 %     set(l,'Position',[1 0 1])     
 end

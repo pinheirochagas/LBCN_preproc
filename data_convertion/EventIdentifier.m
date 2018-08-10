@@ -56,9 +56,14 @@ for i = 1:length(block_names)
     onset= find(ind_df==1);
     offset= find(ind_df==-1);
     clear ind_df
-    pdio_onset= onset/globalVar.Pdio_rate;
+    pdio_onset= onset/globalVar.Pdio_rate; 
     pdio_offset= offset/globalVar.Pdio_rate;
-    
+    if length(pdio_onset) < length(pdio_offset)
+        pdio_onset = [0 pdio_onset]
+        warning('Adding additional onset as 0, since recording started in the middle of the photodiode')
+    else
+    end
+
     % %remove onset flash
     pdio_onset(1:n_initpulse_onset)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
     pdio_offset(1:n_initpulse_offset)=[]; %
@@ -197,7 +202,7 @@ for i = 1:length(block_names)
     
     %flag large difference
     if ~all(abs(df)<.1)
-        disp('behavioral data and photodiod mismatch'),return
+        warning('behavioral data and photodiod mismatch')
     end
     
     
@@ -222,6 +227,8 @@ for i = 1:length(block_names)
     %     end
     %     trialinfo.allonsets(rest_trials,:) = onset_rest;
     
+    %% Account for when recording started in the middle of photodiode signal
+    trialinfo = trialinfo(trialinfo.allonsets ~= 0,:);
     
     %% Save trialinfo
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
