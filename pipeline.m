@@ -149,7 +149,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
 end
 
@@ -157,12 +157,13 @@ end
 blc_params.run = true; % or false
 blc_params.locktype = 'stim';
 blc_params.win = [-.2 0];
+tmin = -.2;
 tmax = 5;
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', [], tmax, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
     end
 end
 
@@ -198,23 +199,24 @@ col = [cdcol.grassgreen;
     cdcol.lilac;
     cdcol.yellow;
     cdcol.turquoiseblue;
-    cdcol.carmine;
-    cdcol.ultramarine
-    cdcol.cobaltblue];
+    cdcol.black;
+    cdcol.ultramarine;
+    cdcol.cobaltblue;
+    cdcol.carmine];
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_addsub',[],[],'trials',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','conds_addsub',[],[],'none',[],x_lim)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],[],'trials',[],x_lim)
 
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],col,'trials',[],x_lim)
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
+baPlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
 x_lim = [-tmax 1];
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
 col = cool(15)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','Operand2',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
 
 % Number comparison
@@ -239,6 +241,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_nu
 
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],'trials',[])
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'trials',[])
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory',[],'trials',[])
 
 % TODO: Fix cbrewer 2
 
@@ -264,14 +267,14 @@ figureDim = [0 0 1 .4];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 views = [1 2 4];
-hemisphere = 'left';
+hemisphere = 'right';
 
 % Plot electrodes as dots
 for i = 1:length(views)
     subplot(1,length(views),i)
     ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
     f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'b', 'MarkerSize', 40);
-    alpha(0.5)
+    alpha(0.7)
 
 %     if i > 2
 %         f1.Parent.OuterPosition(3) = f1.Parent.OuterPosition(3)/2;

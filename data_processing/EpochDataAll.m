@@ -185,7 +185,7 @@ if blc.run
     else
         data_blc = BaselineCorrect(data,blc.win);
     end
-%     data.wave = data_blc.wave;
+    data.wave = data_blc.wave;
     
     % store the phase separately for spectral data
     if strcmp(datatype,'Spec')

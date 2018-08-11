@@ -50,16 +50,18 @@ for f = 1:numel(freqs)
     wavelet = exp(-(t.^2)/(2*sigma^2)).*exp(1i*2*pi*freq*t);    % wavelet = gaussian * complex sinusoid
     wave_tmp = conv(data,conj(wavelet),'same');                 % convolve signal with wavelet
     wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end));             % downsample and converting the complex to real numbers
+    if ~(avgfreq)
     wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 
+    end
 end
 
 % HFB or another frequency band (averaging across frequencies)
 if (avgfreq)
     if (norm)
-        amp = zscore(abs(wave_out.wave),[],2);
+        amp = zscore(wave_out.wave,0,2);
         wave_out.wave = nanmean(amp);
     else
-        wave_out.wave = nanmean(abs(wave_out.wave));  % average amplitude across frequencies
+        wave_out.wave = nanmean(wave_out.wave);  % average amplitude across frequencies
     end
     
 end

@@ -9,7 +9,11 @@ for i = 1:length(block_names)
     % Load behavioral file
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
-%     K.conds(end+1) = 8; % CHECK IF THIS IS SYSTEMATIC
+    if length(K.conds) < length(K.theData)
+        K.conds(end+1) = 8; % CHECK IF THIS IS SYSTEMATIC
+    else
+    end
+
     % start trialinfo
     trialinfo = table;
     trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % 
