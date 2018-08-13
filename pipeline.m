@@ -334,10 +334,10 @@ save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
 
 
 %% Copy subjects
-subjs_to_copy = {'S18_125'};
+subjs_to_copy = {'S09_07_CM'};
 parfor i = 1:lenght(subjs_to_copy)
-    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/LBCN8T/Stanford/data2/psychData', dirs.data_root, '/Volumes/LBCN8T/Stanford/data2/neuralData')
-    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
+    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData')
+    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after rerunning the dirs function
 end
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project

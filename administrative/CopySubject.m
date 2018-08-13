@@ -14,7 +14,8 @@ neuralData_folders = {'originalData', 'CARData', 'CompData', 'FiltData', ...
 
 for i = 1:length(neuralData_folders)
     
-    if ~exist([d_psychData '/' neuralData_folders{i} '/' subj_name])
+    if ~exist([d_neuralData '/' neuralData_folders{i} '/' subj_name])
+        mkdir([d_neuralData '/' neuralData_folders{i} '/' subj_name])
         disp(['copying ' neuralData_folders{i}])
         copyfile([s_neuralData '/' neuralData_folders{i} '/' subj_name], [d_neuralData '/' neuralData_folders{i} '/' subj_name])
     else
