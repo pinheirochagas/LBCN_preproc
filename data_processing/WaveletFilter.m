@@ -51,7 +51,7 @@ for f = 1:numel(freqs)
     wave_tmp = conv(data,conj(wavelet),'same');                 % convolve signal with wavelet
     wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end));             % downsample and converting the complex to real numbers
     if ~(avgfreq)
-    wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 
+        wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 
     end
 end
 
