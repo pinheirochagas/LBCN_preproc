@@ -33,6 +33,8 @@ sbj_name = googleSheet.subject_name{sbj_number};
 
 % Center
 % center = 'China'; or Stanford 
+% center = 'Stanford'; or Stanford 
+
 center = googleSheet.center{sbj_number}
 
 %% Get block names
@@ -147,7 +149,7 @@ load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,pr
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
-    parfor ei = 1:length(elecs)
+    parfor ei = 50:50%length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
 %         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
@@ -161,7 +163,7 @@ tmin = -.2;
 tmax = 5;
 
 for i = 1:length(block_names)
-    parfor ei = 1:length(elecs)
+    parfor ei = 50:50%length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params)
 %         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
     end
@@ -216,7 +218,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 
 col = cool(15)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','Operand2',[],col,'trials',[],x_lim)
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,50:50,'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
 
 % Number comparison

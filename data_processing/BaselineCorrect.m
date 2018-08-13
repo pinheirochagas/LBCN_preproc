@@ -53,7 +53,7 @@ if strcmp(datatype,'Spec')
     bl_data = reshape(bl_data,[tmp_dims(1),tmp_dims(2)*tmp_dims(3)]);
     bl_data(zscore(bl_data,[],2)>bl_reject_thr)=NaN;
     
-    bl_mn = nanmedian(bl_data,2);
+    bl_mn = nanmean(bl_data,2);
     bl_mn = repmat(bl_mn,[1,size(data.wave,2),size(data.wave,3)]);
     bl_sd = nanstd(bl_data,[],2);
     bl_sd = repmat(bl_sd,[1,size(data.wave,2),size(data.wave,3)]);
@@ -67,7 +67,7 @@ else % e.g. HFB data, no frequency dimension
     else
         bl_data = data.wave(~data.trialinfo.bad_epochs,bl_inds);
     end
-    bl_mn = nanmedian(bl_data(:));
+    bl_mn = nanmean(bl_data(:));
     bl_sd = nanstd(bl_data(:));
     
     data_blc.wave = (data.wave-bl_mn)./bl_sd;
