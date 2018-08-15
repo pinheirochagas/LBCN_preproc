@@ -84,9 +84,12 @@ for ei = 1:length(elecs)
 
     end
 
+    
     if nargin < 8 || isempty(conds)
-        conds = unique(data.trialinfo.(column));
+        tmp = find(~cellfun(@isempty(data_all.trialinfo.(column)));
+        conds = unique(data_all.trialinfo.(column)(tmp));
     end
+    
     
     % Keep all original fields of data 
     fieldnames_data = fieldnames(data);
