@@ -23,6 +23,9 @@ for i = 1:length(block_name)
         channame_iEEG{i} = channame_tmp{end-1};
     end
     
+    cn_temp=strrep(cellstr(num2str(sort(str2double(channame_iEEG')),'%02d')),' ','')';
+    channame_iEEG=cn_temp;
+    
     all_Pdio = dir(fullfile(data_dir, 'Pdio*.mat'));
     for i = 1:length(all_Pdio)
         channame_tmp = strsplit(all_Pdio(i).name, {'_', '.'});
