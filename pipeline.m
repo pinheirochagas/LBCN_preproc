@@ -149,9 +149,9 @@ load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,pr
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
-    parfor ei = 50:50%length(elecs)
+    parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, []) % across frequencies of interest
     end
 end
 
@@ -163,9 +163,9 @@ tmin = -.2;
 tmax = 5;
 
 for i = 1:length(block_names)
-    parfor ei = 50:50%length(elecs)
+    parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, block_names{i}, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
     end
 end
 
@@ -218,7 +218,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 
 col = cool(15)
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','Operand2',[],col,'trials',[],x_lim)
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,50:50,'HFB','stim','condNames',[],col,'trials',[],x_lim)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],col,'trials',[],x_lim)
 
 
 % Number comparison
@@ -337,7 +337,7 @@ save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
 subjs_to_copy = {'S09_07_CM'};
 parfor i = 1:lenght(subjs_to_copy)
     CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData')
-    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after rerunning the dirs function
+    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
 end
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -346,7 +346,7 @@ end
 %% Concatenate all trials all channels
 plot_params.blc = true;
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-
+save([dirs.data_root '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
 
 
 %% Behavioral analysis
