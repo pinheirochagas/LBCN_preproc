@@ -42,7 +42,7 @@ for ei = 1:length(elecs)
     data_bn.label = data.label;
     
     % Concatenate all subjects all trials
-    data_all.wave(ei,:,:) = data_bn.wave;
+    data_all.wave(:,ei,:) = data_bn.wave;
     data_all.trialinfo{ei} = [data_bn.trialinfo];
     %data_all.trialinfo = [data_all.trialinfo; data_bn.trialinfo];
     data_all.labels{ei} = data.label;

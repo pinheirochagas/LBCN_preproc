@@ -347,6 +347,14 @@ end
 plot_params.blc = true;
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
 save([dirs.data_root '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
+% Add nan to bad epochs
+
+% Export trialinfo to csv 
+trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'});
+writetable(trialinfo,[dirs.data_root '/trialinfo_' sbj_name '_' project_name '.csv'])                      
+
+
+save([dirs.data_root '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
 
 
 %% Behavioral analysis
