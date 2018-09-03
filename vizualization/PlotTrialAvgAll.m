@@ -115,8 +115,9 @@ for ei = 1:length(elecs)
     data_all.trialinfo.(column) = categorical(data_all.trialinfo.(column));
     
     if nargin < 9 || isempty(conds)
-        conds = categories(data_all.trialinfo.(column));
-    end    
+        tmp = find(~cellfun(@isempty(data_all.trialinfo.(column)));
+        conds = unique(data_all.trialinfo.(column)(tmp));
+    end
     
     data_all.time = data.time;
     data_all.fsample = data.fsample;
