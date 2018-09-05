@@ -1,14 +1,16 @@
-function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format)
+function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format,import_server)
 % Create folders LBCN
 folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
     'SpecData', 'HFBData'};
 
 % Subject folder name
-all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
-for i = 1:length(all_folders)
-    tpm(i) = contains(all_folders(i).name, sbj_name);
+if import_server
+    all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
+    for i = 1:length(all_folders)
+        tpm(i) = contains(all_folders(i).name, sbj_name);
+    end
+    sbj_folder_name = all_folders(find(tpm == 1)).name;
 end
-sbj_folder_name = all_folders(find(tpm == 1)).name;
 
 
 %% Per subject
@@ -48,19 +50,21 @@ for bn = 1:length(block_name)
     end
     %% Original folders from the server
     % iEEG data
-    if strcmp(data_format, 'TDT')
-        waitfor(msgbox(['Choose server folder for iEEG data of block ' block_name{bn}]));
-        globalVar.iEEG_data_server_path = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
-    elseif strcmp(data_format, 'edf')
-        waitfor(msgbox(['Choose server file for iEEG data of block ' block_name{bn}]));
-        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name,'.edf'],'All Files (*.*)','MultiSelect','on');
-        globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
-    else
+    if import_server
+        if strcmp(data_format, 'TDT')
+            waitfor(msgbox(['Choose server folder for iEEG data of block ' block_name{bn}]));
+            globalVar.iEEG_data_server_path = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];
+        elseif strcmp(data_format, 'edf')
+            waitfor(msgbox(['Choose server file for iEEG data of block ' block_name{bn}]));
+            [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name,'.edf'],'All Files (*.*)','MultiSelect','on');
+            globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
+        else
+        end
+        % Behavioral data
+        waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
+        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
+        globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
     end
-    % Behavioral data
-    waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
-    [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
-    globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
 
     % Save globalVariable
     fn = [folders.originalData '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];
