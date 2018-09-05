@@ -79,7 +79,8 @@ end
 % organize trials by categories
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
-        trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
+        trials = (data.trialinfo.(column) == conds(ci)) & (data.trialinfo.bad_epochs == false);
+%         trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
         plot_data{ci}=data.wave(trials,:);
     end
 else
@@ -126,9 +127,9 @@ set(gca,'fontsize',plot_params.textsize)
 box off
 
 if (plot_params.legend)
-    leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
-    legend boxoff
-    set(leg,'fontsize',14, 'Interpreter', 'none')
+%     leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
+%     legend boxoff
+%     set(leg,'fontsize',14, 'Interpreter', 'none')
 end
 
 if strcmp(plot_params.label,'name')

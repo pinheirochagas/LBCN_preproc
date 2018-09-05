@@ -503,6 +503,10 @@ switch task
         switch sbj
             case 'G18_19'
                 BN = {'G019_calculate_01','G019_calculate_02'};
+            case 'G18_21'
+                BN = {'G021_calculia_01','G021_calculia_02','G021_calculia_03','G021_calculia_04'};
+            case 'G18_22'
+                BN = {'G022_calculia_01','G022_calculia_02', 'G022_calculia_03', 'G022_calculia_04'};
         end        
         
         
