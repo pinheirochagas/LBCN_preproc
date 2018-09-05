@@ -346,15 +346,39 @@ end
 %% Concatenate all trials all channels
 plot_params.blc = true;
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-save([dirs.data_root '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
-% Add nan to bad epochs
+data_all_spec = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Spec','stim', plot_params);
+
+exportDataMNE(data_all_spec, )
+
+
+
+trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'}); 
+
+% excluse bad channels
+data_all.wave(:,data_all.badChan,:) = [];
+data_all.labels(data_all.badChan) = [];
+data_all.trialinfo(data_all.badChan) = [];
+
+% check for channels with nan
+nan_channel = [];
+for i = 1:size(data_all.wave,2)
+    nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
+end
+
+% Exclude channels witgh nan 
+data_all.wave = data_all.wave(:,find(nan_channel == 0),:);
+data_all.labels(find(nan_channel ~= 0)) = [];
+data_all.trialinfo(find(nan_channel ~= 0)) = [];
+
+%Randomly select the same number of conditions
+
+% Save 
+save([dirs.data_mvpa '/data_all_' sbj_name '_' project_name '_' 'Spec' '.mat'], 'data_all_spec', '-v7.3');
 
 % Export trialinfo to csv 
-trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'});
-writetable(trialinfo,[dirs.data_root '/trialinfo_' sbj_name '_' project_name '.csv'])                      
-
-
-save([dirs.data_root '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
+data_all.wave = data_all.wave(~contains(trialinfo.wlist, 'Ê'),:,:); % correct that for MMR
+trialinfo = trialinfo(~contains(trialinfo.wlist, 'Ê'),:); % correct that for MMR
+writetable(trialinfo,[dirs.data_mvpa '/trialinfo_' sbj_name '_' project_name '.csv'])                      
 
 
 %% Behavioral analysis
