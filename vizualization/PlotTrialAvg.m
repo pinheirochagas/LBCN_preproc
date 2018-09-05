@@ -1,23 +1,16 @@
-function PlotTrialAvg(data,column,conds,col,plot_params, noise_method)
+function h = PlotTrialAvg(data,column,conds,plot_params,noise_method)
 
 % plots average timecourse for each condition, separately for each electrode
 % INPUTS:
 %       data: can be either freq x trial x time  or trial x time
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all of the conditions within column)
+%               can group multiple conds together by having a cell of cells
+%               (e.g. conds = {{'math'},{'autobio','self-internal'}})     
 %       col:    colors to use for plotting each condition (otherwise will
 %               generate randomly)
-%       plot_params:    .eb : plot errorbars ('ste','std',or 'none')
-%                       .lw : line width of trial average
-%                       .legend: 'true' or 'false'
-%                       .label: 'name','number', or 'none'
-%                       .sm: width of gaussian smoothing window (s)
-%                       .textsize: text size of axis labels, etc
-%                       .xlabel
-%                       .ylabel
-%                       .freq_range: frequency range to extract (only applies to spectral data)
-%                       .bl_win: baseline correction window
-%                       .xlim
+%       plot_params:    controls plot features (see genPlotParams.m script)
+
 load('cdcol.mat')
 
 if ndims(data.wave)==3 % if spectral data
@@ -30,39 +23,15 @@ if isempty(noise_method)
     noise_method = 'trials';
 end
 
-
-if nargin < 5 || isempty(plot_params)
-    plot_params.single_trial = false;
-    plot_params.eb = 'ste';
-    plot_params.lw = 3;
-    plot_params.legend = true;
-    plot_params.label = 'name';
-    plot_params.sm = 0.05;
-    plot_params.textsize = 20;
-    plot_params.xlabel = 'Time (s)';
-    plot_params.ylabel = 'z-scored power';
-    plot_params.freq_range = [52 180];
-    plot_params.bl_win = [-0.2 0];
-    plot_params.xlim = [-0.2 3];
+if isempty(plot_params)
+    plot_params = genPlotParams(project_name,'timecourse');
 end
 
-if nargin < 4 || isempty(col)
-    col = [cdcol.carmine;
-        cdcol.ultramarine;
-        cdcol.grassgreen;
-        cdcol.lilac;
-        cdcol.yellow;
-        cdcol.turquoiseblue;
-        cdcol.flamered;
-        cdcol.periwinkleblue;
-        cdcol.yellowgeen
-        cdcol.purple];
+if ~plot_params.multielec
+    ncategs = length(conds);
+else
+    ncategs = 1;
 end
-
-if nargin < 3 || isempty(conds)
-    conds = categories(data.trialinfo.(column));
-end
-ncategs = length(conds);
 
 %%
 
@@ -73,26 +42,27 @@ plot_data = cell(1,ncategs);
 
 if strcmp(datatype,'Spec')
     freq_inds = data.freqs >= plot_params.freq_range(1) & data.freqs <= plot_params.freq_range(2);
-    data.wave = squeeze(nanmean(abs(data.wave(freq_inds,:,:))));  % avg across freq. domain
+    data.wave = squeeze(nanmean(data.wave(freq_inds,:,:)));  % avg across freq. domain
 end
 
-% organize trials by categories
-if strcmp(noise_method, 'trials')
-    for ci = 1:ncategs
-        trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
-        plot_data{ci}=data.wave(trials,:);
-    end
+% group data by conditions
+if plot_params.multielec
+    groupall = true;
 else
-    for ci = 1:ncategs
-        trials = data.trialinfo.(column) == conds{ci};
-        plot_data{ci}=data.wave(trials,:);
-    end
+    groupall = false;
+end
+
+[grouped_trials,cond_names] = groupConds(conds,data.trialinfo,column,noise_method,groupall);
+
+plot_data = cell(1,ncategs);
+for ci = 1:ncategs
+    plot_data{ci} = data.wave(grouped_trials{ci},:);
 end
 
 % smooth and plot data
 for ci = 1:ncategs
     plot_data{ci} = convn(plot_data{ci},gusWin','same');
-    lineprops.col{1} = col(ci,:);
+    lineprops.col{1} = plot_params.col(ci,:);
     if plot_params.single_trial == true
         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5])
     else
@@ -113,7 +83,7 @@ for ci = 1:ncategs
             end
         end
     end
-    h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',col(ci,:));
+    h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
     hold on
 end
 xlim(plot_params.xlim)
@@ -126,15 +96,9 @@ set(gca,'fontsize',plot_params.textsize)
 box off
 
 if (plot_params.legend)
-    leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
+    leg = legend(h,cond_names,'Location','Northeast', 'AutoUpdate','off');
     legend boxoff
     set(leg,'fontsize',14, 'Interpreter', 'none')
-end
-
-if strcmp(plot_params.label,'name')
-    title(data.label)
-elseif strcmp(plot_params.label,'number')
-    title('Elec ',num2str(el))
 end
 
 %% Plot lines to mark events

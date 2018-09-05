@@ -126,8 +126,13 @@ if sep_bl
 end
 ep_data = EpochData(data,lockevent,bef_time,aft_time);
 
-data.wave = ep_data.wave;
-data.time = ep_data.time;
+fields = fieldnames(ep_data);
+for fi = 1:length(fields)
+    data.(fields{fi})=ep_data.(fields{fi});
+end
+
+% data.wave = ep_data.wave;
+% data.time = ep_data.time;
 clear ep_data
 data.trialinfo = trialinfo;
 
@@ -185,7 +190,7 @@ if blc.run
     else
         data_blc = BaselineCorrect(data,blc.win);
     end
-    data.wave = data_blc.wave;
+%     data.wave = data_blc.wave;
     
     % store the phase separately for spectral data
     if strcmp(datatype,'Spec')
@@ -194,12 +199,12 @@ if blc.run
 end
 
 %% Update data structure
-data.label = globalVar.channame{el};
-if strcmp(datatype,'CAR')
-    data.fsample = globalVar.iEEG_rate;
-else
-    data.fsample = globalVar.iEEG_rate; %%% here again.
-end
+% data.label = globalVar.channame{el};
+% if strcmp(datatype,'CAR')
+%     data.fsample = globalVar.iEEG_rate;
+% else
+%     data.fsample = globalVar.iEEG_rate; %%% here again.
+% end
 
 % Naming specs based on the epoching parameters
 if blc.run == true

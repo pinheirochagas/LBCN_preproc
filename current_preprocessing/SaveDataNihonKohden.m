@@ -28,7 +28,7 @@ for i = 1:length(block_name)
     % hdr.records = number of chuncks 
     % hdr.duration = duration of each chunck 
     
-    % Downsampling parametere
+    % Downsampling parameters
     target_fs = 1000; % 
     target_fs_comp = round(target_fs/5); % reduced fs for spectral data 
     
@@ -56,7 +56,8 @@ for i = 1:length(block_name)
         fp = sprintf('%s/iEEG%s_%s.mat',data_dir,bn,chanlbl);
         wave = squeeze(D(ecog_oldinds(ei),:,1));
         if (ecog_ds > 1)
-            wave = decimate(double(wave),ecog_ds);
+            wave = decimate(doublse(wave),ecog_ds);
+            fs = fs/ecog_ds;
         end
         % Clean channel name
         channame_tpm = hdr.label{ecog_oldinds(ei)};

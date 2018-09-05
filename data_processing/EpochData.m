@@ -17,10 +17,18 @@ bef_ind = floor(bef_time*data.fsample);
 aft_ind = floor(aft_time*data.fsample);
 len_trial = aft_ind-bef_ind + 1;
 
+epoch_fields = {'wave','phase'}; % fields of data to be epoched (if they exist)
+datafields = fieldnames(data);
+epoch_fields = intersect(epoch_fields, datafields);
+
 if nfreq > 1
-    epoched_data.wave = nan(nfreq,ntrials,len_trial);
+    for i = 1:length(epoch_fields)
+        epoched_data.(epoch_fields{i}) = nan(nfreq,ntrials,len_trial);
+    end
 else
-    epoched_data.wave = nan(ntrials,len_trial);
+    for i = 1:length(epoch_fields)
+        epoched_data.(epoch_fields{i}) = nan(ntrials,len_trial);
+    end
 end
 
 for i = 1:ntrials
@@ -32,9 +40,13 @@ for i = 1:ntrials
             inds = (start_inds(i)+bef_ind):siglength;
         end
         if nfreq > 1
-            epoched_data.wave(:,i,1:length(inds))=data.wave(:,inds);
+            for ei = 1:length(epoch_fields)
+            	epoched_data.(epoch_fields{ei})(:,i,1:length(inds))=data.(epoch_fields{ei})(:,inds);
+            end
         else
-            epoched_data.wave(i,1:length(inds))=data.wave(inds);
+            for ei = 1:length(epoch_fields)
+                epoched_data.(epoch_fields{ei})(i,1:length(inds))=data.(epoch_fields{ei})(inds);
+            end
         end
     end
 end
