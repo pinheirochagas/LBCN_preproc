@@ -79,7 +79,8 @@ end
 % organize trials by categories
 if strcmp(noise_method, 'trials')
     for ci = 1:ncategs
-        trials = (data.trialinfo.(column) == conds(ci)) & (data.trialinfo.bad_epochs == false);
+        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.bad_epochs == false;
+%         trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
 %         trials = (data.trialinfo.(column) == conds{ci}) & (data.trialinfo.bad_epochs == false);
         plot_data{ci}=data.wave(trials,:);
     end
@@ -91,6 +92,9 @@ else
 end
 
 % smooth and plot data
+figureDim = [0 0 .3 .4];
+figure('units', 'normalized', 'outerposition', figureDim)
+
 for ci = 1:ncategs
     plot_data{ci} = convn(plot_data{ci},gusWin','same');
     lineprops.col{1} = col(ci,:);
@@ -127,9 +131,9 @@ set(gca,'fontsize',plot_params.textsize)
 box off
 
 if (plot_params.legend)
-%     leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
-%     legend boxoff
-%     set(leg,'fontsize',14, 'Interpreter', 'none')
+    leg = legend(h,conds,'Location','Northeast', 'AutoUpdate','off');
+    legend boxoff
+    set(leg,'fontsize',14, 'Interpreter', 'none')
 end
 
 if strcmp(plot_params.label,'name')
@@ -144,15 +148,15 @@ y_lim = ylim;
 if size(data.trialinfo.allonsets,2) > 1
     time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
     for i = 1:length(time_events)
-        plot([time_events(i) time_events(i)],y_lim,'Color', [0 0 0], 'LineWidth',2)
+        plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
     end
 else
     
 end
-plot([0 0],y_lim,'Color', [0 0 0], 'LineWidth',2)
-plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
+plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
+plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
 ylim(y_lim)
 
 box on % Pedro concluded
 
-
+end

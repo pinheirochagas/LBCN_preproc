@@ -111,14 +111,14 @@ for ei = 1:length(elecs)
         
 
     end
-    % Transform column into gategorical variable
-    data_all.trialinfo.(column) = categorical(data_all.trialinfo.(column));
+    % Transform column into categorical variable
+%     data_all.trialinfo.(column) = categorical(data_all.trialinfo.(column));
     
     if nargin < 9 || isempty(conds)
-%         tmp = find(~cellfun(@isempty, data_all.trialinfo.(column)));
-        tmp = data_all.trialinfo.(column);
-%         conds = unique(data_all.trialinfo.(column)(tmp));
-        conds = unique(data_all.trialinfo.(column));
+        tmp = find(~cellfun(@isempty, data_all.trialinfo.(column)));
+%         tmp = data_all.trialinfo.(column);
+        conds = unique(data_all.trialinfo.(column)(tmp));
+%         conds = unique(data_all.trialinfo.(column));
     end
     
     data_all.time = data.time;
@@ -126,7 +126,7 @@ for ei = 1:length(elecs)
     data_all.label = data.label;
     
     PlotTrialAvg(data_all,column,conds,col,plot_params, noise_method)
-    fn_out = sprintf('%s/%s_%s_%s_%s_%s_number_digit_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,column,locktype);
+    fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data.label,project_name,datatype,column,locktype);
     savePNG(gcf, 300, fn_out)
     close
 end
