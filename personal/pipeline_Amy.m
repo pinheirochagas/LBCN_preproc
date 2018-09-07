@@ -222,6 +222,9 @@ noise_method = 'timepts'; %'trials','timepts','none'
 % plot HFB timecourse for each electrode separately
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],noise_method,[])
 
+% plot HFB timecourse, grouping multiple conds together
+elecs = 1
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{{'math','autobio'}},noise_method,[])
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.multielec = true;
@@ -260,7 +263,9 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'tr
 
 % TODO: Fix cbrewer 2
 
-
+%% STATS
+tag = 'stimlock_bl_corr';
+[p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,tag,'condNames',{'math'},'HFB',[]);
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';

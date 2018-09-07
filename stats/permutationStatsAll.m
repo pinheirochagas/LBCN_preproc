@@ -8,6 +8,7 @@ function [p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,d
 %       elecs: can select subset of electrodes to epoch (default: all)
 %       column:         column name of data.trialinfo where conds are
 %       conds:          cell containing cond name(s) (1 or 2) to compare
+%       datatype: 'CAR','HFB',or 'Spec'
 %       stats_params:   .task_win:   2-element vector specifying window of time to use in stats (in sec)    
 %                       .bl_win:     2-element vector specifying window to use for baseline (in sec)- only relevent when 1 condition
 %                       .paired:     true or false: 
