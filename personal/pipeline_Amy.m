@@ -2,7 +2,7 @@
 computer = 'Amy_iMAC';
 AddPaths(computer)
 
-parpool(4) % initialize number of cores
+parpool(2) % initialize number of cores
 
 %% Initialize Directories
 % project_name = 'Calculia_production';
@@ -21,7 +21,8 @@ project_name = 'Memoria';
 % sbj_name = 'S15_89b_JQ';
 % sbj_name = 'S14_69b_RT';
 % sbj_name = 'C17_13';
-sbj_name = 'S17_116';
+% sbj_name = 'S17_116';
+sbj_name = 'S18_127';
 
 % Center
 % center = 'China';
@@ -39,7 +40,7 @@ dirs = InitializeDirs(computer, project_name,sbj_name,set_freesurfer_dir);
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
-load_server_files = false;
+load_server_files = true;
 CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format,load_server_files) 
 %%% IMPROVE uigetfile to go directly to subject folder %%%
 
@@ -130,7 +131,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec2', [], [], true, []) % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec2', [], [], true, []) % across frequencies of interest
     end
 end
 
@@ -150,11 +151,12 @@ blc_params.locktype = 'stim';
 
 % (sbj_name, project_name, block_names, dirs,elecs,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc)
 
+% for i = 1
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params)
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
     end
 end
 
@@ -215,17 +217,17 @@ PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - Plotting
-noise_method = 'trials'; %'trials','timepts','none'
+noise_method = 'timepts'; %'trials','timepts','none'
 
 % plot HFB timecourse for each electrode separately
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],noise_method,[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],noise_method,[])
 
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.multielec = true;
-elecs = {'LP7','LPS8','LP4'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},noise_method,plot_params)
-% PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],'timepts',plot_params)
+% elecs = {'LP7','LPS8','LP4'}; %S14_69b
+elecs = 1:3;
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],noise_method,plot_params)
 
 % plot inter-trial phase coherence for each electrode
 PlotITCAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise_method,[])

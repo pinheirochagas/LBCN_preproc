@@ -76,7 +76,7 @@ switch task
         plot_params.blc = false;
 end
     
-plot_params.lw = 3;
+plot_params.lw = 3; % linewidth
 plot_params.label = 'name';
 plot_params.sm = 0.1;
 % plot_params.run_blc = true;

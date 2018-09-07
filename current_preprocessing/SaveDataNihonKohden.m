@@ -56,7 +56,7 @@ for i = 1:length(block_name)
         fp = sprintf('%s/iEEG%s_%s.mat',data_dir,bn,chanlbl);
         wave = squeeze(D(ecog_oldinds(ei),:,1));
         if (ecog_ds > 1)
-            wave = decimate(doublse(wave),ecog_ds);
+            wave = decimate(double(wave),ecog_ds);
             fs = fs/ecog_ds;
         end
         % Clean channel name

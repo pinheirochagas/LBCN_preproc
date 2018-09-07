@@ -41,7 +41,9 @@ data = data(:)'; % make sure signal is a row vector
 time =(1:length(data))/fsample;
 siglength_ds = length(time(1:ds:end));
 wave_out.wave = zeros(numel(freqs),siglength_ds,'single');
-wave_out.phase = zeros(numel(freqs),siglength_ds,'single');
+if ~avgfreq
+    wave_out.phase = zeros(numel(freqs),siglength_ds,'single');
+end
 wave_out.spectrum = zeros(1,numel(freqs)); % power spectrum (before normalizing)
 % Spectral data, frequencies saved separately 
 for f = 1:numel(freqs)

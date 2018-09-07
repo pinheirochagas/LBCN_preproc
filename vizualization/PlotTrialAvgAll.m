@@ -48,9 +48,6 @@ if plot_params.multielec
 else
     dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/',datatype,'Data/',locktype,'lock'];
 end
-if ~exist(dir_out)
-    mkdir(dir_out)
-end
 
 %% loop through electrodes and plot
 
@@ -64,26 +61,44 @@ if plot_params.blc
     tag = [tag,'_bl_corr'];
 end
 concatfield = {'wave'}; % concatenate amplitude across blocks
-% concatParams.run_blc = true;
-% concatParams.bl_win = [-0.5 0];
-% concatParams.power = true;
 
 col_tmp = plot_params.col;
-if (plot_params.multielec)
+% if plotting multiple elecs, adjust y-axis based on min and max of all
+if (plot_params.multielec) 
     ymin = 0;
     ymax = 0;
 end
+
+% determine folder name for plots by compared conditions
+for ei = 1
+    el = elecs(ei);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+    if plot_params.multielec
+        groupall = true;
+    else
+        groupall = false;
+    end
+    if isempty(conds)
+        tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
+        conds = unique(data_all.trialinfo.(column)(tmp));
+    end
+    cond_names = groupCondNames(conds,groupall);
+end
+folder_name = cond_names{1};
+for gi = 2:length(cond_names)
+    folder_name = [folder_name,'_',cond_names{gi}];
+end
+dir_out = [dir_out,'/',folder_name];
+if ~exist(dir_out)
+    mkdir(dir_out)
+end
+
 for ei = 1:length(elecs)
     el = elecs(ei);
     
     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
     if strcmp(noise_method,'timepts')
         data_all = removeBadTimepts(data_all);
-    end
-    
-    if isempty(conds)
-        tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
-        conds = unique(data_all.trialinfo.(column)(tmp));
     end
     
     if (plot_params.multielec) % if plotting multiple elecs in same figure (will group all conditions together)
@@ -100,7 +115,7 @@ for ei = 1:length(elecs)
         elseif strcmp(plot_params.label,'number')
             title('Elec ',num2str(el))
         end
-        fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',dir_out,sbj_name,data_all.label,project_name,datatype,locktype);
+        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s.png',dir_out,sbj_name,data_all.label,project_name,datatype,locktype,folder_name);
         saveas(gcf,fn_out)
         close
     end

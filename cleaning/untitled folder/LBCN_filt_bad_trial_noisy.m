@@ -67,7 +67,8 @@ if nanmedian(vnn)<0.01
 end
 
 
-for j = find(~badind)
+% for j = find(~badind)
+for j = 1:tn
     dat = data_raw(:,j);
     checkhf = filtfilt(b2,a2,dat);
     check = filtfilt(b,a,dat);
@@ -109,13 +110,11 @@ for j = find(~badind)
         gw(length(fg),1)=fg(end);
         gw(length(fg),2)=length(group);
         
-        if any((gw(:,2)-gw(:,1))>20)
+        if any((gw(:,2)-gw(:,1))>20) 
             badind(j) = 1;
-            continue;
+%             continue;  %% ***uncomment
         end
-        
-
-        
+                
         sig=checkhf;
         sigsq=2*sig.*sig;
         
@@ -214,7 +213,7 @@ for j = find(~badind)
                         seg2 = fliplr(dat(window(jj,2):(window(jj,2)+intv(jj))));
                     catch
                         spkts(window(jj,1):window(jj,2),j)=1;
-                        %badind(j) = 1;
+%                         badind(j) = 1;  %% comment
                         continue;
                     end
                     v = (1:-1/intv(jj):0);
@@ -236,6 +235,7 @@ for j = find(~badind)
             else
                 for k = 1:size(window,1)
                     spkts(window(k,1):window(k,2),j)=1;
+%                     badind(j) = 1; % NEW
                 end
 %                     subplot 211;plot(check);subplot 212;
 %                     plot(abs(ev));hold on;plot(sig);
