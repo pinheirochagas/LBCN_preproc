@@ -228,7 +228,7 @@ for i = 1:length(block_names)
     %     trialinfo.allonsets(rest_trials,:) = onset_rest;
     
     %% Account for when recording started in the middle of photodiode signal
-    trialinfo = trialinfo(trialinfo.allonsets ~= 0,:);
+    trialinfo = trialinfo(trialinfo.allonsets(:,1) ~= 0,:);
     
     %% Save trialinfo
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);

@@ -78,6 +78,7 @@ for ei = 1
     else
         groupall = false;
     end
+    
     if isempty(conds)
         tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
         conds = unique(data_all.trialinfo.(column)(tmp));
@@ -93,6 +94,7 @@ if ~exist(dir_out)
     mkdir(dir_out)
 end
 
+% Plotting
 for ei = 1:length(elecs)
     el = elecs(ei);
     
@@ -116,12 +118,12 @@ for ei = 1:length(elecs)
             title('Elec ',num2str(el))
         end
         fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s.png',dir_out,sbj_name,data_all.label,project_name,datatype,locktype,folder_name);
-        saveas(gcf,fn_out)
+        savePNG(gcf, 300, fn_out)
         close
     end
-
 end
 
+% Continued to increment to the hold on multiple elecs
 if plot_params.multielec  % if plotting multiple elecs, create legend based on elec #
     ylim([ymin ymax])
     plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
@@ -134,6 +136,6 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
     end
     title(title_conds)
     fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,datatype,locktype);
-    saveas(gcf,fn_out)
+    savePNG(gcf, 300, fn_out)
     close
 end
