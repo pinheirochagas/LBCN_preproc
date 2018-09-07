@@ -2,7 +2,8 @@ function [wave_out] = WaveletFilter(data,fsample,fs_targ,freqs, span, norm, avgf
 
 %% INPUTS
 % data: EEG signal (1 x time)
-% freqs (optional): vector containing frequencies at which wavelet is computed (in Hz), or 'HFB'
+% freqs (optional): vector containing frequencies at which wavelet is
+%                   computed (in Hz), or string
 % span (optional): span of wavelet (i.e. width of gaussian that forms
 %                  wavelet, in units of cycles- specific to each
 %                  frequency)
@@ -14,24 +15,24 @@ function [wave_out] = WaveletFilter(data,fsample,fs_targ,freqs, span, norm, avgf
 %                     only amplitude information will remain (not phase, since 
 %                     cannot average phase across frequencies)
 
-if strcmp(freqs,'HFB')
-    freqs = 2.^(6.2:0.1:7.5);
-    norm = true;
-    avgfreq = true;
-elseif nargin < 2 || isempty(freqs)
-    freqs = 2.^([0:0.5:2,2.3:0.3:5,5.2:0.2:8]);
+if isempty(avgfreq)
+    if strcmp(freqs,'HFB')
+        avgfreq = true;
+    else
+        avgfreq = false;
+    end
 end
 
-if nargin < 3 || isempty(span)
+% if using standard frequency band, e.g. 'HFB', find actual frequencies
+if ischar(freqs)
+    freqs = genFreqs(freqs);
+end
+
+if isempty(span)
     span = 1;
 end
-
-if ~strcmp(freqs,'HFB') && (nargin < 5 || isempty(norm))
-    norm = false;
-end
-
-if ~strcmp(freqs,'HFB') && (nargin < 6 || isempty(avgfreq))
-    avgfreq = false; 
+if isempty(norm)
+    norm = true;
 end
 %%
 
@@ -40,8 +41,10 @@ data = data(:)'; % make sure signal is a row vector
 time =(1:length(data))/fsample;
 siglength_ds = length(time(1:ds:end));
 wave_out.wave = zeros(numel(freqs),siglength_ds,'single');
-wave_out.phase = zeros(numel(freqs),siglength_ds,'single');
-
+if ~avgfreq
+    wave_out.phase = zeros(numel(freqs),siglength_ds,'single');
+end
+wave_out.spectrum = zeros(1,numel(freqs)); % power spectrum (before normalizing)
 % Spectral data, frequencies saved separately 
 for f = 1:numel(freqs)
     freq = freqs(f);
@@ -49,21 +52,21 @@ for f = 1:numel(freqs)
     t = -4*sigma:1/fsample:4*sigma;
     wavelet = exp(-(t.^2)/(2*sigma^2)).*exp(1i*2*pi*freq*t);    % wavelet = gaussian * complex sinusoid
     wave_tmp = conv(data,conj(wavelet),'same');                 % convolve signal with wavelet
-    wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end));             % downsample and converting the complex to real numbers
-    if ~(avgfreq)
+    wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end)).^2;          % downsample and converting the complex to real numbers    
+    wave_out.spectrum(f) = nanmean(wave_out.wave(f,:));
+    if ~avgfreq
         wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 
     end
 end
 
+
+if (norm)
+    wave_out.wave = zscore(wave_out.wave,[],2); % normalize across time-dimension
+end
+    
 % HFB or another frequency band (averaging across frequencies)
 if (avgfreq)
-    if (norm)
-        amp = zscore(wave_out.wave,0,2);
-        wave_out.wave = nanmean(amp);
-    else
-        wave_out.wave = nanmean(wave_out.wave);  % average amplitude across frequencies
-    end
-    
+    wave_out.wave = nanmean(wave_out.wave,1);
 end
 
 wave_out.freqs = freqs;

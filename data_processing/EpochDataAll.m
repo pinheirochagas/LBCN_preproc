@@ -19,27 +19,27 @@ function EpochDataAll(sbj_name, project_name, bn, dirs,el,locktype,bef_time,aft_
 
 % set default paramters (if inputs are missing or empty)
 
-if nargin < 12 || isempty(blc)
+if isempty(blc)
     blc.run = true;
     blc.locktype = 'stim';
     blc.win = [-0.2 0];
 end
-if nargin < 11 || isempty(thr_diff)
+if isempty(thr_diff)
     thr_diff = 15;
 end
-if nargin < 10 || isempty(thr_raw)
+if isempty(thr_raw)
     thr_raw = 15;
 end
-if nargin < 9 || isempty(datatype)
+if isempty(datatype)
     datatype = 'CAR';
 end
-if nargin < 8 || isempty(aft_time)
+if isempty(aft_time)
     aft_time = 3;
 end
-if nargin < 7 || isempty(bef_time)
+if isempty(bef_time)
     bef_time = -0.5;
 end
-if nargin < 6 || isempty(locktype)
+if isempty(locktype)
     locktype = 'stim';
 end
 
@@ -126,49 +126,74 @@ if sep_bl
 end
 ep_data = EpochData(data,lockevent,bef_time,aft_time);
 
-data.wave = ep_data.wave;
-data.time = ep_data.time;
+fields = fieldnames(ep_data);
+for fi = 1:length(fields)
+    data.(fields{fi})=ep_data.(fields{fi});
+end
+
+% data.wave = ep_data.wave;
+% data.time = ep_data.time;
 clear ep_data
 data.trialinfo = trialinfo;
 
 %% Epoch rejection
 
-[be.bad_epochs_raw_su1, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
-[be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
-[be.bad_epochs_raw_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
-%
-%     [badinds, filtered_beh,be.bad_epochs_raw_su1,spkts] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
-%     [be.bad_epochs_raw_amy, badinds] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
-%     [badinds, filtered_beh,be.bad_epochs_raw_su2,spkts] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
-% ASK SU TO CLARIFY THAT -  % bad epochs in su's function is the spkevtind?
+% Su method 1: reject based on spikes in LF and HF components of signal
+[be.bad_epochs_raw_LFspike, filtered_beh,spkevtind,spkts_raw_LFspike] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
+% Amy method: reject based on outliers of the raw signal and jumps (i.e.
+% difference between consecutive data points)
+[be.bad_epochs_raw_jump, badinds_jump] = epoch_reject_raw(data_CAR.wave,thr_raw,thr_diff);
+% Su method 2: reject based on spikes in HF component of signal
+[be.bad_epochs_raw_HFspike, filtered_beh,spkevtind,spkts_raw_HFspike] = LBCN_filt_bad_trial_noisy(data_CAR.wave',data_CAR.fsample);
+
+ds = data_CAR.fsample/data.fsample; % how much spectral/HFB data was downsampled relative to CAR data
 
 if strcmp(datatype,'Spec')
     %if spectral data, average across frequency dimension before epoch rejection
-    [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);
+    [be.bad_epochs_spec_HFspike, filtered_beh,spkevtind,spkts_spec_HFspike] = LBCN_filt_bad_trial(squeeze(nanmean(abs(data.wave),1))',data.fsample);
 else % CAR or HFB (i.e. 1 frequency)
-    [be.bad_epochs_spec_su2, filtered_beh,spkevtind,spkts] = LBCN_filt_bad_trial(data.wave',data.fsample);
+    [be.bad_epochs_spec_HFspike, filtered_beh,spkevtind,spkts_spec_HFspike] = LBCN_filt_bad_trial(data.wave',data.fsample);
 end
 
 % Organize bad indices
-for i = 1:size(spkts,2)
-    bad_inds_raw{i,1} = find(spkts(:,i) == 1);
+for i = 1:size(spkts_raw_LFspike,2)
+    bad_inds_raw_LFspike{i,1} = find(spkts_raw_LFspike(:,i) == 1);
+    bad_inds_raw_LFspike{i,1} = setdiff(unique(floor(bad_inds_raw_LFspike{i,1}/ds)),0); % convert inds to downsampled inds
+    bad_inds_raw_HFspike{i,1} = find(spkts_raw_HFspike(:,i) == 1);
+    bad_inds_raw_HFspike{i,1} = setdiff(unique(floor(bad_inds_raw_HFspike{i,1}/ds)),0); % convert inds to downsampled inds
+    bad_inds_raw_jump{i,1} = badinds_jump.all{i};
+    bad_inds_raw_jump{i,1} = setdiff(unique(floor(bad_inds_raw_jump{i,1}/ds)),0); % convert inds to downsampled inds
+    bad_inds_spec_HFspike{i,1} = find(spkts_spec_HFspike(:,i) == 1);
 end
 
 
 
 %% Update trailinfo and globalVar with bad trials and bad indices
-data.trialinfo.bad_epochs_raw = be.bad_epochs_raw_su2' | be.bad_epochs_spec_su2';
+data.trialinfo.bad_epochs_raw_LFspike = be.bad_epochs_raw_LFspike';
+data.trialinfo.bad_epochs_raw_HFspike = be.bad_epochs_raw_HFspike';
+data.trialinfo.bad_epochs_raw_jump = be.bad_epochs_raw_jump;
+data.trialinfo.bad_epochs_spec_HFspike = be.bad_epochs_spec_HFspike';
+
 bad_epochs_HFO_tmp = zeros(size(data.trialinfo,1),1,1);
 bad_epochs_HFO_tmp(bad_epochs_HFO{el}) = 1;
 data.trialinfo.bad_epochs_HFO = logical(bad_epochs_HFO_tmp);
-data.trialinfo.bad_epochs = data.trialinfo.bad_epochs_raw | data.trialinfo.bad_epochs_HFO;
 
-data.trialinfo.bad_inds_raw = bad_inds_raw; % based on the raw signal
+data.trialinfo.bad_epochs = data.trialinfo.bad_epochs_raw_LFspike | data.trialinfo.bad_epochs_raw_HFspike | data.trialinfo.bad_epochs_raw_jump ...
+    | data.trialinfo.bad_epochs_spec_HFspike | data.trialinfo.bad_epochs_HFO;
+
+data.trialinfo.bad_inds_raw_LFspike = bad_inds_raw_LFspike;
+data.trialinfo.bad_inds_raw_HFspike = bad_inds_raw_HFspike;
+data.trialinfo.bad_inds_raw_jump = bad_inds_raw_jump;
+data.trialinfo.bad_inds_spec_HFspike = bad_inds_spec_HFspike;
+
+% data.trialinfo.bad_inds_raw = bad_inds_raw; % based on the raw signal
 data.trialinfo.bad_inds_HFO = bad_indices_HFO(:,el); % based on spikes in the raw signal
 
-for ui = 1:length(data.trialinfo.bad_inds_raw)
-    bad_inds_all = union_several(data.trialinfo.bad_inds_raw{ui,:},data.trialinfo.bad_inds_HFO{ui,:});
+for ui = 1:length(data.trialinfo.bad_inds_HFO)
+    bad_inds_all = union_several(data.trialinfo.bad_inds_raw_LFspike{ui,:},data.trialinfo.bad_inds_raw_HFspike{ui,:},data.trialinfo.bad_inds_raw_jump{ui,:},...
+        data.trialinfo.bad_inds_spec_HFspike{ui,:},data.trialinfo.bad_inds_HFO{ui,:});
     data.trialinfo.bad_inds{ui} = bad_inds_all(:)';
+    data.trialinfo.bad_inds{ui} = setdiff(data.trialinfo.bad_inds{ui},0);
 end
 
 
@@ -194,12 +219,12 @@ if blc.run
 end
 
 %% Update data structure
-data.label = globalVar.channame{el};
-if strcmp(datatype,'CAR')
-    data.fsample = globalVar.iEEG_rate;
-else
-    data.fsample = globalVar.iEEG_rate; %%% here again.
-end
+% data.label = globalVar.channame{el};
+% if strcmp(datatype,'CAR')
+%     data.fsample = globalVar.iEEG_rate;
+% else
+%     data.fsample = globalVar.iEEG_rate; %%% here again.
+% end
 
 % Naming specs based on the epoching parameters
 if blc.run == true

@@ -86,7 +86,7 @@ for ei = 1:length(elecs)
 
     
     if nargin < 8 || isempty(conds)
-        tmp = find(~cellfun(@isempty(data_all.trialinfo.(column)));
+        tmp = find(~cellfun(@isempty,data_all.trialinfo.(column)));
         conds = unique(data_all.trialinfo.(column)(tmp));
     end
     
