@@ -52,7 +52,8 @@ for f = 1:numel(freqs)
     t = -4*sigma:1/fsample:4*sigma;
     wavelet = exp(-(t.^2)/(2*sigma^2)).*exp(1i*2*pi*freq*t);    % wavelet = gaussian * complex sinusoid
     wave_tmp = conv(data,conj(wavelet),'same');                 % convolve signal with wavelet
-    wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end)).^2;          % downsample and converting the complex to real numbers    
+    wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end)).^2;          % downsample and converting the complex to real numbers  
+%     wave_out.wave(f,:) = abs(wave_tmp(:,1:ds:end));          % downsample and converting the complex to real numbers
     wave_out.spectrum(f) = nanmean(wave_out.wave(f,:));
     if ~avgfreq
         wave_out.phase(f,:) = angle(wave_tmp(:,1:ds:end)); 

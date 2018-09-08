@@ -27,13 +27,13 @@ switch plottype
         plot_params.multielec = false;
         plot_params.col = [cdcol.ultramarine;
             cdcol.carmine;
-            cdcol.grassgreen;
+            cdcol.yellowgeen;
             cdcol.lilac;
             cdcol.yellow;
             cdcol.turquoiseblue;
             cdcol.flamered;
             cdcol.periwinkleblue;
-            cdcol.yellowgeen
+            cdcol.pink;
             cdcol.purple];
     case 'ERSP'
         plot_params.legend = 'false';
@@ -66,11 +66,15 @@ switch task
     case 'MMR'
         plot_params.xlim = [-0.2 3];
         plot_params.blc = true;
-        plot_params.bl_win = [-0.2 0];      
-    case 'Memoria'
-        plot_params.xlim = [-0.5 6];
+        plot_params.bl_win = [-0.2 0];  
+    case 'Calculia_production'
+        plot_params.xlim = [-0.2 4];
         plot_params.blc = true;
-        plot_params.bl_win = [-0.5 0];
+        plot_params.bl_win = [-0.2 0];         
+    case 'Memoria'
+        plot_params.xlim = [-0.2 7];
+        plot_params.blc = true;
+        plot_params.bl_win = [-0.2 0];
     case 'GradCPT'
         plot_params.xlim = [-0.5 1.6];
         plot_params.blc = false;

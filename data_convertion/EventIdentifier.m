@@ -38,7 +38,7 @@ for i = 1:length(block_names)
         n_initpulse_onset=12;
         n_initpulse_offset=12;
     end
-    if strcmp(project_name, 'UCLA')
+    if strcmp(project_name, 'UCLA') || strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'MMR')
         n_initpulse_onset = 12; n_initpulse_offset = 12;
     else
     end

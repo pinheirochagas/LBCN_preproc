@@ -57,7 +57,6 @@ for i = 1:length(block_name)
         wave = squeeze(D(ecog_oldinds(ei),:,1));
         if (ecog_ds > 1)
             wave = decimate(double(wave),ecog_ds);
-            fs = fs/ecog_ds;
         end
         % Clean channel name
         channame_tpm = hdr.label{ecog_oldinds(ei)};

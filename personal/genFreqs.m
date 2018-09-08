@@ -2,7 +2,7 @@ function freqs = genFreqs(freqName)
 
 switch freqName
     case 'HFB'
-        freqs = 2.^(5.7:0.05:7.5);   
+        freqs = 2.^(6.15:0.05:7.4);   
     case 'Spec'
         freqs = 2.^([0:0.5:2,2.3:0.3:5,5.2:0.2:8]);
     case 'Spec2'
