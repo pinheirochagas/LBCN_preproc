@@ -1,4 +1,4 @@
-function PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column,conds,noise_method,plot_params)
+function PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column,conds,plot_params)
 
 
 %% INPUTS
@@ -10,45 +10,25 @@ function PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,locktype,colum
 %       locktype: 'stim' or 'resp' (which event epoched data is locked to)
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all of the conditions within column)
-%       noise_method:   how to exclude data (default: 'trial'):
-%                       'none':     no epoch rejection
-%                       'trial':    exclude noisy trials (set to NaN)
-%                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
-%       plot_params:    .eb : plot errorbars ('ste','std',or 'none')
-%                       .lw : line width of trial average
-%                       .legend: 'true' or 'false'
-%                       .label: 'name','number', or 'none'
-%                       .sm: width of gaussian smoothing window (s)
-%                       .textsize: text size of axis labels, etc
-%                       .xlabel
-%                       .ylabel
-%                       .freq_range: frequency range to extract (only applies to spectral data)
-%                       .bl_win: baseline correction window
-%                       .xlim
+%       plot_params:    controls plot features (see genPlotParams.m script)
 
-if nargin < 10 || isempty(plot_params)
-    plot_params.legend = 'true';
-    plot_params.label = 'name';
-    plot_params.textsize = 20;
-    plot_params.xlabel = 'Time (s)';
-    plot_params.ylabel = 'Freq (Hz)';
-%     plot_params.cmap = cbrewer2('RdBu');
-    load('RdBuCmap.mat','cm')
-    plot_params.cmap = cm;
-%     plot_params.cmap = plot_params.cmap(end:-1:1,:);
-    plot_params.clim = [-2 2];
-    plot_params.bl_win = [-0.5 0];
-    plot_params.sm = 0.05;
-    plot_params.blc = true;
+
+if isempty(plot_params)
+    plot_params = genPlotParams(project_name,'ERSP');
 end
 
-if nargin < 9 || isempty(noise_method)
-    noise_method = 'trials';
+% keep track of bad chans (from any block) for labeling plots
+bad_chans = [];
+for bi = 1:length(block_names)
+    load([dirs.data_root,filesep,'OriginalData',filesep,sbj_name,filesep,'global_',project_name,'_',sbj_name,'_',block_names{bi},'.mat'])
+    bad_chans = union(bad_chans,globalVar.badChan);
 end
 
-if nargin < 5 || isempty(elecs)
-    % load globalVar (just to get ref electrode, # electrodes)
-    load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
+if iscell(elecs)
+    elecs = ChanNamesToNums(globalVar,elecs);
+end
+
+if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
@@ -57,58 +37,31 @@ dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/SpecData/',l
 if ~exist(dir_out)
     mkdir(dir_out)
 end
-
 %% loop through electrodes and plot
+
+tag = [locktype,'lock'];
+if plot_params.blc
+    tag = [tag,'_bl_corr'];
+end
+concatfield = {'wave'}; % concatenate amplitude across blocks
 
 for ei = 1:length(elecs)
     el = elecs(ei);
     data_all.wave = [];
     data_all.trialinfo = [];
-
-    for bi = 1:length(block_names)
-        bn = block_names{bi};
-        dir_in = [dirs.data_root,'/SpecData/',sbj_name,'/',bn,'/EpochData/'];
-        
-        if plot_params.blc
-            load(sprintf('%s/SpeciEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,locktype,bn,el));
-        else
-            load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el));
-        end
-        
-               
-        % concatenante EEG data along trial dimension (across blocks)
-        data_all.wave = cat(2,data_all.wave,data.wave);
-        
-        % concatenate trial info
-        data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
-
-    end
-
     
-    if nargin < 8 || isempty(conds)
-        tmp = find(~cellfun(@isempty,data_all.trialinfo.(column)));
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,'Spec',concatfield,tag);
+    if strcmp(plot_params.noise_method,'timepts')
+        data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
+    end
+    
+    if isempty(conds)
+        tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
         conds = unique(data_all.trialinfo.(column)(tmp));
     end
     
-    
-    % Keep all original fields of data 
-    fieldnames_data = fieldnames(data);
-    for i = 1:length(fieldnames_data)
-        if ~strcmp(fieldnames_data{i}, 'wave') && ~strcmp(fieldnames_data{i}, 'trialinfo')
-            data_all.(fieldnames_data{i}) = data.(fieldnames_data{i});
-        else
-        end
-    end
-    
-    data_all.time = data.time;
-    data_all.time = data.time;
-    data_all.time = data.time;
-
-    data_all.fsample = data.fsample;
-    plot_params.xlim = [data_all.time(1) data_all.time(end)];
-    
-    PlotERSP(data_all,column,conds,plot_params, noise_method)
-    fn_out = sprintf('%s/%s_%s_%s_ERSP_%slock.png',dir_out,sbj_name,data.label,project_name,locktype);
+    PlotERSP(data_all,column,conds,plot_params)
+    fn_out = sprintf('%s/%s_%s_%s_ERSP_%slock.png',dir_out,sbj_name,data_all.label,project_name,locktype);
     saveas(gcf,fn_out)
     close
 end

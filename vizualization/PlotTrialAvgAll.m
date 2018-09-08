@@ -1,4 +1,4 @@
-function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,locktype,column,conds,noise_method,plot_params)
+function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,locktype,column,conds,plot_params)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -15,10 +15,6 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,l
 %               (e.g. conds = {{'math'},{'autobio','self-internal'}})            
 %       col:    colors to use for plotting each condition (otherwise will
 %               generate randomly)
-%       noise_method:   how to exclude data (default: 'trial'):
-%                       'none':     no epoch rejection
-%                       'trial':    exclude noisy trials (set to NaN)
-%                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
 %       plot_params:    controls plot features (see genPlotParams.m script)
 
 
@@ -28,25 +24,25 @@ if isempty(plot_params)
     plot_params = genPlotParams(project_name,'timecourse');
 end
 
-if isempty(noise_method)
-    noise_method = 'trial';
+% keep track of bad chans (from any block) for labeling plots
+bad_chans = [];
+for bi = 1:length(block_names)
+    load([dirs.data_root,filesep,'OriginalData',filesep,sbj_name,filesep,'global_',project_name,'_',sbj_name,'_',block_names{bi},'.mat'])
+    bad_chans = union(bad_chans,globalVar.badChan);
 end
 
-load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
 if iscell(elecs)
     elecs = ChanNamesToNums(globalVar,elecs);
 end
 
 if isempty(elecs)
-    % load globalVar (just to get ref electrode, # electrodes)
-    
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
 if plot_params.multielec
-    dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/',datatype,'Data/',locktype,'lock/multielec']; 
+    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,locktype,'lock',filesep,'multielec']; 
 else
-    dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/',datatype,'Data/',locktype,'lock'];
+    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,locktype,'lock'];
 end
 
 %% loop through electrodes and plot
@@ -62,8 +58,16 @@ if plot_params.blc
 end
 concatfield = {'wave'}; % concatenate amplitude across blocks
 
+if plot_params.single_trial
+    plottag = '_singletrials';
+else
+    plottag = '';
+end
+
 col_tmp = plot_params.col;
-% if plotting multiple elecs, adjust y-axis based on min and max of all
+
+% if plotting multiple elecs, adjust y-axis limits based on min and max of
+% all elecs
 if (plot_params.multielec) 
     ymin = 0;
     ymax = 0;
@@ -89,7 +93,11 @@ folder_name = cond_names{1};
 for gi = 2:length(cond_names)
     folder_name = [folder_name,'_',cond_names{gi}];
 end
-dir_out = [dir_out,'/',folder_name];
+if plot_params.single_trial
+    dir_out = [dir_out,filesep,folder_name,filesep,'singletrials'];
+else
+    dir_out = [dir_out,filesep,folder_name,];
+end
 if ~exist(dir_out)
     mkdir(dir_out)
 end
@@ -99,25 +107,32 @@ for ei = 1:length(elecs)
     el = elecs(ei);
     
     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
-    if strcmp(noise_method,'timepts')
-        data_all = removeBadTimepts(data_all);
+    if strcmp(plot_params.noise_method,'timepts')
+        data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
+    end
+    if ismember(el,bad_chans)
+        tagchan = ' (bad)';
+    else
+        tagchan = ' (good)';
     end
     
     if (plot_params.multielec) % if plotting multiple elecs in same figure (will group all conditions together)
         plot_params.col = col_tmp(ei,:); % plot each elec in diff color
-        h(ei) = PlotTrialAvg(data_all,column,conds,plot_params,noise_method);
+        h(ei) = PlotTrialAvg(data_all,column,conds,plot_params);
+        hold on
         ymin = min(ymin,min(h(ei).YData));
         ymax = max(ymax,max(h(ei).YData));
-        elec_names{ei} = data_all.label;
+        elec_names{ei} = [data_all.label,tagchan];
         elec_names_all = [elec_names_all,'_',data_all.label];
     else
-        PlotTrialAvg(data_all,column,conds,plot_params,noise_method);
+        PlotTrialAvg(data_all,column,conds,plot_params);
+        
         if strcmp(plot_params.label,'name')
-            title(data_all.label)
+            suptitle([data_all.label,tagchan])
         elseif strcmp(plot_params.label,'number')
-            title('Elec ',num2str(el))
+            suptitle(['Elec ',num2str(el),tagchan])
         end
-        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s.png',dir_out,sbj_name,data_all.label,project_name,datatype,locktype,folder_name);
+        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,datatype,locktype,folder_name,plottag);
         savePNG(gcf, 300, fn_out)
         close
     end

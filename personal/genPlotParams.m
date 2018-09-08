@@ -75,7 +75,12 @@ switch task
         plot_params.xlim = [-0.5 1.6];
         plot_params.blc = false;
 end
-    
+
+plot_params.noise_method = 'trials'; %'trials','timepts', or 'none'
+% if eliminating trials or timepts, can select which algorithms are used to
+% determine bad trials or timepts
+plot_params.noise_fields_trials= {'bad_epochs'}; % can combine any of the bad_epoch fields in data.trialinfo (will take union of selected fields)
+plot_params.noise_fields_timepts= {'bad_inds'}; % can combine any of the bad_epoch fields in data.trialinfo (will take union of selected fields)
 plot_params.lw = 3; % linewidth
 plot_params.label = 'name';
 plot_params.sm = 0.1;

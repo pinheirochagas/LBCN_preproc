@@ -217,26 +217,45 @@ PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - Plotting
-noise_method = 'timepts'; %'trials','timepts','none'
+% plot individual trials (to visualize bad trials)
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.single_trial = true;
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+plot_params.textsize = 10;
 
-% plot HFB timecourse for each electrode separately
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],noise_method,[])
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params)
+
+% plot avg. HFB timecourse for each electrode separately
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+elecs = {'LP7'};
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],plot_params)
 
 % plot HFB timecourse, grouping multiple conds together
-elecs = 1
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{{'math','autobio'}},noise_method,[])
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params)
+
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.multielec = true;
-% elecs = {'LP7','LPS8','LP4'}; %S14_69b
-elecs = 1:3;
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],noise_method,plot_params)
+elecs = {'LP7','LPS8','LP4'}; %S14_69b
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params)
 
 % plot inter-trial phase coherence for each electrode
 PlotITCAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise_method,[])
 
 % plot ERSP (event-related spectral perturbations) for each electrode
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise_method,[])
+plot_params = genPlotParams(project_name,'ERSP');
+plot_params.noise_method = 'timepts'; %'trials','timepts','none'
+elecs = {'LP7','LPS8','LP4'}; %S14_69b
+elecs = {'LP7'};
+PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,'stim','condNames',[],plot_params)
 
 % Number comparison
 % load a given trialinfo

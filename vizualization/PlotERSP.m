@@ -1,36 +1,18 @@
-% function PlotERSP(sbj,task,column,elecs,conds,noise_method,plot_params)
-function PlotERSP(data,column,conds,plot_params, noise_method)
+function PlotERSP(data,column,conds,plot_params)
 % plots spectrogram for each condition, separately for each electrode
-% INPUTS:
+%% INPUTS:
 %       data: spectral data(freq x trials x time)
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all)
-%       plot_params:    .label: 'name','number', or 'none'
-%                       .textsize: text size of axis labels, etc
-%                       .xlabel
-%                       .ylabel
-%                       .bl_win: baseline correction window
-%                       .xlim
-%                       .cmap
-%                       .clim
+%       plot_params:    controls plot features (see genPlotParams.m script)
 
 %%
 
-if nargin < 4 || isempty(plot_params)
-    plot_params.legend = 'true';
-    plot_params.label = 'name';
-    plot_params.textsize = 20;
-    plot_params.xlabel = 'Time (s)';
-    plot_params.ylabel = 'Freq (Hz)';
-    plot_params.xlim = [data.time(1) data.time(end)];
-    plot_params.cmap = cbrewer2('RdBu');
-    plot_params.cmap = plot_params.cmap(end:-1:1,:);
-    plot_params.clim = [-2 2];
-    plot_params.sm = 0.05;
+if isempty(plot_params)
+    plot_params = genPlotParams(project_name,'ERSP');
 end
 
-
-if nargin < 3 || isempty(conds)
+if isempty(conds)
     conds = unique(data.trialinfo.(column));
 end
 ncategs = length(conds);
@@ -40,27 +22,17 @@ gusWin= gausswin(winSize)/sum(gausswin(winSize));
 
 %% 
 
-plot_data = cell(1,length(conds));
-% ntrials = size(data.wave,2);
-
-
 % organize trials by categories
-if strcmp(noise_method, 'trials')
-    for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci}) & data.trialinfo.bad_epochs == false;
-        plot_data{ci}=data.wave(:,trials,:);
-    end
-else
-    for ci = 1:ncategs
-        trials = ismember(data.trialinfo.(column),conds{ci});
-        plot_data{ci}=data.wave(:,trials,:);
-    end
-end
+[grouped_trials_all,~] = groupConds(conds,data.trialinfo,column,'none',[],false);
+[grouped_trials,cond_names] = groupConds(conds,data.trialinfo,column,plot_params.noise_method,plot_params.noise_fields_trials,false);
 
+plot_data = cell(1,ncategs);
+for ci = 1:ncategs
+    plot_data{ci} = data.wave(:,grouped_trials{ci},:);
+end
 
 % Set the range of the plot
 plot_params.clim = [-prctile(data.wave(:), 90) prctile(data.wave(:), 90)];
-
 
 freq_ticks = 1:4:length(data.freqs);
 freq_labels = cell(1,length(freq_ticks));
@@ -69,15 +41,12 @@ for i = 1:length(freq_ticks)
 end
 % plot data
 
- 
 if ncategs == 1
     figureDim = [0 0 .3 .4];
     figure('units', 'normalized', 'outerposition', figureDim)
-
     data_tmp = squeeze(nanmean(plot_data{1},2)); % average across trials
     data_tmp_all = convn(data_tmp,gusWin','same');
     imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-    %     imagesc(data.time,1:length(data.freqs),data_tmp)
     colorbar
     axis xy
     hold on
@@ -85,7 +54,11 @@ if ncategs == 1
     set(gca,'YTick',freq_ticks)
     set(gca,'YTickLabel',freq_labels)
     plot([0 0],ylim,'k-','LineWidth',3)
-    title(conds)
+    if strcmp(plot_params.noise_method,'trials')
+        title([cond_names{1},' (',num2str(length(grouped_trials{1})),' of ',num2str(length(grouped_trials_all{1})), ' trials)']);
+    else
+        title([cond_names{1}])
+    end
     xlabel(plot_params.xlabel);
     ylabel(plot_params.ylabel)
     xlim(plot_params.xlim)
@@ -103,7 +76,6 @@ else
         data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
         data_tmp_all{ci} = convn(data_tmp,gusWin','same');
         imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-        %     imagesc(data.time,1:length(data.freqs),data_tmp)
         colorbar
         axis xy
         hold on
@@ -111,7 +83,11 @@ else
         set(gca,'YTick',freq_ticks)
         set(gca,'YTickLabel',freq_labels)
         plot([0 0],ylim,'k-','LineWidth',3)
-        title(conds{ci})
+        if strcmp(plot_params.noise_method,'trials') 
+            title([cond_names{ci},' (',num2str(length(grouped_trials{ci})),' of ',num2str(length(grouped_trials_all{ci})), ' trials)']);
+        else
+            title([cond_names{ci}])
+        end
         xlabel(plot_params.xlabel);
         ylabel(plot_params.ylabel)
         xlim(plot_params.xlim)
