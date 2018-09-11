@@ -11,6 +11,7 @@ function [badtrials, badinds] = epoch_reject_raw(data,thr_raw,thr_diff)
 %   data: either epoched or a single timecourse (trial x time)
 %   thr_raw: threshold for raw data (z-score threshold relative to all data points) to exclude timepoints
 %   thr_diff: threshold for changes in signal (diff bw two consecutive points; also z-score)
+%   perc_bad: % of bad timpts in trial for a trial to be marked as bad
 
 % Output: modifies globalVar file to include info on bad epochs
 %
@@ -18,17 +19,20 @@ function [badtrials, badinds] = epoch_reject_raw(data,thr_raw,thr_diff)
 
 %% Inputs/define
 
-if nargin < 3
+if isempty(thr_raw)
     thr_raw = 5;
 end
-if nargin < 4
+if isempty(thr_diff)
     thr_diff = 5;
 end
+% if isempty(perc_bad)
+perc_bad = 0.05;  % of bad timpts in trial for a trial to be marked as bad
+% end
 
 
 %% identify bad epochs
 
-ntrials = size(data,1);
+[ntrials,ntime] = size(data);
 
 zraw = (data-(nanmean(data(:))))/nanstd(data(:));
 datadiff = diff(data,[],2);
@@ -41,7 +45,7 @@ bad_all = bad_raw | bad_diff;
 badinds.raw = cell(1,ntrials);
 badinds.diff = cell(1,ntrials);
 badinds.all = cell(1,ntrials);
-badtrials = sum(bad_all,2)>0;
+badtrials = (sum(bad_all,2)/ntime)>perc_bad;
 
 for ti = 1:ntrials
     badinds.raw{ti} = find(bad_raw(ti,:));

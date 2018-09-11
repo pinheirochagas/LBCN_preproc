@@ -1,4 +1,4 @@
-function EpochDataAll(sbj_name, project_name, bn, dirs,el,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc)
+function EpochDataAll(sbj_name, project_name, bn, dirs,el,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc,noise_params)
 
 %% INPUTS:
 %   sbj_name: subject name
@@ -16,8 +16,18 @@ function EpochDataAll(sbj_name, project_name, bn, dirs,el,locktype,bef_time,aft_
 %       .run: true or false (whether to run baseline correction)
 %       .locktype: 'stim' or 'resp' (which event to use to choose baseline window)
 %       .win: 2-element vector specifiying window relative to lock event to use for baseline, in sec (e.g. [-0.2 0])
+%   noise_params.method: 'trials','timepts', or 'none' (which baseline data to
+%                       exclude before baseline correction)
+%               .noise_fields_trials  (which trials to exclude- if method = 'trials')
+%               .noise_fields_timepts (which timepts to exclude- if method = 'timepts')
 
 % set default paramters (if inputs are missing or empty)
+
+if isempty(noise_params)
+    noise_params.method = 'trials';
+    noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+    noise_params.noise_fields_timepts = {'bad_inds_HFO','bad_inds_raw_HFspike'};
+end
 
 if isempty(blc)
     blc.run = true;
@@ -206,9 +216,9 @@ CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
 %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
 if blc.run
     if sep_bl
-        data_blc = BaselineCorrect(data,bl_data);
+        data_blc = BaselineCorrect(data,bl_data,noise_params);
     else
-        data_blc = BaselineCorrect(data,blc.win);
+        data_blc = BaselineCorrect(data,blc.win,noise_params);
     end
     data.wave = data_blc.wave;
     
