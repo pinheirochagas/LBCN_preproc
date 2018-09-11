@@ -148,6 +148,8 @@ switch project_name
         blc_params.win = [-.5 0];
 end
 blc_params.locktype = 'stim';
+noise_params.method = 'trials';
+noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 
 % (sbj_name, project_name, block_names, dirs,elecs,locktype,bef_time,aft_time,datatype,thr_raw,thr_diff,blc)
 
@@ -155,8 +157,8 @@ blc_params.locktype = 'stim';
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params)
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params)
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params,noise_params)
     end
 end
 
@@ -221,17 +223,25 @@ PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.single_trial = true;
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
-% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% plot_params.noise_fields_timepts = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.textsize = 10;
+% elecs = {'LPS8'};
+% elecs = 1;
+% elecs = ChanNamesToNums(globalVar,elecs);
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,1,'HFB','stim','condNames',[],plot_params)
 
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params)
+data_all =  concatBlocks(sbj_name,block_names,dirs,elecs,'HFB',{'wave'},'stimlock_bl_corr');
+[grouped_trials_all,~] = groupConds({'math','autobio'},data_all.trialinfo,'condNames','none',[],false);
+[grouped_trials,cond_names] = groupConds({'math','autobio'},data_all.trialinfo,'condNames',plot_params.noise_method,plot_params.noise_fields_trials,false);
+
 
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-elecs = {'LP7'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],plot_params)
+% elecs = {'LP7'};
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params)
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -252,8 +262,9 @@ PlotITCAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
-plot_params.noise_method = 'timepts'; %'trials','timepts','none'
-elecs = {'LP7','LPS8','LP4'}; %S14_69b
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% elecs = {'LP7','LPS8','LP4'}; %S14_69b
 elecs = {'LP7'};
 PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,'stim','condNames',[],plot_params)
 

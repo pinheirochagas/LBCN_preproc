@@ -34,12 +34,16 @@ end
 winSize = floor(data.fsample*plot_params.sm);
 gusWin= gausswin(winSize)/sum(gausswin(winSize));
 
+
+
 plot_data = cell(1,ncategs);
 
 if strcmp(datatype,'Spec')
     freq_inds = data.freqs >= plot_params.freq_range(1) & data.freqs <= plot_params.freq_range(2);
     data.wave = squeeze(nanmean(data.wave(freq_inds,:,:)));  % avg across freq. domain
 end
+
+data.wave = convn(data.wave,gusWin','same');
 
 % group data by conditions
 if plot_params.multielec
@@ -60,9 +64,11 @@ if (strcmp(plot_params.noise_method,'trials'))
     end
 end
 
-plot_data = cell(1,ncategs);
+plot_data = cell(1,ncategs); % with noisy epochs excluded
+plot_data_all = cell(1,ncategs); %including noisy epochs
 for ci = 1:ncategs
     plot_data{ci} = data.wave(grouped_trials{ci},:);
+    plot_data_all{ci} = data.wave(grouped_trials_all{ci},:);
 end
 
 % smooth and plot data
@@ -72,17 +78,18 @@ if ~plot_params.multielec
 end
 
 for ci = 1:ncategs
-    plot_data{ci} = convn(plot_data{ci},gusWin','same');
+%     plot_data{ci} = convn(plot_data{ci},gusWin','same');
     lineprops.col{1} = plot_params.col(ci,:);
     if plot_params.single_trial
         subplot(ncategs,1,ci)
-        plot(data.time,data.wave(grouped_trials_all{ci},:)', 'r')
+        plot(data.time,plot_data_all{ci}', 'r')
         hold on
         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
+%         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
         title(cond_names{ci})
-        
+        y_lim = [max(-5,min(plot_data_all{ci}(:))),min(10,max(plot_data_all{ci}(:)))];
         xlim(plot_params.xlim)
-        
+        ylim(y_lim)
         xlabel(plot_params.xlabel)
         ylabel(plot_params.ylabel)
         set(gca,'fontsize',plot_params.textsize)
