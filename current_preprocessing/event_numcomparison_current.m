@@ -9,9 +9,17 @@ for i = 1:length(block_names)
     % Load trigger channel
     load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
 
+    
+    
     % Load soda
+    
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); 
+    
+    if strcmp(sbj_name, 'S18_127') && strcmp(bn, 'E18-706_0039')
+        K.theData = K.theData(3:end);
+    end
+    
     
     % Load trialinfo
     load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
@@ -87,6 +95,12 @@ for i = 1:length(block_names)
     stim_offset(1:33:end)=[];
     stim1_onset = stim_onset(1:2:end);
     stim2_onset = stim_onset(2:2:end);
+    
+    if strcmp(sbj_name, 'S18_127') && strcmp(bn, 'E18-706_0039')
+        stim2_onset(end+1) = nan;
+    end
+    
+    
     % counter = 1;
     % while counter <= length(stim_onset)
     %     stim1_onset = [stim1_onset stim_onset(counter)];
@@ -101,7 +115,7 @@ for i = 1:length(block_names)
     
     all_stim_onset(:,1)=stim1_onset;
     all_stim_onset(:,2)=stim2_onset;
-    
+  
     %plot each presentation in trial
     figure, plot(pdio,'k'),hold on,
     

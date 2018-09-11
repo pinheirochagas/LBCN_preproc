@@ -11,7 +11,27 @@ for i = 1:length(block_names)
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     load([globalVar.psych_dir '/' soda_name.name], 'theData'); % block 55 %% FIND FILE IN THE FOLDER AUTO
     
+    % Correct for this subject. 
+    if strcmp(sbj_name, 'S18_127') && strcmp(bn, 'E18-706_0039')
+        theData = theData(3:end);
+    end
+    
+    %% correct for missing keys and rt
+    for ii = 1:length(theData)
+        if isempty(theData(ii).keys)
+            theData(ii).keys = 'noanswer';
+        end
+        if isempty(theData(ii).RT)
+            theData(ii).RT = nan;
+        end
+        if isempty(theData(ii).flip)
+            theData(ii).flip.StimulusOnsetTime = nan;
+        end
+    end
+
+    
     results_table = vertcat(results_table,struct2table(theData));
+    
     % load stim
     load([globalVar.psych_dir '/Run' num2str(i)  '/permutedTrials.mat']);
     permdottype(isnan(permdottype))=0; % substitute nan for 0, to make table consise
@@ -72,6 +92,7 @@ for i = 1:length(block_names)
     % add keys
     trialinfo.keys = trialinfo.num1; % initialize
     for ii = 1:length(results_table.keys)
+        end
         key = str2num(results_table.keys{ii});
         if ~isempty(key)
             trialinfo.keys(ii) = key;
@@ -83,11 +104,11 @@ for i = 1:length(block_names)
     % add accuracy
     trialinfo.accuracy = trialinfo.num1; % initialize
     for ii = 1:length(trialinfo.keys)
-        if trialinfo.keys(ii) == trialinfo.larger(ii);
+        if trialinfo.keys(ii) == trialinfo.larger(ii)
             trialinfo.accuracy(ii) = 1;
-        elseif trialinfo.keys(ii) ~= trialinfo.larger(ii) && isnan(trialinfo.keys(ii)) == 0;
+        elseif trialinfo.keys(ii) ~= trialinfo.larger(ii) && isnan(trialinfo.keys(ii)) == 0
             trialinfo.accuracy(ii) = 0;
-        elseif isnan(trialinfo.keys(ii)) == 1;
+        elseif isnan(trialinfo.keys(ii)) == 1
             trialinfo.accuracy(ii) = NaN;
         end
     end
@@ -95,7 +116,7 @@ for i = 1:length(block_names)
     % add RT
     trialinfo.RT = trialinfo.num1; % initialize
     for ii = 1:length(results_table.RT)
-        if isnan(trialinfo.keys(ii)) == 0;
+        if isnan(trialinfo.keys(ii)) == 0
             trialinfo.RT(ii) = results_table.RT(ii);
         else
             trialinfo.RT(ii) = NaN;
@@ -142,4 +163,4 @@ for i = 1:length(block_names)
 
 end
 
-end
+

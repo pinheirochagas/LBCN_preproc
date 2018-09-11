@@ -78,6 +78,10 @@ switch task
     case 'GradCPT'
         plot_params.xlim = [-0.5 1.6];
         plot_params.blc = false;
+    case 'Number_comparison'
+        plot_params.xlim = [-0.2 3];
+        plot_params.blc = true;
+        plot_params.bl_win = [-0.2 0];  
 end
     
 plot_params.lw = 3; % linewidth
