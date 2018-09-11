@@ -122,14 +122,7 @@ end
 
 plotLines(data, y_lim)
 
-
 set(gcf,'color','w')
-
-if strcmp(plot_params.label,'name')
-    suptitle(data.label)
-elseif strcmp(plot_params.label,'number')
-    suptitle('Elec ',num2str(el))
-end
 
 end
 

@@ -1,4 +1,4 @@
-function data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfields,tag)
+function data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfields,tag)
 
 % this function concatenates data (either spectral or single timecourse) across blocks for a single electrode
 %% INPUTS:
@@ -23,9 +23,9 @@ end
 data_all.trialinfo = [];
 for bi = 1:length(block_names)
     bn = block_names{bi};
-    dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn,'/EpochData'];
+    dir_in = [dirs.data_root,filesep,datatype,'Data',filesep,freq_band,filesep,sbj_name,filesep,bn,filesep,'EpochData'];
 
-    load(sprintf('%s/%siEEG_%s_%s_%.2d.mat',dir_in,datatype,tag,bn,el));
+    load(sprintf('%s/%siEEG_%s_%s_%.2d.mat',dir_in,freq_band,tag,bn,el));
 
     % concatenante EEG data across blocks
     for i = 1:length(concatfields)

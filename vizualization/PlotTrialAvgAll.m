@@ -1,4 +1,4 @@
-function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,datatype,locktype,column,conds,plot_params)
+function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params,datatype)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -40,9 +40,9 @@ if isempty(elecs)
 end
 
 if plot_params.multielec
-    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,locktype,'lock',filesep,'multielec']; 
+    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,freq_band,filesep,locktype,'lock',filesep,'multielec']; 
 else
-    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,locktype,'lock'];
+    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,freq_band,filesep,locktype,'lock'];
 end
 
 %% loop through electrodes and plot
@@ -76,7 +76,8 @@ end
 % determine folder name for plots by compared conditions
 for ei = 1
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+%     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if plot_params.multielec
         groupall = true;
     else
@@ -89,6 +90,7 @@ for ei = 1
     end
     cond_names = groupCondNames(conds,groupall);
 end
+
 folder_name = cond_names{1};
 for gi = 2:length(cond_names)
     folder_name = [folder_name,'_',cond_names{gi}];
@@ -96,7 +98,7 @@ end
 if plot_params.single_trial
     dir_out = [dir_out,filesep,folder_name,filesep,'singletrials'];
 else
-    dir_out = [dir_out,filesep,folder_name,];
+    dir_out = [dir_out,filesep,folder_name];
 end
 if ~exist(dir_out)
     mkdir(dir_out)
@@ -106,7 +108,8 @@ end
 for ei = 1:length(elecs)
     el = elecs(ei);
     
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+%     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end
@@ -156,7 +159,7 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
         title_conds = [title_conds,'+',conds{ci}];
     end
     title(title_conds)
-    fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,datatype,locktype);
+    fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
     tic
     savePNG(gcf, 300, fn_out)
     toc

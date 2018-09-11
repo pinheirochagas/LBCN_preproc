@@ -1,4 +1,4 @@
-function PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column,conds,plot_params)
+function PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params)
 
 
 %% INPUTS
@@ -32,7 +32,7 @@ if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
-dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/SpecData/',locktype,'lock'];
+dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,'SpecData',filesep,freq_band,filesep,locktype,'lock'];
 
 if ~exist(dir_out)
     mkdir(dir_out)
@@ -45,12 +45,38 @@ if plot_params.blc
 end
 concatfield = {'wave'}; % concatenate amplitude across blocks
 
+% determine folder name for plots by compared conditions
+for ei = 1
+    el = elecs(ei);
+%     data_all = concatBlocks(sbj_name,block_names,dirs,el,'Spec',concatfield,tag);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
+    if isempty(conds)
+        tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
+        conds = unique(data_all.trialinfo.(column)(tmp));
+    end
+    cond_names = groupCondNames(conds,false);
+end
+folder_name = cond_names{1};
+for gi = 2:length(cond_names)
+    folder_name = [folder_name,'_',cond_names{gi}];
+end
+dir_out = [dir_out,filesep,folder_name];
+if ~exist(dir_out)
+    mkdir(dir_out)
+end
+
 for ei = 1:length(elecs)
     el = elecs(ei);
     data_all.wave = [];
     data_all.trialinfo = [];
     
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,'Spec',concatfield,tag);
+    if ismember(el,bad_chans)
+        tagchan = ' (bad)';
+    else
+        tagchan = ' (good)';
+    end
+    
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end
@@ -61,7 +87,12 @@ for ei = 1:length(elecs)
     end
     
     PlotERSP(data_all,column,conds,plot_params)
-    fn_out = sprintf('%s/%s_%s_%s_ERSP_%slock.png',dir_out,sbj_name,data_all.label,project_name,locktype);
+    if strcmp(plot_params.label,'name')
+        suptitle([data_all.label,tagchan])
+    elseif strcmp(plot_params.label,'number')
+        suptitle(['Elec ',num2str(el),tagchan])
+    end
+    fn_out = sprintf('%s/%s_%s_%s_ERSP_%s_%slock.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype);
     saveas(gcf,fn_out)
     close
 end

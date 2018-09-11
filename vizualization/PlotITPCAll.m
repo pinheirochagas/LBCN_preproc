@@ -1,4 +1,4 @@
-function PlotITCAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column,conds,noise_method,plot_params)
+function PlotITPCAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -9,10 +9,10 @@ function PlotITCAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column
 %       locktype: 'stim' or 'resp' (which event epoched data is locked to)
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all of the conditions within column)
-%       noise_method:   how to exclude data (default: 'trial'):
-%                       'none':     no epoch rejection
-%                       'trial':    exclude noisy trials (set to NaN)
-%                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
+%       noise_params.method: 'trials','timepts', or 'none' (which baseline data to
+%                       exclude before baseline correction)
+%               .noise_fields_trials  (which trials to exclude- if method = 'trials')
+%               .noise_fields_timepts (which timepts to exclude- if method = 'timepts')
 %       plot_params:    .eb : plot errorbars ('ste','std',or 'none')
 %                       .lw : line width of trial average
 %                       .legend: 'true' or 'false'
@@ -25,19 +25,7 @@ function PlotITCAll(sbj_name,project_name,block_names,dirs,elecs,locktype,column
 %                       .xlim
 
 if isempty(plot_params)
-    plot_params.label = 'name';
-    plot_params.textsize = 16;
-    plot_params.xlabel = 'Time (s)';
-    plot_params.ylabel = 'Freq (Hz)';
-    plot_params.cmap = cbrewer2('RdYlBu');
-    plot_params.cmap = plot_params.cmap(end:-1:1,:);
-    plot_params.clim = [0 0.4];
-    plot_params.blc = false;
-    plot_params.freq_range = [0 32];
-end
-
-if isempty(noise_method)
-    noise_method = 'trials';
+    plot_params = genPlotParams(project_name,'ITPC');
 end
 
 % load globalVar
@@ -46,56 +34,50 @@ if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
-dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/Figures/SpecData/ITC/',locktype,'lock'];
+tag = [locktype,'lock'];
+if plot_params.blc
+    tag = [tag,'_bl_corr'];
+end
+concatfield = {'phase'}; % concatenate amplitude across blocks
+
+bad_chans = [];
+for bi = 1:length(block_names)
+    load([dirs.data_root,filesep,'OriginalData',filesep,sbj_name,filesep,'global_',project_name,'_',sbj_name,'_',block_names{bi},'.mat'])
+    bad_chans = union(bad_chans,globalVar.badChan);
+end
+
+if iscell(elecs)
+    elecs = ChanNamesToNums(globalVar,elecs);
+end
+
+if isempty(elecs)
+    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+end
+
+
+dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,'SpecData',filesep,freq_band,filesep,'ITPC',filesep,locktype,'lock'];
 
 if ~exist(dir_out)
     mkdir(dir_out)
 end
 
-% data = load_data(sbj,task,elecs(1),datatype);
-
-% if categories not defined, make plots for all categories within specified column
-if nargin < 4
-    conds = unique(data.trialinfo.(column));
-end
-
+disp('>--8--<') % HUG
+%%
 for ei = 1:length(elecs)
     el = elecs(ei);
     data_all.phase = [];
     data_all.trialinfo = [];
-
-    for bi = 1:length(block_names)
-        bn = block_names{bi};
-        dir_in = [dirs.data_root,'/SpecData/',sbj_name,'/',bn,'/EpochData/'];
-        
-        if plot_params.blc
-            load(sprintf('%s/SpeciEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,locktype,bn,el));
-        else
-            load(sprintf('%s/SpeciEEG_%slock_%s_%.2d.mat',dir_in,locktype,bn,el));
-        end
-        
-        % concatenante EEG data along trial dimension (across blocks)
-        data_all.phase = cat(2,data_all.phase,data.phase);
-        
-        % concatenate trial info
-        data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
-
+    
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
+    if strcmp(plot_params.noise_method,'timepts')
+        data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end
 
     if isempty(conds)
         tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
         conds = unique(data_all.trialinfo.(column)(tmp));
     end
-    
-    % Keep all original fields of data 
-    fieldnames_data = fieldnames(data);
-    for i = 1:length(fieldnames_data)
-        if ~ismember(fieldnames_data{i}, {'wave','phase'}) && ~strcmp(fieldnames_data{i}, 'trialinfo')
-            data_all.(fieldnames_data{i}) = data.(fieldnames_data{i});
-        else
-        end
-    end
-    
+
     data_all.time = data.time;
     data_all.fsample = data.fsample;
     plot_params.xlim = [data_all.time(1) data_all.time(end)];

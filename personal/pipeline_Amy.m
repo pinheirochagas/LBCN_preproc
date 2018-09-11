@@ -2,7 +2,7 @@
 computer = 'Amy_iMAC';
 AddPaths(computer)
 
-parpool(2) % initialize number of cores
+parpool(4) % initialize number of cores
 
 %% Initialize Directories
 % project_name = 'Calculia_production';
@@ -40,7 +40,7 @@ dirs = InitializeDirs(computer, project_name,sbj_name,set_freesurfer_dir);
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
-load_server_files = true;
+load_server_files = false;
 CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format,load_server_files) 
 %%% IMPROVE uigetfile to go directly to subject folder %%%
 
@@ -129,9 +129,10 @@ load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,pr
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
+%     for ei = 1:length(elecs)
     parfor ei = 1:length(elecs)
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], []) % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec2', [], [], true, []) % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec2', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -156,9 +157,10 @@ noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % for i = 1
 for i = 1:length(block_names)
     bn = block_names{i};
+%     for ei = 1:length(elecs) 
     parfor ei = 1:length(elecs) 
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params)
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec', [],[], blc_params,noise_params)
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'Spec2', [],[], blc_params,noise_params,'Spec')
     end
 end
 
@@ -229,7 +231,7 @@ plot_params.textsize = 10;
 % elecs = {'LPS8'};
 % elecs = 1;
 % elecs = ChanNamesToNums(globalVar,elecs);
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,1,'HFB','stim','condNames',[],plot_params)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,1,'HFB','stim','condNames',[],plot_params,'Band')
 
 data_all =  concatBlocks(sbj_name,block_names,dirs,elecs,'HFB',{'wave'},'stimlock_bl_corr');
 [grouped_trials_all,~] = groupConds({'math','autobio'},data_all.trialinfo,'condNames','none',[],false);
@@ -241,13 +243,13 @@ plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % elecs = {'LP7'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
 
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
@@ -255,10 +257,10 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.multielec = true;
 elecs = {'LP7','LPS8','LP4'}; %S14_69b
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params)
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params,'Band')
 
 % plot inter-trial phase coherence for each electrode
-PlotITCAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise_method,[])
+PlotITPCAll(sbj_name,project_name,block_names,dirs,[],'stim','condNames',[],noise_method,[])
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
@@ -266,7 +268,7 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % elecs = {'LP7','LPS8','LP4'}; %S14_69b
 elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,'stim','condNames',[],plot_params)
+PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,'Spec2','stim','condNames',[],plot_params)
 
 % Number comparison
 % load a given trialinfo
