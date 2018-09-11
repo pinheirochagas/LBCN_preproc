@@ -1,7 +1,8 @@
 function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format,import_server)
 % Create folders LBCN
-folder_names = {'originalData', 'CARData', 'CompData', 'FiltData'};
-folder_sublayers={'SpecData', 'BandData'};
+folder_names = {'originalData', 'CARData', 'CompData', 'FiltData', ...
+    'SpecData', 'HFBData'};
+
 % Subject folder name
 if import_server
     all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
@@ -9,13 +10,6 @@ if import_server
         tpm(i) = contains(all_folders(i).name, sbj_name);
     end
     sbj_folder_name = all_folders(find(tpm == 1)).name;
-end
-
-for i = 1:length(folder_sublayers)
-    foldersublayers.(folder_sublayers{i}) = sprintf('%s/%s/%s',dirs.data_root,folder_sublayers{i});
-    if ~exist(foldersublayers.(folder_sublayers{i}))
-        mkdir(foldersublayers.(folder_sublayers{i}));
-    end
 end
 
 
@@ -34,36 +28,23 @@ for i = 1:length(fieldname_folders)
     end
 end
 
-%% Check if the globalval.mat exist
-globalfile= dir([folders.originalData,filesep,'global*.mat']);
+%% Per block - create folders and globalVar
+globalVar.sbj_name = sbj_name;
+globalVar.project_name = project_name;
+globalVar.center = center;
+
 
 for bn = 1:length(block_name)
-   
-    clear globalVar
-    if ~isempty(globalfile)
-        load([folders.originalData,filesep,globalfile(bn).name])
-    end
-    
-%% Per block - create folders and globalVar
     globalVar.block_name = block_name{bn};
-    globalVar.sbj_name = sbj_name;
-    globalVar.project_name = project_name;
-    globalVar.center = center;
-   %%
-   for i = 1:length(folder_sublayers)
-       globalVar.(folder_sublayers{i})=foldersublayers.(folder_sublayers{i});
-   end
-   
-    %%
     for i = 1:length(fieldname_folders)
         globalVar.(fieldname_folders{i}) = [folders.(fieldname_folders{i}) '/' block_name{bn}];
         if ~exist(globalVar.(fieldname_folders{i}))
             mkdir(globalVar.(fieldname_folders{i}));
         end
-        if strcmp(fieldname_folders{i}, 'psych_dir') || strcmp(fieldname_folders{i}, 'result_dir') || strcmp(fieldname_folders{i}, 'originalData')
+        if strcmp(fieldname_folders{i}, 'psych_dir') || strcmp(fieldname_folders{i}, 'result_dir') || strcmp(fieldname_folders{i}, 'originalData') 
         else
-            if ~exist([globalVar.(fieldname_folders{i}) ])
-                mkdir([globalVar.(fieldname_folders{i}) ]);
+            if ~exist([globalVar.(fieldname_folders{i}) '/EpochData'])
+                mkdir([globalVar.(fieldname_folders{i}) '/EpochData']);
             end
         end
     end
@@ -84,11 +65,13 @@ for bn = 1:length(block_name)
         [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
         globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
     end
-    
+
     % Save globalVariable
     fn = [folders.originalData '/' sprintf('global_%s_%s_%s.mat',project_name,sbj_name,block_name{bn})];
     save(fn,'globalVar');
 end
+
+
 
 end
 
