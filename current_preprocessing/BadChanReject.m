@@ -8,8 +8,6 @@ for i = 1:length(bns)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
     load(fn,'globalVar');
     
-    %Filtering 60 Hz line noise & harmonics
-    noiseFiltData(globalVar);
     %Chan info PROMPT
     globalVar.badChan = [globalVar.refChan globalVar.epiChan];
     
@@ -17,7 +15,7 @@ for i = 1:length(bns)
     %This part saves data.mat
     
     % Format the data
-    sub_info.data.name = sprintf('%s/fiEEG%s_',globalVar.FiltData,bn);
+    sub_info.data.name = sprintf('%s/iEEG%s_',globalVar.originalData,bn);
     sub_info.Pdiode.name = sprintf('%s/Pdio%s_02',globalVar.originalData,bn);
     
     data_nr=1;
@@ -26,14 +24,21 @@ for i = 1:length(bns)
     clear wave
     
     data=zeros(ttot,globalVar.nchan); % initialize data variable
-    for n=1:globalVar.nchan % cycle through channels
+    
+    %% loop across channels
+    for n=1:globalVar.nchan
         if n<10
-            nl=['0' num2str(n)]; 
+            nl=['0' num2str(n)];
         else
             nl=num2str(n);
         end % lame hack-around for channel names
-        load([sub_info.data(data_nr).name nl '.mat'],'wave')
-        wave=wave.'; %because has incorrect ordering for efficiency, should be time x 1
+        % add notch here.
+        load([sub_info.data(data_nr).name nl '.mat'])
+        disp(['notch filtering electrode ' nl ' out of ' num2str(globalVar.nchan)])
+        
+        %Filtering 60 Hz line noise & harmonics
+        wave = noiseFiltData(globalVar, wave);
+        wave = wave.'; %because has incorrect ordering for efficiency, should be time x 1
         data(:,n)=-wave; % invert: data are recorded inverted
         clear wave nl
     end
@@ -43,7 +48,7 @@ for i = 1:length(bns)
     %% Run algorithm
     bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan globalVar.emptyChan];
     a=var(data);
-    b=find(a>(5*median(a))); % 5 * greated than median. 
+    b=find(a>(5*median(a))); % 5 * greated than median.
     c=find(a<(median(a)/5));
     if ~isempty([b c])
         disp(['additional bad channels: ' int2str(setdiff([b c],bad_chans))]);
@@ -52,38 +57,42 @@ for i = 1:length(bns)
     
     % %Plot bad channels
     bad_cha_tmp = setdiff([b c],[globalVar.badChan globalVar.epiChan]);
-    figureDim = [0 0 1 1];
+    figureDim = [0 0 .5 .5];
     figure('units', 'normalized', 'outerposition', figureDim)
+    subplot(2,2,1)
     for ii = bad_cha_tmp
         hold on
         plot(zscore(data(:,ii))+ii);
     end
+    title('Bad electrodes based on raw power')
+    xlabel('Time (s)')
+    ylabel('Electrode number')
     % Update the globalVar.badChan
     globalVar.badChan = [bad_cha_tmp globalVar.badChan];
-
-        % remove bad channels
+    
+    % remove bad channels
     chan_lbls=1:size(data,2);
     data(:,globalVar.badChan)=[];
     chan_lbls(globalVar.badChan)=[];
-  
-    %% Step 2: Bad channel detection based on spikes in the raw data  
+    
+    %% Step 2: Bad channel detection based on spikes in the raw data
     nr_jumps=zeros(1,size(data,2));
     for k=1:size(data,2)
         nr_jumps(k)=length(find(diff(data(:,k))>80)); % find jumps>80uV
     end
     
-    figure,plot(nr_jumps);
+    subplot(2,2,2)
+    plot(nr_jumps);
+    ylabel('Number of spikes')
+    xlabel('Electrode number')
     ej= floor(globalVar.chanLength/globalVar.iEEG_rate);% 1 jump per second in average
     jm=find(nr_jumps>ej);% Find channels with more than ... jumps
     clcl=chan_lbls(jm);% Real channel numbers of outliers
     disp(['spiky channels: ' int2str(clcl)]);
-    % return chan
     
-    % Add the bad channels to globalVar.badChan if you think they are bad bad!
-    
-    %% Bad channel detection step 3: Bad channel detection based on powerspectra 
+    %% Bad channel detection step 3: Bad channel detection based on powerspectra
     set_ov=0; % overlap
-    f = 0:250; % 
+    f = 0:250; %
     data_pxx=zeros(length(f),size(data,2));
     
     for k=1:size(data,2)
@@ -92,9 +101,10 @@ for i = 1:length(bns)
     end
     
     % Plot chnas in different colors:
-    figureDim = [0 0 .5 1];
-    figure('units', 'normalized', 'outerposition', figureDim)
+    %     figureDim = [0 0 .5 1];
+    %     figure('units', 'normalized', 'outerposition', figureDim)
     plotthis=log(data_pxx);
+    subplot(2,2,3)
     for fi = 1:size(plotthis,2)
         hold on
         plot(f,plotthis(:,fi))
@@ -103,25 +113,26 @@ for i = 1:length(bns)
     end
     xlim([1 size(plotthis,1)])
     ylim([min(plotthis(:)) max(plotthis(:))])
+    xlabel('Frequency')
+    ylabel('Power')
     
     % Prompt for bad channels
     bad_chan_spec = promptBadChanSpec; % of the remaining channels
-    close all
+    %     close all
     
-    % Update globalVar.badChan 
+    % Update globalVar.badChan
     globalVar.badChan = [bad_chan_spec globalVar.badChan];
     
     %% Bad channel detection step 4: Bad channel detection based on HFOs
     [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
-    % pathological_event are in bipolar montage 
+    % pathological_event are in bipolar montage
     
     %% Inspect all bad channels
     % blue channels - detected in steps 1,2,3
     % red channels - detected in step 4
     % green channels - detected in both steps (1,2,3) and 4
     
-    figureDim = [0 0 1 1];
-    figure('units', 'normalized', 'outerposition', figureDim)
+    subplot(2,2,4)
     for ii = unique([globalVar.badChan pathological_chan_id])
         hold on
         if ~isempty(find(pathological_chan_id == ii)) && ~isempty(find(globalVar.badChan == ii))
@@ -133,29 +144,29 @@ for i = 1:length(bns)
         end
         plot(zscore(data_all(:,ii))+ii, 'Color', color_plot);
     end
+    title('All bad electrodes')
+    xlabel('Time (s)')
+    ylabel('Electrode number')
+    
     
     % Update globalVar.badChan
     globalVar.badChan = unique([pathological_chan_id globalVar.badChan]);
-    globalVar.pathological_event_bipolar_montage = pathological_event; 
- 
+    globalVar.pathological_event_bipolar_montage = pathological_event;
+    
     %% Eyeball the rereferenced data after removing the bad channels
-    % remove bad channels
+    % This should be interactive - ask Su to help creating a gui.
     data_all(:,globalVar.badChan)=[];
-   
     data_down_car = car(data_all);
     % Plot CAR data for eyeballing
-    figureDim = [0 0 .5 1];
-    figure('units', 'normalized', 'outerposition', figureDim)
     for iii = 1:size(data_down_car,2)
         hold on
         plot(zscore(data_down_car(1:round(globalVar.iEEG_rate*20),iii))+iii);
     end
     
-    
     %% Re-referencing data to the common average reference CAR - and save
     elecs = setxor(1:globalVar.nchan,[globalVar.badChan globalVar.refChan globalVar.epiChan]); %
     commonAvgRef(globalVar,'noiseFilt'); % 'orig'
-      
+    
     %% Save globalVar (For the last time; don't re-write after this point!)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
     save(fn,'globalVar');
