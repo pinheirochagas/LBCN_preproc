@@ -5,6 +5,8 @@ if strcmp(user, 'Pedro_iMAC')
     dirs.comp_root = sprintf('/Volumes/LBCN8T/Stanford/data'); % location of analysis_ECOG folder
 elseif strcmp(user,'Pedro_NeuroSpin4T')
     dirs.comp_root = sprintf('/Volumes/NeuroSpin4T/Stanford/data'); % location of analysis_ECOG folder
+elseif strcmp(user,'Pedro_NeuroSpin2T')
+    dirs.comp_root = sprintf('/Volumes/NeuroSpin2T/Stanford/data'); % location of analysis_ECOG folder
 elseif strcmp(user,'Amy_iMAC')
     dirs.comp_root = sprintf('/Users/amydaitch/Documents/MATLAB/analysis_ECoG'); % location of analysis_ECOG folder
 end

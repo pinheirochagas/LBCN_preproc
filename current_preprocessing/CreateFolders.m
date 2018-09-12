@@ -1,6 +1,6 @@
 function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format,import_server)
 % Create folders LBCN
-folder_names = {'originalData', 'CARData', 'CompData', 'FiltData'};
+folder_names = {'originalData', 'CARData'};
 folder_sublayers={'SpecData', 'BandData'};
 % Subject folder name
 if import_server

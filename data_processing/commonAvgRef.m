@@ -56,7 +56,6 @@ if strcmp(str,'orig')
             save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,block_name, ii),'wave');
             clear wave
 %         end
-        
     end
     
 elseif strcmp(str,'noiseFilt')
@@ -96,4 +95,3 @@ elseif strcmp(str,'noiseFilt')
 else
     error('str variable should be orig, noiseFilt, or artRep')
 end
-

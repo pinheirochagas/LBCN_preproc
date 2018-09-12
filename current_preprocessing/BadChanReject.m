@@ -59,7 +59,7 @@ for i = 1:length(bns)
     bad_cha_tmp = setdiff([b c],[globalVar.badChan globalVar.epiChan]);
     figureDim = [0 0 .5 .5];
     figure('units', 'normalized', 'outerposition', figureDim)
-    subplot(2,2,1)
+    subplot(2,1,1)
     for ii = bad_cha_tmp
         hold on
         plot(zscore(data(:,ii))+ii);
@@ -81,7 +81,7 @@ for i = 1:length(bns)
         nr_jumps(k)=length(find(diff(data(:,k))>80)); % find jumps>80uV
     end
     
-    subplot(2,2,2)
+    subplot(2,1,2)
     plot(nr_jumps);
     ylabel('Number of spikes')
     xlabel('Electrode number')
@@ -95,8 +95,8 @@ for i = 1:length(bns)
     f = 0:250; %
     data_pxx=zeros(length(f),size(data,2));
     
-    for k=1:size(data,2)
-        [Pxx,f] = pwelch(data(1:100*globalVar.iEEG_rate,k),globalVar.iEEG_rate,set_ov,f,globalVar.iEEG_rate);
+    for k = 1:size(data,2)
+        [Pxx,f] = pwelch(data(1:100*globalVar.iEEG_rate,k),floor(globalVar.iEEG_rate),set_ov,f,floor(globalVar.iEEG_rate));
         data_pxx(:,k)=Pxx;
     end
     
@@ -104,7 +104,8 @@ for i = 1:length(bns)
     %     figureDim = [0 0 .5 1];
     %     figure('units', 'normalized', 'outerposition', figureDim)
     plotthis=log(data_pxx);
-    subplot(2,2,3)
+    figureDim = [0 0 .5 1];
+    figure('units', 'normalized', 'outerposition', figureDim)
     for fi = 1:size(plotthis,2)
         hold on
         plot(f,plotthis(:,fi))
@@ -131,8 +132,8 @@ for i = 1:length(bns)
     % blue channels - detected in steps 1,2,3
     % red channels - detected in step 4
     % green channels - detected in both steps (1,2,3) and 4
-    
-    subplot(2,2,4)
+    figureDim = [0 0 .5 .5];
+    figure('units', 'normalized', 'outerposition', figureDim)
     for ii = unique([globalVar.badChan pathological_chan_id])
         hold on
         if ~isempty(find(pathological_chan_id == ii)) && ~isempty(find(globalVar.badChan == ii))
@@ -155,17 +156,35 @@ for i = 1:length(bns)
     
     %% Eyeball the rereferenced data after removing the bad channels
     % This should be interactive - ask Su to help creating a gui.
-    data_all(:,globalVar.badChan)=[];
-    data_down_car = car(data_all);
-    % Plot CAR data for eyeballing
-    for iii = 1:size(data_down_car,2)
-        hold on
-        plot(zscore(data_down_car(1:round(globalVar.iEEG_rate*20),iii))+iii);
-    end
+%     data_all(:,globalVar.badChan)=[];
+%     data_down_car = car(data);
+    
+    %% Plot CAR data for eyeballing
+%     for iii = 1:size(data_down_car,2)
+%         hold on
+%         plot(zscore(data_down_car(1:round(globalVar.iEEG_rate*20),iii))+iii);
+%     end
     
     %% Re-referencing data to the common average reference CAR - and save
-    elecs = setxor(1:globalVar.nchan,[globalVar.badChan globalVar.refChan globalVar.epiChan]); %
-    commonAvgRef(globalVar,'noiseFilt'); % 'orig'
+    clear data
+    data_all = data_all';
+    data_good = data_all;
+    data_good(globalVar.badChan,:) = [];
+    % Demean good electrodes
+    for ci = 1:size(data_good,1)
+        data_good(ci,:) = data_good(ci,:) - mean(data_good(ci,:));
+    end
+    CAR = mean(data_good,1); % common average reference
+    % Subtract CAR and save   
+    for cii = 1:size(data_all,1)
+        %%% WHY DO I HAVE TO SWITCH SIGN TO MATCH PREVIOUS (with separate FiltData)?!!! %%%
+        data.wave = -single(data_all(cii,:) - CAR); % subtract CAR 
+        %%% WHY DO I HAVE TO SWITCH SIGN TO MATCH PREVIOUS? (with separate FiltData)!!! %%%
+        data.fsample = globalVar.iEEG_rate;
+        disp(['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn, cii)])
+        save(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn, cii),'data');
+        clear data
+    end
     
     %% Save globalVar (For the last time; don't re-write after this point!)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
