@@ -1,4 +1,4 @@
-function pac_params = genPACParams(project_name)
+function plv_params = genPLVParams(project_name)
 
 switch project_name
     case 'GradCPT'
