@@ -8,14 +8,18 @@ elseif strcmp(user,'Pedro_NeuroSpin4T')
 elseif strcmp(user,'Pedro_NeuroSpin2T')
     dirs.comp_root = sprintf('/Volumes/NeuroSpin2T/Stanford/data'); % location of analysis_ECOG folder
 elseif strcmp(user,'Amy_iMAC')
-    dirs.comp_root = sprintf('/Users/amydaitch/Documents/MATLAB/analysis_ECoG'); % location of analysis_ECOG folder
+    dirs.comp_root = sprintf('/Users/amydaitch/Documents/MATLAB/analysis_ECoG');
+elseif strcmp(user,'Ying_iMAC')
+    dirs.comp_root = sprintf('/Users/Ying/Documents/MATLAB/analysis_ECoG');
+elseif strcmp(user,'Ying_iMAC')
+    dirs.comp_root = sprintf('/Users/Ying/Documents/MATLAB/analysis_ECoG');% location of analysis_ECOG folder
 end
 
 dirs.server_root = '/Volumes/neurology_jparvizi$/';
 dirs.data_root = sprintf('%s/neuralData',dirs.comp_root);
 dirs.result_root = sprintf('%s/Results',dirs.comp_root);
 dirs.psych_root = sprintf('%s/psychData',dirs.comp_root);
-dirs.project = sprintf('%s/Results/%s',dirs.comp_root,project_name); 
+dirs.project = sprintf('%s/Results/%s',dirs.comp_root,project_name);
 dirs.elec = sprintf('%s/ECoG Patient Info/Electrodes/Native_elecs',dirs.comp_root);
 dirs.mni_elec = sprintf('%s/ECoG Patient Info/Electrodes/MNI_elecs',dirs.comp_root);
 dirs.mni_cortex = sprintf('%s/ECoG Patient Info/Cortex/ColinCortex',dirs.comp_root);
