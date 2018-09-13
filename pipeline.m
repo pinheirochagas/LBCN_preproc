@@ -14,6 +14,7 @@ project_name = 'UCLA';
 project_name = 'Calculia';
 project_name = 'Calculia_China';
 project_name = 'Number_comparison';
+project_name = 'Number_comparison';
 
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo(project_name);
