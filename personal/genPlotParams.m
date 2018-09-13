@@ -47,8 +47,9 @@ switch plottype
         plot_params.textsize = 16;
         plot_params.xlabel = 'Time (s)';
         plot_params.ylabel = 'Freq (Hz)';
-        plot_params.cmap = cbrewer2('RdYlBu');
-        plot_params.cmap = plot_params.cmap(end:-1:1,:);
+%         plot_params.cmap = cbrewer2('RdYlBu')
+        plot_params.cmap = parula;
+%         plot_params.cmap = plot_params.cmap(end:-1:1,:);
         plot_params.clim = [0 0.4];
         plot_params.freq_range = [0 32];
     case 'RTCorr'

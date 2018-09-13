@@ -1,4 +1,4 @@
-function PlotITC(data,column,conds,plot_params,noise_method)
+function PlotITPC(data,column,conds,plot_params)
 % Plots inter-trial phase coherence for each condition
 % INPUTS:
 %       data: spectral data(freq x trials x time)
@@ -13,39 +13,22 @@ function PlotITC(data,column,conds,plot_params,noise_method)
 %                       .cmap
 %                       .clim
 
-
 if isempty(plot_params)
-    plot_params.label = 'name';
-    plot_params.textsize = 16;
-    plot_params.xlabel = 'Time (s)';
-    plot_params.ylabel = 'Freq (Hz)';
-    plot_params.xlim = [data.time(1) data.time(end)];
-    plot_params.cmap = cbrewer2('RdYlBu');
-    plot_params.cmap = plot_params.cmap(end:-1:1,:);
-    plot_params.clim = [0 0.4];
-    plot_params.freq_range = [0 32];
+    plot_params = genPlotParams(project_name,'ITPC');
 end
-
 
 if isempty(conds)
     conds = unique(data.trialinfo.(column));
 end
 ncategs = length(conds);
 
-plot_data = cell(1,length(conds));
-
 % organize trials by categories
+[grouped_trials_all,~] = groupConds(conds,data.trialinfo,column,'none',[],false);
+[grouped_trials,cond_names] = groupConds(conds,data.trialinfo,column,plot_params.noise_method,plot_params.noise_fields_trials,false);
 
-
+plot_data = cell(1,ncategs);
 for ci = 1:ncategs
-    trials1 = find(~cellfun(@isempty,data.trialinfo.(column)));
-    if strcmp(noise_method, 'trials')
-        trials2 = find(ismember(data.trialinfo.(column)(trials1),conds{ci}) & data.trialinfo.bad_epochs(trials1) == false);
-    else
-        trials2 = find(ismember(data.trialinfo.(column)(trials1),conds{ci}));
-    end
-    trials = trials1(trials2);
-    plot_data{ci}=data.phase(:,trials,:);
+    plot_data{ci} = data.phase(:,grouped_trials{ci},:);
 end
 
 freq_inds = [find(data.freqs >= plot_params.freq_range(1),1) find(data.freqs >= plot_params.freq_range(2),1)];
@@ -55,6 +38,7 @@ freq_labels = cell(1,length(freq_ticks));
 for i = 1:length(freq_ticks)
     freq_labels{i}=num2str(round(data.freqs(freq_ticks(i))));
 end
+%%
 % plot data
 figure('Position',[200 200 800 400])
 for ci = 1:ncategs
@@ -68,7 +52,11 @@ for ci = 1:ncategs
     set(gca,'YTick',freq_ticks)
     set(gca,'YTickLabel',freq_labels)
     plot([0 0],ylim,'k-','LineWidth',3)
-    title(conds{ci})
+    if strcmp(plot_params.noise_method,'trials')
+        title([cond_names{1},' (',num2str(length(grouped_trials{1})),' of ',num2str(length(grouped_trials_all{1})), ' trials)']);
+    else
+        title([cond_names{1}])
+    end
     xlabel(plot_params.xlabel)
     ylabel(plot_params.ylabel)
     xlim(plot_params.xlim)
@@ -76,6 +64,28 @@ for ci = 1:ncategs
     box off
     
     set(gca,'fontsize',plot_params.textsize)
+    y_lim = ylim;
+    plotLines(data, y_lim)
 end
-colorbar
+hcb=colorbar;
+title(hcb,'ITPC')
+
 set(gcf,'color','w')
+
+end
+
+function plotLines(data, y_lim)
+
+if size(data.trialinfo.allonsets,2) > 1
+    time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
+    for i = 1:length(time_events)
+        plot([time_events(i) time_events(i)],y_lim,'Color', [0 0 0], 'LineWidth',2)
+    end
+else
+    
+end
+plot([0 0],y_lim,'Color', [0 0 0], 'LineWidth',2)
+plot(xlim,[0 0],'Color', [0 0 0], 'LineWidth',2)
+ylim(y_lim)
+
+end
