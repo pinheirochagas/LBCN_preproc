@@ -1,5 +1,6 @@
 function [grouped_trials,grouped_condnames] = groupConds(conds,trialinfo,column,noise_method,noise_fields,groupall)
-
+% This function returns the trial numbers associated with particular
+% conditions or sets of conditions.
 %% INPUTS:
 %   conds: cell of conditions (can be cell of cells if grouping conditions
 %          together)
