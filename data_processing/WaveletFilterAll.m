@@ -51,7 +51,7 @@ else
 end
 % dir_out = [data_root,freq_band,'Data',filesep,sbj_name,filesep,bn];c
 dir_out = [data_root,freq_band,filesep,sbj_name,filesep,bn];
-if ~exist(dir_out)
+if ~exist(dir_out, 'dir')
     mkdir(dir_out)
 end
 
