@@ -1,5 +1,4 @@
-function BadChanReject(sbj_name, project_name, bns, dirs)
-
+function BadChanRejectCAR(sbj_name, project_name, bns, dirs)
 
 for i = 1:length(bns)
     bn = bns{i};
