@@ -11,8 +11,6 @@ elseif strcmp(user,'Amy_iMAC')
     dirs.comp_root = sprintf('/Users/amydaitch/Documents/MATLAB/analysis_ECoG');
 elseif strcmp(user,'Ying_iMAC')
     dirs.comp_root = sprintf('/Users/Ying/Documents/MATLAB/analysis_ECoG');
-elseif strcmp(user,'Ying_iMAC')
-    dirs.comp_root = sprintf('/Users/Ying/Documents/MATLAB/analysis_ECoG');% location of analysis_ECOG folder
 end
 
 dirs.server_root = '/Volumes/neurology_jparvizi$/';
