@@ -32,21 +32,32 @@ for ci = 1:ncategs
 end
 
 % Set the range of the plot
-plot_params.clim = [-prctile(data.wave(:), 90) prctile(data.wave(:), 90)];
+clim_hi = prctile(data.wave(:), 90);
+if isnan(clim_hi)
+    plot_params.clim = [-1 1];
+elseif (clim_hi>0)
+    plot_params.clim = [-clim_hi clim_hi];
+else
+    plot_params.clim = [clim_hi -clim_hi];
+end
 
 freq_ticks = 1:4:length(data.freqs);
 freq_labels = cell(1,length(freq_ticks));
 for i = 1:length(freq_ticks)
     freq_labels{i}=num2str(round(data.freqs(freq_ticks(i))));
 end
-% plot data
 
+% plot data
 if ncategs == 1
     figureDim = [0 0 .3 .4];
     figure('units', 'normalized', 'outerposition', figureDim)
-    data_tmp = squeeze(nanmean(plot_data{1},2)); % average across trials
-    data_tmp_all = convn(data_tmp,gusWin','same');
-    imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
+    ersp_tmp = squeeze(nanmean(plot_data{1},2)); % average across trials
+    if ~isempty(ersp_tmp)
+        ersp_all{ci} = convn(ersp_tmp,gusWin','same');
+        imagesc(data.time,1:length(data.freqs),ersp_all{ci},plot_params.clim)
+    else
+        imagesc(data.time,1:length(data.freqs),nan(length(data.time),length(data.freqs)),[-1 1])
+    end
     colorbar
     axis xy
     hold on
@@ -73,10 +84,15 @@ else
 
     for ci = 1:ncategs
         subplot(1,ncategs+1,ci)
-        data_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
-        data_tmp_all{ci} = convn(data_tmp,gusWin','same');
-        imagesc(data.time,1:length(data.freqs),data_tmp,plot_params.clim)
-        colorbar
+        ersp_tmp = squeeze(nanmean(plot_data{ci},2)); % average across trials
+        if ~isempty(ersp_tmp)
+            ersp_all{ci} = convn(ersp_tmp,gusWin','same');
+            imagesc(data.time,1:length(data.freqs),ersp_all{ci},plot_params.clim)
+        else
+            imagesc(data.time,1:length(data.freqs),nan(length(data.time),length(data.freqs)),[-1 1])
+        end
+        hcb=colorbar;
+        title(hcb,'ERSP')
         axis xy
         hold on
         colormap(plot_params.cmap);
@@ -99,8 +115,12 @@ else
     
     % Plot the difference
     subplot(1,ncategs+1,ci+1)
-    data_tmp_diff = data_tmp_all{1} - data_tmp_all{2};
-    imagesc(data.time,1:length(data.freqs),data_tmp_diff,plot_params.clim/2)
+    if ~isempty(ersp_all{1}) && ~isempty(ersp_all{2})
+        data_tmp_diff = ersp_all{1} - ersp_all{2};
+        imagesc(data.time,1:length(data.freqs),data_tmp_diff,plot_params.clim/2)
+    else
+        imagesc(data.time,1:length(data.freqs),nan(length(data.time),length(data.freqs)),plot_params.clim/2)
+    end
     colorbar
     axis xy
     hold on

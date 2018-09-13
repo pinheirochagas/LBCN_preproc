@@ -28,18 +28,7 @@ if isempty(plot_params)
     plot_params = genPlotParams(project_name,'ITPC');
 end
 
-% load globalVar
-load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
-if isempty(elecs)
-    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
-end
-
-tag = [locktype,'lock'];
-if plot_params.blc
-    tag = [tag,'_bl_corr'];
-end
-concatfield = {'phase'}; % concatenate amplitude across blocks
-
+% keep track of bad chans (from any block) for labeling plots
 bad_chans = [];
 for bi = 1:length(block_names)
     load([dirs.data_root,filesep,'OriginalData',filesep,sbj_name,filesep,'global_',project_name,'_',sbj_name,'_',block_names{bi},'.mat'])
@@ -54,6 +43,11 @@ if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
+tag = [locktype,'lock'];
+if plot_params.blc
+    tag = [tag,'_bl_corr'];
+end
+concatfield = {'phase'}; % concatenate amplitude across blocks
 
 dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,'SpecData',filesep,freq_band,filesep,'ITPC',filesep,locktype,'lock'];
 
@@ -61,12 +55,34 @@ if ~exist(dir_out)
     mkdir(dir_out)
 end
 
-disp('>--8--<') % HUG
+disp('>-8-<') % HUG
 %%
+for ei = 1
+    el = elecs(ei);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
+    if isempty(conds)
+        tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
+        conds = unique(data_all.trialinfo.(column)(tmp));
+    end
+    cond_names = groupCondNames(conds,false);
+end
+folder_name = cond_names{1};
+for gi = 2:length(cond_names)
+    folder_name = [folder_name,'_',cond_names{gi}];
+end
+dir_out = [dir_out,filesep,folder_name];
+if ~exist(dir_out)
+    mkdir(dir_out)
+end
+
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_all.phase = [];
-    data_all.trialinfo = [];
+    
+    if ismember(el,bad_chans)
+        tagchan = ' (bad)';
+    else
+        tagchan = ' (good)';
+    end
     
     data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
@@ -77,18 +93,15 @@ for ei = 1:length(elecs)
         tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
         conds = unique(data_all.trialinfo.(column)(tmp));
     end
-
-    data_all.time = data.time;
-    data_all.fsample = data.fsample;
-    plot_params.xlim = [data_all.time(1) data_all.time(end)];
     
-    PlotITC(data_all,column,conds,plot_params,noise_method)
+    PlotITPC(data_all,column,conds,plot_params)
     if strcmp(plot_params.label,'name')
-        suptitle(data.label)
+        suptitle([data_all.label,tagchan])
     elseif strcmp(plot_params.label,'number')
-        suptitle('Elec ',num2str(el))
+        suptitle(['Elec ',num2str(el),tagchan])
     end
-    fn_out = sprintf('%s/%s_%s_%s_ITC_%slock.png',dir_out,sbj_name,data.label,project_name,locktype);
+
+    fn_out = sprintf('%s/%s_%s_%s_ITPC_%s_%slock.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype);
     saveas(gcf,fn_out)
     close
 end

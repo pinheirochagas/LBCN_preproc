@@ -59,7 +59,11 @@ set(gcf,'color','w');
 % Save figure
 % savePNG(gcf, 200, sprintf('%s/EpochData/bad_epochs_%s_%i.png', dir_CAR, bn, el));
 
-fn = sprintf('%s/EpochData/bad_epochs_%s_%s_%i.tiff',globalVar.CARData,bn,datatype,el);
+fdir = sprintf('%s/EpochData',globalVar.CARData);
+if ~exist(fdir)
+    mkdir(fdir)
+end
+fn = sprintf('%s/bad_epochs_%s_%s_%i.tiff',fdir,bn,datatype,el);
 f = getframe(gcf);
 imwrite(f.cdata,fn, 'Resolution', 36)
 

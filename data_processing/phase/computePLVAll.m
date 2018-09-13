@@ -1,5 +1,4 @@
-% function computePLVAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,pairing,PLVdim,locktype,column,conds,noise_method,plv_params)
-function computePLVAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,pairing,PLVdim,locktype,column,conds,plv_params)
+function computePLVAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,pairing,PLVdim,locktype,freq_band,column,conds,plv_params)
 %% INPUTS
 %       sbj_name: subject name
 %       project_name: name of task
@@ -17,10 +16,7 @@ function computePLVAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,pair
 %       locktype: 'stim' or 'resp' (which event epoched data is locked to)
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all of the conditions within column)
-%       noise_method:   how to exclude data (default: 'trial'):
-%                       'none':     no epoch rejection
-%                       'trial':    exclude noisy trials (set to NaN)
-%                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
+
 %%
 nelec1 = length(elecs1);
 nelec2 = length(elecs2);
@@ -30,7 +26,7 @@ if isempty(plv_params)
 end
 
 % load globalVar
-load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
+load([dirs.data_root,filesep,'OriginalData',filesep,sbj_name,filesep,'global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
 if iscell(elecs1)
     elecnums1 = ChanNamesToNums(globalVar,elecs1);
     elecnames1 = elecs1;
@@ -45,6 +41,7 @@ else
     elecnums2 = elecs2;
     elecnames2 = ChanNumsToNames(globalVar,elecs2);
 end
+
 % if pairing all elecs1 to all elecs2, reshape them so one-to-one
 if strcmp(pairing,'all')
     elecnums1 = repmat(elecnums1,[nelec2,1]);
@@ -64,8 +61,8 @@ concatfield = {'phase'}; % concatenate phase across blocks
 
 % if have previously run PLV on other pairs of elecrodes, load and append to
 % file (rather than overwriting)
-dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/allblocks/'];   
-fn = [dir_out,sbj_name,'_PLV_',PLVdim,'.mat'];
+dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'allblocks',filesep];   
+fn = [dir_out,project_name,'_PLV_',freq_band,'.mat'];
 if exist(fn,'file')
     load(fn,'PLV')
 end
@@ -75,13 +72,16 @@ if ~exist(dir_out,'dir')
 end
 
 for ei = 1
-    data_tmp = concatBlocks(sbj_name,block_names,dirs,elecnums1(ei),'Spec',concatfield,tag);
+    data_tmp = concatBlocks(sbj_name,block_names,dirs,elecnums1(ei),freq_band,'Spec',concatfield,tag);
     if isempty(conds)
         tmp = find(~cellfun(@isempty,(data_tmp.trialinfo.(column))));
         conds = unique(data_tmp.trialinfo.(column)(tmp));
     end
-    [grouped_trials,grouped_condnames] = groupConds(conds,data_tmp.trialinfo,column,'none',false);
-    
+    [grouped_trials_all,grouped_condnames] = groupConds(conds,data_tmp.trialinfo,column,plv_params.noise_method,plv_params.noise_fields_trials,false);
+end
+
+for gi = 1:length(grouped_trials_all)
+    numtrials_tot.(grouped_condnames{gi})=length(grouped_trials_all);
 end
 
 for ei = 1:length(elecnums1)
@@ -89,20 +89,24 @@ for ei = 1:length(elecnums1)
     el2 = elecnums2(ei);
     if el1 ~= el2
         % concatenate across blocks
-        data_all1 = concatBlocks(sbj_name,block_names,dirs,el1,'Spec',concatfield,tag);
-        data_all2 = concatBlocks(sbj_name,block_names,dirs,el2,'Spec',concatfield,tag);
+        data_all1 = concatBlocks(sbj_name,block_names,dirs,el1,freq_band,'Spec',concatfield,tag);
+        data_all2 = concatBlocks(sbj_name,block_names,dirs,el2,freq_band,'Spec',concatfield,tag);
+        [grouped_trials_all1,~] = groupConds(conds,data_all1.trialinfo,column,plv_params.noise_method,plv_params.noise_fields_trials,false);
+        [grouped_trials_all2,~] = groupConds(conds,data_all2.trialinfo,column,plv_params.noise_method,plv_params.noise_fields_trials,false);
         if strcmp(PLVdim,'time') % separate by condition
             data_tmp1 = data_all1;
             data_tmp2 = data_all2;
-            for ci = 1:length(grouped_trials)
-                data_tmp1.phase = data_all1.phase(:,grouped_trials{ci},:);
-                data_tmp2.phase = data_all2.phase(:,grouped_trials{ci},:);
+            for ci = 1:length(grouped_trials_all)
+                grouped_trials_tmp = intersect(grouped_trials_all1{ci},grouped_trials_all2{ci});
+                data_tmp1.phase = data_all1.phase(:,grouped_trials_tmp,:);
+                data_tmp2.phase = data_all2.phase(:,grouped_trials_tmp,:);
                 PLV_tmp = computePLV(data_tmp1,data_tmp2,PLVdim,plv_params);
-                PLV.([elecnames1{ei},'_',elecnames2{ei}]).(grouped_condnames{ci})= PLV_tmp.vals;
+                PLV.by_time.(grouped_condnames{ci}).([elecnames1{ei},'_',elecnames2{ei}])= PLV_tmp.vals;
+                PLV.numtrials.(grouped_condnames{ci}).([elecnames1{ei},'_',elecnames2{ei}])=length(grouped_trials_tmp);
             end
         else
             PLV_tmp = computePLV(data_all1,data_all2,PLVdim,plv_params);
-            PLV.([elecnames1{ei},'_',elecnames2{ei}])= PLV_tmp.vals;
+            PLV.by_trial.([elecnames1{ei},'_',elecnames2{ei}])= PLV_tmp.vals;
         end
         disp(['Computed PLV between ',elecnames1{ei},' and ',elecnames2{ei}])
     end
