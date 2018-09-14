@@ -136,13 +136,11 @@ for ei = 1:length(elecs)
             suptitle(['Elec ',num2str(el),tagchan])
         end
         fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-        tic
         if plot_params.single_trial
             savePNG(gcf, 100, fn_out)
         else
             savePNG(gcf, 200, fn_out)
         end
-        toc
         close
     end
 end
@@ -160,8 +158,6 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
     end
     title(title_conds)
     fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
-    tic
     savePNG(gcf, 300, fn_out)
-    toc
     close
 end

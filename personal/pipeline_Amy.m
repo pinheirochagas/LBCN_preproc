@@ -167,7 +167,7 @@ end
 
 %% RT phase correlation
 phaseRT = phaseRTCorrAll(sbj_name, project_name, block_names,dirs,'stim',elecs);
-plotPhaseRTCorr(sbj_name,project_name,dirs,elecs,[])
+plotPhaseRTCorr(sbj_name,project_name,dirs,61,[])
 
 %% PLV
 % S17_116

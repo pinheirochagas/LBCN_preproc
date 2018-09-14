@@ -41,7 +41,7 @@ sbj_name = googleSheet.subject_name{sbj_number};
 
 % sbj_name = 'S14_69b_RT';
 % sbj_name = 'S14_64_SP';
-% sbj_name = 'S13_57_TVD';
+ sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'S13_55_JJC';
@@ -57,7 +57,7 @@ sbj_name = googleSheet.subject_name{sbj_number};
 
 % Center
 % center = 'China'; or Stanford 
-% center = 'Stanford'; or Stanford 
+center = 'Stanford'; 
 
 center = googleSheet.center{sbj_number};
 
@@ -178,7 +178,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
@@ -209,7 +209,7 @@ noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'SpecDense', [],[], blc_params,noise_params,'Spec')
     end
 end
@@ -221,10 +221,11 @@ for i = 1:length(block_names)
 %         EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', tmax, 1, 'Spec', [],[], blc_params)
     end
 end
-% Bad epochs identification
-%      Step 1. based on the raw signal
-%      Step 2. based on the spikes in the raw signal
-%      Step 3. based on the spikes in the HFB signal or other freq bands
+
+
+% Delete non epoch data after epoching
+deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
+deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
 
 %% DONE PREPROCESSING. 
@@ -234,6 +235,52 @@ end
 
 %% Branch 7 - Plotting
 % plot avg. HFB timecourse for each electrode separately
+% plot individual trials (to visualize bad trials)
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.single_trial = true;
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+% plot_params.noise_fields_timepts = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+plot_params.textsize = 10;
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],plot_params,'Band')
+
+% plot avg. HFB timecourse for each electrode separately
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',{'math', 'autobio'},plot_params,'Band')
+
+% plot HFB timecourse, grouping multiple conds together
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
+
+% plot HFB timecourse for multiple elecs on same plot
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+plot_params.multielec = true;
+elecs = {'61','15'}; %S14_69b
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params,'Band')
+
+% plot inter-trial phase coherence for each electrode
+plot_params = genPlotParams(project_name,'ITPC');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+PlotITPCAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)
+
+% plot ERSP (event-related spectral perturbations) for each electrode
+plot_params = genPlotParams(project_name,'ERSP');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+elecs = {'LP7'};
+PlotERSPAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)
+
+
+%%
+
+
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.xlim = [-.2 2]
 plot_params.single_trial = true;
