@@ -46,6 +46,8 @@ sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'S13_55_JJC';
 % sbj_name = 'S18_126';
+% sbj_name = 'S18_128';
+
 % sbj_name = 'G18_19';
 % sbj_name = 'G18_19';
 % sbj_name = 'G18_21';
@@ -153,7 +155,7 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 1, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -178,8 +180,8 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -209,8 +211,8 @@ noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'SpecDense', [],[], blc_params,noise_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'SpecDense', [],[], blc_params,noise_params,'Spec')
     end
 end
 
@@ -242,13 +244,13 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 % plot_params.noise_fields_timepts = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.textsize = 10;
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_math_memory',[],plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',{'math', 'autobio'},plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -514,7 +516,7 @@ locktype = 'stim'
 data_all.trialinfo = [];
 for i = 1:length(block_names)
     bn = block_names {i};
-    dir_in = [dirs.data_root,'/','HFB','Data/',sbj_name,'/',bn,'/EpochData/'];
+    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
     
     if plot_params.blc
         load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
