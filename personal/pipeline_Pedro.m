@@ -116,7 +116,6 @@ switch project_name
     case 'Calculia_SingleDigit'
 %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoCalculia(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
-    
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'MMR'
@@ -155,7 +154,7 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 1, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -186,41 +185,21 @@ for i = 1:length(block_names)
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-switch project_name
-    case 'GradCPT'
-        blc_params.run = false;
-        tmin = -0.5; %-0.8
-        tmax = 1.6; % 0.8
-    case 'Memoria'
-        blc_params.run = true; % or false
-        tmin = -0.5;
-        tmax = 7;
-        blc_params.win = [-.5 0];
-    case 'MMR'
-        blc_params.run = true; % or false
-        tmin = -0.5;
-        tmax = 5;
-        blc_params.win = [-.5 0];
-end
-
-
-blc_params.locktype = 'stim';
-noise_params.method = 'trials';
-noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+epoch_params = genEpochParams(project_name, 'stim'); 
 
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'SpecDense', [],[], blc_params,noise_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei) 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
-
+epoch_params = genEpochParams(project_name, 'resp'); 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', -tmax, 1, 'HFB', [],[], blc_params)
-%         EpochDataAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei),'resp', tmax, 1, 'Spec', [],[], blc_params)
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+        %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 

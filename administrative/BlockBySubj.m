@@ -43,7 +43,7 @@ switch task
             case 'S18_126'
                 BN = {'E18-602_0010', 'E18-602_0011', 'E18-602_0012'};
             case 'S18_127'
-                BN = {'E18-706_0022', 'E18-706_0025', 'E18-706_0026'};                
+                BN = {'E18-706_0022', 'E18-706_0025', 'E18-706_0026'};
         end
         
     case 'Context'
@@ -488,9 +488,9 @@ switch task
             case 'S18_126'
                 BN = {'E18-602_0003','E18-602_0004','E18-602_0005','E18-602_0006'};
             case 'S18_127'
-                BN = {'E18-706_0003','E18-706_0004', 'E18-706_0007','E18-706_0008','E18-706_0011','E18-706_0013'}; 
+                BN = {'E18-706_0003','E18-706_0004', 'E18-706_0007','E18-706_0008','E18-706_0011','E18-706_0013'};
             case 'S18_128'
-                BN = {'E18-739_0002','E18-739_0003', 'E18-739_0005','E18-739_0006'};                 
+                BN = {'E18-739_0002','E18-739_0003', 'E18-739_0005','E18-739_0006'};
             otherwise
                 BN = [];
         end
@@ -525,20 +525,47 @@ switch task
             case 'S18_126'
                 BN = {'E18-602_0042','E18-602_0043','E18-602_0044','E18-602_0045'};
             case 'S18_127'
-                BN = {'E18-706_0027', 'E18-706_0036', 'E18-706_0039'};                
+                BN = {'E18-706_0027', 'E18-706_0036', 'E18-706_0039'};
             case 'G18_19'
-                BN = {'G019_comparison_01'};              
+                BN = {'G019_comparison_01', 'G019_comparison_02'};
+            case 'G18_20'
+                BN = {'comparison_b2'};
+            case 'G18_21'
+                BN = {'G021_comparison_01', 'G021_comparison_02', 'G021_comparison_03', 'G021_comparison_04'};
+            case 'G18_22'
+                BN = {'G022_comparison_01', 'G022_comparison_02', 'G022_comparison_03', 'G022_comparison_04'};
+            case 'G18_23'
+                BN = {'G023_comparison_01', 'G023_comparison_02', 'G023_comparison_03'};
+            case 'G18_24'
+                BN = {'G024_comparison_01', 'G024_comparison_02', 'G024_comparison_03'};
         end
         
     case 'Calculia_China'
         switch sbj
             case 'G18_19'
-                BN = {'G019_calculate_01','G019_calculate_02'};
+                BN = {'G019_calculia_01','G019_calculia_02', 'G019_calculia_03'};
+            case 'G18_20'
+                BN = {'calculia_b1','calculia_b2'};
             case 'G18_21'
                 BN = {'G021_calculia_01','G021_calculia_02','G021_calculia_03','G021_calculia_04'};
             case 'G18_22'
                 BN = {'G022_calculia_01','G022_calculia_02', 'G022_calculia_03', 'G022_calculia_04'};
-        end        
+            case 'G18_23'
+                BN = {'G023_calculia_01','G023_calculia_02', 'G023_calculia_03'};
+        end
+        
+    case 'Calculia_letter'
+        switch sbj
+            case 'G18_20'
+                BN = {'G020_calculia_letter_01'};
+            case 'G18_21'
+                BN = {'G021_letter_01'};
+            case 'G18_22'
+                BN = {'G022_letter_01'};
+            case 'G18_23'
+                BN = {'G023_calculia_04'};
+        end
+        
     otherwise
         BN = [];
 end
