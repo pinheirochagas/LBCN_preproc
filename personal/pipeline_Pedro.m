@@ -34,7 +34,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo(project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 6;
+sbj_number = 2;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -68,7 +68,7 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, []); % 'Pedro_NeuroSpin2T'
+dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -152,9 +152,9 @@ end
 
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
-    event_numcomparison_current(sbj_name, project_name, block_names(3), dirs, 9) %% MERGE THIS
+    event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -195,13 +195,13 @@ for i = 1:length(block_names)
     end
 end
 
-epoch_params = genEpochParams(project_name, 'resp'); 
-for i = 1:length(block_names)
-    parfor ei = 1:length(elecs)
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
-    end
-end
+% epoch_params = genEpochParams(project_name, 'resp'); 
+% for i = 1:length(block_names)
+%     parfor ei = 1:length(elecs)
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%         %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+%     end
+% end
 
 
 % Delete non epoch data after epoching
@@ -229,7 +229,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot',[],plot_params,'Band') % condNames
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -256,7 +256,7 @@ plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_num_lum_digit_dot',[],plot_params)% condNames
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)% condNames
 
 
 %%

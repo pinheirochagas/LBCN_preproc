@@ -69,6 +69,18 @@ switch task
         plot_params.xlim = [-0.2 3];
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];  
+    case 'UCLA'
+        plot_params.xlim = [-0.2 3];
+        plot_params.blc = true;
+        plot_params.bl_win = [-0.2 0];
+        plot_params.col = [cdcol.ultramarine;
+            cdcol.grassgreen;
+            cdcol.lilac;
+            cdcol.yellow;
+            cdcol.turquoiseblue;
+            cdcol.flamered;
+            cdcol.pink;
+            cdcol.carmine];
     case 'Calculia_production'
         plot_params.xlim = [-0.2 4];
         plot_params.blc = true;

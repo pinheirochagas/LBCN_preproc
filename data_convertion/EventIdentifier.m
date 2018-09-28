@@ -34,14 +34,23 @@ for i = 1:length(block_names)
     [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     clear anlg
     
+    %% Add exceptions
     if strcmp(sbj_name, 'S17_110_SC') || strcmp(sbj_name,'S12_38_LK') || strcmp(sbj_name,'S13_47_JT2')
         n_initpulse_onset=12;
         n_initpulse_offset=12;
     end
+    
     if strcmp(project_name, 'UCLA') || strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'MMR')
         n_initpulse_onset = 12; n_initpulse_offset = 12;
     else
     end
+    
+    if strcmp(sbj_name, 'S09_07_CM') && strcmp(project_name, 'UCLA') && strcmp(bn, 'ST07-07')
+        n_initpulse_onset = 0; n_initpulse_offset = 0;
+    else
+    end
+
+    
     % FIX THIS MORE ELLEGANTLY
     
     %% Thresholding the signal
@@ -59,8 +68,8 @@ for i = 1:length(block_names)
     pdio_onset= onset/globalVar.Pdio_rate; 
     pdio_offset= offset/globalVar.Pdio_rate;
     if length(pdio_onset) < length(pdio_offset)
-        pdio_onset = [0 pdio_onset]
-        warning('Adding additional onset as 0, since recording started in the middle of the photodiode')
+        pdio_onset = [0 pdio_onset];
+        warning('Adding additional onset as 0, since recording started in the middle of the photodiode signal')
     else
     end
 
@@ -228,6 +237,10 @@ for i = 1:length(block_names)
     %     trialinfo.allonsets(rest_trials,:) = onset_rest;
     
     %% Account for when recording started in the middle of photodiode signal
+    if trialinfo.allonsets(1) == 0
+        warning('First trial excluded, since recording started in the middle of the photidiode signal')
+    else
+    end
     trialinfo = trialinfo(trialinfo.allonsets(:,1) ~= 0,:);
     
     %% Save trialinfo

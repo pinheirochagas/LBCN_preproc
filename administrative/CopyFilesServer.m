@@ -31,7 +31,7 @@ end
 
 %%Copy behavioral file
 copyfile(globalVar.behavioral_data_server_path, globalVar.psych_dir)
-disp(sprintf('Copied behavioral file %s to %s', fn, globalVar.originalData))
+disp(sprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir))
 
 end
 
