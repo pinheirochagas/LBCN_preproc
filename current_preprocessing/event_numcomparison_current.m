@@ -12,12 +12,17 @@ for i = 1:length(block_names)
     
     
     % Load soda
-    
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); 
     
+    % Ajust exceptions for specific subjects
+    n_initpulse_onset = 12;
     if strcmp(sbj_name, 'S18_127') && strcmp(bn, 'E18-706_0039')
         K.theData = K.theData(3:end);
+    elseif strcmp(sbj_name, 'G18_24') && strcmp(bn, 'G024_comparison_01')
+        n_initpulse_onset = 10;
+    elseif strcmp(sbj_name, 'G18_24') && strcmp(bn, 'G024_comparison_03')
+        n_initpulse_onset = 8;
     end
     
     
@@ -65,8 +70,8 @@ for i = 1:length(block_names)
     
     % %remove onset flash
     
-    pdio_onset(1:12)=[]; %
-    pdio_offset(1:12)=[]; %
+    pdio_onset(1:n_initpulse_onset)=[]; %
+    pdio_offset(1:n_initpulse_onset)=[]; %
     
     
     %get osnets from diode

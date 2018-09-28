@@ -35,6 +35,7 @@ switch plottype
             cdcol.periwinkleblue;
             cdcol.pink;
             cdcol.purple];
+        plot_params.blc = 1;
     case 'ERSP'
         plot_params.legend = 'false';
         plot_params.textsize = 14;
@@ -76,6 +77,19 @@ switch task
         plot_params.xlim = [-0.2 7];
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];
+    case 'Calculia_China'
+        plot_params.xlim = [-0.2 7];
+        plot_params.blc = true;
+        plot_params.bl_win = [-0.2 0];
+        plot_params.col = [cdcol.ultramarine;
+            cdcol.grassgreen;
+            cdcol.lilac;
+            cdcol.yellow;
+            cdcol.turquoiseblue;
+            cdcol.flamered;
+            cdcol.periwinkleblue;
+            cdcol.pink;
+            cdcol.purple];
     case 'GradCPT'
         plot_params.xlim = [-0.5 1.6];
         plot_params.blc = false;
@@ -83,6 +97,15 @@ switch task
         plot_params.xlim = [-0.2 3];
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];  
+        plot_params.col = [[38 55 97]/255;
+            [148 169 215]/255;
+            [84 172 90]/255;
+            [184 230 156]/255;
+            cdcol.turquoiseblue;
+            cdcol.flamered;
+            cdcol.periwinkleblue;
+            cdcol.pink;
+            cdcol.purple];
 end
 
 plot_params.noise_method = 'trials'; %'trials','timepts', or 'none'

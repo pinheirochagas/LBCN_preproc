@@ -34,14 +34,14 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo(project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 1;
+sbj_number = 6;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
 
 % sbj_name = 'S14_69b_RT';
 % sbj_name = 'S14_64_SP';
- sbj_name = 'S13_57_TVD';
+% sbj_name = 'S13_57_TVD';
 % sbj_name = 'S11_29_RB';
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'S13_55_JJC';
@@ -59,7 +59,7 @@ sbj_name = googleSheet.subject_name{sbj_number};
 
 % Center
 % center = 'China'; or Stanford 
-center = 'Stanford'; 
+%center = 'Stanford'; 
 
 center = googleSheet.center{sbj_number};
 
@@ -152,7 +152,7 @@ end
 
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
-    event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
+    event_numcomparison_current(sbj_name, project_name, block_names(3), dirs, 9) %% MERGE THIS
 else
     EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
@@ -180,7 +180,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -191,7 +191,7 @@ for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei) 'SpecDense', [],[], epoch_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
@@ -229,7 +229,7 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot',[],plot_params,'Band') % condNames
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -255,8 +255,8 @@ PlotITPCAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_
 plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)
+% elecs = {'LP7'};
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_num_lum_digit_dot',[],plot_params)% condNames
 
 
 %%

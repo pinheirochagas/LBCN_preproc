@@ -543,7 +543,7 @@ switch task
     case 'Calculia_China'
         switch sbj
             case 'G18_19'
-                BN = {'G019_calculia_01','G019_calculia_02', 'G019_calculia_03'};
+                BN = {'G019_calculia_01','G019_calculia_02'}; % 'G019_calculia_03' double check pdio
             case 'G18_20'
                 BN = {'calculia_b1','calculia_b2'};
             case 'G18_21'

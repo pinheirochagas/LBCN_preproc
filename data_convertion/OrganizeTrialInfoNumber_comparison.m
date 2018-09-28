@@ -11,7 +11,7 @@ for i = 1:length(block_names)
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     load([globalVar.psych_dir '/' soda_name.name], 'theData'); % block 55 %% FIND FILE IN THE FOLDER AUTO
     
-    % Correct for this subject. 
+    % Correct for this subject.
     if strcmp(sbj_name, 'S18_127') && strcmp(bn, 'E18-706_0039')
         theData = theData(3:end);
     end
@@ -28,7 +28,7 @@ for i = 1:length(block_names)
             theData(ii).flip.StimulusOnsetTime = nan;
         end
     end
-
+    
     
     results_table = vertcat(results_table,struct2table(theData));
     
@@ -82,7 +82,7 @@ for i = 1:length(block_names)
     % Add correct answer
     trialinfo.larger = trialinfo.num1; % initialize
     for ii = 1:length(trialinfo.num2)
-        if trialinfo.num2(ii) > trialinfo.num1(ii);
+        if trialinfo.num2(ii) > trialinfo.num1(ii)
             trialinfo.larger(ii) = 2;
         else
             trialinfo.larger(ii) = 1;
@@ -92,14 +92,14 @@ for i = 1:length(block_names)
     % add keys
     trialinfo.keys = trialinfo.num1; % initialize
     for ii = 1:length(results_table.keys)
-        end
-        key = str2num(results_table.keys{ii});
-        if ~isempty(key)
-            trialinfo.keys(ii) = key;
-        else
-            trialinfo.keys(ii) = NaN;
-        end
     end
+    key = str2num(results_table.keys{ii});
+    if ~isempty(key)
+        trialinfo.keys(ii) = key;
+    else
+        trialinfo.keys(ii) = NaN;
+    end
+    
     
     % add accuracy
     trialinfo.accuracy = trialinfo.num1; % initialize
@@ -155,11 +155,13 @@ for i = 1:length(block_names)
             trialinfo.conds_num_lum_digit_dot_distance{i} = [trialinfo.conds_num_lum_digit_dot{i} '_' num2str(trialinfo.dist_num(i))];
         else
             trialinfo.conds_num_lum_digit_dot_distance{i} = [trialinfo.conds_num_lum_digit_dot{i} '_' num2str(trialinfo.dist_lum(i))];
-        end    
-    end    
+        end
+    end
     
     %% Save trialinfo
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
+    
+end
 
 end
 
