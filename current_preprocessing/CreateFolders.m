@@ -1,12 +1,20 @@
 function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_format,import_server)
-% Create folders LBCN
+%% Create folders LBCN
+
+% Get generic name without lower case to match the server 
+if isstrprop(sbj_name(end),'lower')
+    sbj_name_generic = sbj_name(1:end-1);
+else
+    sbj_name_generic = sbj_name;
+end
+
 folder_names = {'originalData', 'CARData'};
 folder_sublayers={'SpecData', 'BandData'};
 % Subject folder name
 if import_server
     all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
     for i = 1:length(all_folders)
-        tpm(i) = contains(all_folders(i).name, sbj_name);
+        tpm(i) = contains(all_folders(i).name, sbj_name_generic);
     end
     sbj_folder_name = all_folders(find(tpm == 1)).name;
 end

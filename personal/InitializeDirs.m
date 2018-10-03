@@ -1,5 +1,12 @@
 function dirs = InitializeDirs(user,project_name,sbj_name,set_freesurfer_dir)
-% initialize directories
+%% Initialize directories
+
+% Get generic name without lower case to match the server 
+if isstrprop(sbj_name(end),'lower')
+    sbj_name_generic = sbj_name(1:end-1);
+else
+    sbj_name_generic = sbj_name;
+end
 
 if strcmp(user, 'Pedro_iMAC')
     dirs.comp_root = sprintf('/Volumes/LBCN8T/Stanford/data'); % location of analysis_ECOG folder
@@ -33,7 +40,7 @@ if (set_freesurfer_dir)
         warning('You are not connected to the server, therefore no Fressurfer folder will be specified.')
     else
         for i = 1:length(all_folders)
-            tpm(i) = contains(all_folders(i).name, sbj_name);
+            tpm(i) = contains(all_folders(i).name, sbj_name_generic);
         end
         sbj_folder_name = all_folders(find(tpm == 1)).name;
         dirs.freesurfer = [uigetdir(['/Volumes/neurology_jparvizi$/' sbj_folder_name]) '/'];

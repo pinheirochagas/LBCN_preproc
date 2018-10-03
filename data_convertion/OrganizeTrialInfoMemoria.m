@@ -1,4 +1,4 @@
-function OrganizeTrialInfoMemoria_GS_Veb(sbj_name, project_name, block_names, dirs)
+function OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
 
 condNames= {'autobio','math'};
 nstim_per_trial = [4 5];
@@ -13,10 +13,17 @@ for i = 1:length(block_names)
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
       
-    ntrials = length(K.conds);
     
+    %% Account for empty last responses
+    if isempty(K.theData(end).flip)
+       K.wlist(end) = [];
+       K.theData(end) = [];
+       K.conds(end) = [];
+    end
+    ntrials = length(K.conds);
+   
     trialinfo = table;
-    trialinfo.wlist = K.wlist';
+    trialinfo.wlist = K.wlist';  
     trialinfo.RT = [K.theData(:).RT]';
     trialinfo.keys = vertcat(K.theData(:).keys);
         

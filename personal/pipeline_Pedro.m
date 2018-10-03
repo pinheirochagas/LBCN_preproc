@@ -34,7 +34,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo(project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 2;
+sbj_number = 15;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -46,7 +46,7 @@ sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'S13_55_JJC';
 % sbj_name = 'S18_126';
-% sbj_name = 'S18_128';
+% sbj_name = 'S18_129';
 
 % sbj_name = 'G18_19';
 % sbj_name = 'G18_19';
@@ -86,10 +86,11 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1)
 % (unless if using CopyFilesServer, which is still under development)
 
 %% Get marked channels and demographics
-[refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
+% [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
 ref_chan = [];
 epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
+%LK 65 105 119 117 106 71 118 67 107 81 66 103 108 37 70 115 80 84 51 83 59 69 60 112 38 54 56 36 91 43 116 113 41 57 35 110 75 73 72 29 47 88 53 102 49 87 120 68 34 39 33 45 52 82 64 50 86 61 109 48 104 62 114 98 93 99 121 78 79 100 101 90 92 63 122 76 111 46 58 44 55 40 97 96 74 42 77 95 85 8 7 5 4
 
 
 %% Copy the iEEG and behavioral files from server to local folders
@@ -117,12 +118,12 @@ switch project_name
 %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoCalculia(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'UCLA'
-        OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+        OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? INCLUDE REST!!!
     case 'MMR'
 %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
-        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names(2), dirs)
     case 'Calculia_China'
         OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_production'
@@ -217,19 +218,27 @@ deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Sp
 %% Branch 7 - Plotting
 % plot avg. HFB timecourse for each electrode separately
 % plot individual trials (to visualize bad trials)
-plot_params = genPlotParams(project_name,'timecourse');
-plot_params.single_trial = true;
-plot_params.noise_method = 'trials'; %'trials','timepts','none'
-% plot_params.noise_fields_timepts = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-plot_params.textsize = 10;
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
+% plot_params = genPlotParams(project_name,'timecourse');
+% plot_params.single_trial = true;
+% plot_params.noise_method = 'trials'; %'trials','timepts','none'
+% % plot_params.noise_fields_timepts = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% plot_params.textsize = 10;
+% PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
+
+% plot ERSP (event-related spectral perturbations) for each electrode
+plot_params = genPlotParams(project_name,'ERSP');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% elecs = {'LP7'};
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)% condNames
+
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -250,14 +259,6 @@ plot_params = genPlotParams(project_name,'ITPC');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotITPCAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)
-
-% plot ERSP (event-related spectral perturbations) for each electrode
-plot_params = genPlotParams(project_name,'ERSP');
-plot_params.noise_method = 'trials'; %'trials','timepts','none'
-plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-% elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)% condNames
-
 
 %%
 
@@ -325,14 +326,18 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
+% load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+% elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+sbj_name = 'S12_36_SrS'
+dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
-V = importVolumes(dirs);
+% V = importVolumes(dirs);
 
 % Convert electrode coordinates from native to MNI space
-[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+% [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 
 % Plot brain and coordinates
 % transform coords
@@ -340,28 +345,31 @@ V = importVolumes(dirs);
 % coords(:,2) = coords(:,2) + 5;
 % coords(:,3) = coords(:,3) - 5;
 
+%% Plot electrodes as dots in native space
 figureDim = [0 0 1 .4];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 views = [1 2 4];
+if isLeft(1) == 1
+    hemisphere = 'left';
+else
+    hemisphere = 'right';
+end
+
 hemisphere = 'right';
 
-% Plot electrodes as dots
 for i = 1:length(views)
     subplot(1,length(views),i)
     ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
-    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'b', 'MarkerSize', 40);
+    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
     alpha(0.7)
-
-%     if i > 2
-%         f1.Parent.OuterPosition(3) = f1.Parent.OuterPosition(3)/2;
-%     else
-%     end
 end
 light('Position',[1 0 0])
+text(350,90,sbj_name, 'Interpreter', 'none', 'FontSize', 30)
+savePNG(gcf, 600, [dirs.result_root '/coverage/' sbj_name '.png']);
+close all
 
-
-% Plot electrodes as text
+%% Plot electrodes as text
 views = [1 4];
 
 for v = 1:length(views)
@@ -406,6 +414,37 @@ save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
 % IQ full
 % IQ verbal
 % ressection?
+
+%% Behavioral analysis
+% Load behavioral data
+load()
+
+datatype = 'HFB'
+plot_params.blc = true
+locktype = 'stim'
+data_all.trialinfo = [];
+for i = 1:length(block_names)
+    bn = block_names {i};
+    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
+    
+    if plot_params.blc
+        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    else
+        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    end
+    % concatenate trial info
+    data_all.trialinfo = [data_all.trialinfo; data.trialinfo]; 
+end
+
+data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
+acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
+mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
+sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
+
+boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
+set(gca,'fontsize',20)
+ylabel('RT (sec.)')
+xlabel('Min operand')
 
 
 %% Copy subjects
@@ -485,36 +524,6 @@ plot(squeeze(mean(data_autobio,3)))
 plot(pvalsig, zeros(length(pvalsig),1)', '*')
 
 
-%% Behavioral analysis
-% Load behavioral data
-load()
-
-datatype = 'HFB'
-plot_params.blc = true
-locktype = 'stim'
-data_all.trialinfo = [];
-for i = 1:length(block_names)
-    bn = block_names {i};
-    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
-    
-    if plot_params.blc
-        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    else
-        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    end
-    % concatenate trial info
-    data_all.trialinfo = [data_all.trialinfo; data.trialinfo]; 
-end
-
-data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
-acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
-mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
-sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
-
-boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
-set(gca,'fontsize',20)
-ylabel('RT (sec.)')
-xlabel('Min operand')
 
 
 %% MMR
