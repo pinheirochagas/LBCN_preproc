@@ -27,12 +27,12 @@ switch plottype
         plot_params.multielec = false;
         plot_params.col = [cdcol.ultramarine;
             cdcol.carmine;
-            cdcol.yellowgeen;
+            cdcol.yellow_green;
             cdcol.lilac;
             cdcol.yellow;
-            cdcol.turquoiseblue;
-            cdcol.flamered;
-            cdcol.periwinkleblue;
+            cdcol.turquoise_blue;
+            cdcol.flame_red;
+            cdcol.periwinkle_blue;
             cdcol.pink;
             cdcol.purple];
         plot_params.blc = 1;
@@ -74,10 +74,10 @@ switch task
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];
         plot_params.col = [cdcol.ultramarine;
-            cdcol.grassgreen;
+            cdcol.grass_green;
             cdcol.lilac;
             cdcol.yellow;
-            cdcol.turquoiseblue;
+            cdcol.turquoise_blue;
             cdcol.flamered;
             cdcol.pink;
             cdcol.carmine];
@@ -94,12 +94,12 @@ switch task
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];
         plot_params.col = [cdcol.ultramarine;
-            cdcol.grassgreen;
+            cdcol.grass_green;
             cdcol.lilac;
             cdcol.yellow;
-            cdcol.turquoiseblue;
+            cdcol.turquoise_blue;
             cdcol.flamered;
-            cdcol.periwinkleblue;
+            cdcol.periwinkle_blue;
             cdcol.pink;
             cdcol.purple];
     case 'GradCPT'
@@ -113,9 +113,9 @@ switch task
             [148 169 215]/255;
             [84 172 90]/255;
             [184 230 156]/255;
-            cdcol.turquoiseblue;
+            cdcol.turquoise_blue;
             cdcol.flamered;
-            cdcol.periwinkleblue;
+            cdcol.periwinkle_blue;
             cdcol.pink;
             cdcol.purple];
 end
