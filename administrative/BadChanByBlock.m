@@ -144,11 +144,28 @@ switch task
             case 'S13_56_THS'
                 BN = {'THS_07','THS_08'};
             case 'S13_57_TVD'
-                BN = {'TVD_08','TVD_10','TVD_13','TVD_14'};
+                switch 
+                    case 'TVD_08'
+                        bad_chan = [];
+                    case 'TVD_10'
+                        bad_chan = [];
+                    case 'TVD_13'
+                        bad_chan = [107];
+                    case 'TVD_14'
+                        bad_chan = [107];
+                end
+                
             case 'S13_59_SRR'
                 BN = {'SRR_02','SRR_03'};
             case 'S13_60_DY'
-                BN = {'DY_06','DY_07'};
+                switch
+                    case 'DY_06'
+                        bad_chan = [67 65 117];
+                    case 'DY_07'
+                        bad_chan = [1 2 5 8 6 3 7 40 34 39 36 38 35 37 33 31 27 30 20 32 28 29 25];
+                    case 'DY_09'
+                        bad_chan = [];
+                end
             case 'S14_61_CM2'
                 BN = {'S14_61_03'};
             case 'S14_62_JW'
