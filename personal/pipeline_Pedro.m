@@ -34,7 +34,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo(project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 15;
+sbj_number = 17;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -68,7 +68,7 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'
+dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -328,6 +328,18 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 % Load and convert Freesurfer to Matlab
 % load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
 % elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+
+% Plot coverage of all subjects
+[DOCID,GID] = getGoogleSheetInfo(project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names = googleSheet.subject_name;
+sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
+
+for i = 1:length(sbj_names)
+    PlotCoverage(sbj_names{i}, project_name)
+end
+
+
 sbj_name = 'S12_36_SrS'
 dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
