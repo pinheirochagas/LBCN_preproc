@@ -26,7 +26,7 @@ for i = 1:length(block_names)
     clear RTb
     % trialinfo.RT = vertcat(K.theData(:).RT);%RTb;%
     
-    condNames= {'self-internal','other','self-external','autobio','math','rest','fact'};
+    condNames= {'self-internal','other','self-external','autobio','math','rest'}; %{'self-internal','other','self-external','autobio','math','rest','fact'};
     conds_math_memory = {'memory','memory','memory','memory','math','rest','memory'};
     
     % Add calculation info
@@ -110,7 +110,7 @@ for i = 1:length(block_names)
     trialinfoNew.conds_math_memory(rest_inds)={'rest'};
     trialinfoNew.wlist(rest_inds)={'+'};
     trialinfoNew.RT(rest_inds)=NaN;
-    trialinfoNew.allonsets(rest_inds)=NaN;
+    trialinfoNew.allonsets(rest_inds,1)=NaN;
     trialinfoNew.StimulusOnsetTime(rest_inds) =restOnsets;
     trialinfo = trialinfoNew;
     

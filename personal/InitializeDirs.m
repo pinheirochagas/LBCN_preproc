@@ -18,9 +18,11 @@ elseif strcmp(user,'Amy_iMAC')
     dirs.comp_root = sprintf('/Users/amydaitch/Documents/MATLAB/analysis_ECoG');
 elseif strcmp(user,'Ying_iMAC')
     dirs.comp_root = sprintf('/Users/Ying/Documents/MATLAB/analysis_ECoG');
+elseif strcmp(user,'Kevin_UCLA')
+    dirs.comp_root = sprintf('/data/MMR/data');
 end
 
-dirs.server_root = '/Volumes/neurology_jparvizi$/';
+dirs.server_root = '/media/kevin/KT_MMRraw/';
 dirs.data_root = sprintf('%s/neuralData',dirs.comp_root);
 dirs.result_root = sprintf('%s/Results',dirs.comp_root);
 dirs.psych_root = sprintf('%s/psychData',dirs.comp_root);
@@ -33,7 +35,7 @@ dirs.ROI = sprintf('%s/ECoG Patient Info/ROIs',dirs.comp_root);
 dirs.original_data = [dirs.data_root '/originalData'];
 
 % Set freesurfer folder
-all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
+all_folders = dir(fullfile('/media/kevin/KT_MMRraw/'));
 if isempty(all_folders)
     warning('You are not connected to the server, therefore no Fressurfer folder will be specified.')
 else
@@ -42,7 +44,7 @@ else
     end
     sbj_folder_name = all_folders(find(tpm == 1)).name;
     
-    all_folders_sbj = dir(fullfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]));
+    all_folders_sbj = dir(fullfile(['/media/kevin/KT_MMRraw/' sbj_folder_name]));
     for i = 1:length(all_folders_sbj)
         tpm_2(i) = contains(all_folders_sbj(i).name, 'surfer');
     end
@@ -50,7 +52,7 @@ else
         warning('There is no Freesurfer folder')
         dirs.freesurfer = [];
     else
-        dirs.freesurfer = ['/Volumes/neurology_jparvizi$/' sbj_folder_name '/' all_folders_sbj(tpm_2).name '/'];
+        dirs.freesurfer = ['/media/kevin/KT_MMRraw/' sbj_folder_name '/' all_folders_sbj(tpm_2).name '/'];
     end
 end
 
