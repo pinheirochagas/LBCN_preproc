@@ -144,21 +144,21 @@ switch task
             case 'S13_56_THS'
                 BN = {'THS_07','THS_08'};
             case 'S13_57_TVD'
-                switch 
+                switch BN
                     case 'TVD_08'
                         bad_chan = [];
                     case 'TVD_10'
                         bad_chan = [];
                     case 'TVD_13'
-                        bad_chan = [107];
+                        bad_chan = 107;
                     case 'TVD_14'
-                        bad_chan = [107];
+                        bad_chan = 107;
                 end
                 
             case 'S13_59_SRR'
                 BN = {'SRR_02','SRR_03'};
             case 'S13_60_DY'
-                switch
+                switch BN
                     case 'DY_06'
                         bad_chan = [67 65 117];
                     case 'DY_07'
@@ -169,14 +169,29 @@ switch task
             case 'S14_61_CM2'
                 BN = {'S14_61_03'};
             case 'S14_62_JW'
-                BN = {'S14_62_04','S14_62_05'};
+                switch BN
+                    case 'S14_62_04'
+                        bad_chan = [33 25 30];
+                    case 'S14_62_05'
+                        bad_chan = [33 25 30];
+                end
             case 'S14_64_SP'
-                BN = {'S14_64_SP_02','S14_64_SP_03'};
-            case 'S14_65_HN'
+                switch BN
+                    case 'S14_64_SP_02'
+                        bad_chan = [63 59 60 64 62 61];
+                    case 'S14_64_SP_03'
+                        bad_chan = [62 2];
+                end
+                    case 'S14_65_HN'
                 BN = {'S14_65_HN_02','S14_65_HN_05'};
             case 'S14_66_CZ'
-                BN = {'S14_66_CZ_09','S14_66_CZ_11'};
-            case 'S14_67_RH'
+                switch BN
+                    case 'S14_66_CZ_09'
+                        bad_chan = [63 62 64 61 59 33 96 85];
+                    case 'S14_66_CZ_11'
+                        bad_chan = [63 62 64 61 59 33 96 85 103 104];
+                end
+                    case 'S14_67_RH'
                 BN = {'S14_67_RH_01','S14_67_RH_04'};
             case 'S14_68_NB'
                 BN = {'S14_68_NB_01','S14_68_NB_02'};
