@@ -330,15 +330,18 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 % elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 % Plot coverage of all subjects
-[DOCID,GID] = getGoogleSheetInfo(project_name);
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 sbj_names = googleSheet.subject_name;
 sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 
 for i = 1:length(sbj_names)
-    PlotCoverage(sbj_names{4}, project_name) % {contains(sbj_names,'DY')}
+    PlotCoverage(sbj_names{36}, project_name) % {contains(sbj_names,'DY')}
 end
 
+sub = 41;
+sbj_names{sub}
+PlotCoverage(sbj_names{sub}, project_name) % {contains(sbj_names,'DY')}
 
 sbj_name = 'S12_36_SrS'
 dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'

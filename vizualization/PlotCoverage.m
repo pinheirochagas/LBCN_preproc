@@ -7,7 +7,7 @@ cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
 
-[DOCID,GID] = getGoogleSheetInfo(project_name);
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 hemisphere = googleSheet.hemi{strcmp(googleSheet.subject_name, sbj_name)};
 implant = googleSheet.implant{strcmp(googleSheet.subject_name, sbj_name)};
