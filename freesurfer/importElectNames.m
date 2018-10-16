@@ -1,4 +1,4 @@
-function elect_names = importElectNames(dirs)
+function [elect_names, DRMT1] = importElectNames(dirs)
 %IMPORTFILE Import numeric data from a text file as a matrix.
 %   DRMT1 = IMPORTFILE(FILENAME) Reads data from text file FILENAME for the
 %   default selection.
@@ -25,7 +25,7 @@ end
 %	column2: categorical (%C)
 %   column3: categorical (%C)
 % For more information, see the TEXTSCAN documentation.
-formatSpec = '%s%C%C%*s%*s%[^\n\r]';
+formatSpec = '%s%s%s%*s%*s%[^\n\r]';
 
 %% Open the text file.
 subDir=dirs.freesurfer;
@@ -61,5 +61,6 @@ fclose(fileID);
 %% Create output variable
 DRMT1 = table(dataArray{1:end-1}, 'VariableNames', {'Name','VarName2','DepthStripGrid'});
 elect_names = DRMT1.Name(3:end);
+
 end
 
