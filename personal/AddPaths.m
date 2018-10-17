@@ -12,6 +12,9 @@ elseif strcmp(user,'Ying_iMAC')
 elseif strcmp(user,'Clara_iMAC')
     comp_root = sprintf('/Users/csava/Documents/code/lbcn_preproc/'); % location of analysis_ECOG folder
     addpath(genpath('/Users/csava/Documents/code/iELVis/'))
+elseif strcmp(user,'Kevin_UCLA')
+    comp_root = sprintf('/data/MMR/lbcn_preproc');
+    addpath(genpath('/data/MMR/iELVis-master'))
 end
 
 addpath(genpath(comp_root))
