@@ -46,8 +46,8 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1,
 
 %% Get marked channels and demographics
 % [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-ref_chan = [8];
-epi_chan = [3:9,9:15,26:31];
+ref_chan = [];
+epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 %LK 65 105 119 117 106 71 118 67 107 81 66 103 108 37 70 115 80 84 51 83 59 69 60 112 38 54 56 36 91 43 116 113 41 57 35 110 75 73 72 29 47 88 53 102 49 87 120 68 34 39 33 45 52 82 64 50 86 61 109 48 104 62 114 98 93 99 121 78 79 100 101 90 92 63 122 76 111 46 58 44 55 40 97 96 74 42 77 95 85 8 7 5 4
 
