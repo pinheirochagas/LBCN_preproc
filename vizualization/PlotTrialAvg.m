@@ -161,6 +161,6 @@ set(gcf,'color','w')
 if plot_params.legend && ~plot_params.single_trial
     leg = legend(h,cond_names,'Location','Northeast', 'AutoUpdate','off');
     legend boxoff
-    set(leg,'fontsize',8, 'Interpreter', 'none')
+    set(leg,'fontsize',plot_params.textsize, 'Interpreter', 'none')
 end
 

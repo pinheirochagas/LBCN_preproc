@@ -1,4 +1,4 @@
-function EventIdentifier (sbj_name, project_name, block_names, dirs, pdio_chan, exception)
+function EventIdentifier (sbj_name, project_name, block_names, dirs, pdio_chan)
 %% Globar Variable elements
 
 %% loop across blocks
@@ -128,15 +128,7 @@ for i = 1:length(block_names)
     else
         
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
-    end
-    % the second input is project dependent
-    %reshape onsets to account for the number of events in each trial
-    
-    if exception == 1
-        all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-    else
-    end
-    
+    end    
     
     %%
     % Plot photodiode segmented data
@@ -151,13 +143,18 @@ for i = 1:length(block_names)
     
     
     %% Comparing photodiod with behavioral data
-    %for just the first stimulus of each trial
-%     StimulusOnsetTime = StimulusOnsetTime(1:size(all_stim_onset,1)); % This is temporary for incomplete recordings
+    df_SOT= diff(StimulusOnsetTime)'; 
     
-    df_SOT= diff(StimulusOnsetTime)';
-    % df_stim_onset= diff(stim_onset_fifth); %fifth? why?
+    % Add another exception for subjects who have 1 trialinfo less
+        if strcmp(sbj_name, 'S14_62_JW') && strcmp(project_name, 'MMR')
+            all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+        elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR')
+            all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+        else
+        end          
+            
     df_stim_onset = diff(all_stim_onset(:,1))';
-
+   
     %plot overlay
     subplot(2,3,4)
     plot(df_SOT,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox

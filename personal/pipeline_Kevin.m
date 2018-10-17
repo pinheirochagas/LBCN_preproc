@@ -6,54 +6,13 @@ AddPaths('Kevin_UCLA')
 %% Initialize Directories
 project_name = 'MMR'; 
 % project_name = 'UCLA';
-% 
-% project_name = 'MFA';
-% project_name = '7Heaven';
-% 
-% project_name = 'Scrambled';
-% project_name = 'Logo';
-% project_name = 'VTC_localizer';
-% project_name = 'Animal_localizer';
-% 
-% project_name = 'Calculia';
-% project_name = 'Context';
-% 
-% project_name = 'Memoria';
-% 
-% project_name = 'Calculia_production';
-% project_name = 'Calculia_China';
-% 
-% project_name = 'Number_comparison';
-% 
-% project_name = 'Flanker';
-% project_name = 'EglyDriver';
-% project_name = 'NumLet';
-% project_name = 'GradCPT';
+
+serverPath = '/media/kevin/KT_MMRraw/';
 
 
 %% Retrieve subject information
 % [DOCID,GID] = getGoogleSheetInfo(project_name);
 % googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-% sbj_number = 17;
-% sbj_name = 'S18_124';
-% sbj_name = 'S18_127';
-
-% sbj_name = 'S14_69b_RT';
-% sbj_name = 'S14_64_SP';
-% sbj_name = 'S13_57_TVD';
-% sbj_name = 'S11_29_RB';
-% sbj_name = 'S12_42_NC';
-% sbj_name = 'S13_55_JJC';
-% sbj_name = 'S18_126';
-% sbj_name = 'S18_129';
-
-% sbj_name = 'G18_19';
-% sbj_name = 'G18_19';
-% sbj_name = 'G18_21';
-
-% sbj_name = 'S17_116';
-
-% sbj_name = 'S16_94_DR';
 
 sbj_name = 'S12_38_LK';
 
@@ -68,14 +27,14 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Kevin_UCLA', project_name, sbj_name); % 'Pedro_NeuroSpin2T'
+dirs = InitializeDirs('Kevin_UCLA', project_name, sbj_name, serverPath); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
-CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1) 
+CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1, serverPath) 
 
 %%% IMPROVE uigetfile to go directly to subject folder %%%
 
@@ -87,8 +46,8 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1)
 
 %% Get marked channels and demographics
 % [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-ref_chan = [8];
-epi_chan = [3:9,9:15,26:31];
+ref_chan = [];
+epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 %LK 65 105 119 117 106 71 118 67 107 81 66 103 108 37 70 115 80 84 51 83 59 69 60 112 38 54 56 36 91 43 116 113 41 57 35 110 75 73 72 29 47 88 53 102 49 87 120 68 34 39 33 45 52 82 64 50 86 61 109 48 104 62 114 98 93 99 121 78 79 100 101 90 92 63 122 76 111 46 58 44 55 40 97 96 74 42 77 95 85 8 7 5 4
 

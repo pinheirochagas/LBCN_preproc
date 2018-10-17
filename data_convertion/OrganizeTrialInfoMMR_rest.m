@@ -26,7 +26,7 @@ for i = 1:length(block_names)
     clear RTb
     % trialinfo.RT = vertcat(K.theData(:).RT);%RTb;%
     
-    condNames= {'self-internal','other','self-external','autobio','math','rest'}; %{'self-internal','other','self-external','autobio','math','rest','fact'};
+    condNames= condNames= {'self-internal','other','self-external','autobio','math','rest'}; %{'self-internal','other','self-external','autobio','math','rest','fact'};
     conds_math_memory = {'memory','memory','memory','memory','math','rest','memory'};
     
     % Add calculation info

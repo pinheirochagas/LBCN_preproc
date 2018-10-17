@@ -14,6 +14,7 @@ elseif strcmp(user,'Clara_iMAC')
     addpath(genpath('/Users/csava/Documents/code/iELVis/'))
 elseif strcmp(user,'Kevin_UCLA')
     comp_root = sprintf('/data/MMR/lbcn_preproc');
+    addpath(genpath('/data/MMR/iELVis-master'))
 end
 
 addpath(genpath(comp_root))

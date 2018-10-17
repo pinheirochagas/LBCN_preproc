@@ -1,5 +1,11 @@
-function dirs = InitializeDirs(user,project_name,sbj_name)
+function dirs = InitializeDirs(user,project_name,sbj_name,serverPath)
 %% Initialize directories
+
+% Stanford neurology server is default
+if ~exist('serverPath', 'var')
+    serverPath = '/Volumes/neurology_jparvizi$/';
+end
+
 
 % Get generic name without lower case to match the server 
 if isstrprop(sbj_name(end),'lower')
@@ -22,7 +28,7 @@ elseif strcmp(user,'Kevin_UCLA')
     dirs.comp_root = sprintf('/data/MMR/data');
 end
 
-dirs.server_root = '/media/kevin/KT_MMRraw/';
+dirs.server_root = serverPath;
 dirs.data_root = sprintf('%s/neuralData',dirs.comp_root);
 dirs.result_root = sprintf('%s/Results',dirs.comp_root);
 dirs.psych_root = sprintf('%s/psychData',dirs.comp_root);
@@ -35,7 +41,7 @@ dirs.ROI = sprintf('%s/ECoG Patient Info/ROIs',dirs.comp_root);
 dirs.original_data = [dirs.data_root '/originalData'];
 
 % Set freesurfer folder
-all_folders = dir(fullfile('/media/kevin/KT_MMRraw/'));
+all_folders = dir(fullfile(serverPath));
 if isempty(all_folders)
     warning('You are not connected to the server, therefore no Fressurfer folder will be specified.')
 else
@@ -44,7 +50,7 @@ else
     end
     sbj_folder_name = all_folders(find(tpm == 1)).name;
     
-    all_folders_sbj = dir(fullfile(['/media/kevin/KT_MMRraw/' sbj_folder_name]));
+    all_folders_sbj = dir(fullfile([serverPath sbj_folder_name]));
     for i = 1:length(all_folders_sbj)
         tpm_2(i) = contains(all_folders_sbj(i).name, 'surfer');
     end
@@ -52,7 +58,7 @@ else
         warning('There is no Freesurfer folder')
         dirs.freesurfer = [];
     else
-        dirs.freesurfer = ['/media/kevin/KT_MMRraw/' sbj_folder_name '/' all_folders_sbj(tpm_2).name '/'];
+        dirs.freesurfer = [serverPath sbj_folder_name '/' all_folders_sbj(tpm_2).name '/'];
     end
 end
 
