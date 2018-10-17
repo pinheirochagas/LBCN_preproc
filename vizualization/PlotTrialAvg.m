@@ -73,7 +73,7 @@ end
 
 % smooth and plot data
 if ~plot_params.multielec
-    figureDim = [0 0 .3 .4];
+    figureDim = [0 0 .6 .8];
     figure('units', 'normalized', 'outerposition', figureDim)
 end
 
@@ -161,6 +161,6 @@ set(gcf,'color','w')
 if plot_params.legend && ~plot_params.single_trial
     leg = legend(h,cond_names,'Location','Northeast', 'AutoUpdate','off');
     legend boxoff
-    set(leg,'fontsize',14, 'Interpreter', 'none')
+    set(leg,'fontsize',plot_params.textsize, 'Interpreter', 'none')
 end
 

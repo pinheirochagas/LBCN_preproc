@@ -49,7 +49,7 @@ end
 
 % plot data
 if ncategs == 1
-    figureDim = [0 0 .3 .4];
+    figureDim = [0 0 .6 .8];
     figure('units', 'normalized', 'outerposition', figureDim)
     ersp_tmp = squeeze(nanmean(plot_data{1},2)); % average across trials
     if ~isempty(ersp_tmp)
@@ -79,7 +79,7 @@ if ncategs == 1
     plotLines(data, y_lim)
     
 else
-    figureDim = [0 0 .8 .4];
+    figureDim = [0 0 1.6 .8];
     figure('units', 'normalized', 'outerposition', figureDim)
 
     for ci = 1:ncategs
