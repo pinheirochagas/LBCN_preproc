@@ -146,13 +146,12 @@ for i = 1:length(block_names)
     df_SOT= diff(StimulusOnsetTime)'; 
     
     % Add another exception for subjects who have 1 trialinfo less
-        if strcmp(sbj_name, 'S14_62_JW') && strcmp(project_name, 'MMR')
-            all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-        elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR')
-            all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-        else
-        end          
-            
+    if strcmp(sbj_name, 'S14_62_JW') && strcmp(project_name, 'MMR')
+        all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+    elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR')
+        all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+    end
+    
     df_stim_onset = diff(all_stim_onset(:,1))';
    
     %plot overlay
@@ -160,7 +159,7 @@ for i = 1:length(block_names)
     plot(df_SOT,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox
     hold on
     plot(df_stim_onset,'r*') % photodiode/trigger 
-    df= df_SOT - df_stim_onset;
+    df = df_SOT - df_stim_onset;
     
     %%
 %     psychtoolbox = trialinfo.StimulusOnsetTime - trialinfo.StimulusOnsetTime(1);

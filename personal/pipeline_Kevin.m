@@ -114,7 +114,7 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -136,39 +136,57 @@ BadChanRejectCAR(sbj_name, project_name, block_names, dirs)
 % Load elecs info
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+epoch_params = genEpochParams(project_name, 'stim'); 
 
+% Wavelet and epoch HFB (fast)
+parpool('local', 15);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        %WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
-
-for i = 1:length(block_names)
-    parfor ei = 1:length(elecs)
-        %WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'Spec', [], [], true, 'Spec') % across frequencies of interest
-    end
-end
-
-%% Branch 6 - Epoching, identification of bad epochs and baseline correction
-epoch_params = genEpochParams(project_name, 'stim'); 
 
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        %EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'Spec', [],[], epoch_params,'Spec')
+    end
+end
+delete(gcp('nocreate'));
+
+% Wavelet and epoch ERSP (slow)
+parpool('local2', 6);
+for i = 1:length(block_names)
+    parfor ei = 1:length(elecs)
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
 for i = 1:length(block_names)
     bn = block_names{i};
     for ei = 1:length(elecs) 
-        %EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'Spec', [],[], epoch_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
+delete(gcp('nocreate'));
+
+%% Branch 6 - Epoching, identification of bad epochs and baseline correction
+% epoch_params = genEpochParams(project_name, 'stim'); 
+% 
+% for i = 1:length(block_names)
+%     bn = block_names{i};
+%     parfor ei = 1:length(elecs) 
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%     end
+% end
+% 
+% for i = 1:length(block_names)
+%     bn = block_names{i};
+%     for ei = 1:length(elecs) 
+%         %EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+%     end
+% end
 
 % epoch_params = genEpochParams(project_name, 'resp'); 
 % for i = 1:length(block_names)
@@ -213,7 +231,7 @@ plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.textsize = 6;
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'Spec','stim','condNames',{'rest','other','self-internal','self-external','autobio','math'},plot_params)% condNames
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',{'rest','other','self-internal','self-external','autobio','math'},plot_params)% condNames
 
 
 % plot ERSP (event-related spectral perturbations) for each electrode
