@@ -57,7 +57,16 @@ switch table
     
     case 'subjects_by_task'
         DOCID = '1rH0cpsrMXo9dh68eIVme0wjuKCMca5pHRwjowLJVk_8';
-        GID = '0';        
+        GID = '0'; 
+        
+    case 'block_by_sbj'
+        DOCID = '1mOI89bk9FR47h0neVU2voF2EBWrUGFon54AQQiBEbUw';
+        GID = '0';     
+        
+    case 'bad_channel_by_block'
+        DOCID = '1mOI89bk9FR47h0neVU2voF2EBWrUGFon54AQQiBEbUw';
+        GID = '1534541388';   
+
 end
 
 end

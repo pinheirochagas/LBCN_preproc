@@ -95,6 +95,9 @@ for blockN = 1:length(BN)
         events_byTrial(i).PresResult = PresResult;
         events_byTrial(i).Deviant = Deviant;
         events_byTrial(i).AbsDeviant = AbsDeviant;
+        
+        
+        
     end
     
     %Save
