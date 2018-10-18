@@ -34,7 +34,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 20;
+sbj_number = 22;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -155,7 +155,7 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names(2), dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -338,12 +338,12 @@ sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 for i = 1:length(sbj_names)
     PlotCoverage(sbj_names{36}, project_name) % {contains(sbj_names,'DY')}
 end
-
+'S17_117_MC
 sub = 41;
 sbj_names{sub}
-PlotCoverage(sbj_names{sub}, project_name) % {contains(sbj_names,'DY')}
+PlotCoverage(sbj_names{contains(sbj_names,'96')}, project_name) % {contains(sbj_names,'DY')}
 
-sbj_name = 'S12_36_SrS'
+sbj_name = 'S16_96_LF'
 dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, 1); % 'Pedro_NeuroSpin2T'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 cortex = getcort(dirs);
@@ -545,6 +545,26 @@ plot(pvalsig, zeros(length(pvalsig),1)', '*')
 data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 
+
+
+%% Re structure block_by_subj
+[DOCID,GID] = getGoogleSheetInfo('block_by_sbj', []);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_name = googleSheet.subject_name;
+
+project_names = {'AnimalLoc', 'Calculia', 'Calculia_production', 'Context', 'GradCPT', 'MMR', 'UCLA', 'Scrambled', ...
+         'AllCateg', 'LogoPassive', 'LogoActive', 'ReadNumWord', 'Rest', 'VTCLoc', 'MFA', 'Memoria', 'Memoria_imagine', ...
+         'SeavenHeaven', 'Memoria_EBS', 'Number_comparison', 'Calculia_China', 'Calculia_letter'};
+
+for i = 1:length(sbj_name)
+    for ii = 1:length(project_names)
+        block_names_all.(sbj_name{i}).(project_names{ii}) = BlockBySubj(sbj_name{i},'Memoria');
+    end
+end
+
+     
+     
+     
 
 
  

@@ -192,7 +192,13 @@ switch task
                         bad_chan = [63 62 64 61 59 33 96 85 103 104];
                 end
                     case 'S14_67_RH'
-                BN = {'S14_67_RH_01','S14_67_RH_04'};
+                        switch BN
+                            case 'S14_67_RH_01'
+                        bad_chan = [85 95 33 17 13 7 17 15 47];
+                            case 'S14_67_RH_04'
+                        bad_chan = [58 61 62 59 60 57 33 85 22 13 7 59 58 61 62 33 95 22 57 60];
+                        end
+                        
             case 'S14_68_NB'
                 BN = {'S14_68_NB_01','S14_68_NB_02'};
             case 'S14_69_RT'

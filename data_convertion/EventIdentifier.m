@@ -150,6 +150,10 @@ for i = 1:length(block_names)
             all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
         elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR')
             all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+        elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(bn, 'S14_67_RH_01')
+            all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
+        elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(bn, 'S14_67_RH_04')
+            all_stim_onset = all_stim_onset(1:end-2); % DANGEROUS EXCEPTION      
         else
         end          
             

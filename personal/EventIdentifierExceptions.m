@@ -19,6 +19,10 @@ elseif strcmp(sbj_name, 'S13_53_KS2') && strcmp(project_name, 'MMR') && strcmp(b
 elseif strcmp(sbj_name, 'S14_64_SP') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_64_SP_02')
     n_initpulse_onset = 14; n_initpulse_offset = 14;   
 elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_66_CZ_11')
+    n_initpulse_onset = 14; n_initpulse_offset = 14;   
+elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_67_RH_01')
+    n_initpulse_onset = 8; n_initpulse_offset = 8;     
+elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_67_RH_04')
     n_initpulse_onset = 14; n_initpulse_offset = 14;     
 end
 end
