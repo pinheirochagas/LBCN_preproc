@@ -423,23 +423,15 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 %% Create subjVar
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+% Get subjects
+[DOCID,GID] = getGoogleSheetInfo('math_network', 'memoria'); % project_name
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names = googleSheet.subject_name;
+sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 
-for i = 1:length(sbj_names)
-    subjVar = [];
+for i = 1:length(sbj_name)
     dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    cortex = getcort(dirs);
-    coords = importCoordsFreesurfer(dirs);
-    elect_names = importElectNames(dirs);
-    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);  
-    V = importVolumes(dirs);
-
-    subjVar.cortex = cortex;
-    subjVar.V = V;
-    subjVar.elect_native = coords;
-    subjVar.elect_MNI = MNI_coords;
-    subjVar.elect_names = elect_names;
-    subjVar.demographics = GetDemographics(sbj_name);
-    save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
+    subjVar = CreateSubjVar(sbj_names{i}, dirs, fsDir_local);
 end
 
 
