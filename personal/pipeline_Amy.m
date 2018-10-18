@@ -19,10 +19,11 @@ project_name = 'Memoria';
 
 %% Create folders
 % sbj_name = 'S15_89b_JQ';
-sbj_name = 'S14_69b_RT';
+% sbj_name = 'S14_69b_RT';
 % sbj_name = 'C17_13';
-% sbj_name = 'S17_116';
-% sbj_name = 'S18_127';
+% sbj_name = 'S17_110_SC';
+sbj_name = 'S18_129';
+sbj_name = 'S17_107_PR';
 
 % Center
 % center = 'China';
@@ -54,7 +55,8 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format,loa
 % Login to the server first?
 % Should we rename the channels at this stage to match the new naming?
 % This would require a table with chan names retrieved from the PPT
-parfor i = 1:length(block_names)
+% parfor i = 1:length(block_names)
+for i = 1:length(block_names)
     CopyFilesServer(sbj_name,project_name,block_names{i},data_format,dirs)
 end
 % In the case of number comparison, one has also to copy the stim lists
@@ -81,7 +83,7 @@ switch project_name
 %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
-        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs,'english')
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_China'
@@ -99,20 +101,14 @@ end
 
 
 %% Branch 3 - event identifier
-EventIdentifier(sbj_name, project_name, block_names, dirs)
-EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs)
+EventIdentifier (sbj_name, project_name, block_names(4), dirs, 1, 0)
+% EventIdentifier(sbj_name, project_name, block_names, dirs)
+EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs)
 
-% if strcmp(project_name, 'Number_comparison')
-%     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
-% else
-%     EventIdentifier(sbj_name, project_name, block_names, dirs, 9, 0) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
-% end
-% Fix it for UCLA
-% subject 'S11_29_RB' exception = 1 for block 2 
 
 
 %% Branch 4 - bad channel rejection
-BadChanReject(sbj_name, project_name, block_names, dirs)
+BadChanRejectCAR(sbj_name, project_name, block_names, dirs)
 % 1. Continuous data
 %      Step 0. epileptic channels based on clinical evaluation from table_.xls
 %      Step 1. based on the raw power
@@ -128,8 +124,7 @@ BadChanReject(sbj_name, project_name, block_names, dirs)
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
-for i = 1:length(block_names)x
-%     for ei = 1:length(elecs)
+for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
@@ -137,37 +132,20 @@ for i = 1:length(block_names)x
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-switch project_name
-    case 'GradCPT'
-        blc_params.run = false;
-        tmin = -0.5; %-0.8
-        tmax = 1.6; % 0.8
-    case 'Memoria'
-        blc_params.run = true; % or false
-        tmin = -0.5;
-        tmax = 7;
-        blc_params.win = [-.5 0];
-end
-blc_params.locktype = 'stim';
-noise_params.method = 'trials';
-noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+
+epoch_params = genEpochParams(project_name, 'stim'); 
 
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'HFB', [],[], blc_params,noise_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei),'stim', tmin, tmax, 'SpecDenseLF', [],[], blc_params,noise_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
     end
 end
 
-% Bad epochs identification
-%      Step 1. based on the raw signal
-%      Step 2. based on the spikes in the raw signal
-%      Step 3. based on the spikes in the HFB signal or other freq bands
-
 %% RT phase correlation
 phaseRT = phaseRTCorrAll(sbj_name, project_name, block_names,dirs,'stim',elecs);
-plotPhaseRTCorr(sbj_name,project_name,dirs,61,[])
+plotPhaseRTCorr(sbj_name,project_name,dirs,elecs,[])
 
 %% PLV
 % S17_116
@@ -213,12 +191,19 @@ computePLVAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','trials
 % phase_elecs = {'RPT1','RPG1','RPG2','RPG9','RPG10'};
 % phase_elecs = {'RPT1','RPG2','RPG9'}; %S17_116
 
-phase_elecs = {'LP6','LP7','LPS7','LPS8','LPI17','LPI11','LPI12','LP2','LP3','LP4','LPS1'}; %S14_69b
+% phase_elecs = {'LP6','LP7','LPS7','LPS8','LPI17','LPI11','LPI12','LP2','LP3','LP4','LPS1'}; %S14_69b
 
+% phase_elecs = {'LRSC8','LRSC9','LRSC10','RRSC6','LRSC1','LRSC2','LRSC3','RRSC1','RRSC3','LavINS8','LavIN10','LadCIN4','LadCIN5','RadCIN3'}; %S18_119
+% phase_elecs = {'LIN2','LIN7','LIN8','LIN9','LPC2','LPC3','LPC4','LPC6','LPC7','LPC8','LPTP8'}; % S18_127
+% phase_elecs = {'LDP6','LDP7','LDP1','LDP2','LDP3','RDP1','LAI6','LAI7','LDP9','LDP10'}; %S18_124
+% phase_elecs = {'LRSC1','LCINm1','LCINm3','LCINm4','LINSa3','LOFCa2','LOFCa10','LOFCp1'}; %S17_118
+phase_elecs = {'LAC3','LAC4','LPC7','LPC8','LPC9','LPC10','RH2','RIN1','RIN2','RIN3'}; %S17_110
+% ChanNamesToNums(globalVar,phase_elecs)
 
-PAC = computePACAll(sbj_name,project_name,block_names,dirs,phase_elecs,[],[],'SpecDenseLF','stim','condNames',[],[]);
+PAC = computePACAll(sbj_name,project_name,block_names,dirs,[],[],[],'SpecDenseLF','stim','condNames',[],[]);
 
-plotPAC(PAC,{'math','autobio'},'LP6',[])
+plotPAC(PAC,{'city','mtn'},'LDP1',[])
+plotPACAll(sbj_name,project_name,dirs,[],[],{'autobio','math'},'SpecDenseLF')
 
 %% PLV RT correlation
 PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','condNotAfterMtn',[],[])
@@ -229,6 +214,9 @@ PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
 
 %% Branch 7 - Plotting
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+
 % plot individual trials (to visualize bad trials)
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.single_trial = true;
@@ -242,6 +230,8 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% plot_params.noise_fields_timepts = {'bad_inds'};
+% elecs = {'LRSC1'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot HFB timecourse, grouping multiple conds together
@@ -250,25 +240,60 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
 
+%% multielectrode plotting
+load cdcol.mat
+cols.SPLattn = cdcol.lilac;
+cols.SPLmath = cdcol.scarlet;
+cols.PMC = cdcol.ultramarine;
+cols.INS = cdcol.yellowgeen;
+cols.ACC = cdcol.yellowgeen;
+
+% S18_124
+% SPLattn = 'LDP7';
+% PMC = 'LDP1';
+% INS = 'LAI6';
+% elecs = {INS,PMC};
+% elecs1 = PMC;
+% elecs2 = VIS;
+
+%S14_69b
+% SPLattn = 'LP6';
+% SPLmath = 'LPS7';
+% elecs = {SPLattn,SPLmath};
+
+%S17_116
+% SPLattn = 'RPG2';
+% SPLmath = 'RPG9';
+% PMC = 'RPT1';
+% elecs = {SPLattn,PMC};
+
+%S18_119
+SPLattn = 'LRSC8';
+INS = 'LavIN10';
+PMC = 'LRSC1';
+ACC = 'LadCIN5';
+elecs = {INS,PMC};
+
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
+plot_params.col = [cols.INS; cols.PMC];
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.multielec = true;
-elecs = {'LP7','LPS8','LP4'}; %S14_69b
+plot_params.scale_amp = false;
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params,'Band')
-
+%% 
 % plot inter-trial phase coherence for each electrode
 plot_params = genPlotParams(project_name,'ITPC');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotITPCAll(sbj_name,project_name,block_names,dirs,1,'Spec2','stim','condNames',[],plot_params)
+PlotITPCAll(sbj_name,project_name,block_names,dirs,[],'SpecDenseLF','stim','condNames',[],plot_params)
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-elecs = {'LP7'};
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDenseLF','stim','condNames',[],plot_params)
 
 % Number comparison
@@ -299,6 +324,9 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'tr
 %% STATS
 tag = 'stimlock_bl_corr';
 [p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,tag,'condNames',{'math'},'HFB',[]);
+
+%% GradCPT- baseline vs. city vs. mtn
+power_by_cond = GradCPT_BL_vs_city_vs_mtn(sbj_name,block_names,dirs,[],'HFB','condNotAfterMtn');
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';

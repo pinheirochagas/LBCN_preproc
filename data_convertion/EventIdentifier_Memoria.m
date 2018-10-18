@@ -1,25 +1,20 @@
-function EventIdentifier_Memoria (sbj_name, project_name, block_names, dirs)
+function EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs)
 %% Globar Variable elements
 
 switch project_name
-    case 'MMR'
-        n_stim_per_trial = 1;
-        n_initpulse = 12;
     case 'Memoria'
         n_stim_per_trial = 5;
-        n_initpulse = 12;
     case 'Calculia'
         n_stim_per_trial = 5;
-        n_initpulse = 12;
     case 'Calculia_production'
         n_stim_per_trial = 3;
-        n_initpulse = 0; % maybe change to 12
+%         n_initpulse = 0; % maybe change to 12
 end
 
 %% loop across blocks
 for i = 1:length(block_names)
     bn = block_names{i};
-    
+    [n_initpulse,~] = EventIdentifierExceptions(sbj_name,project_name, bn);
     %% Load globalVar
     
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
@@ -40,7 +35,7 @@ for i = 1:length(block_names)
    
     clear anlg
     
-    pdio = pdio/max(pdio)*2;
+    pdio = pdio/max(pdio);
     
     
     %% Thresholding the signal
@@ -57,7 +52,6 @@ for i = 1:length(block_names)
     pdio_onset(1:n_initpulse)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
     pdio_offset(1:n_initpulse)=[]; %
     
-    
     %get osnets from diode
     pdio_dur= pdio_offset - pdio_onset;
     IpdioI= [pdio_onset(2:end)-pdio_offset(1:end-1) 0];
@@ -67,9 +61,8 @@ for i = 1:length(block_names)
     stim_onset= [pdio_onset(isi_ind) pdio_onset(end)];
     
     %% IF MISMATCH BW PDIO AND BEHAV DATA, EDIT HERE:
-%     stim_onset = stim_onset([1:102 104:116 118:end]);
-%     stim_offset = stim_offset([1:102 104:116 118:end]);
-    
+    [stim_onset,stim_offset] = StimOnsetExceptions(sbj_name,bn,stim_onset,stim_offset);
+
     stim_dur= stim_offset - stim_onset;
     
         %% Load trialinfo 
@@ -89,20 +82,24 @@ for i = 1:length(block_names)
     %% Get trials, insturuction onsets
     %% modified for Memoria
     colnames = trialinfo.Properties.VariableNames;
+    
     if ismember('nstim',colnames) % for cases where each trial has diff # of stim
         ntrials = size(trialinfo,1);
         all_stim_onset = nan(ntrials,max(trialinfo.nstim));
-        
+        stimnum = repmat(1:max(trialinfo.nstim),[ntrials,1]);
         counter = 1;
         for ti = 1:ntrials
             inds = counter:(counter+trialinfo.nstim(ti)-1);
-            all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
-            counter = counter+trialinfo.nstim(ti);
+            if inds(end)<=length(stim_onset)
+                all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
+                counter = counter+trialinfo.nstim(ti);
+            end
         end
     else
-        
-    all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
+        all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
+    stimnum_rs = reshape(stimnum,[1,numel(stimnum)]);
+    all_stim_onset_rs = reshape(all_stim_onset,[1,numel(all_stim_onset)]);
     % the second input is project dependent
     %reshape onsets to account for the number of events in each trial
     
@@ -114,9 +111,14 @@ for i = 1:length(block_names)
     hold on
     plot(pdio)
    
-    % Event onset
-    plot(stim_onset*iEEG_rate,0.9*ones(length(stim_onset),1),'r*');
-
+    % plot each stim number in diff. color
+    stim_syms = {'m*','r*','g*','c*','b*'};
+    heights = 0.9:-0.2:0.1;
+    for i = 1:max(trialinfo.nstim)
+        stim_inds = find(stimnum_rs==i);
+        plot(all_stim_onset_rs(stim_inds)*iEEG_rate,heights(i)*ones(1,length(stim_inds)),stim_syms{i})
+    end
+        
     
 
     %% Comparing photodiod with behavioral data
@@ -143,7 +145,8 @@ for i = 1:length(block_names)
 
     %flag large difference
     if ~all(abs(df)<.1)
-        disp('behavioral data and photodiod mismatch'),return
+        disp('behavioral data and photodiod mismatch')
+        return
     end
     
     
@@ -155,18 +158,7 @@ for i = 1:length(block_names)
         trialinfo.allonsets(event_trials) = all_stim_onset;
     end
     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
-%     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
-    % update that
-    
-    % Include the rest events FIX THIS, REST EVENT ONSET SEEMS ODD!!!
-%     if ~isempty(rest_trials)
-%         for i = 1:length(rest_trials)
-%             onset_rest(i,1) = trialinfo.allonsets(rest_trials(i)-1,end) + trialinfo.RT(rest_trials(i)-1) + ISI?;
-%         end
-%     else
-%     end
-%     trialinfo.allonsets(rest_trials,:) = onset_rest;
-    
+
     
     %% Save trialinfo   
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);

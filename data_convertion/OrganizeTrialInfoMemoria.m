@@ -1,4 +1,6 @@
-function OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs)
+function OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs,language)
+
+% language: 'english' or 'spanish'
 
 condNames= {'autobio','math'};
 nstim_per_trial = [4 5];
@@ -20,12 +22,27 @@ for i = 1:length(block_names)
        K.theData(end) = [];
        K.conds(end) = [];
     end
+    
     ntrials = length(K.conds);
-   
+    for ti = ntrials:-1:1  % if 'empty' trials at end, eliminate
+        if isempty(K.theData(ti).flip)
+            ntrials = ntrials-1;
+        else
+            break
+        end
+    end
+    
     trialinfo = table;
-    trialinfo.wlist = K.wlist';  
-    trialinfo.RT = [K.theData(:).RT]';
-    trialinfo.keys = vertcat(K.theData(:).keys);
+    trialinfo.wlist = K.wlist(1:ntrials)';
+    tmp = [K.theData(1:ntrials).RT]';
+    trialinfo.RT = tmp;
+    tmp = {K.theData(:).keys};
+    blanks = find(strcmp(tmp,'noanswer') | isempty(tmp));
+    for bb = 1:length(blanks)
+        K.theData(blanks(bb)).keys = '0'; % replace 'noanswer' with '0' so can perform vertcat
+    end
+    tmp = vertcat(K.theData(1:ntrials).keys);
+    trialinfo.keys = tmp;
         
     conds = cell(ntrials,1);
     nstim_all = nan(ntrials,1);
@@ -77,7 +94,7 @@ for i = 1:length(block_names)
     trialinfo.conds_all = conds_all;
     
     %% define the general and specific veb
-    if strcmp(sbj_name,'S17_110_SC' )
+    if strcmp(language,'spanish')
         general_verb={' di',' usé',' vi',' tenía',' tome',' envié',' conocí',' visité',' asistí'};
     else
         general_verb={' gave',' used',' saw',' had',' took',' sent',' met',' visited',' attended'};
@@ -98,7 +115,7 @@ for i = 1:length(block_names)
     %% Define Math variables
     for i = 1:size(trialinfo,1)
         % Calculation info
-        [C,matches] = strsplit(trialinfo.wlist{i},{'+','-','=', 'and', 'is', 'plus', 'equals'},'CollapseDelimiters',true);
+        [C,matches] = strsplit(trialinfo.wlist{i},{'+','-','=', 'and', 'is', 'plus', 'equals','mas','es'},'CollapseDelimiters',true);
         if strcmp(trialinfo.condNames(i), 'math')
             isCalc = 1;
             if strcmp(trialinfo.mathtype(i), 'digit')
@@ -106,9 +123,15 @@ for i = 1:length(block_names)
                 Operand2 = str2num((C{2}));
                 PresResult = str2num((C{3}));
             else
-                Operand1 = words2num((C{1}));
-                Operand2 = words2num((C{2}));
-                PresResult = words2num((C{3}));
+                if strcmp(language,'english')
+                    Operand1 = words2num((C{1}));
+                    Operand2 = words2num((C{2}));
+                    PresResult = words2num((C{3}));
+                else  % need to find permanent solution for spanish
+                    Operand1 = NaN;
+                    Operand2 = NaN;
+                    PresResult = NaN;
+                end
             end
             
             if strcmp(matches{1}, '-') == 1 || strcmp(matches{1}, 'minus') == 1
