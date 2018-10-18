@@ -355,11 +355,16 @@ fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 cortex = getcort(dirs);
 coords = importCoordsFreesurfer(dirs);
 elect_names = importElectNames(dirs);
-% V = importVolumes(dirs);
+V = importVolumes(dirs);
 
 % Convert electrode coordinates from native to MNI space
-% [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
-
+for i = 1:length(sbj_names)
+    dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name(i), comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    cortex = getcort(dirs);
+    coords = importCoordsFreesurfer(dirs);
+    elect_names = importElectNames(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+end
 % Plot brain and coordinates
 % transform coords
 % coords(:,1) = coords(:,1) + 5;
@@ -417,24 +422,26 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 
 %% Create subjVar
-subjVar = [];
-subjVar.cortex = cortex;
-subjVar.V = V;
-subjVar.elect_native = coords;
-subjVar.elect_MNI = MNI_coords;
-subjVar.elect_names = elect_names;
-subjVar.demographics = GetDemographics(sbj_name, dirs);
-save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 
-% demographics
-% date of implantation
-% birth data
-% age
-% gender
-% handedness
-% IQ full
-% IQ verbal
-% ressection?
+for i = 1:length(sbj_names)
+    subjVar = [];
+    dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    cortex = getcort(dirs);
+    coords = importCoordsFreesurfer(dirs);
+    elect_names = importElectNames(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);  
+    V = importVolumes(dirs);
+
+    subjVar.cortex = cortex;
+    subjVar.V = V;
+    subjVar.elect_native = coords;
+    subjVar.elect_MNI = MNI_coords;
+    subjVar.elect_names = elect_names;
+    subjVar.demographics = GetDemographics(sbj_name);
+    save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
+end
+
 
 %% Behavioral analysis
 % Load behavioral data

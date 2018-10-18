@@ -65,7 +65,11 @@ switch table
         
     case 'bad_channel_by_block'
         DOCID = '1mOI89bk9FR47h0neVU2voF2EBWrUGFon54AQQiBEbUw';
-        GID = '1534541388';   
+        GID = '1534541388';  
+        
+    case 'demographics'
+        DOCID = '1H_oM_GuIMX5RTDeRZrOSBb3O1zms73xmUd_05de0cqA';
+        GID = '683763705';
 
 end
 

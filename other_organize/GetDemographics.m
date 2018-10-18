@@ -1,9 +1,10 @@
-function T = GetDemographics(sbj_name, dirs)
+function T = GetDemographics(sbj_name)
 
 % Load table
-T = readtable([dirs.comp_root '/demographics.xlsx']);
+[DOCID,GID] = getGoogleSheetInfo('demographics', []);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 
 % Select the subject rows
-T = T(contains(T.sbj_name, sbj_name),:);
+T = googleSheet(contains(googleSheet.subject_name, sbj_name),:);
 
 end
