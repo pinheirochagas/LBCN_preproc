@@ -25,7 +25,7 @@ switch project_name
     case 'Memoria'
         if strcmp(locktype, 'stim')
             epoch_params.bef_time = -0.5;
-            epoch_params.aft_time = 7;
+            epoch_params.aft_time = 8.5;
         elseif strcmp(locktype, 'resp')
             epoch_params.bef_time = -5;
             epoch_params.aft_time = 1;

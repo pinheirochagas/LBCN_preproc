@@ -479,7 +479,6 @@ data_all_spec = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Spec',
 
 exportDataMNE(data_all_spec)
 
-
 trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'}); 
 
 % excluse bad channels
