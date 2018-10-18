@@ -1,6 +1,7 @@
 %% Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
 
+
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
@@ -34,7 +35,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 22;
+sbj_number = 29;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -68,7 +69,9 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
-dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name); % 'Pedro_NeuroSpin2T'
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/LBCN8T/Stanford/data';
+dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, comp_root, server_root); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -123,7 +126,8 @@ switch project_name
 %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoMMR_rest(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'Memoria'
-        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names(2), dirs)
+        language = 'english'; % make this automnatize by sbj_name
+        OrganizeTrialInfoMemoria(sbj_name, project_name, block_names, dirs, language)
     case 'Calculia_China'
         OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia_production'
@@ -154,8 +158,10 @@ end
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
+elseif strcmp(project_name, 'Memoria')
+    EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names(2), dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 

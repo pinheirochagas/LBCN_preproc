@@ -71,6 +71,9 @@ for i = 1:length(block_names)
     stim_onset= [pdio_onset(isi_ind) pdio_onset(end)];
     % stim_onset = [stim_onset(1:115) stim_onset(117:end)];
     % stim_offset = [stim_offset(1:115) stim_offset(117:end)];
+    %% IF MISMATCH BW PDIO AND BEHAV DATA, EDIT HERE:
+    [stim_onset,stim_offset] = StimOnsetExceptions(sbj_name,bn,stim_onset,stim_offset);
+    %%    
     
     stim_dur= stim_offset - stim_onset;
     
