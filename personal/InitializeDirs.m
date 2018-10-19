@@ -1,4 +1,4 @@
-function dirs = InitializeDirs(user,project_name,sbj_name, comp_root, server_root)
+function dirs = InitializeDirs(project_name,sbj_name, comp_root, server_root)
 %% Initialize directories
 
 % Get generic name without lower case to match the server 
