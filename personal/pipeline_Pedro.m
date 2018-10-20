@@ -35,7 +35,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 29;
+sbj_number = 21;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -558,7 +558,30 @@ all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/MMR/'));
 subj_names = {all_folders(:).name};
 subj_names = subj_names(3:end);
 
-%% Avg task. 
+%% Avg task
+% conditions to average
+conds_avg_field = 'conds_math_memory';
+conds_avg_conds = {'math', 'memory'};
+for ii = 1:length(conds_avg_conds) 
+    data_all.(conds_avg_conds{ii}) = [];
+end
+
+plot_params = genPlotParams(project_name,'timecourse');
+
+for i = 1:length(sbj_names)
+    % Concatenate trials from all blocks
+    block_names = BlockBySubj(sbj_names(i),project_name);
+    data_sbj = ConcatenateAll(sbj_names(i),project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+    
+    % Average across trials, normalize and concatenate across subjects
+    for ii = 1:length(conds_avg_conds)
+        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1));
+        data_tmp_norm = (data_tmp-min(data_tmp(:)))/(max(data_tmp(:))-min(data_tmp(:))); % normalize
+        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % this is probably wrong
+    end
+    
+    
+end
 
 %% Load MNI coordinates
 

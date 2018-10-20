@@ -1,7 +1,7 @@
 
 %% List subject to run freesurfer
 parpool(16)
-data_freesurfer = '/Volumes/LBCN8T/Stanford/data/freesurfer/';
+data_freesurfer = '/Volumes/LBCN8T/Stanford/data/freesurfer/new';
 subj_folders = dir(fullfile(data_freesurfer));
 subj_folders = subj_folders(cellfun(@(x) ~contains(x, '.'), {subj_folders.name}));
 
