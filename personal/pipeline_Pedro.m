@@ -555,71 +555,59 @@ data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 % list subjects
 all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/MMR/'));
-subj_names = {all_folders(:).name};
-subj_names = subj_names(3:end);
+sbj_names = {all_folders(:).name};
+sbj_names = sbj_names(cellfun(@(x) ~contains(x, '.'), sbj_names));
+sbj_names = sbj_names(3:16)
+
 
 %% Avg task
 % conditions to average
 conds_avg_field = 'conds_math_memory';
 conds_avg_conds = {'math', 'memory'};
 for ii = 1:length(conds_avg_conds) 
+    % Initialize data_all
     data_all.(conds_avg_conds{ii}) = [];
 end
 
 plot_params = genPlotParams(project_name,'timecourse');
 
-for i = 1:length(sbj_names)
+for i = 1:2%length(sbj_names)
     % Concatenate trials from all blocks
-    block_names = BlockBySubj(sbj_names(i),project_name);
-    data_sbj = ConcatenateAll(sbj_names(i),project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
-    
+    block_names = BlockBySubj(sbj_names{i},project_name);
+    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+    lenght_elect_all{i} = length(data_sbj.labels); % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
-        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1));
-        data_tmp_norm = (data_tmp-min(data_tmp(:)))/(max(data_tmp(:))-min(data_tmp(:))); % normalize
-        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % this is probably wrong
+        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+        data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
     end
-    
-    
 end
 
 %% Load MNI coordinates
-
-%% Load template brain (only right hemisphere)
-
-
-
-
-
-
-
-
-%% Load avg data
-subjectsMMRall = {'S12_32_JTb','S12_38_LK','S12_42_NC','S13_47_JT2','S13_53_KS2','S13_57_TVD','S14_62_JW','S14_64_SP','S14_66_CZ'};
-data_root = '/Volumes/NeuroSpin2T/Calc_ECoG/analysis_ECoG/neuralData/';
-
-math_all = [];
-memo_all = [];
-for s = 1:length(subjectsMMRall)
-    disp(['loading subject ' subjectsMMRall{s}]);
-    load([data_root sprintf('SpecData/%s/data_fieldtrip/%s_mmr_avg.mat', subjectsMMRall{s}, subjectsMMRall{s})]);
-%     math_memo = dataCalc.trial{1} - dataMemo.trial{1};
-    math = dataCalc.trial{1};
-%     math(exclude_chan_math{s},:) = [];
+coords_plot = [];
+for i = 1:2%length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    coords_tmp = importCoordsFreesurfer(dirs);
+    % SELET ONLY THE GOOD ELECTRODES, IDEALLY DEFINED IN data_sbj.labels.
     
-    memo = dataMemo.trial{1};
-%     math(exclude_chan_memo{s},:) = [];
-    
-%     math_norm = normalize(math);
-%     memo_norm = normalize(memo);
-    for ii = 1:size(math,1)
-        math_norm = (math-min(math(:)))/(max(math(:))-min(math(:)));
-        memo_norm = (memo-min(memo(:)))/(max(memo(:))-min(memo(:)));
-%         math_memo_norm = 2*(math_memo-min(math_memo(:)))/(max(math_memo(:))-min(math_memo(:)))-1;
-    end
-    math_all = [math_all;math_norm];
-    memo_all = [memo_all;memo_norm];
+    % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
+    coords_tmp = coords_tmp(1:lenght_elect_all{i},:); % exclude bad electrodes
+
+    coords_plot = [coords_plot;coords_tmp]; % concatenate electrodes across subjects
 end
+%%%%%%%%%%%%%%%%%%
+%%% CORRECTION %%%
+%%%%%%%%%%%%%%%%%%
+% Make sure that coords_tmp correspond to the electrods from data_sbj. 
+% Best way is to correct the labels using the freesurfer naming from the
+% begning. 
+
+%%
+%% Load template brain 
+code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+cortex.left = load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cortex.right = load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
 
 
 %% Verify outiler channels

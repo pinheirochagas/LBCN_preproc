@@ -83,7 +83,7 @@ end
 data_all.labels(data_all.badChan) = [];
 data_all.trialinfo = data_all.trialinfo{1};
 data_all.trialinfo = data_all.trialinfo(:,~contains(data_all.trialinfo.Properties.VariableNames, 'bad'));
-data_all = rmfield(data_all, 'badChan');
+% data_all = rmfield(data_all, 'badChan');
 end
 
 
