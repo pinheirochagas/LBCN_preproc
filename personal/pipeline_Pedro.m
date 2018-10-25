@@ -468,11 +468,14 @@ xlabel('Min operand')
 
 
 %% Copy subjects
-subjs_to_copy = {'S09_07_CM'};
+subjs_to_copy = {'S18_119'};
 parfor i = 1:lenght(subjs_to_copy)
     CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData')
-    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
 end
+block_names = BlockBySubj(subjs_to_copy{i},project_name);
+UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
+
+
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
 % 2. Stimuli identity to TTL
@@ -552,18 +555,18 @@ data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 
 %% Make video
-
 % list subjects
-all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/MMR/'));
+all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/Memoria/'));
 sbj_names = {all_folders(:).name};
 sbj_names = sbj_names(cellfun(@(x) ~contains(x, '.'), sbj_names));
-sbj_names = sbj_names(3:16)
-
+sbj_names = sbj_names(3:16);
+sbj_names = {'S18_124'};
 
 %% Avg task
 % conditions to average
-conds_avg_field = 'conds_math_memory';
-conds_avg_conds = {'math', 'memory'};
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+data_all = []
 for ii = 1:length(conds_avg_conds) 
     % Initialize data_all
     data_all.(conds_avg_conds{ii}) = [];
@@ -571,43 +574,133 @@ end
 
 plot_params = genPlotParams(project_name,'timecourse');
 
-for i = 1:2%length(sbj_names)
+for i = 1%length(sbj_names)
     % Concatenate trials from all blocks
     block_names = BlockBySubj(sbj_names{i},project_name);
     data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
-    lenght_elect_all{i} = length(data_sbj.labels); % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
+    elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-        data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+%         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+        data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
         data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
     end
 end
 
 %% Load MNI coordinates
-coords_plot = [];
-for i = 1:2%length(sbj_names)
+chan_plot = [];
+elecNames_tmp = [];
+for i = 1%length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
     coords_tmp = importCoordsFreesurfer(dirs);
-    % SELET ONLY THE GOOD ELECTRODES, IDEALLY DEFINED IN data_sbj.labels.
-    
-    % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
-    coords_tmp = coords_tmp(1:lenght_elect_all{i},:); % exclude bad electrodes
-
-    coords_plot = [coords_plot;coords_tmp]; % concatenate electrodes across subjects
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+    close all
+    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
+    for ii = 1:length(elecNames)
+        elecNames_tmp{ii} = elecNames{ii}{2};
+    end
+    [a,idx] = ismember(elecNames_tmp, elect_all{i});
+    MNI_coords = MNI_coords(a,:);
+    idx = idx(a);
+    [b,idx_2] = sort(idx);
+    MNI_coords = MNI_coords(idx_2,:);
+    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
 end
 %%%%%%%%%%%%%%%%%%
 %%% CORRECTION %%%
 %%%%%%%%%%%%%%%%%%
-% Make sure that coords_tmp correspond to the electrods from data_sbj. 
-% Best way is to correct the labels using the freesurfer naming from the
-% begning. 
+% Make sure that electrodes labels from freesurfer are the same as in the files
+
 
 %%
 %% Load template brain 
 code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
-cortex.left = load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
-cortex.right = load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.right = cortex;
+
+
+
+%% Get indices for colloring
+cond = 'math';
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+% cols = flipud(cols);
+% Plot Colorbar
+figureDim = [0 0 .2 .2];
+figure('units','normalized','outerposition',figureDim)
+for i = 15:5:length(cols)
+    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
+    hold on
+end
+axis off
+dir_out = '/Users/pinheirochagas/Desktop/';
+savePNG(gcf,400, [dir_out 'Reds.png'])
+
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
+% only for ECoG
+chan_plot(:,1) = -70;
+chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
+
+% Plot parameters
+mark = 'o';
+MarkSizeEffect = 35;
+colRing = [0 0 0]/255;
+time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
+
+
+%% Plot math
+F = struct;
+count = 0;
+
+for e = 1:2:length(time)
+    count = count+1;
+    ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
+    alpha(0.5)
+    % Sort to highlight larger channels
+    for i = 1:size(chan_plot)
+%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
+        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);     
+    end
+    time_tmp = num2str(time(e));
+    
+    if length(time_tmp) < 6
+        time_tmp = [time_tmp '00'];
+    end
+    if strcmp(time_tmp(1), '-')
+        time_tmp = time_tmp(1:6);
+    else
+        if strcmp(time_tmp, '000')
+        else
+            time_tmp = time_tmp(1:5);
+        end
+    end
+    
+    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
+    cdata = getframe(gcf);
+    F(count).cdata = cdata.cdata;
+    F(count).colormap = [];
+    close all
+end
+
+fig = figure;
+movie(fig,F,1)
+
+videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
+videoRSA.FrameRate = 30;  % Default 30
+videoRSA.Quality = 100;    % Default 75
+open(videoRSA);
+writeVideo(videoRSA, F);
+close(videoRSA);
+
+
+
+
+
 
 
 %% Verify outiler channels
@@ -623,88 +716,6 @@ end
 % exclude_chan_math = {[98, 75], [], [], [], [], [], [], 31, [62, 73]};
 % exclude_chan_memo = {[], [], [], [], [], [], [], [31, 25, 19]};
 % el_mniPlot_math(unique([horzcat(exclude_chan_math{:}) horzcat(exclude_chan_memo{:})]),:) = []
-
-%% Get indices for colloring
-[col_idx,cols] = colorbarFromValues(math_all(:), 'RedsWhite');
-cols = flipud(cols)
-
-figureDim = [0 0 .2 .2];
-figure('units','normalized','outerposition',figureDim)
-for i = 15:5:length(cols)
-    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
-    hold on
-end
-axis off
-dir_out = '/Users/pinheirochagas/Desktop/';
-savePNG(gcf,400, [dir_out 'Blues.png'])
-savePNG(gcf,400, [dir_out 'Reds.png'])
-
-
-[col_idx,cols] = colorbarFromValues(math_all(:), 'RedsWhite');
-col_idx_math = reshape(col_idx,size(math_all,1), size(math_all,2));
-[col_idx,cols] = colorbarFromValues(memo_all(:), 'BluesWhite');
-col_idx_memo = reshape(col_idx,size(memo_all,1), size(memo_all,2));
-el_mniPlot_all(:,1) = -70;
-el_mniPlot_all_math = el_mniPlot_all;
-el_mniPlot_all_memo = el_mniPlot_all;
-el_mniPlot_all_math(:,1) = el_mniPlot_all(:,1) - sum(math_all,2);
-el_mniPlot_all_memo(:,1) = el_mniPlot_all(:,1) - sum(memo_all,2);
-
-
-mark = 'o';
-MarkSizeEffect = 35;
-colRing = [0 0 0]/255;
-
-time = dataCalc.time(1:1000);
-
-
-%% Plot math
-F = struct;
-count = 0;
-
-for e = 1:size(math_all,2)
-    count = count+1;
-    ctmr_gauss_plot(cortex_TemplateLeft.cortex,[0 0 0], 0, 'l', 1)
-    % Sort to highlight larger channels
-    for i = 1:size(el_mniPlot_all_math)
-%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
-        f = plot3(el_mniPlot_all_math(i,1),el_mniPlot_all_math(i,2),el_mniPlot_all_math(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_all(i,e))+0.01);     
-    end
-    time_tmp = num2str(time(e));
-    
-    if length(time_tmp) < 6
-        time_tmp = [time_tmp '00'];
-    end
-    if strcmp(time_tmp(1), '-')
-        time_tmp = time_tmp(1:6);
-    else
-        time_tmp = time_tmp(1:5);
-    end
-    
-    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
-    cdata = getframe(gcf);
-    F(count).cdata = cdata.cdata;
-    F(count).colormap = [];
-    close all
-end
-
-fig = figure;
-movie(fig,F,1)
-
-videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
-% uncompressedVideo = VideoWriter([dir_out 'video_ex_2.avi'], 'Uncompressed AVI');
-videoRSA.FrameRate = 60;  % Default 30
-videoRSA.Quality = 100;    % Default 75
-open(videoRSA);
-writeVideo(videoRSA, F);
-close(videoRSA);
-
-
-
-
-
-
-
 
 
 
