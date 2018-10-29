@@ -5,5 +5,8 @@ function nums = ChanNamesToNums(globalVar,names)
 
 nums = nan(1,length(names));
 for i = 1:length(names)
-    nums(i)=find(strcmp(globalVar.channame,names{i}));
+    tmp = find(strcmp(globalVar.channame,names{i}));
+    if length(tmp)==1
+        nums(i)=tmp;
+    end
 end

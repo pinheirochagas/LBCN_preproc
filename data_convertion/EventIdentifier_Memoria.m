@@ -73,6 +73,7 @@ for i = 1:length(block_names)
 
     % Add the all_stim_onset
     event_trials = find(~strcmp(trialinfo.condNames, 'rest'));
+        
     rest_trials = find(strcmp(trialinfo.condNames, 'rest'));
 
     StimulusOnsetTime = trialinfo.StimulusOnsetTime(event_trials,1); % **

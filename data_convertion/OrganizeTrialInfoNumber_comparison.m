@@ -33,18 +33,22 @@ for i = 1:length(block_names)
     results_table = vertcat(results_table,struct2table(theData));
     
     % load stim
-    load([globalVar.psych_dir '/Run' num2str(i)  '/permutedTrials.mat']);
+    filenames = dir(globalVar.psych_dir);
+    dirflags = find([filenames.isdir] & (~strcmp({filenames.name},'.') & (~strcmp({filenames.name},'..') & (~strcmp({filenames.name},'.DS_Store')))));
+    rundir = filenames(dirflags(1)).name;
+    load([globalVar.psych_dir '/'  rundir  '/permutedTrials.mat']);
+%     load([globalVar.psych_dir '/Run' num2str(i)  '/permutedTrials.mat']);
     permdottype(isnan(permdottype))=0; % substitute nan for 0, to make table consise
-    stim_table = vertcat(stim_table, table(permnum1',permnum2',permlum1',permlum2',permstimtype',permconds',permdottype'));
+    stim_table = vertcat(stim_table, table(permnum1',permnum2',permlum1',permlum2',permconds',permstimtype',permdottype')); %
     
     
     % Rename table cols
-    stim_table.Properties.VariableNames = {'num1', 'num2', 'lum1', 'lum2', 'stim_type', 'condNames', 'dot_type'};
+    stim_table.Properties.VariableNames = {'num1', 'num2', 'lum1', 'lum2','conds','stim_type', 'dot_type'}; %, 'condNames'
     
     %% correct sbj_name 'S15_89b_JQ', easiest way
     if strmatch(sbj_name, 'S15_89b_JQ') % this sbj_name completed the older version
         for i = 1:length(stim_table.num1)
-            if stim_table.num1(i) ~= 55;
+            if stim_table.num1(i) ~= 55
                 stim_table.num2(i) = stim_table.num1(i);
                 stim_table.num1(i) = 55;
                 if strmatch(results_table.keys{i}, '2')
@@ -133,20 +137,24 @@ for i = 1:length(block_names)
     trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);
     
     for i = 1:size(trialinfo,1)
-        if trialinfo.condNames(i) == 1
+        if trialinfo.conds(i) == 1
             trialinfo.conds_num_lum{i} = 'number';
         else
             trialinfo.conds_num_lum{i} = 'brightness';
         end
         
-        if trialinfo.condNames(i) == 1 && trialinfo.stim_type(i) == 1
+        if trialinfo.conds(i) == 1 && trialinfo.stim_type(i) == 1
             trialinfo.conds_num_lum_digit_dot{i} = 'brightness_digit';
-        elseif trialinfo.condNames(i) == 1 && trialinfo.stim_type(i) == 2
+            trialinfo.condNames{i} = 'brightness_digit';
+        elseif trialinfo.conds(i) == 1 && trialinfo.stim_type(i) == 2
             trialinfo.conds_num_lum_digit_dot{i} = 'brightness_dot';
-        elseif trialinfo.condNames(i) == 2 && trialinfo.stim_type(i) == 1
+            trialinfo.condNames{i} = 'brightness_dot';
+        elseif trialinfo.conds(i) == 2 && trialinfo.stim_type(i) == 1
             trialinfo.conds_num_lum_digit_dot{i} = 'number_digit';
-        elseif trialinfo.condNames(i) == 2 && trialinfo.stim_type(i) == 2
+            trialinfo.condNames{i} = 'number_digit';
+        elseif trialinfo.conds(i) == 2 && trialinfo.stim_type(i) == 2
             trialinfo.conds_num_lum_digit_dot{i} = 'number_dot';
+            trialinfo.condNames{i} = 'number_dot';
         end
     end
     

@@ -19,7 +19,7 @@ for i = 1:length(block_names)
         case 'Calculia_China'
             n_stim_per_trial = 5;
         case 'Number_comparison'
-            n_stim_per_trial = 1;
+            n_stim_per_trial = 2;
     end
     
     %% Load globalVar

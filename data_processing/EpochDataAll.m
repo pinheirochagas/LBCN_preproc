@@ -221,9 +221,9 @@ CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
 %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
 if epoch_params.blc.run
     if sep_bl
-        data_blc = BaselineCorrect(data,bl_data,epoch_params.noise);
+        data_blc = BaselineCorrect(data,bl_data,epoch_params);
     else
-        data_blc = BaselineCorrect(data,epoch_params.blc.win,epoch_params.noise);
+        data_blc = BaselineCorrect(data,epoch_params.blc.win,epoch_params);
     end
     data.wave = data_blc.wave;
     
@@ -248,7 +248,6 @@ else
     bl_tag = [];
 end
 fn_out = sprintf('%s/%siEEG_%slock_%s%s_%.2d.mat',dir_out,freq_band,epoch_params.locktype,bl_tag,bn,el);
-
 save(fn_out,'data')
 disp(['Data epoching: Block ', bn, ' ' bl_tag,' Elec ',num2str(el)])
 

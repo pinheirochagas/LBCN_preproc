@@ -9,8 +9,7 @@ else
 end
 
 %% neuralData
-neuralData_folders = {'originalData', 'CARData', 'CompData', 'FiltData', ...
-    'SpecData', 'HFBData'};
+neuralData_folders = {'OriginalData', 'CARData','SpecData/SpecDenseLF', 'BandData/HFB'};
 
 for i = 1:length(neuralData_folders)
     

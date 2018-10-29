@@ -17,9 +17,6 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,
 %               generate randomly)
 %       plot_params:    controls plot features (see genPlotParams.m script)
 
-
-load('cdcol.mat')
-
 if isempty(plot_params)
     plot_params = genPlotParams(project_name,'timecourse');
 end

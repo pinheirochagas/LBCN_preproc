@@ -12,7 +12,7 @@ function plot_params = genPlotParams(task,plottype)
 %                   .run_blc: true or false (whether to run baseline
 %                           correction before plotting, i.e. if data not already
 %                           baseline corrected)
-load cdcol.mat
+load cdcol_2018.mat
 
 switch plottype
     case 'timecourse'
@@ -109,12 +109,12 @@ switch task
         plot_params.xlim = [-0.2 3];
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];  
-        plot_params.col = [[38 55 97]/255;
+        plot_params.col =  [[38 55 97]/255;
             [148 169 215]/255;
             [84 172 90]/255;
             [184 230 156]/255;
             cdcol.turquoise_blue;
-            cdcol.flamered;
+            cdcol.flame_red;
             cdcol.periwinkle_blue;
             cdcol.pink;
             cdcol.purple];
