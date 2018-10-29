@@ -243,7 +243,7 @@ plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)% condNames
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',[],plot_params)% condNames
 
 
 % plot HFB timecourse, grouping multiple conds together
