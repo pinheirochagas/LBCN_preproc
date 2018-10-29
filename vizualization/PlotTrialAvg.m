@@ -11,8 +11,6 @@ function h = PlotTrialAvg(data,column,conds,plot_params)
 %               generate randomly)
 %       plot_params:    controls plot features (see genPlotParams.m script)
 
-load('cdcol.mat')
-
 if ndims(data.wave)==3 % if spectral data
     datatype = 'Spec';
 else
@@ -33,8 +31,6 @@ end
 
 winSize = floor(data.fsample*plot_params.sm);
 gusWin= gausswin(winSize)/sum(gausswin(winSize));
-
-
 
 plot_data = cell(1,ncategs);
 

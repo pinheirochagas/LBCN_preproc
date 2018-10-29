@@ -7,14 +7,14 @@ parpool(4) % initialize number of cores
 %% Initialize Directories
 % project_name = 'Calculia_production';
 % project_name = 'MMR';
-project_name = 'Memoria';
+% project_name = 'Memoria';
 % project_name = 'MFA';
 % project_name = '7Heaven';
 % project_name = 'Scrambled';
 % project_name = 'UCLA';
 % project_name = 'Calculia';
 % project_name = 'Calculia_China';
-% project_name = 'Number_comparison';
+project_name = 'Number_comparison';
 % project_name = 'GradCPT';
 
 %% Create folders
@@ -22,8 +22,8 @@ project_name = 'Memoria';
 % sbj_name = 'S14_69b_RT';
 % sbj_name = 'C17_13';
 % sbj_name = 'S17_110_SC';
-sbj_name = 'S18_129';
-sbj_name = 'S17_107_PR';
+sbj_name = 'S17_116';
+% sbj_name = 'S17_107_PR';
 
 % Center
 % center = 'China';
@@ -33,15 +33,15 @@ center = 'Stanford';
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
 
-% Make sure your are connected to CISCO and logged in the server
-set_freesurfer_dir = false;
-dirs = InitializeDirs(computer, project_name,sbj_name,set_freesurfer_dir);
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/AmyData/ParviziLab';
+dirs = InitializeDirs('Amy_iMAC', project_name, sbj_name, comp_root, server_root); 
 
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
-load_server_files = true;
+load_server_files = false;
 CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format,load_server_files) 
 %%% IMPROVE uigetfile to go directly to subject folder %%%
 
@@ -91,7 +91,7 @@ switch project_name
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Number_comparison'
-        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?        
+        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names(4), dirs) % FIX 1 trial missing from K.conds?        
     case 'GradCPT'
         OrganizeTrialInfoGradCPT(sbj_name, project_name, block_names, dirs,1,'1')
 end
@@ -101,9 +101,14 @@ end
 
 
 %% Branch 3 - event identifier
-EventIdentifier (sbj_name, project_name, block_names(4), dirs, 1, 0)
-% EventIdentifier(sbj_name, project_name, block_names, dirs)
-EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs)
+
+if strcmp(project_name, 'Number_comparison')
+    event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
+elseif strcmp(project_name, 'Memoria')
+    EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+else
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+end
 
 
 
@@ -132,9 +137,11 @@ for i = 1:length(block_names)
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
 epoch_params = genEpochParams(project_name, 'stim'); 
-
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+% elecs = {'LAI8'};
+% elecs = ChanNamesToNums(globalVar,{'LAI6'});
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
@@ -232,7 +239,7 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % plot_params.noise_fields_timepts = {'bad_inds'};
 % elecs = {'LRSC1'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],plot_params,'Band')
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -294,7 +301,7 @@ PlotITPCAll(sbj_name,project_name,block_names,dirs,[],'SpecDenseLF','stim','cond
 plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDenseLF','stim','condNames',[],plot_params)
+PlotERSPAll(sbj_name,project_name,block_names,dirs,elecs,'SpecDenseLF','stim','condNames',[],plot_params)
 
 % Number comparison
 % load a given trialinfo
@@ -330,25 +337,37 @@ power_by_cond = GradCPT_BL_vs_city_vs_mtn(sbj_name,block_names,dirs,[],'HFB','co
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
 % Load and convert Freesurfer to Matlab
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-cortex = getcort(dirs);
-coords = importCoordsFreesurfer(dirs);
-elect_names = importElectNames(dirs);
-V = importVolumes(dirs);
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/AmyData/ParviziLab';
 
-% Convert electrode coordinates from native to MNI space
-[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+% sbj_names = {'S17_112_EA','S17_116'};
+sbj_names = {'S18_127'};
+for i = 1:length(sbj_names)
+    sbj = sbj_names{i};
+    subjVar = [];
+    disp(['Freesurfer for subject: ', sbj])
+    dirs = InitializeDirs('Amy_iMAC', project_name, sbj, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    cortex = getcort(dirs);
+    coords = importCoordsFreesurfer(dirs);
+    elect_names = importElectNames(dirs);
+    V = importVolumes(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);  
+    
+    subjVar.cortex = cortex;
+    subjVar.V = V;
+    subjVar.elect_native = coords;
+    subjVar.elect_MNI = MNI_coords;
+    subjVar.elect_names = elect_names;
+%     subjVar.demographics = GetDemographics(sbj_name, dirs);
+    save([dirs.original_data '/' sbj '/subjVar.mat' ], 'subjVar')
+end
 
-% Plot brain and coordinates
-% transform coords
-% coords(:,1) = coords(:,1) + 5;
-% coords(:,2) = coords(:,2) + 5;
-% coords(:,3) = coords(:,3) - 5;
-
+%%
 figureDim = [0 0 1 .4];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 views = [1 2 4];
-hemisphere = 'left';
+hemisphere = 'right';
 
 % Plot electrodes as dots
 for i = 1:length(views)
@@ -383,7 +402,7 @@ end
 ctmr_gauss_plot(cortex.left,[0 0 0], 0, 'left', 1)
 ctmr_gauss_plot(cortex.right,[0 0 0], 0, 'right', 1)
 f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'k', 'MarkerSize', 40);
-f1 = plot3(coords(e,1),coords(e,2),coords(e,3), '.', 'Color', 'r', 'MarkerSize', 40);
+% f1 = plot3(coords(e,1),coords(e,2),coords(e,3), '.', 'Color', 'r', 'MarkerSize', 40);
 text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 
@@ -420,8 +439,37 @@ end
 % 2. Stimuli identity to TTL
 
 %% Concatenate all trials all channels
+plot_params = genPlotParams(project_name,'timecourse');
 plot_params.blc = true;
-data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+
+trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw_LFspike','bad_epochs_raw_HFspike','bad_epochs_raw_jump','bad_epochs_spec_HFspike','bad_epochs_HFO','bad_epochs','bad_inds_raw_LFspike','bad_inds_raw_HFspike','bad_inds_raw_jump','bad_inds_spec_HFspike','bad_inds_HFO','bad_inds'}); % 'bad_inds_raw', 'bad_inds_HFO',  
+
+% excluse bad channels
+data_all.wave(:,data_all.badChan,:) = [];
+data_all.labels(data_all.badChan) = [];
+data_all.trialinfo(data_all.badChan) = [];
+
+% check for channels with nan
+nan_channel = [];
+for i = 1:size(data_all.wave,2)
+    nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
+end
+
+% Exclude channels witgh nan 
+data_all.wave = data_all.wave(:,find(nan_channel == 0),:);
+data_all.labels(find(nan_channel ~= 0)) = [];
+data_all.trialinfo(find(nan_channel ~= 0)) = [];
+
+%Randomly select the same number of conditions
+
+% Save 
+save([dirs.MVData,filesep, project_name,filesep,sbj_name,filesep, 'data_all_HFB.mat'], 'data_all', '-v7.3');
+
+% Export trialinfo to csv 
+writetable(trialinfo,[dirs.MVData,filesep, project_name,filesep,sbj_name,filesep, '/trialinfo_' sbj_name '_' project_name '.csv'])                      
+%% concatenate avg timecourse across channels
+data_concat = ConcatAllAvgResp(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim','condNames',[],[]);
 
 
 

@@ -1,4 +1,6 @@
-function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, locktype, plot_params)
+% function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, locktype, plot_params)
+function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, plot_params)
+% EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
 
 %% Define electrodes
 if nargin < 5 || isempty(elecs)
@@ -18,13 +20,13 @@ for ei = 1:length(elecs)
     %     column_data = cell(1,length(columns_to_keep));
     for bi = 1:length(block_names)
         bn = block_names{bi};
-        dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn,'/EpochData/'];
-        
+%         dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn,'/EpochData/'];
+        dir_in = [dirs.data_root,filesep,datatype,'Data',filesep,freq_band,filesep,sbj_name,filesep,bn,filesep,'EpochData',filesep];
         % Load data
         if plot_params.blc
-            load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,el))
+            load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,freq_band,locktype,bn,el))
         else
-            load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,el));
+            load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,freq_band,locktype,bn,el));
         end
         
         % concatenante EEG data
@@ -44,7 +46,7 @@ for ei = 1:length(elecs)
     data_bn.label = data.label;
     
     % Concatenate all subjects all trials
-    if strcmp(datatype,'HFB')
+    if strcmp(datatype,'Band')
         data_all.wave(:,ei,:) = data_bn.wave;
     elseif strcmp(datatype,'Spec')
         data_all.wave(:,:,ei,:) = data_bn.wave;
@@ -52,6 +54,7 @@ for ei = 1:length(elecs)
     
     data_all.trialinfo{ei} = [data_bn.trialinfo];
     data_all.labels{ei} = data.label;
+    disp(['concatenating elec ',num2str(el)])
 end
 
 % Concatenate bad channels

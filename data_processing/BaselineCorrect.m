@@ -1,7 +1,7 @@
-function data_blc = BaselineCorrect(data,bl_win,noise_params)
+function data_blc = BaselineCorrect(data,bl_win,epoch_params)
 % This function baseline corrects epoched data based on specified baseline
 % window. It also rejects noisy trials or noisy timepts (i.e. sets to NaN)
-% if specified in noise_method variable
+% if specified in noise_method variablenoise_params,
 
 %% INPUTS:
 %   data: can be either freq x trial x time  or trial x time
@@ -13,11 +13,6 @@ function data_blc = BaselineCorrect(data,bl_win,noise_params)
 %               .noise_fields_trials  (which trials to exclude- if method = 'trials')
 %               .noise_fields_timepts (which timepts to exclude- if method = 'timepts')
 
-if isempty(noise_params)
-    noise_params.method = 'trials';
-    noise_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-    noise_params.noise_fields_timepts = {'bad_inds_HFO','bad_inds_raw_HFspike'};
-end
 
 % bl_reject_thr = 2; % reject bad timepoints within baseline period (that weren't rejected by prev methods)
 
@@ -55,22 +50,22 @@ end
 
 %% create matrix the same size as data.wave with 1s for noisy timepts, 0 otherwise
 
-if strcmp(noise_params.method,'trials')
+if strcmp(epoch_params.noise.method,'trials')
     bad_trials = [];
-    for i = 1:length(noise_params.noise_fields_trials)
+    for i = 1:length(epoch_params.noise.noise_fields_trials)
         if sep_bl
-            bad_trials = union(bad_trials,find(bl_win.trialinfo.(noise_params.noise_fields_trials{i})));
+            bad_trials = union(bad_trials,find(bl_win.trialinfo.(epoch_params.noise.noise_fields_trials{i})));
         else
-            bad_trials = union(bad_trials,find(data.trialinfo.(noise_params.noise_fields_trials{i})));
+            bad_trials = union(bad_trials,find(data.trialinfo.(epoch_params.noise.noise_fields_trials{i})));
         end
     end
-elseif strcmp(noise_params.method,'timepts')
+elseif strcmp(epoch_params.noise.method,'timepts')
     bad_inds = cell(ntrials,1);
-    for i = 1:length(noise_params.noise_fields_timepts)
+    for i = 1:length(epoch_params.noise.noise_fields_timepts)
         if sep_bl
-            bad_inds = cellfun(@union,bad_inds,bl_win.trialinfo.(noise_params.noise_fields_timepts{i}),'UniformOutput',false);
+            bad_inds = cellfun(@union,bad_inds,bl_win.trialinfo.(epoch_params.noise.noise_fields_timepts{i}),'UniformOutput',false);
         else
-            bad_inds = cellfun(@union,bad_inds,data.trialinfo.(noise_params.noise_fields_timepts{i}),'UniformOutput',false);
+            bad_inds = cellfun(@union,bad_inds,data.trialinfo.(epoch_params.noise.noise_fields_timepts{i}),'UniformOutput',false);
         end
     end
     if ~sep_bl % only count bad inds within baseline period
@@ -99,20 +94,33 @@ if strcmp(datatype,'Spec')
 %         bl_data(noisy_inds)=NaN;
 %         bl_data = bl_data(:,:,bl_inds);
     end
-    if strcmp(noise_params.method,'trials')
+    if strcmp(epoch_params.noise.method,'trials')
         bl_data(:,bad_trials,:) = NaN;
-    elseif strcmp(noise_params.method,'timepts')
+    elseif strcmp(epoch_params.noise.method,'timepts')
         bl_data(bad_inds2) = NaN;
     end
-    tmp_dims = size(bl_data);
-    bl_data = reshape(bl_data,[tmp_dims(1),tmp_dims(2)*tmp_dims(3)]);
+    [~,~,ntime_bl] = size(bl_data);
+    npts = ntrials*ntime_bl;
+    bl_data = reshape(bl_data,[nfreq,npts]);
 %     bl_data(zscore(bl_data,[],2)>bl_reject_thr)=NaN;
-    
-    bl_mn = nanmean(bl_data,2);
-    bl_mn = repmat(bl_mn,[1,ntrials,ntime]);
-    bl_sd = nanstd(bl_data,[],2);
-    bl_sd = repmat(bl_sd,[1,ntrials,ntime]);
-    
+
+    if epoch_params.blc.bootstrap
+        
+        bs_bl = nan(nfreq,1000);
+        parfor i = 1:1000
+            bs_bl(:,i) = nanmean(bl_data(:,randperm(npts,ntrials)),2);
+            
+        end
+        bl_mn = nanmean(bs_bl,2);
+        bl_mn = repmat(bl_mn,[1,ntrials,ntime]);
+        bl_sd = nanstd(bs_bl,[],2);
+        bl_sd = repmat(bl_sd,[1,ntrials,ntime]);
+    else
+        bl_mn = nanmean(bl_data,2);
+        bl_mn = repmat(bl_mn,[1,ntrials,ntime]);
+        bl_sd = nanstd(bl_data,[],2);
+        bl_sd = repmat(bl_sd,[1,ntrials,ntime]);
+    end
     data_blc.wave = (data.wave-bl_mn)./bl_sd;
     data_blc.phase = data.phase;
        
@@ -125,17 +133,25 @@ else % e.g. HFB data, no frequency dimension
 %         bl_data(noisy_inds)=NaN;
 %         bl_data = bl_data(:,bl_inds);
     end
-    if strcmp(noise_params.method,'trials')
+    if strcmp(epoch_params.noise.method,'trials')
         bl_data(bad_trials,:) = NaN;
-    elseif strcmp(noise_params.method,'timepts')
+    elseif strcmp(epoch_params.noise.method,'timepts')
         bl_data(bad_inds2) = NaN;
     end
     bl_data = bl_data(:);
 %     bl_data(zscore(bl_data)>bl_reject_thr)=NaN; 
-    
-    bl_mn = nanmean(bl_data(:));
-    bl_sd = nanstd(bl_data(:));
-    
+    if epoch_params.blc.bootstrap
+        bs_bl = nan(1,1000);
+        parfor i = 1:1000
+            bs_bl(i) = nanmean(bl_data(randperm(length(bl_data),ntrials)));
+        end
+        bl_mn = nanmean(bs_bl(:));
+        bl_sd = nanstd(bs_bl(:));
+    else
+        bl_mn = nanmean(bl_data(:));
+        bl_sd = nanstd(bl_data(:));
+    end
+
     data_blc.wave = (data.wave-bl_mn)./bl_sd;
 end
 

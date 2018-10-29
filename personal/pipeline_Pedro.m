@@ -1,3 +1,4 @@
+
 %% Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
 
@@ -35,7 +36,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 29;
+sbj_number = 21;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -71,7 +72,7 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/LBCN8T/Stanford/data';
-dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_name, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -161,7 +162,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Memoria')
     EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -430,7 +431,7 @@ sbj_names = googleSheet.subject_name;
 sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 
 for i = 1:length(sbj_name)
-    dirs = InitializeDirs('Pedro_iMAC', project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
     subjVar = CreateSubjVar(sbj_names{i}, dirs, fsDir_local);
 end
 
@@ -468,11 +469,14 @@ xlabel('Min operand')
 
 
 %% Copy subjects
-subjs_to_copy = {'S09_07_CM'};
+subjs_to_copy = {'S18_119'};
 parfor i = 1:lenght(subjs_to_copy)
     CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData')
-    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
 end
+block_names = BlockBySubj(subjs_to_copy{i},project_name);
+UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
+
+
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
 % 2. Stimuli identity to TTL
@@ -551,24 +555,161 @@ data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 
 
-%% Re structure block_by_subj
-[DOCID,GID] = getGoogleSheetInfo('block_by_sbj', []);
-googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_name = googleSheet.subject_name;
+%% Make video
+% list subjects
+all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/Memoria/'));
+sbj_names = {all_folders(:).name};
+sbj_names = sbj_names(cellfun(@(x) ~contains(x, '.'), sbj_names));
+sbj_names = sbj_names(3:16);
+sbj_names = {'S18_124'};
 
-project_names = {'AnimalLoc', 'Calculia', 'Calculia_production', 'Context', 'GradCPT', 'MMR', 'UCLA', 'Scrambled', ...
-         'AllCateg', 'LogoPassive', 'LogoActive', 'ReadNumWord', 'Rest', 'VTCLoc', 'MFA', 'Memoria', 'Memoria_imagine', ...
-         'SeavenHeaven', 'Memoria_EBS', 'Number_comparison', 'Calculia_China', 'Calculia_letter'};
+%% Avg task
+% conditions to average
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+data_all = []
+for ii = 1:length(conds_avg_conds) 
+    % Initialize data_all
+    data_all.(conds_avg_conds{ii}) = [];
+end
 
-for i = 1:length(sbj_name)
-    for ii = 1:length(project_names)
-        block_names_all.(sbj_name{i}).(project_names{ii}) = BlockBySubj(sbj_name{i},'Memoria');
+plot_params = genPlotParams(project_name,'timecourse');
+
+for i = 1%length(sbj_names)
+    % Concatenate trials from all blocks
+    block_names = BlockBySubj(sbj_names{i},project_name);
+    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+    elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
+    % Average across trials, normalize and concatenate across subjects
+    for ii = 1:length(conds_avg_conds)
+        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+%         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+        data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
+        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
     end
 end
 
-     
-     
-     
+%% Load MNI coordinates
+chan_plot = [];
+elecNames_tmp = [];
+for i = 1%length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    coords_tmp = importCoordsFreesurfer(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+    close all
+    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
+    for ii = 1:length(elecNames)
+        elecNames_tmp{ii} = elecNames{ii}{2};
+    end
+    [a,idx] = ismember(elecNames_tmp, elect_all{i});
+    MNI_coords = MNI_coords(a,:);
+    idx = idx(a);
+    [b,idx_2] = sort(idx);
+    MNI_coords = MNI_coords(idx_2,:);
+    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
+end
+%%%%%%%%%%%%%%%%%%
+%%% CORRECTION %%%
+%%%%%%%%%%%%%%%%%%
+% Make sure that electrodes labels from freesurfer are the same as in the files
 
 
- 
+%%
+%% Load template brain 
+code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.right = cortex;
+
+
+
+%% Get indices for colloring
+cond = 'math';
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+% cols = flipud(cols);
+% Plot Colorbar
+figureDim = [0 0 .2 .2];
+figure('units','normalized','outerposition',figureDim)
+for i = 15:5:length(cols)
+    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
+    hold on
+end
+axis off
+dir_out = '/Users/pinheirochagas/Desktop/';
+savePNG(gcf,400, [dir_out 'Reds.png'])
+
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
+% only for ECoG
+chan_plot(:,1) = -70;
+chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
+
+% Plot parameters
+mark = 'o';
+MarkSizeEffect = 35;
+colRing = [0 0 0]/255;
+time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
+
+
+%% Plot math
+F = struct;
+count = 0;
+
+for e = 1:2:length(time)
+    count = count+1;
+    ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
+    alpha(0.5)
+    % Sort to highlight larger channels
+    for i = 1:size(chan_plot)
+%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
+        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);     
+    end
+    time_tmp = num2str(time(e));
+    
+    if length(time_tmp) < 6
+        time_tmp = [time_tmp '00'];
+    end
+    if strcmp(time_tmp(1), '-')
+        time_tmp = time_tmp(1:6);
+    else
+        if strcmp(time_tmp, '000')
+        else
+            time_tmp = time_tmp(1:5);
+        end
+    end
+    
+    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
+    cdata = getframe(gcf);
+    F(count).cdata = cdata.cdata;
+    F(count).colormap = [];
+    close all
+end
+
+fig = figure;
+movie(fig,F,1)
+
+videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
+videoRSA.FrameRate = 30;  % Default 30
+videoRSA.Quality = 100;    % Default 75
+open(videoRSA);
+writeVideo(videoRSA, F);
+close(videoRSA);
+
+
+
+
+
+
+
+%% Verify outiler channels
+exclude = math_norm;
+for i = 1:size(exclude,1) 
+    chan = exclude(i,:);
+    idx_max = find(chan == max(chan));
+    hold on
+    plot(chan)
+    text(idx_max,  max(chan), num2str(i))    
+end
