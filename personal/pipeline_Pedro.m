@@ -1,3 +1,4 @@
+
 %% Branch 1. basic config - PEDRO
 AddPaths('Pedro_iMAC')
 
@@ -243,7 +244,7 @@ plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % elecs = {'LP7'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',[],plot_params)% condNames
+PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)% condNames
 
 
 % plot HFB timecourse, grouping multiple conds together
@@ -712,17 +713,3 @@ for i = 1:size(exclude,1)
     plot(chan)
     text(idx_max,  max(chan), num2str(i))    
 end
-
-% exclude_chan_math = {[98, 75], [], [], [], [], [], [], 31, [62, 73]};
-% exclude_chan_memo = {[], [], [], [], [], [], [], [31, 25, 19]};
-% el_mniPlot_math(unique([horzcat(exclude_chan_math{:}) horzcat(exclude_chan_memo{:})]),:) = []
-
-
-
-
-     
-     
-     
-
-
- 
