@@ -1,4 +1,4 @@
-function dirs = InitializeDirs(project_name,sbj_name, comp_root, server_root)
+function dirs = InitializeDirs(project_name,sbj_name, comp_root, server_root, code_root)
 %% Initialize directories
 
 % Get generic name without lower case to match the server 
@@ -10,6 +10,7 @@ end
 
 dirs.server_root = server_root; 
 dirs.comp_root = comp_root;
+dirs.code_root = code_root;
 dirs.data_root = sprintf('%s/neuralData',dirs.comp_root);
 dirs.result_root = sprintf('%s/Results',dirs.comp_root);
 dirs.psych_root = sprintf('%s/psychData',dirs.comp_root);

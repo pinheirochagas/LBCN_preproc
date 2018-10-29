@@ -71,7 +71,8 @@ block_names = BlockBySubj(sbj_name,project_name);
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/LBCN8T/Stanford/data';
-dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
 
 %% Get iEEG and Pdio sampling rate and data format
@@ -133,7 +134,9 @@ switch project_name
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Number_comparison'
-        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?        
+        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?   
+    case 'MFA'
+        OrganizeTrialInfoMFA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?   
 end
 
 
