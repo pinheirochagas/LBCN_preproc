@@ -81,7 +81,7 @@ for i = 1:length(block_names)
   trialinfo.PresResult = PresResult;
   trialinfo.Deviant = Deviant;
   trialinfo.AbsDeviant = AbsDeviant;
-  for i = 1:nTrials
+  for i=1:length(K.theData)
       for ii = 1
           allonset(i,ii)=K.theData(i).flip(ii).StimulusOnsetTime;
       end
