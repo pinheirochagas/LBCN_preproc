@@ -1,4 +1,4 @@
-%% Branch 1. basic config - PEDRO
+%% Branch 1. basic config
 computer = 'Amy_iMAC';
 AddPaths(computer)
 
@@ -35,8 +35,8 @@ block_names = BlockBySubj(sbj_name,project_name);
 
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/AmyData/ParviziLab';
-dirs = InitializeDirs('Amy_iMAC', project_name, sbj_name, comp_root, server_root); 
-
+% dirs = InitializeDirs('Amy_iMAC', project_name, sbj_name, comp_root, server_root); 
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root); 
 %% Get iEEG and Pdio sampling rate and data format
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
@@ -138,7 +138,8 @@ end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
-epoch_params = genEpochParams(project_name, 'stim'); 
+epoch_params = genEpochParams(project_name, 'resp'); 
+% epoch_params = genEpochParams(project_name, 'stim'); 
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 % elecs = {'LAI8'};
 % elecs = ChanNamesToNums(globalVar,{'LAI6'});
@@ -146,7 +147,7 @@ for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
     end
 end
 
@@ -235,11 +236,12 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
+plot_params.xlim = [-5 1];
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % plot_params.noise_fields_timepts = {'bad_inds'};
 % elecs = {'LRSC1'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',[],plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','resp','condNames',[],plot_params,'Band')
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -341,12 +343,12 @@ server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/AmyData/ParviziLab';
 
 % sbj_names = {'S17_112_EA','S17_116'};
-sbj_names = {'S18_127'};
+sbj_names = {'S17_116'};
 for i = 1:length(sbj_names)
     sbj = sbj_names{i};
     subjVar = [];
     disp(['Freesurfer for subject: ', sbj])
-    dirs = InitializeDirs('Amy_iMAC', project_name, sbj, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    dirs = InitializeDirs(project_name, sbj, comp_root, server_root); % 'Pedro_NeuroSpin2T'
     cortex = getcort(dirs);
     coords = importCoordsFreesurfer(dirs);
     elect_names = importElectNames(dirs);
@@ -368,18 +370,13 @@ figure('units', 'normalized', 'outerposition', figureDim)
 
 views = [1 2 4];
 hemisphere = 'right';
-
+views = 4;
 % Plot electrodes as dots
 for i = 1:length(views)
     subplot(1,length(views),i)
     ctmr_gauss_plot(cortex.(hemisphere),[0 0 0], 0, hemisphere(1), views(i))
-    f1 = plot3(coords(:,1),coords(:,2),coords(:,3), '.', 'Color', 'b', 'MarkerSize', 40);
-    alpha(0.5)
-
-%     if i > 2
-%         f1.Parent.OuterPosition(3) = f1.Parent.OuterPosition(3)/2;
-%     else
-%     end
+    f1 = plot3(coords(:,1),coords(:,2),coords(:,3)-10, '.', 'Color', 'b', 'MarkerSize', 30);
+%     alpha(0.5)
 end
 light('Position',[1 0 0])
 
@@ -505,8 +502,145 @@ ylabel('RT (sec.)')
 xlabel('Min operand')
 
 
-%% MMR
-data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:);
+%% Avg task (for movie)
+% conditions to average
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+data_all = [];
+for ii = 1:length(conds_avg_conds) 
+    % Initialize data_all
+    data_all.(conds_avg_conds{ii}) = [];
+end
+decimate = true;
+concat_params = genConcatParams(decimate);
+concat_params.noise_method = 'trials';
+data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
+
+for i = 1:length(sbj_names)
+    % Concatenate trials from all blocks
+    block_names = BlockBySubj(sbj_names{i},project_name);
+    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+    elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
+    % Average across trials, normalize and concatenate across subjects
+    for ii = 1:length(conds_avg_conds)
+        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+%         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+        data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
+        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
+    end
+end
+
+%% Load MNI coordinates
+chan_plot = [];
+elecNames_tmp = [];
+for i = 1%length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    coords_tmp = importCoordsFreesurfer(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+    close all
+    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
+    for ii = 1:length(elecNames)
+        elecNames_tmp{ii} = elecNames{ii}{2};
+    end
+    [a,idx] = ismember(elecNames_tmp, elect_all{i});
+    MNI_coords = MNI_coords(a,:);
+    idx = idx(a);
+    [b,idx_2] = sort(idx);
+    MNI_coords = MNI_coords(idx_2,:);
+    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
+end
+%%%%%%%%%%%%%%%%%%
+%%% CORRECTION %%%
+%%%%%%%%%%%%%%%%%%
+% Make sure that electrodes labels from freesurfer are the same as in the files
+
+
+%%
+%% Load template brain 
+code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.right = cortex;
+
+
+
+%% Get indices for colloring
+cond = 'math';
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+% cols = flipud(cols);
+% Plot Colorbar
+figureDim = [0 0 .2 .2];
+figure('units','normalized','outerposition',figureDim)
+for i = 15:5:length(cols)
+    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
+    hold on
+end
+axis off
+dir_out = '/Users/pinheirochagas/Desktop/';
+savePNG(gcf,400, [dir_out 'Reds.png'])
+
+
+[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
+% only for ECoG
+chan_plot(:,1) = -70;
+chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
+
+% Plot parameters
+mark = 'o';
+MarkSizeEffect = 35;
+colRing = [0 0 0]/255;
+time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
+
+
+%% Plot math
+F = struct;
+count = 0;
+
+for e = 1:2:length(time)
+    count = count+1;
+    ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
+    alpha(0.5)
+    % Sort to highlight larger channels
+    for i = 1:size(chan_plot)
+%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
+        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);     
+    end
+    time_tmp = num2str(time(e));
+    
+    if length(time_tmp) < 6
+        time_tmp = [time_tmp '00'];
+    end
+    if strcmp(time_tmp(1), '-')
+        time_tmp = time_tmp(1:6);
+    else
+        if strcmp(time_tmp, '000')
+        else
+            time_tmp = time_tmp(1:5);
+        end
+    end
+    
+    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
+    cdata = getframe(gcf);
+    F(count).cdata = cdata.cdata;
+    F(count).colormap = [];
+    close all
+end
+
+fig = figure;
+movie(fig,F,1)
+
+videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
+videoRSA.FrameRate = 30;  % Default 30
+videoRSA.Quality = 100;    % Default 75
+open(videoRSA);
+writeVideo(videoRSA, F);
+close(videoRSA);
+
+
+
 
 
 

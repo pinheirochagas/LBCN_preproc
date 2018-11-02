@@ -109,7 +109,6 @@ if strcmp(datatype,'Spec')
         bs_bl = nan(nfreq,1000);
         parfor i = 1:1000
             bs_bl(:,i) = nanmean(bl_data(:,randperm(npts,ntrials)),2);
-            
         end
         bl_mn = nanmean(bs_bl,2);
         bl_mn = repmat(bl_mn,[1,ntrials,ntime]);
