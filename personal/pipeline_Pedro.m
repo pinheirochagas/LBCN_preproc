@@ -503,10 +503,14 @@ for i = 1:size(data_all.wave,2)
     nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
 end
 
-% Exclude channels witgh nan 
-data_all.wave = data_all.wave(:,find(nan_channel == 0),:);
-data_all.labels(find(nan_channel ~= 0)) = [];
-data_all.trialinfo(find(nan_channel ~= 0)) = [];
+% Interpolate nans channels witgh nan 
+% loop across dimensions
+nanx = isnan(x);
+t    = 1:numel(x);
+x(nanx) = interp1(t(~nanx), x(~nanx), t(nanx));
+
+
+
 
 %Randomly select the same number of conditions
 
@@ -726,8 +730,11 @@ end
 %% Plot heatmap
 
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-plot_params = genPlotParams(project_name,'timecourse');
-data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+decimate = true;
+final_fs = 50;
+concat_params = genConcatParams(decimate, final_fs);
+concat_params.noise_method = 'trials';
+data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
 
 
 conds_avg_field = 'condNames';
@@ -742,7 +749,6 @@ for ii = 1:length(conds_avg_conds)
     data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo{1}.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
     % Calculate integral of averaged trials. 
     data_tmp_integral = trapz(data_tmp_avg,2);
-        
     data_tmp_integral_norm = data_tmp_integral/max(data_tmp_integral(:));
     data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; % concatenate across subjects
 end
