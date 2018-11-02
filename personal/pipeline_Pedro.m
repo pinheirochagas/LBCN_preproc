@@ -164,7 +164,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Memoria')
     EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2 
@@ -190,7 +190,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -201,7 +201,7 @@ for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
@@ -216,7 +216,7 @@ end
 
 % Delete non epoch data after epoching
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
-deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
+% deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
 
 %% DONE PREPROCESSING. 
@@ -723,9 +723,63 @@ end
 
 
 
-     
-     
-     
+%% Plot heatmap
+
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
+plot_params = genPlotParams(project_name,'timecourse');
+data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
 
 
- 
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+data_all = []
+for ii = 1:length(conds_avg_conds) 
+    % Initialize data_all
+    data_all.(conds_avg_conds{ii}) = [];
+end
+
+for ii = 1:length(conds_avg_conds)
+    data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo{1}.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+    % Calculate integral of averaged trials. 
+    data_tmp_integral = trapz(data_tmp_avg,2);
+        
+    data_tmp_integral_norm = data_tmp_integral/max(data_tmp_integral(:));
+    data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; % concatenate across subjects
+end
+
+% Load coordinates
+coords_tmp = importCoordsFreesurfer(dirs);
+[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+coords = coords_tmp(1:length(data_all.math),:); % FIX THIS SOLUCAO TOSSSSCA E ERRADA
+
+% Plot heatmap
+[col_idx,colors_plot] = colorbarFromValues(data_all.math, 'RedsWhite');
+
+ PlotCoverageHeatmap(sbj_name,project_name, coords, colors_plot, col_idx, dirs)
+
+%% Load MNI coordinates
+chan_plot = [];
+elecNames_tmp = [];
+for i = 1%length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    coords_tmp = importCoordsFreesurfer(dirs);
+    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+    close all
+    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
+    for ii = 1:length(elecNames)
+        elecNames_tmp{ii} = elecNames{ii}{2};
+    end
+    [a,idx] = ismember(elecNames_tmp, data_sbj.labels);
+    MNI_coords = MNI_coords(a,:);
+    idx = idx(a);
+    [b,idx_2] = sort(idx);
+    MNI_coords = MNI_coords(idx_2,:);
+    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
+end
+%%%%%%%%%%%%%%%%%%
+%%% CORRECTION %%%
+%%%%%%%%%%%%%%%%%%
+% Make sure that electrodes labels from freesurfer are the same as in the files
+
+
+
