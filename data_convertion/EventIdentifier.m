@@ -115,8 +115,8 @@ for i = 1:length(block_names)
     %% Get trials, insturuction onsets
     %% modified for Memoria
     colnames = trialinfo.Properties.VariableNames;
-    if ismember('nstim',colnames) % for cases where each trial has diff # of stim
-        ntrials = size(trialinfo,1);
+    ntrials = size(trialinfo,1);
+    if ismember('nstim',colnames) % for cases where each trial has diff # of stim        
         all_stim_onset = nan(ntrials,max(trialinfo.nstim));
         
         counter = 1;
@@ -206,7 +206,10 @@ for i = 1:length(block_names)
 %     trialinfo = trialinfo(1:size(all_stim_onset,1),:)  % This is temporary for incomplete recordings
 %     event_trials = event_trials(1:size(all_stim_onset,1),:) % This is temporary for incomplete recordings
     trialinfo.allonsets(event_trials,:) = all_stim_onset;
-    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
+    trialinfo.RT_lock = nan(ntrials,1);
+    for ti = 1:ntrials
+        trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,trialinfo.nstim(ti));
+    end
     trialinfo.allonsets(rest_trials,:) = (trialinfo.StimulusOnsetTime(rest_trials,:)-trialinfo.StimulusOnsetTime(rest_trials-1,:))+trialinfo.allonsets(rest_trials-1,:);
     
     %     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);

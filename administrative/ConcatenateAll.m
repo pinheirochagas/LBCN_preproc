@@ -1,59 +1,75 @@
-% function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, locktype, plot_params)
-function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, plot_params)
-% EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
-
+% function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, plot_params)
+function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, concat_params)
 %% Define electrodes
-if nargin < 5 || isempty(elecs)
+if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
     load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
+if isempty(concat_params)
+    concat_params = genConcatParams(false); % default: no downsampling
+end
 
+if strcmp(datatype,'Spec')
+    tdim = 4; % time dimension after concatenating
+elseif strcmp(datatype,'Band')
+    tdim = 3;
+end
 %% loop through electrodes
 data_all.trialinfo = [];
-
+concatfields = {'wave'}; % type of data to concatenate
+tag = [locktype,'lock_bl_corr']; % specifies type of data to load
 
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_bn.wave = [];
-    data_bn.trialinfo = [];
-    %     column_data = cell(1,length(columns_to_keep));
-    for bi = 1:length(block_names)
-        bn = block_names{bi};
-%         dir_in = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn,'/EpochData/'];
-        dir_in = [dirs.data_root,filesep,datatype,'Data',filesep,freq_band,filesep,sbj_name,filesep,bn,filesep,'EpochData',filesep];
-        % Load data
-        if plot_params.blc
-            load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,freq_band,locktype,bn,el))
-        else
-            load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,freq_band,locktype,bn,el));
-        end
-        
-        % concatenante EEG data
-        if strcmp(datatype,'Spec')
-            data_bn.wave = cat(2,data_bn.wave,data.wave);
-        else
-            data_bn.wave = cat(1,data_bn.wave,data.wave);
-        end
-        
-        % concatenate trial info
-        data_bn.trialinfo = [data_bn.trialinfo; data.trialinfo];
-        
-    end
+
+    data_bn = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
     
-    data_bn.time = data.time;
-    data_bn.fsample = data.fsample;
-    data_bn.label = data.label;
+    if strcmp(concat_params.noise_method,'timepts')
+        data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
+    else
+        bad_trials = [];
+        for i = 1:length(concat_params.noise_fields_trials)
+            bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
+        end
+        if strcmp(datatype,'Band')
+            data_bn.wave(bad_trials,:) = NaN;
+        else
+            data_bn(bad_trials,:,:) = NaN;
+        end
+    end
+
+    if concat_params.decimate % smooth and downsample (optional)
+        ds_rate = floor(data_bn.fsample/concat_params.fs_targ);
+        data_all.fsample = data_bn.fsample/ds_rate;
+        data_all.time = data_bn.time(1:ds_rate:end);
+        if concat_params.sm_win > 0 % if smoothing first
+            winSize = floor(data_bn.fsample*concat_params.sm_win);
+            gusWin= gausswin(winSize)/sum(gausswin(winSize));
+            data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension   
+            % downsample
+            if strcmp(datatype,'Band')
+                data_bn.wave = data_bn.wave(:,1:ds_rate:end);
+            elseif strcmp(datatype,'Spec')
+                data_bn.wave = data_bn.wave(:,:,1:ds_rate:end);
+            end
+        end
+    else
+        data_all.time = data_bn.time;
+        data_all.fsample = data_bn.fsample;
+    end
     
     % Concatenate all subjects all trials
     if strcmp(datatype,'Band')
-        data_all.wave(:,ei,:) = data_bn.wave;
+        data_all.wave(:,ei,:) = data_bn.wave;   
     elseif strcmp(datatype,'Spec')
         data_all.wave(:,:,ei,:) = data_bn.wave;
     end
     
+%     data_all.label = data_bn.label;
+    
     data_all.trialinfo{ei} = [data_bn.trialinfo];
-    data_all.labels{ei} = data.label;
+    data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
 end
 
@@ -65,8 +81,8 @@ for bi = 1:length(block_names)
     badChan = [globalVar.badChan badChan];
 end
 % Finalize
-data_all.time = data.time;
-data_all.fsample = data.fsample;
+% data_all.time = data.time;
+% data_all.fsample = data.fsample;
 data_all.badChan = unique(badChan);
 data_all.project_name = project_name;
 end

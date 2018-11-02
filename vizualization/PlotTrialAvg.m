@@ -28,7 +28,6 @@ else
 end
 
 %%
-
 winSize = floor(data.fsample*plot_params.sm);
 gusWin= gausswin(winSize)/sum(gausswin(winSize));
 
@@ -73,6 +72,7 @@ if ~plot_params.multielec
     figure('units', 'normalized', 'outerposition', figureDim)
 end
 
+hold on
 for ci = 1:ncategs
 %     plot_data{ci} = convn(plot_data{ci},gusWin','same');
     lineprops.col{1} = plot_params.col(ci,:);
