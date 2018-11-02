@@ -68,7 +68,8 @@ load(fn,'globalVar');
 % dir_out = [dirs.data_root,'/',datatype,'Data/',sbj_name,'/',bn, '/EpochData'];
 
 % dir_CAR = [dirs.data_root,'/originalData/',sbj_name,'/',bn];
-dir_in = [globalVar.([datatype,'Data']),filesep,freq_band,filesep,sbj_name,filesep,bn];
+dir_in = [dirs.data_root,filesep,datatype,'Data',filesep,freq_band,filesep,sbj_name,filesep,bn];
+% dir_in = [globalVar.([datatype,'Data']),freq_band,filesep,sbj_name,filesep,bn];
 dir_out = [dir_in,filesep,'EpochData'];
 if ~exist(dir_out)
     mkdir(dir_out)
@@ -211,7 +212,9 @@ for ui = 1:ntrials
     data.trialinfo.bad_inds{ui} = setdiff(data.trialinfo.bad_inds{ui},0);
 end
 
-
+if sep_bl
+    bl_data.trialinfo = data.trialinfo;
+end
 %% Inspect bad epochs
 be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
 %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);

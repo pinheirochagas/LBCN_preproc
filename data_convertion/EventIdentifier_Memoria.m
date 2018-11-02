@@ -84,8 +84,8 @@ for i = 1:length(block_names)
     %% modified for Memoria
     colnames = trialinfo.Properties.VariableNames;
     
+    ntrials = size(trialinfo,1);
     if ismember('nstim',colnames) % for cases where each trial has diff # of stim
-        ntrials = size(trialinfo,1);
         all_stim_onset = nan(ntrials,max(trialinfo.nstim));
         stimnum = repmat(1:max(trialinfo.nstim),[ntrials,1]);
         counter = 1;
@@ -152,17 +152,21 @@ for i = 1:length(block_names)
     
     
     %% Updating the events with onsets 
-    trialinfo.allonsets = nan(size(trialinfo,1),size(all_stim_onset,2));
+    trialinfo.allonsets = nan(ntrials,size(all_stim_onset,2));
     if (size(all_stim_onset,2)>1)      
         trialinfo.allonsets(event_trials,:) = all_stim_onset;
     else
         trialinfo.allonsets(event_trials) = all_stim_onset;
     end
-    trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);    
+    trialinfo.RT_lock = nan(ntrials,1);
+    for ti = 1:ntrials
+        trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,trialinfo.nstim(ti));
+    end
 
     
     %% Save trialinfo   
-    fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
+    fn = [dirs.project,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'];
+%     fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
     save(fn, 'trialinfo');
     
 end

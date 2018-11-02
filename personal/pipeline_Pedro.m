@@ -569,7 +569,7 @@ sbj_names = {'S18_124'};
 % conditions to average
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
-data_all = []
+data_all = [];
 for ii = 1:length(conds_avg_conds) 
     % Initialize data_all
     data_all.(conds_avg_conds{ii}) = [];
@@ -577,7 +577,7 @@ end
 
 plot_params = genPlotParams(project_name,'timecourse');
 
-for i = 1%length(sbj_names)
+for i = 1:length(sbj_names)
     % Concatenate trials from all blocks
     block_names = BlockBySubj(sbj_names{i},project_name);
     data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
