@@ -35,7 +35,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 64;
+sbj_number = 12;
 sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -56,6 +56,7 @@ sbj_name = googleSheet.subject_name{sbj_number};
 % sbj_name = 'S17_116';
 
 % sbj_name = 'S16_94_DR';
+% sbj_name = 'S17_69_RTb'
 
 
 % Center

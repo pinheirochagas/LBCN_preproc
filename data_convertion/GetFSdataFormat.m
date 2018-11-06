@@ -39,4 +39,14 @@ elseif strcmp(center, 'China')
     
 end
 
+% Add exceptions for subjects who came twice between system change
+if strcmp(sbj_name, 'S17_69_RTb')
+    fs_iEEG = 1000;
+    fs_Pdio = 1000;
+    data_format = 'edf';
+else
+end
+
+
+
 end
