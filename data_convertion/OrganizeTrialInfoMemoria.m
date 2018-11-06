@@ -51,7 +51,7 @@ for i = 1:length(block_names)
         nstim_all(K.conds==ci) = nstim_per_trial(ci);
     end
     trialinfo.condNames = conds;
-    %trialinfo.nstim = nstim_all;
+    trialinfo.nstim = nstim_all;
     trialinfo.stim1 = cell(ntrials,1);
     trialinfo.stim2 = cell(ntrials,1);
     trialinfo.stim3 = cell(ntrials,1);

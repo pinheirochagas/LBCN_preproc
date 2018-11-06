@@ -131,15 +131,10 @@ for i = 1:length(block_names)
     end
     
     
-    % Add other kind of exceptions for when there is more triggers in
-    % the end - Calculia
-    if strcmp(sbj_name, 'S15_87_RL') && strcmp(project_name, 'Calculia') && (strcmp(bn, 'E15-282_0025') || strcmp(bn, 'E15-282_0026') || strcmp(bn, 'E15-282_0027'))
-        stim_onset = stim_onset(1:end-1);
-    elseif strcmp(sbj_name, 'S15_92_MR') && strcmp(project_name, 'Calculia')
-        stim_onset = stim_onset(1:end-1)
-    elseif strcmp(sbj_name, 'S16_93_MA') && strcmp(project_name, 'Calculia')
-        stim_onset = stim_onset(1:end-1);
-    end
+    % Add other kind of exceptions for when there is more triggers in the end - Calculia
+    stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
+    
+    %% Reshape triggers
     all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
 end
 
@@ -157,20 +152,15 @@ plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');
 
 
 %% Comparing photodiod with behavioral data
-df_SOT= diff(StimulusOnsetTime)';
-
 % Add another exception for subjects who have 1 trialinfo less
-if strcmp(sbj_name, 'S14_62_JW') && strcmp(project_name, 'MMR')
-    all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(project_name, 'MMR')
-    all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(bn, 'S14_67_RH_01')
-    all_stim_onset = all_stim_onset(1:end-1); % DANGEROUS EXCEPTION
-elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(bn, 'S14_67_RH_04')
-    all_stim_onset = all_stim_onset(1:end-2); % DANGEROUS EXCEPTION
-else
-end
+all_stim_onset = EventIdentifierExceptions_oneTrialLess(all_stim_onset,sbj_name, project_name, bn);
 
+% Add another exception for subjects who have additional photo/trigger trials in the middle
+% and visual inspection shows good correspondence between photo/trigger and psychtoolbox output
+all_stim_onset = EventIdentifierExceptions_extraTrialsMiddle(all_stim_onset, StimulusOnsetTime, sbj_name, project_name, bn);
+
+%% Plot comparison photo/trigger 
+df_SOT= diff(StimulusOnsetTime)';
 df_stim_onset = diff(all_stim_onset(:,1))';
 
 %plot overlay
@@ -180,23 +170,7 @@ hold on
 plot(df_stim_onset,'r*') % photodiode/trigger
 df= df_SOT - df_stim_onset;
 
-%%
-%     psychtoolbox = trialinfo.StimulusOnsetTime - trialinfo.StimulusOnsetTime(1);
-%     trigger = all_stim_onset - all_stim_onset(1);
-%
-%     plot(psychtoolbox, 'o')
-%     hold on
-%     plot(trigger, 'r*')
-%
-%     psychtoolbox1 = psychtoolbox(:,1)
-%     trigger1 = trigger(:,1)
-%
-%     [r,m,b] = regression(psychtoolbox1',1:length(psychtoolbox1))
-%     [r,m,b] = regression(trigger1',1:length(trigger1))
-
-%%
-
-%plot diffs, across experiment and histogram
+%% Plot diffs, across experiment and histogram
 subplot(2,3,5)
 plot(df);
 title('Diff. behavior diode (exp)');
@@ -213,30 +187,20 @@ if ~all(abs(df)<.1)
     warning('behavioral data and photodiod mismatch')
 end
 
-
-
 %% Updating the events with onsets
+ if ismember('nstim',colnames)
+    nstim = trialinfo.nstim;
+ else
+    nstim = ones(size(trialinfo,1),1);
+ end
 
-%     trialinfo = trialinfo(1:size(all_stim_onset,1),:)  % This is temporary for incomplete recordings
-%     event_trials = event_trials(1:size(all_stim_onset,1),:) % This is temporary for incomplete recordings
 trialinfo.allonsets(event_trials,:) = all_stim_onset;
 trialinfo.RT_lock = nan(ntrials,1);
 for ti = 1:ntrials
-    trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,trialinfo.nstim(ti));
+    trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,nstim(ti));
 end
 trialinfo.allonsets(rest_trials,:) = (trialinfo.StimulusOnsetTime(rest_trials,:)-trialinfo.StimulusOnsetTime(rest_trials-1,:))+trialinfo.allonsets(rest_trials-1,:);
 
-%     trialinfo.RT_lock = K.slist.onset_prod/(globalVar.Pdio_rate);
-% update that
-
-% Include the rest events FIX THIS, REST EVENT ONSET SEEMS ODD!!!
-%     if ~isempty(rest_trials)
-%         for i = 1:length(rest_trials)
-%             onset_rest(i,1) = trialinfo.allonsets(rest_trials(i)-1,end) + trialinfo.RT(rest_trials(i)-1) + ISI?;
-%         end
-%     else
-%     end
-%     trialinfo.allonsets(rest_trials,:) = onset_rest;
 
 %% Account for when recording started in the middle of photodiode signal
 if trialinfo.allonsets(1) == 0
@@ -245,41 +209,9 @@ else
 end
 trialinfo = trialinfo(trialinfo.allonsets(:,1) ~= 0,:);
 
+
 %% Save trialinfo
 fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
 save(fn, 'trialinfo');
 
 end
-
-
-
-
-
-
-%
-%     switch project_name
-%         case 'MMR'
-%             n_stim_per_trial = 1;
-%             n_initpulse_onset = 12;
-%             n_initpulse_offset = 12;
-%         case 'Memoria'
-%             n_stim_per_trial = 5;
-%             n_initpulse_onset = 12;
-%             n_initpulse_offset = 12;
-%         case 'Calculia'
-%             n_stim_per_trial = 5;
-%             n_initpulse_onset = 12;
-%             n_initpulse_offset = 12;
-%         case 'Calculia_production'
-%             n_stim_per_trial = 3;
-%             n_initpulse_onset = 0;
-%             n_initpulse_offset = 12; % maybe change to 12
-%     end
-%
-%     % Correct for different initiation TTL pulses
-%     switch bn
-%         case 'S14_64_SP_02'
-%             n_initpulse_onset = 13;
-%             n_initpulse_offset = 14;
-%     end
-%
