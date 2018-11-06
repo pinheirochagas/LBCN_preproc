@@ -191,8 +191,8 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -202,8 +202,8 @@ epoch_params = genEpochParams(project_name, 'stim');
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
     end
 end
 
@@ -241,7 +241,7 @@ deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',[],plot_params,'Band') % condNames
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
@@ -271,7 +271,18 @@ plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotITPCAll(sbj_name,project_name,block_names,dirs,61,'SpecDense','stim','conds_math_memory',{'math', 'memory'},plot_params)
 
-%%
+%% PAC
+phase_elecs = {'15'}; %S17_110
+amp_elecs = {'61'}; %S17_110
+
+pac_params = genPACParams(project_name);
+PAC = computePACAll(sbj_name,project_name,block_names,dirs,phase_elecs,amp_elecs,[],'SpecDenseLF','stim','conds_math_memory',{'math'},pac_params);
+plotPAC(PAC,{'math'},'15', '61')
+
+plotPACAll(sbj_name,project_name,dirs,[],[],{'autobio','math'},'SpecDenseLF')
+
+%% PLV RT correlation
+PLVRTCorrAll(sbj_name,project_name,block_names,dirs,elecs1,elecs2,'all','stim','condNotAfterMtn',[],[])
 
 
 plot_params = genPlotParams(project_name,'timecourse');
