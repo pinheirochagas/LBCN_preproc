@@ -108,6 +108,8 @@ switch task
                 BN = {'VA121011-05','VA121011-06'};
             case 'S11_31_DZa'
                 BN = {'DZ1211-10'};
+            case 'S11_20_RHa'
+                BN = {'RH0211-02','RH0211-05'};
             case 'S12_32_JTa'
                 BN = {'JT0112-3','JT0112-4'};
             case 'S12_32_JTb'
@@ -171,8 +173,10 @@ switch task
                 BN = {'S14_73_AY_04','S14_73_AY_05'};
             case 'S14_74_OD'
                 BN = {'S14_74_OD_02','S14_74_OD_03'};
+            case 'S14_75_TB'
+                BN = {'S14_75_TB_02','S14_75_TB_03', 'S14_75_TB_12'};                
             case 'S14_76_AA'
-                BN = {'S14_76_AA_02','S14_76_AA_03','S14_76_AA_21','S14_76_AA_22'};
+                BN = {'S14_76_AA_02','S14_76_AA_03'}; % 'S14_76_AA_20','S14_76_AA_21'
             case 'S14_78_RSa'
                 BN = {'S14_78_RS_02','S14_78_RS_03'};
             case 'S14_78_RSb'
@@ -186,9 +190,11 @@ switch task
             case 'S15_82_JB'
                 BN = {'S15_82_JB_06','S15_82_JB_07'};
             case 'S15_83_RR'
-                BN = {'S15_83_RR_03','S15_83_RR_08'};
-            case 'S15_86_KG'
-                BN = {'S15_86_KG_02','S15_86_KG_04'};
+                BN = {'S15_83_RR_03','S15_83_RR_08'}; % 'S15_83_RR_07' - no RTs
+            case 'S15_84_KG'
+                BN = {'S15_84_KG_02','S15_84_KG_04'};
+            case 'S15_86_CL'
+                BN = {'S15_86_CL_21'};
             case 'S15_87_RL'
                 BN = {'E15-282_0005','E15-282_0010'};
             case 'S15_89_JQa'
@@ -269,6 +275,10 @@ switch task
                 BN = {'E17-32_0008','E17-32_0009'};
             case 'S15_89_JQb'
                 BN = {'E17-152_0002','E17-152_0003'};
+            case 'S17_107_PR'
+                BN = {'E17-237_0006','E17-237_0007','E17-237_0008'};
+            case 'S17_114_EB'
+                BN = {'E17-526_0005','E17-526_0006'};                 
             otherwise
                 BN = [];
         end
@@ -291,12 +301,17 @@ switch task
             case 'S11_26_SRa'
                 BN = {'SR-03','SR-10'};
             case 'S11_26_SRb'
-                BN = {'SRb-06','SRb-17'};
+                BN = {'SRb-17'};
             case 'S11_28_LS'
                 BN = {'LS0911-08'};
             case 'S11_29_RB'
                 BN = {'RB0911-02','RB0911-20'};
-                %                 BN = {'RB0911-20'};
+            case 'S10_15_KB2'
+                BN = {'KB0510_01','KB0510_03'};
+            case 'S11_22_EG'
+                BN = {'EG0311-23'};
+            case 'S11_25_DL'
+                BN = {'dl_04','dl_44'};
             otherwise
                 BN = [];
         end

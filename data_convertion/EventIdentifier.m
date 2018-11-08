@@ -136,8 +136,6 @@ for i = 1:length(block_names)
     
     %% Reshape triggers
     all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
-end
-
 
 %%
 % Plot photodiode segmented data

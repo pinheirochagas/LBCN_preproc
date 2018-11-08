@@ -16,7 +16,7 @@ for i = 1:length(block_names)
     end
     
     for ii = 1:length(folder_names2)
-        globalVar.(folder_names2{ii}) = sprintf('%s/%s',dirs.data_root,folder_names2{ii});
+        globalVar.(folder_names2{ii}) = sprintf('%s/%s/',dirs.data_root,folder_names2{ii});
     end
     
     % Save globalVar

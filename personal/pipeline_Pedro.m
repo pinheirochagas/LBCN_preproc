@@ -5,7 +5,7 @@ AddPaths('Pedro_iMAC')
 parpool(16) % initialize number of cores
 
 %% Initialize Directories
-project_name = 'MMR'; 
+project_name = 'MMR';
 project_name = 'UCLA';
 
 project_name = 'MFA';
@@ -35,8 +35,8 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 12;
-sbj_name = googleSheet.subject_name{sbj_number};
+sbj_number = 36;
+sbj_name = googleSheet.subject_name{sbj_number}
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
 
@@ -60,13 +60,13 @@ sbj_name = googleSheet.subject_name{sbj_number};
 
 
 % Center
-% center = 'China'; or Stanford 
-%center = 'Stanford'; 
+% center = 'China'; or Stanford
+%center = 'Stanford';
 
 center = googleSheet.center{sbj_number};
 
 %% Get block names
-block_names = BlockBySubj(sbj_name,project_name);
+block_names = BlockBySubj(sbj_name,project_name)
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
@@ -80,7 +80,7 @@ dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root)
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 
 %% Create subject folders
-CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1) 
+CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1)
 
 %%% IMPROVE uigetfile to go directly to subject folder %%%
 
@@ -120,7 +120,7 @@ end
 %% Convert berhavioral data to trialinfo
 switch project_name
     case 'Calculia_SingleDigit'
-%         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
+        %         OrganizeTrialInfoMMR(sbj_name, project_name, block_names, dirs) %%% FIX TIMING OF REST AND CHECK ACTUAL TIMING WITH PHOTODIODE!!! %%%
         OrganizeTrialInfoCalculia(sbj_name, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
     case 'UCLA'
         OrganizeTrialInfoUCLA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds? INCLUDE REST!!!
@@ -134,15 +134,15 @@ switch project_name
     case 'Calculia_production'
         OrganizeTrialInfoCalculia_production(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Number_comparison'
-        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?   
+        OrganizeTrialInfoNumber_comparison(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'MFA'
-        OrganizeTrialInfoMFA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?   
+        OrganizeTrialInfoMFA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia'
-        OrganizeTrialInfoCalculia_combined(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?   
+        OrganizeTrialInfoCalculia_combined(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
 end
 
 
-% segment_audio_mic(sbj_name,project_name, dirs, block_names{1}) 
+% segment_audio_mic(sbj_name,project_name, dirs, block_names{1})
 
 
 % ADD segment_audio_mic
@@ -166,10 +166,10 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Memoria')
     EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
-% subject 'S11_29_RB' exception = 1 for block 2 
+% subject 'S11_29_RB' exception = 1 for block 2
 
 
 %% Branch 4 - bad channel rejection
@@ -191,23 +191,23 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+        %         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
-epoch_params = genEpochParams(project_name, 'stim'); 
+epoch_params = genEpochParams(project_name, 'stim');
 
 for i = 1:length(block_names)
     bn = block_names{i};
-    parfor ei = 1:length(elecs) 
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+    parfor ei = 1:length(elecs)
+        %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
     end
 end
 
-% epoch_params = genEpochParams(project_name, 'resp'); 
+% epoch_params = genEpochParams(project_name, 'resp');
 % for i = 1:length(block_names)
 %     parfor ei = 1:length(elecs)
 %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
@@ -221,7 +221,7 @@ deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 % deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
 
-%% DONE PREPROCESSING. 
+%% DONE PREPROCESSING.
 % Eventually replace globalVar to update dirs in case of working from an
 % with an external hard drive
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
@@ -334,7 +334,7 @@ col = col*0.85
 
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','conds_num_lum_digit_dot_distance',conds_number_digit,col,'trials',[],x_lim)
 
-% TODO: 
+% TODO:
 % Allow conds to be any kind of class, logical, str, cell, double, etc.
 % Input baseline correction flag to have the option.
 % Include the lines option
@@ -469,7 +469,7 @@ for i = 1:length(block_names)
         load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
     end
     % concatenate trial info
-    data_all.trialinfo = [data_all.trialinfo; data.trialinfo]; 
+    data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
 end
 
 data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
@@ -485,12 +485,21 @@ xlabel('Min operand')
 
 %% Copy subjects
 subjs_to_copy = {'S18_119'};
-parfor i = 1:lenght(subjs_to_copy)
-    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData')
+project_name = 'MMR';
+neuralData_folders = {'originalData', 'CARData'};
+for i = 1:length(subjs_to_copy)
+    block_names{i} = BlockBySubj(subjs_to_copy{i},project_name);
 end
-block_names = BlockBySubj(subjs_to_copy{i},project_name);
-UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs) % after reruning
 
+parfor i = 1:length(subjs_to_copy)
+    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData', neuralData_folders, project_name, block_names{i})
+end
+
+%% Run after having copied on the destination computer
+for i = 1:length(subjs_to_copy)
+    block_names = BlockBySubj(subjs_to_copy{i},project_name);
+    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
+end
 
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -503,7 +512,7 @@ data_all_spec = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Spec',
 
 exportDataMNE(data_all_spec)
 
-trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'}); 
+trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'});
 
 % excluse bad channels
 data_all.wave(:,data_all.badChan,:) = [];
@@ -516,7 +525,7 @@ for i = 1:size(data_all.wave,2)
     nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
 end
 
-% Interpolate nans channels witgh nan 
+% Interpolate nans channels witgh nan
 % loop across dimensions
 nanx = isnan(x);
 t    = 1:numel(x);
@@ -527,17 +536,17 @@ x(nanx) = interp1(t(~nanx), x(~nanx), t(nanx));
 
 %Randomly select the same number of conditions
 
-% Save 
+% Save
 save([dirs.data_mvpa '/data_all_' sbj_name '_' project_name '_' 'Spec' '.mat'], 'data_all_spec', '-v7.3');
 
-% Export trialinfo to csv 
+% Export trialinfo to csv
 data_all.wave = data_all.wave(~contains(trialinfo.wlist, 'Ê'),:,:); % correct that for MMR
 trialinfo = trialinfo(~contains(trialinfo.wlist, 'Ê'),:); % correct that for MMR
-writetable(trialinfo,[dirs.data_mvpa '/trialinfo_' sbj_name '_' project_name '.csv'])                      
+writetable(trialinfo,[dirs.data_mvpa '/trialinfo_' sbj_name '_' project_name '.csv'])
 
 %% Prepare data for cluster-based stats
 % to do
-% add the sem plot to the mean 
+% add the sem plot to the mean
 % adapt the clust_perm2 to independent sample t-test
 % adapt the clust_perm2 to f-test
 
@@ -587,7 +596,7 @@ sbj_names = {'S18_124'};
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
 data_all = [];
-for ii = 1:length(conds_avg_conds) 
+for ii = 1:length(conds_avg_conds)
     % Initialize data_all
     data_all.(conds_avg_conds{ii}) = [];
 end
@@ -602,7 +611,7 @@ for i = 1:length(sbj_names)
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-%         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+        %         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
         data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
         data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
     end
@@ -634,7 +643,7 @@ end
 
 
 %%
-%% Load template brain 
+%% Load template brain
 code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
 cmcortex.left = cortex;
@@ -683,8 +692,8 @@ for e = 1:2:length(time)
     alpha(0.5)
     % Sort to highlight larger channels
     for i = 1:size(chan_plot)
-%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
-        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);     
+        %         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
+        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);
     end
     time_tmp = num2str(time(e));
     
@@ -725,12 +734,12 @@ close(videoRSA);
 
 %% Verify outiler channels
 exclude = math_norm;
-for i = 1:size(exclude,1) 
+for i = 1:size(exclude,1)
     chan = exclude(i,:);
     idx_max = find(chan == max(chan));
     hold on
     plot(chan)
-    text(idx_max,  max(chan), num2str(i))    
+    text(idx_max,  max(chan), num2str(i))
 end
 
 % exclude_chan_math = {[98, 75], [], [], [], [], [], [], 31, [62, 73]};
@@ -753,14 +762,14 @@ data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB'
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
 data_all = []
-for ii = 1:length(conds_avg_conds) 
+for ii = 1:length(conds_avg_conds)
     % Initialize data_all
     data_all.(conds_avg_conds{ii}) = [];
 end
 
 for ii = 1:length(conds_avg_conds)
     data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo{1}.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-    % Calculate integral of averaged trials. 
+    % Calculate integral of averaged trials.
     data_tmp_integral = trapz(data_tmp_avg,2);
     data_tmp_integral_norm = data_tmp_integral/max(data_tmp_integral(:));
     data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; % concatenate across subjects
@@ -774,7 +783,7 @@ coords = coords_tmp(1:length(data_all.math),:); % FIX THIS SOLUCAO TOSSSSCA E ER
 % Plot heatmap
 [col_idx,colors_plot] = colorbarFromValues(data_all.math, 'RedsWhite');
 
- PlotCoverageHeatmap(sbj_name,project_name, coords, colors_plot, col_idx, dirs)
+PlotCoverageHeatmap(sbj_name,project_name, coords, colors_plot, col_idx, dirs)
 
 %% Load MNI coordinates
 chan_plot = [];
@@ -801,4 +810,11 @@ end
 % Make sure that electrodes labels from freesurfer are the same as in the files
 
 
+
+%% Analyse several subjects
+% sbj_name_all = {};
+project_name = 'MMR';
+for i = 1:length(sbj_name_all)
+    analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
+end
 

@@ -20,7 +20,11 @@ elseif strcmp(sbj_name,'S18_129') && strcmp(bn,'E18-767_0016')
 elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_67_RH_01')
     n_initpulse_onset = 8; n_initpulse_offset = 8;     
 elseif strcmp(sbj_name, 'S14_67_RH') && strcmp(project_name, 'MMR') && strcmp(bn, 'S14_67_RH_04')
-    n_initpulse_onset = 14; n_initpulse_offset = 14;    
+    n_initpulse_onset = 14; n_initpulse_offset = 14;
+elseif strcmp(sbj_name, 'S12_33_DA') && strcmp(project_name, 'MMR') && strcmp(bn, 'DA0112-15')
+    n_initpulse_onset = 13; n_initpulse_offset = 13; 
+elseif strcmp(sbj_name, 'S12_34_TC') && strcmp(project_name, 'MMR') && strcmp(bn, 'TC0212-10')
+    n_initpulse_onset = 13; n_initpulse_offset = 13;      
 elseif strcmp(sbj_name, 'S15_87_RL') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E15-282_0016')
     n_initpulse_onset = 0; n_initpulse_offset = 0;
 elseif strcmp(sbj_name, 'S15_92_MR') && strcmp(project_name, 'Calculia') 
