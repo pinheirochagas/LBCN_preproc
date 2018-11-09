@@ -29,7 +29,7 @@ function analyseMultipleSubjects(sbj_name, project_name, dirs)
     
     % Delete non epoch data after epoching
     deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
-    deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
+%     deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
     disp(['preprocessing subject ' sbj_name ' DONE!'])
     
     % plot avg. HFB timecourse for each electrode separately

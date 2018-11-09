@@ -79,7 +79,7 @@ if ncategs == 1
     plotLines(data, y_lim)
     
 else
-    figureDim = [0 0 .8 .4];
+    figureDim = [0 0 1 .4];
     figure('units', 'normalized', 'outerposition', figureDim)
 
     for ci = 1:ncategs
