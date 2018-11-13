@@ -12,13 +12,18 @@ end
 
 if strcmp(datatype,'Spec')
     tdim = 4; % time dimension after concatenating
+    tag = [locktype,'lock_bl_corr']; % specifies type of data to load
+
 elseif strcmp(datatype,'Band')
     tdim = 3;
+    tag = [locktype,'lock_bl_corr']; % specifies type of data to load
+elseif strcmp(datatype,'CAR')
+    tdim = 3;
+    tag = [locktype,'lock']; % specifies type of data to load
 end
 %% loop through electrodes
 data_all.trialinfo = [];
 concatfields = {'wave'}; % type of data to concatenate
-tag = [locktype,'lock_bl_corr']; % specifies type of data to load
 
 for ei = 1:length(elecs)
     el = elecs(ei);
@@ -38,7 +43,7 @@ for ei = 1:length(elecs)
             data_bn(bad_trials,:,:) = NaN;
         end
     end
-
+    
     if concat_params.decimate % smooth and downsample (optional)
         ds_rate = floor(data_bn.fsample/concat_params.fs_targ);
         data_all.fsample = data_bn.fsample/ds_rate;
@@ -46,21 +51,23 @@ for ei = 1:length(elecs)
         if concat_params.sm_win > 0 % if smoothing first
             winSize = floor(data_bn.fsample*concat_params.sm_win);
             gusWin= gausswin(winSize)/sum(gausswin(winSize));
-            data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension   
-            % downsample
-            if strcmp(datatype,'Band')
-                data_bn.wave = data_bn.wave(:,1:ds_rate:end);
-            elseif strcmp(datatype,'Spec')
-                data_bn.wave = data_bn.wave(:,:,1:ds_rate:end);
-            end
+            data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension
+        else
         end
+        % downsample
+        if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
+            data_bn.wave = data_bn.wave(:,1:ds_rate:end);
+        elseif strcmp(datatype,'Spec')
+            data_bn.wave = data_bn.wave(:,:,1:ds_rate:end);
+        end
+        
     else
         data_all.time = data_bn.time;
         data_all.fsample = data_bn.fsample;
     end
     
     % Concatenate all subjects all trials
-    if strcmp(datatype,'Band')
+    if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
         data_all.wave(:,ei,:) = data_bn.wave;   
     elseif strcmp(datatype,'Spec')
         data_all.wave(:,:,ei,:) = data_bn.wave;
@@ -68,7 +75,7 @@ for ei = 1:length(elecs)
     
 %     data_all.label = data_bn.label;
     
-    data_all.trialinfo{ei} = [data_bn.trialinfo];
+    data_all.trialinfo = [data_bn.trialinfo];
     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
 end

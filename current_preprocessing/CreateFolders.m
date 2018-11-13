@@ -8,7 +8,7 @@ else
     sbj_name_generic = sbj_name;
 end
 
-folder_names = {'originalData', 'CARData'};
+folder_names = {'originalData'};
 folder_sublayers={'SpecData', 'BandData'};
 % Subject folder name
 if import_server
@@ -16,7 +16,8 @@ if import_server
     for i = 1:length(all_folders)
         tpm(i) = contains(all_folders(i).name, sbj_name_generic);
     end
-    sbj_folder_name = all_folders(find(tpm == 1)).name;
+%     sbj_folder_name = all_folders(find(tpm == 1)).name;
+    sbj_folder_name = 'SHICEP_S14_69_RTb'
 end
 
 for i = 1:length(folder_sublayers)
@@ -33,6 +34,7 @@ for i = 1:length(folder_names)
 end
 folders.psych_dir = sprintf('%s/%s',dirs.psych_root,sbj_name);
 folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
+folders.CARData = sprintf('%s/CARData/CAR/%s',dirs.data_root,sbj_name);
 
 fieldname_folders = fieldnames(folders);
 

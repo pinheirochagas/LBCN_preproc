@@ -35,7 +35,7 @@ project_name = 'GradCPT';
 %% Retrieve subject information
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_number = 36;
+sbj_number = 81;
 sbj_name = googleSheet.subject_name{sbj_number}
 % sbj_name = 'S18_124';
 % sbj_name = 'S18_127';
@@ -72,6 +72,8 @@ block_names = BlockBySubj(sbj_name,project_name)
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/LBCN8T/Stanford/data';
+%comp_root = '/Volumes/AmyData/ParviziLab/';
+
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
@@ -166,7 +168,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Memoria')
     EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2
@@ -191,19 +193,20 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
-        %         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
 epoch_params = genEpochParams(project_name, 'stim');
+epoch_params.blc.fieldtrip = 0; 
 
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs)
-        %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
@@ -218,7 +221,7 @@ end
 
 % Delete non epoch data after epoching
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
-% deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
+deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
 
 %% DONE PREPROCESSING.
@@ -241,7 +244,7 @@ deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',[],plot_params,'Band') % condNames
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
@@ -814,7 +817,60 @@ end
 %% Analyse several subjects
 % sbj_name_all = {};
 project_name = 'MMR';
-for i = 1:length(sbj_name_all)
+for i = 9%:length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
+
+% psychData_dirs = dir(fullfile('/Volumes/LBCN8T/Stanford/data/psychData'));
+% psychData_dirs = psychData_dirs(arrayfun(@(x) ~contains(x.name, '.'), psychData_dirs));
+% psych_sbj = horzcat({psychData_dirs.name})';
+
+for i = 1:length(psych_sbj)
+    block_names = BlockBySubj(psych_sbj{i},'MMR');
+    OrganizeTrialInfoMMR_rest(psych_sbj{i}, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
+    EventIdentifier(psych_sbj{i}, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+end
+
+
+for i = 1:length(psych_sbj)
+    block_names = BlockBySubj(psych_sbj{i},'MMR');
+    UpdateGlobalVarDirs(psych_sbj{i}, project_name, block_names, dirs)
+end
+
+
+
+
+
+%% PAC
+UpdateGlobalVarDirs(sbj_name, project_name, block_names, dirs)
+
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+
+epoch_params = genEpochParams(project_name, 'stim');
+
+for i = 1:length(block_names)
+    bn = block_names{i};
+    EpochDataAll(sbj_name, project_name, bn, dirs,ChanNamesToNums(globalVar,{'LP6'}), 'CAR', [],[], epoch_params,'CAR')
+end
+
+
+%% Concatenate 
+concat_params = genConcatParams(1,200);
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,ChanNamesToNums(globalVar,{'LP6'}),'CAR','CAR','stim', concat_params);
+
+% Select conditions
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math'};
+
+data_all.wave = data_all.wave(strcmp(data_all.trialinfo.(conds_avg_field), 'math'),:); % average trials by electrode
+
+data_all.wave = reshape(data_all.wave', 1, size(data_all.wave,1) * size(data_all.wave,2));
+
+% Interpolate nans
+nanx = isnan(data_all.wave);
+t    = 1:numel(data_all.wave);
+data_all.wave(nanx) = interp1(t(~nanx), data_all.wave(~nanx), t(nanx));
+save([dirs.MVData filesep sbj_name '_' project_name '_' 'CAR_continuous' '.mat'], 'data_all');
+
 

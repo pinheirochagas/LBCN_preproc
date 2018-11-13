@@ -208,8 +208,9 @@ end
 trialinfo = trialinfo(trialinfo.allonsets(:,1) ~= 0,:);
 
 
-%% Save trialinfo
-fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
+%% Update trialinfo
+disp('updating trialinfo')
+fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
 save(fn, 'trialinfo');
 
 end

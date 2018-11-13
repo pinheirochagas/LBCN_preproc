@@ -80,7 +80,8 @@ switch project_name
 end
 
 epoch_params.blc.locktype = 'stim';
-epoch_params.blc.bootstrap = true; 
+epoch_params.blc.bootstrap = false; 
+epoch_params.blc.fieldtrip = false; 
 epoch_params.noise.method = 'trials';
 epoch_params.noise.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 epoch_params.noise.noise_fields_timepts = {'bad_inds_HFO','bad_inds_raw_HFspike'};

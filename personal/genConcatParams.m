@@ -9,7 +9,7 @@ concatParams.noise_fields_timepts= {'bad_inds_HFO','bad_inds_raw_HFspike'}; % ca
 if decimate
     concatParams.decimate = true;
     concatParams.fs_targ = final_fs;  % target sampling rate (Hz) after downsampling
-    concatParams.sm_win = 0.05; % width of smoothing window (before downsampling, in sec)- put 0 for no smoothing
+    concatParams.sm_win = 0; % width of smoothing window (before downsampling, in sec)- put 0 for no smoothing
 else
     concatParams.decimate = false;
 end

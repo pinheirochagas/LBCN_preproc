@@ -110,8 +110,8 @@ for i = 1:length(block_names)
     trialinfoNew.conds_math_memory(rest_inds)={'rest'};
     trialinfoNew.wlist(rest_inds)={'+'};
     trialinfoNew.RT(rest_inds)=NaN;
-    trialinfoNew.allonsets(rest_inds)=NaN;
-    trialinfoNew.StimulusOnsetTime(rest_inds) =restOnsets;
+    trialinfoNew.allonsets(rest_inds)= NaN;
+    trialinfoNew.StimulusOnsetTime(rest_inds) = restOnsets;
     trialinfo = trialinfoNew;
     
     %     for t = 1:size(trialinfo,1)

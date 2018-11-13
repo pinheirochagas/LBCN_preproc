@@ -28,7 +28,7 @@ function analyseMultipleSubjects(sbj_name, project_name, dirs)
     end
     
     % Delete non epoch data after epoching
-    deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
+%     deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 %     deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
     disp(['preprocessing subject ' sbj_name ' DONE!'])
     
