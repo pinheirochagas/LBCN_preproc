@@ -26,7 +26,7 @@ if ~exist([dirs.original_data filesep sbj_name filesep 'subjVar.mat' ], 'file')
     prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
     ID = input(prompt,'s');
     if strcmp(ID, 'y')
-        save([dirs.original_data filesep sbj_name filesep 'subjVar.mat' ], 'subjVar')
+        save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
         disp(['subjVar saved for ' sbj_name])
     else
         warning(['subjVar NOT saved for ' sbj_name])

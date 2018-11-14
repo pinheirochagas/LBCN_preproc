@@ -47,7 +47,7 @@ sbj_name = googleSheet.subject_name{sbj_number}
 % sbj_name = 'S12_42_NC';
 % sbj_name = 'S13_55_JJC';
 % sbj_name = 'S18_126';
-% sbj_name = 'S18_129';
+% sbj_name = 'S18_128';
 
 % sbj_name = 'G18_19';
 % sbj_name = 'G18_19';
@@ -72,8 +72,6 @@ block_names = BlockBySubj(sbj_name,project_name)
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/LBCN8T/Stanford/data';
-%comp_root = '/Volumes/AmyData/ParviziLab/';
-
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
@@ -165,10 +163,10 @@ end
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
-elseif strcmp(project_name, 'Memoria')
-    EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+% elseif strcmp(project_name, 'Memoria')
+%     EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 3) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2
@@ -363,7 +361,7 @@ sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 for i = 1:length(sbj_names)
     PlotCoverage(sbj_names{36}, project_name) % {contains(sbj_names,'DY')}
 end
-'S17_117_MC
+% 'S17_117_MC'
 sub = 41;
 sbj_names{sub}
 PlotCoverage(sbj_names{contains(sbj_names,'96')}, project_name) % {contains(sbj_names,'DY')}
@@ -487,22 +485,38 @@ xlabel('Min operand')
 
 
 %% Copy subjects
-subjs_to_copy = {'S18_119'};
+subjs_to_copy = {};
 project_name = 'MMR';
 neuralData_folders = {'originalData', 'CARData'};
+
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/LBCN30GB/Stanford/data';
+code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+
 for i = 1:length(subjs_to_copy)
-    block_names{i} = BlockBySubj(subjs_to_copy{i},project_name);
+    block_names_all{i} = BlockBySubj(subjs_to_copy{i},project_name);
 end
 
 parfor i = 1:length(subjs_to_copy)
-    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/NeuroSpin2T/data/psychData', dirs.data_root, '/Volumes/NeuroSpin2T/data/neuralData', neuralData_folders, project_name, block_names{i})
+    CopySubject(subjs_to_copy{i}, dirs.psych_root, '/Volumes/LBCN8T/Stanford/data/psychData', dirs.data_root, '/Volumes/LBCN8T/Stanford/data/neuralData', neuralData_folders, project_name, block_names_all{i})
 end
 
 %% Run after having copied on the destination computer
+comp_root = '/Volumes/LBCN8T/Stanford/data';
+dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
     UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
 end
+
+for i = 1:length(subjs_to_copy)
+    block_names = BlockBySubj(subjs_to_copy{i},project_name);
+    OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 2) 
+end
+
+
 
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -817,25 +831,13 @@ end
 %% Analyse several subjects
 % sbj_name_all = {};
 project_name = 'MMR';
-for i = 9%:length(sbj_name_all)
+for i = 10:15%length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
 
 % psychData_dirs = dir(fullfile('/Volumes/LBCN8T/Stanford/data/psychData'));
 % psychData_dirs = psychData_dirs(arrayfun(@(x) ~contains(x.name, '.'), psychData_dirs));
 % psych_sbj = horzcat({psychData_dirs.name})';
-
-for i = 1:length(psych_sbj)
-    block_names = BlockBySubj(psych_sbj{i},'MMR');
-    OrganizeTrialInfoMMR_rest(psych_sbj{i}, project_name, block_names, dirs) %%% FIX ISSUE WITH TABLE SIZE, weird, works when separate, loop clear variable issue
-    EventIdentifier(psych_sbj{i}, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
-end
-
-
-for i = 1:length(psych_sbj)
-    block_names = BlockBySubj(psych_sbj{i},'MMR');
-    UpdateGlobalVarDirs(psych_sbj{i}, project_name, block_names, dirs)
-end
 
 
 
@@ -855,7 +857,7 @@ for i = 1:length(block_names)
 end
 
 
-%% Concatenate 
+% Concatenate 
 concat_params = genConcatParams(1,200);
 data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,ChanNamesToNums(globalVar,{'LP6'}),'CAR','CAR','stim', concat_params);
 
@@ -872,5 +874,8 @@ nanx = isnan(data_all.wave);
 t    = 1:numel(data_all.wave);
 data_all.wave(nanx) = interp1(t(~nanx), data_all.wave(~nanx), t(nanx));
 save([dirs.MVData filesep sbj_name '_' project_name '_' 'CAR_continuous' '.mat'], 'data_all');
+
+
+%% Su's viz
 
 

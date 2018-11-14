@@ -35,7 +35,7 @@ for i = 1:length(block_names)
     clear anlg
     
     %% Add exceptions
-    [n_initpulse_onset, n_initpulse_offset] = EventIdentifierExceptions(sbj_name, project_name, bn);
+    [n_initpulse_onset, n_initpulse_offset] = EventIdentifierExceptions(sbj_name, project_name, bn, n_initpulse_onset, n_initpulse_offset);
     
     %% Thresholding the signal
     if strcmp(project_name, 'Calculia_production')
@@ -126,17 +126,12 @@ for i = 1:length(block_names)
             counter = counter+trialinfo.nstim(ti);
         end
     else
-        
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
-    
     
     % Add other kind of exceptions for when there is more triggers in the end - Calculia
     stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
     
-    %% Reshape triggers
-    all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
-
 %%
 % Plot photodiode segmented data
 figureDim = [0 0 1 1];
