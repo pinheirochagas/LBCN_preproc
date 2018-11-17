@@ -6,6 +6,8 @@ elseif strcmp(sbj_name, 'S15_92_MR') && strcmp(project_name, 'Calculia')
     stim_onset = stim_onset(1:end-1);
 elseif strcmp(sbj_name, 'S16_93_MA') && strcmp(project_name, 'Calculia')
     stim_onset = stim_onset(1:end-1);
+elseif strcmp(sbj_name, 'S16_94_DR') && (strcmp(bn, 'E16-168_0021'))
+    stim_onset = stim_onset(1:end-1);    
 end
 
 end

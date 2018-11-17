@@ -113,6 +113,15 @@ for i = 1:length(block_names)
     end
     
     %% Get trials, insturuction onsets
+    if strcmp(project_name, 'Calculia')
+        % Add other kind of exceptions for when there is more triggers in the end - Calculia
+        all_stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
+        stim_onset = all_stim_onset;
+        all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
+    else
+        all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
+    end
+    
     %% modified for Memoria
     colnames = trialinfo.Properties.VariableNames;
     ntrials = size(trialinfo,1);
@@ -125,13 +134,9 @@ for i = 1:length(block_names)
             all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
             counter = counter+trialinfo.nstim(ti);
         end
-    else
-        all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
     
-    % Add other kind of exceptions for when there is more triggers in the end - Calculia
-    stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
-    
+
 %%
 % Plot photodiode segmented data
 figureDim = [0 0 1 1];

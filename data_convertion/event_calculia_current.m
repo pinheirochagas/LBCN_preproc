@@ -8,15 +8,15 @@ block_type = 'passive'; %'passive' or 'active'
 
 initialize_dirs;
 
-load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',data_root,sbj_name,project_name,sbj_name,block_name));
-globalVar.psych_dir = sprintf('%s/analysis_ECOG/psychData/%s/%s',comp_root,sbj_name,block_name);
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
 
 iEEG_rate=globalVar.iEEG_rate;
 
 %% Reading PsychData BAHAVIORAL DATA
-
-K= load(sprintf('%s/run4.mat',globalVar.psych_dir));
-
+soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
+K = load([globalVar.psych_dir '/' soda_name.name]);
+    
+    
 lsi= length(K.theData);
 goodbehavtrials = 1:lsi;
 
@@ -55,7 +55,7 @@ RT = RT(goodbehavtrials);
 % end
 
 %% reading analog channel from neuralData directory
-load(sprintf('%s/Pdio%s_01.mat',globalVar.originalData, block_names{1}));
+load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdiochan));
 
 %% varout is anlg (single percision)
 downRatio= round(globalVar.Pdio_rate/iEEG_rate);
@@ -99,7 +99,6 @@ plot(stim_onset*iEEG_rate,marks_on,'r*');hold on
 plot(stim_offset*iEEG_rate,marks_off,'g*');
 
 
-return
 %%
 %Get trials, insturuction onsets
 
@@ -126,18 +125,11 @@ plot(stim_onset_fourth*iEEG_rate,marks_fourth,'m*');
 plot(stim_onset_third*iEEG_rate,marks_third,'c*');
 plot(stim_onset_fifth*iEEG_rate,marks_fifth,'g*');
 
-return
-
 %% Start-end experiment times
 %add 500ms either side to avoid window errors during epoching later on
 globalVar.exp_start_point = stim_onset(1)-0.5; %-500ms
 globalVar.exp_end_point = stim_offset(end)+0.5; %+500ms
 
-%save updated globals
-fn=sprintf('%s/originalData/%s/global_%s_%s_%s.mat',data_root,sbj_name,project_name,sbj_name,block_name);
-save(fn,'globalVar');
-close all
-return
 
 %% Comparing photodiod with behavioral data
 %for just the first stimulus of each trial
@@ -149,7 +141,10 @@ df_SOT= diff(SOT);
 df_stim_onset= diff(stim_onset_fifth); %fifth? why?
 ngoodtrials = length(stim_onset_fifth);
 %plot overlay
-figure, plot(df_SOT(1:ngoodtrials-1),'o','MarkerSize',8,'LineWidth',3),hold on, plot(df_stim_onset(1:ngoodtrials-1),'r*')
+figure
+plot(df_SOT(1:ngoodtrials-1),'o','MarkerSize',8,'LineWidth',3)
+hold on
+plot(df_stim_onset(1:ngoodtrials-1),'r*')
 df= df_SOT(1:ngoodtrials-1) - df_stim_onset(1:ngoodtrials-1);
 
 %plot diffs, across experiment and histogram
@@ -170,9 +165,6 @@ if ~all(abs(df)<.1)
     disp('behavioral data and photodiod mismatch'),return
 end
 
-return
-
-%%
 
 %group all, rearrange for trials (trials as rows, with 5 stimuli as columns)
 % lsi=23;
@@ -185,70 +177,6 @@ for ti = 1:ngoodtrials; %23 for OD5, lsi for others
     all_stim_onset(ti,5) = stim_onset_fifth(ti);
 end
 
-return
-%% events and categories from psychtoolbox information
-
-% Conditions:
-% 1 : Easy addition correct
-% 2 : Easy addition incorrect
-% 3 : Letter addition correct
-% 4 : Letter addition incorrect
-% 5 : Hard addition correct
-% 6 : Hard addition incorrect
-% 7 : Hard subtraction correct
-% 8 : Hard subtraction incorrect
-
-%condition names
-categNames= {'easy_add_corr','easy_add_incorr'...
-    'letter_add_corr','letter_add_incorr'...
-    'hard_add_corr','hard_add_incorr'...
-    'hard_sub_corr','hard_sub_incorr'};
-
-wlist= K.wlist;
-wlistMemo=K.wlistMemo;
-% wlistInfo=K.wlistInfo;
-
-cond= [K.conds]';
-
-cond=cond(goodbehavtrials);
-
-stimNum= lsi;
-events=[];
-
-for ci=1:length(categNames)
-    events.categories(ci).name= sprintf('%s',categNames{ci});
-    events.categories(ci).categNum= ci;
-    ind=find(cond==ci);
-    ind = intersect(ind,1:ngoodtrials);
-    events.categories(ci).numEvents= length(ind);
-    events.categories(ci).trialno= ind;
-    events.categories(ci).allonsets=all_stim_onset(ind,:);
-    events.categories(ci).wlist=wlist(ind);
-    events.categories(ci).wlistMemo=wlistMemo(ind);
-%     events.categories(ci).wlistInfo=wlistInfo(ind);
-    events.categories(ci).sbj_resp= sbj_resp(ind);
-    events.categories(ci).RT = RT(ind);
-    
-    if (strcmp(block_type,'passive')) %passive runs
-        accuracy=ones(1,length(ind));
-        
-    else (strcmp(block_type,'active'))
-        accuracy=zeros(1,length(ind));
-        if (ismember(ci,[1 3 5 7]))
-            acc=find(events.categories(ci).sbj_resp==1);
-            accuracy(acc)=1;
-        else
-            acc=find(events.categories(ci).sbj_resp==2);
-            accuracy(acc)=1;
-        end
-    end
-    events.categories(ci).accuracy= accuracy;
-    
-    ind=(((ind-1)*5)+1);
-    events.categories(ci).firststimno= ind;
-    events.categories(ci).onsets= stim_onset(ind);
-    events.categories(ci).stimdur= (stim_offset(ind+4)-stim_onset(ind));
-end
 
 
 %% making a saving directory

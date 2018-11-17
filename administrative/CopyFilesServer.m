@@ -21,17 +21,18 @@ if strcmp(data_format, 'TDT')
     for i = 1:length(iEEG_names)
         fn = [iEEG_names(i).folder '/' iEEG_names(i).name];
         copyfile(fn, globalVar.originalData)
-        disp(sprintf('Copied iEEG file %s to %s', fn, globalVar.originalData))
+        fprintf('Copied iEEG file %s to %s', fn, globalVar.originalData)
     end
     
 elseif strcmp(data_format, 'edf')
     copyfile(globalVar.iEEG_data_server_path, globalVar.originalData)
+    fprintf('Copied iEEG file %s to %s', fn, globalVar.originalData)
 else
 end
 
 %%Copy behavioral file
 copyfile(globalVar.behavioral_data_server_path, globalVar.psych_dir)
-disp(sprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir))
+fprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir)
 
 end
 

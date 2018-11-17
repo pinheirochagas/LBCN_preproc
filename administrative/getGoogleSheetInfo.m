@@ -1,5 +1,10 @@
 function [DOCID,GID] = getGoogleSheetInfo(table,project_name)
 
+if isempty(project_name)
+    project_name = 'generic';
+else
+end
+
 switch table
     case 'math_network'
         DOCID = '1rLFTsiDXyDvckau5epvuUfvfD9LGibWn6p8QJBms2NY';
@@ -70,6 +75,10 @@ switch table
     case 'demographics'
         DOCID = '1H_oM_GuIMX5RTDeRZrOSBb3O1zms73xmUd_05de0cqA';
         GID = '683763705';
+        
+    case 'chan_names_ppt'
+        DOCID = '1RSgUAGnngW-GLqtSkse05lZ3JGzJ6iImAQeeUrZzqwE';
+        GID = '0';        
 
 end
 

@@ -19,6 +19,24 @@ for bi = 1:length(block_names)
     
     % Number of trials
     ntrials = length(K.theData);
+    if K.trial < length(K.theData)
+        for i = (K.trial+1):length(K.theData)
+            K.theData(i).keys = NaN;
+            K.theData(i).RT = NaN;
+            K.theData(i).ifAnsIsDelayed = NaN;
+            if ~isstruct(K.theData(i).flip)
+                K.theData(i).flip = {};
+                K.theData(i).flip.StimulusOnsetTime = NaN;
+                %                 fprintf('Making it struct: %d\n',i)
+            end
+            K.theData(i).flip.StimulusOnsetTime = NaN;
+            %K.theData(i).flip.StimulusOnsetTime = NaN;
+        end
+%            K.theData(end) = [];
+    else
+    end
+    
+        
     %PASSIVE OR ACTIVE
     
     %wlistinfo = K.wlistInfo
@@ -41,7 +59,7 @@ for bi = 1:length(block_names)
     
     %% List stimuli properties
     trialinfo.wlist = K.wlist;
-    [operands,operators] = cellfun(@(x) strsplit(x, {'+','-','='}, 'CollapseDelimiters',true), K.wlist, 'UniformOutput', false);
+    [operands,operators] = cellfun(@(x) strsplit(x, {'+','-','=','without','is','and'}, 'CollapseDelimiters',true), K.wlist, 'UniformOutput', false);
     for i = 1:length(operands)
         trialinfo.stim1{i} = operands{i}{1};
         trialinfo.stim2{i} = operands{i}{2};
@@ -68,13 +86,13 @@ for bi = 1:length(block_names)
             
             % Cross decade
             if trialinfo.minOperand(i) < 10 && trialinfo.maxOperand(i) < 10
-               if length(operands{i}{3}) > 1
+                if length(operands{i}{3}) > 1
                     trialinfo.crossDecade(i) = 1;
-               else
+                else
                     trialinfo.crossDecade(i) = 0;
-               end
-               elseif trialinfo.minOperand(i) > 10 && trialinfo.maxOperand(i) > 10
-                    trialinfo.crossDecade(i) = 1;
+                end
+            elseif trialinfo.minOperand(i) > 10 && trialinfo.maxOperand(i) > 10
+                trialinfo.crossDecade(i) = 1;
             else
                 max_tmp = num2str(trialinfo.maxOperand(i));
                 corr_tmp = num2str(trialinfo.corrResult(i));
@@ -83,7 +101,7 @@ for bi = 1:length(block_names)
                 else
                     trialinfo.crossDecade(i) = 1;
                 end
-            end            
+            end
         else
             trialinfo.isCalc(i) = 0;
             trialinfo.condNames{i} = 'letter';
@@ -96,12 +114,48 @@ for bi = 1:length(block_names)
             trialinfo.absDeviant(i) = nan;
             trialinfo.crossDecade(i) = nan;
         end
-                
+        
+    end
+    
+%     %% For when the last trials were not run
+%     if K.trial < length(K.theData)
+%         diff_theData_trial = length(K.theData) - K.trial;
+%         K.theData(end-diff_theData_trial:end) = [];
+%     else
+%     end
+    
+    %% isDelayed
+    
+    % If the cells are empty
+    for i = 1:length(K.theData)
+        if size(K.theData(i).ifAnsIsDelayed,2) ~= 1;
+            K.theData(i).ifAnsIsDelayed = NaN;
+            K.theData(i).RT = NaN;
+            K.theData(i).keys = NaN;
+            if ~isstruct(K.theData(i).flip)
+                K.theData(i).flip = {};
+                K.theData(i).flip.StimulusOnsetTime = NaN;
+                %                 fprintf('Making it struct: %d\n',i)
+            end
+            K.theData(i).flip.StimulusOnsetTime = NaN;
+        else
+        end
     end
     trialinfo.isDelayed = vertcat(K.theData.ifAnsIsDelayed);
     
-    % RT
-    if trialinfo.isActive(1) == 0
+    
+    % If there are more than two answers at the same time (and not a passive trial), turn it into a NaN:
+    for i = 1:length(K.theData)
+        if trialinfo.version(1) ~= 3 && length(K.theData(i).RT) > 1
+            K.theData(i).RT = NaN;
+            K.theData(i).keys = NaN;
+        else
+        end
+    end
+    
+    
+    % RT & Keys
+    if trialinfo.isActive(1) == 0 && trialinfo.version(1) == 3
         trialinfo.RT = nan(size(trialinfo,1),1);
         trialinfo.keys = nan(size(trialinfo,1),1);
         trialinfo.Accuracy = nan(size(trialinfo,1),1);
@@ -109,6 +163,15 @@ for bi = 1:length(block_names)
         trialinfo.RT = [K.theData(:).RT]';
         trialinfo.keys = vertcat({K.theData.keys})';
        
+%         %For when keys are = no answer
+%         for i = 1:length(K.theData)
+%             if strcmp(trialinfo.keys{i}, 'noanswer')
+%                 trialinfo.keys{i} = NaN;
+%             else
+%             end
+%         end
+        
+        
         % Accurracy
         for i = 1:length(operands)
             
@@ -130,9 +193,9 @@ for bi = 1:length(block_names)
     end
     trialinfo.StimulusOnsetTime = allonset;
     
-
-  %% Save trialinfo 
-  save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
- 
+    
+    %% Save trialinfo
+    save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
+    
 end
 end

@@ -165,6 +165,8 @@ if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 % elseif strcmp(project_name, 'Memoria')
 %     EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+elseif strcmp(project_name, 'Calculia')
+    
 else
     EventIdentifier(sbj_name, project_name, block_names, dirs, 3) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
@@ -221,6 +223,48 @@ end
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
+
+%% Create subjVar
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+
+% Get subjects
+
+for i = 1:length(sbj_name)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    subjVar = CreateSubjVar(sbj_names{i}, dirs, fsDir_local);
+end
+
+
+%% Behavioral analysis
+% Load behavioral data
+load()
+
+datatype = 'HFB'
+plot_params.blc = true
+locktype = 'stim'
+data_all.trialinfo = [];
+for i = 1:length(block_names)
+    bn = block_names {i};
+    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
+    
+    if plot_params.blc
+        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    else
+        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
+    end
+    % concatenate trial info
+    data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
+end
+
+data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
+acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
+mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
+sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
+
+boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
+set(gca,'fontsize',20)
+ylabel('RT (sec.)')
+xlabel('Min operand')
 
 %% DONE PREPROCESSING.
 % Eventually replace globalVar to update dirs in case of working from an
@@ -438,54 +482,11 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 
 
-%% Create subjVar
-fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-% Get subjects
-[DOCID,GID] = getGoogleSheetInfo('math_network', 'memoria'); % project_name
-googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_names = googleSheet.subject_name;
-sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
 
-for i = 1:length(sbj_name)
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    subjVar = CreateSubjVar(sbj_names{i}, dirs, fsDir_local);
-end
-
-
-%% Behavioral analysis
-% Load behavioral data
-load()
-
-datatype = 'HFB'
-plot_params.blc = true
-locktype = 'stim'
-data_all.trialinfo = [];
-for i = 1:length(block_names)
-    bn = block_names {i};
-    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
-    
-    if plot_params.blc
-        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    else
-        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    end
-    % concatenate trial info
-    data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
-end
-
-data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
-acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
-mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
-sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
-
-boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
-set(gca,'fontsize',20)
-ylabel('RT (sec.)')
-xlabel('Min operand')
 
 
 %% Copy subjects
-subjs_to_copy = {};
+subjs_to_copy = {}; % this is to initiate and copy from excel files
 project_name = 'MMR';
 neuralData_folders = {'originalData', 'CARData'};
 
@@ -494,6 +495,7 @@ comp_root = '/Volumes/LBCN30GB/Stanford/data';
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
+block_names_all = {};
 for i = 1:length(subjs_to_copy)
     block_names_all{i} = BlockBySubj(subjs_to_copy{i},project_name);
 end
@@ -513,10 +515,15 @@ end
 for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
     OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 2) 
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1) 
 end
 
-
+%% Analyse several subjects
+sbj_name_all = subjs_to_copy
+project_name = 'MMR';
+for i = 1:2%length(sbj_name_all)
+    analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
+end
 
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -789,7 +796,7 @@ for ii = 1:length(conds_avg_conds)
     % Calculate integral of averaged trials.
     data_tmp_integral = trapz(data_tmp_avg,2);
     data_tmp_integral_norm = data_tmp_integral/max(data_tmp_integral(:));
-    data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; % concatenate across subjects
+    data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; 
 end
 
 % Load coordinates
@@ -826,14 +833,6 @@ end
 %%%%%%%%%%%%%%%%%%
 % Make sure that electrodes labels from freesurfer are the same as in the files
 
-
-
-%% Analyse several subjects
-% sbj_name_all = {};
-project_name = 'MMR';
-for i = 10:15%length(sbj_name_all)
-    analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
-end
 
 % psychData_dirs = dir(fullfile('/Volumes/LBCN8T/Stanford/data/psychData'));
 % psychData_dirs = psychData_dirs(arrayfun(@(x) ~contains(x.name, '.'), psychData_dirs));
