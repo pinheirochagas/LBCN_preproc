@@ -9,88 +9,83 @@ load([fn_tmp(1).folder filesep fn_tmp(1).name])
 %% Cortex and channel label correction
 subjVar = [];
 cortex = getcort(dirs);
-coords = importCoordsFreesurfer(dirs);
-elect_names = importElectNames(dirs);
-[elect_MNI, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+native_coord = importCoordsFreesurfer(dirs);
+fs_chan_names = importElectNames(dirs);
+[MNI_coord, chanNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
 close all
 V = importVolumes(dirs);
 
 subjVar.cortex = cortex;
 subjVar.V = V;
-subjVar.elect_native = coords;
-subjVar.elect_MNI = elect_MNI;
-subjVar.elect_names = elect_names;
 
 %% Correct channel name 
 % Load naming from google sheet
-[DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', []);
-googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-chan_names_ppt = googleSheet.(sbj_name);
-chan_names_ppt = chan_names_ppt(~cellfun(@isempty, chan_names_ppt)); % Dangerous for the ones with skip names
-
-
-nchan_fs = length(elect_names);
-
 if strcmp(data_format, 'edf')
-    chan_compare = globalVar.channame;
-    nchan_cmp = globalVar.nchan;
+    [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_fs_figures');
 else
-    chan_compare = chan_names_ppt;
-    nchan_cmp = length(chan_names_ppt);
+    [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_ppt_log');
+end
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+ppt_chan_names = googleSheet.(sbj_name);
+ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % Dangerous for the ones with skip names
+ppt_chan_names = cellfun(@(x) strrep(x, ' ', ''), ppt_chan_names, 'UniformOutput', false); % Remove eventual spaces
+
+nchan_fs = length(fs_chan_names);
+chan_comp = ppt_chan_names;
+nchan_cmp = length(ppt_chan_names);
+
+in_chan_cmp = false(1,nchan_fs);
+for i = 1:nchan_fs
+    in_chan_cmp(i) = ismember(fs_chan_names(i),chan_comp);
 end
 
-new_order = nan(1,nchan_fs);
+in_fs = false(1,nchan_cmp);
+for i = 1:nchan_cmp
+    in_fs(i) = ismember(chan_comp(i),fs_chan_names);
+end
 
-for i = 1:nchan_fs
-    tmp = find(ismember(chan_compare,elect_names(i)));
+% 1: More channels in freesurfer  
+if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
+    % do nothing
+elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
+    fs_chan_names = fs_chan_names(in_chan_cmp); 
+    native_coord = native_coord(in_chan_cmp,:);
+    MNI_coord = MNI_coord(in_chan_cmp,:);
+
+% 2: More channels in EDF/TDT     
+elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
+    fs_chan_names_tmp = cell(nchan_cmp,1);
+    fs_chan_names_tmp(in_fs) = cellstr(fs_chan_names);
+    fs_chan_names_tmp(in_fs==0) = chan_comp(in_fs==0);
+    fs_chan_names = fs_chan_names_tmp;
+    
+    native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+    native_coord_tmp(in_fs,:) = native_coord;
+    native_coord = native_coord_tmp;
+    
+    MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
+    MNI_coord_tmp(in_fs,:) = MNI_coord;
+    MNI_coord = MNI_coord_tmp;
+else
+    error('this exception is not accounted for, please check')
+end
+    
+%% Reorder and save in subjVar
+new_order = nan(1,nchan_cmp);
+for i = 1:nchan_cmp
+    tmp = find(ismember(fs_chan_names, chan_comp(i)));
     if ~isempty(tmp)
         new_order(i) = tmp(1);
     end
 end
 
-bad_inds_fs = find(isnan(new_order));
-bad_inds_cmp = setdiff(1:nchan_cmp,new_order(~isnan(new_order)));
-
-
-elect_names(bad_inds_fs)
-
-% Situation 1 - some channels are present in freesurfer, but not in EDF/TDT 
-%leave them as they are, so nans will be added to coords and after removed. 
-
-% Option 2 - some channels have mismatched names in freesurfer and EDF/TDT
-% names can be fixed to actually match existing channels. 
-
-% Situation 3 - some channels in EDF or TDT to no exist in freesurver, so have to add nans to elec_names, MNI and native coords
-
-
-
-%% Organize subjVar
-subjVar.cortex = cortex;
-subjVar.V = V;
-
-if isempty(bad_inds_fs) || isempty(bad_inds_fs) % if everything matches uip
-    subjVar.elect_native = nan(nchan_fs,3);
-    subjVar.elect_MNI = nan(nchan_fs,3);
-    subjVar.elect_names = elect_names;
-    subjVar.elect_native(new_order,:) = coords;
-    subjVar.elect_MNI(new_order,:) = elect_MNI;
-    subjVar.elect_names(new_order) = elect_names; 
-    if ~isempty(bad_inds_cmp) % if not all electrodes were detected in freesurfer, add NaNs to coords
-        for i = 1:length(bad_inds_cmp)
-            subjVar.elect_names = [subjVar.elect_names; globalVar.channame{bad_inds_cmp(i)}];
-            subjVar.elect_native = [subjVar.elect_native; NaN NaN NaN];
-            subjVar.elect_MNI = [subjVar.elect_MNI; NaN NaN NaN];
-        end
-    else
-        subjVar.elect_names = subjVar.elect_names(1:nchan_cmp);
-        subjVar.elect_native = subjVar.elect_native(1:nchan_cmp,:);
-        subjVar.elect_MNI = subjVar.elect_MNI(1:nchan_cmp,:);
-    end
+subjVar.native_coord = native_coord(new_order,:);
+subjVar.MNI_coord = MNI_coord(new_order,:);
+if strcmp(data_format, 'TDT')
+    subjVar.elect_names = chan_comp;
 else
-    undefined_subjVar = subjVar.elect_names(bad_inds_fs(bad_inds_fs<=length(elect_names)))
-    undefined_globalVar = globalVar.channame(bad_inds_cmp)
+    subjVar.elect_names = globalVar.channame;
 end
-
 
 
 %% Demographics

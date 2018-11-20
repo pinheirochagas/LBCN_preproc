@@ -4,6 +4,7 @@ function dirs = InitializeDirs(project_name,sbj_name, comp_root, server_root, co
 % Get generic name without lower case to match the server 
 if isstrprop(sbj_name(end),'lower')
     sbj_name_generic = sbj_name(1:end-1);
+    sbj_name_generic = sbj_name;
 else
     sbj_name_generic = sbj_name;
 end

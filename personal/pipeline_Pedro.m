@@ -229,11 +229,16 @@ fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 
 % Get subjects
 
-for i = 1:length(sbj_name)
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    subjVar = CreateSubjVar(sbj_names{i}, dirs, fsDir_local);
+for i = 1:length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_name{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    subjVar = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
 end
 
+sbj_name = 'S17_69_RTb'
+
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
 
 %% Behavioral analysis
 % Load behavioral data
@@ -519,9 +524,9 @@ for i = 1:length(subjs_to_copy)
 end
 
 %% Analyse several subjects
-sbj_name_all = subjs_to_copy
+sbj_name_all = {'S17_105_TA'}
 project_name = 'MMR';
-for i = 1:2%length(sbj_name_all)
+for i = 1:length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
 
