@@ -15,6 +15,7 @@ fs_chan_names = importElectNames(dirs);
 close all
 V = importVolumes(dirs);
 
+subjVar.sbj_name = sbj_name;
 subjVar.cortex = cortex;
 subjVar.V = V;
 
@@ -101,7 +102,7 @@ else
 end
 
 %% Save subjVar
-if ~exist([dirs.original_data filesep sbj_name filesep 'subjVar.mat' ], 'file')
+if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
     prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
     ID = input(prompt,'s');
     if strcmp(ID, 'y')
@@ -111,6 +112,8 @@ if ~exist([dirs.original_data filesep sbj_name filesep 'subjVar.mat' ], 'file')
         warning(['subjVar NOT saved for ' sbj_name])
     end
 else
+    save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
+    disp(['subjVar saved for ' sbj_name])
 end
 
 end

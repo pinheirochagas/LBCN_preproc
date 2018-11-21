@@ -234,11 +234,18 @@ for i = 1:length(sbj_names)
     subjVar = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
 end
 
-sbj_name = 'S17_69_RTb'
+sbj_name = 'S12_33_DA';
 
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
+    load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
+else
+    subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+end
 
 %% Behavioral analysis
 % Load behavioral data
@@ -779,40 +786,14 @@ end
 
 
 %% Plot heatmap
-
-data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-decimate = true;
-final_fs = 50;
-concat_params = genConcatParams(decimate, final_fs);
-concat_params.noise_method = 'trials';
-data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
-
-
+sbj_name = 'S13_57_TVD';
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
-data_all = []
-for ii = 1:length(conds_avg_conds)
-    % Initialize data_all
-    data_all.(conds_avg_conds{ii}) = [];
-end
+colormap_plot = 'RedsWhite';
+PlotCoverageHeatmap(sbj_name,project_name, conds_avg_field, conds_avg_conds, colormap_plot, dirs)
 
-for ii = 1:length(conds_avg_conds)
-    data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo{1}.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-    % Calculate integral of averaged trials.
-    data_tmp_integral = trapz(data_tmp_avg,2);
-    data_tmp_integral_norm = data_tmp_integral/max(data_tmp_integral(:));
-    data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; 
-end
 
-% Load coordinates
-coords_tmp = importCoordsFreesurfer(dirs);
-[MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
-coords = coords_tmp(1:length(data_all.math),:); % FIX THIS SOLUCAO TOSSSSCA E ERRADA
-
-% Plot heatmap
-[col_idx,colors_plot] = colorbarFromValues(data_all.math, 'RedsWhite');
-
-PlotCoverageHeatmap(sbj_name,project_name, coords, colors_plot, col_idx, dirs)
 
 %% Load MNI coordinates
 chan_plot = [];

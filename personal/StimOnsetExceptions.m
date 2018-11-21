@@ -23,4 +23,42 @@ switch sbj_name
             stim_onset = [stim_onset(1:200) NaN stim_onset(201:end)];
             stim_offset = [stim_offset(1:200) NaN stim_offset(201:end)];
         end
+        
+    case 'S14_67_RH'
+        if strcmp(bn, 'S14_67_RH_08')
+            stim_onset = [stim_onset(1:74) stim_onset(75:end)];
+            stim_offset = [stim_offset(1:74) stim_offset(75:end)];
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+        elseif strcmp(bn, 'S14_67_RH_09')
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+        elseif strcmp(bn, 'S14_67_RH_12')
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+        elseif strcmp(bn, 'S14_67_RH_15')
+            stim_onset = [stim_onset(1:120) stim_onset(122:end)];
+            stim_offset = [stim_offset(1:120) stim_offset(122:end)];
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+        elseif strcmp(bn, 'S14_67_RH_16')
+            stim_onset = [stim_onset(1:45) stim_onset(49:end)];
+            stim_offset = [stim_offset(1:45) stim_offset(49:end)];
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+        end
+        
+    case 'S15_89_JQa'
+        if strcmp(bn, 'E15-497_0008')
+            stim_onset = [stim_onset(1:158) stim_onset(160:end)];
+            stim_offset = [stim_offset(1:158) stim_offset(160:end)];
+        elseif strcmp(bn, 'E15-497_0012')
+            stim_onset = [stim_onset(1:20) stim_onset(22:44) stim_onset(46:end)];
+            stim_offset = [stim_offset(1:20) stim_offset(22:44) stim_offset(46:end)];
+        elseif strcmp(bn, 'E15-497_0013')
+            stim_onset = [stim_onset(2:151) stim_onset(153:156)  stim_onset(158:160) stim_onset(161:end)];
+            stim_offset = [stim_offset(2:151) stim_offset(153:156) stim_onset(158:160) stim_offset(161:end)];
+        else
+        end
+        
 end

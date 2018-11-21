@@ -149,7 +149,11 @@ for bi = 1:length(block_names)
         if trialinfo.version(1) ~= 3 && length(K.theData(i).RT) > 1
             K.theData(i).RT = NaN;
             K.theData(i).keys = NaN;
-        else
+        % If there are more than two answers at the same time (and it is 
+        % a passive trial), assign the first key as legitimate
+        elseif trialinfo.version(1) == 3 && length(K.theData(i).RT) > 1 && trialinfo.isActive(1) == 1
+            K.theData(i).RT = K.theData(i).RT(1);
+            K.theData(i).keys = K.theData(i).keys(1);
         end
     end
     
