@@ -1,17 +1,22 @@
-function subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local)
+function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local)
 
-%% Load a given globalVar
-gv_dir = dir(fullfile([dirs.data_root filesep 'originalData/' sbj_name]));
-gv_inds = arrayfun(@(x) contains(x.name, 'global'), gv_dir);
-fn_tmp = gv_dir(gv_inds);
-load([fn_tmp(1).folder filesep fn_tmp(1).name])
+if strcmp(data_format, 'edf')
+    % Load a given globalVar
+    gv_dir = dir(fullfile([dirs.data_root filesep 'originalData/' sbj_name]));
+    gv_inds = arrayfun(@(x) contains(x.name, 'global'), gv_dir);
+    fn_tmp = gv_dir(gv_inds);
+    load([fn_tmp(1).folder filesep fn_tmp(1).name])
+else
+end
+
 
 %% Cortex and channel label correction
 subjVar = [];
 cortex = getcort(dirs);
-native_coord = importCoordsFreesurfer(dirs);
-fs_chan_names = importElectNames(dirs);
-[MNI_coord, chanNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+% native_coord = importCoordsFreesurfer(dirs);
+% fs_chan_names = importElectNames(dirs);
+[MNI_coord, chanInfo, native_coord, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+fs_chan_names = chanInfo.Name;
 close all
 V = importVolumes(dirs);
 
@@ -19,7 +24,7 @@ subjVar.sbj_name = sbj_name;
 subjVar.cortex = cortex;
 subjVar.V = V;
 
-%% Correct channel name 
+%% Correct channel name
 % Load naming from google sheet
 if strcmp(data_format, 'edf')
     [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_fs_figures');
@@ -45,18 +50,18 @@ for i = 1:nchan_cmp
     in_fs(i) = ismember(chan_comp(i),fs_chan_names);
 end
 
-% 1: More channels in freesurfer  
+% 1: More channels in freesurfer
 if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     % do nothing
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
-    fs_chan_names = fs_chan_names(in_chan_cmp); 
+    fs_chan_names = fs_chan_names(in_chan_cmp);
     native_coord = native_coord(in_chan_cmp,:);
     MNI_coord = MNI_coord(in_chan_cmp,:);
-
-% 2: More channels in EDF/TDT     
+    
+    % 2: More channels in EDF/TDT
 elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     fs_chan_names_tmp = cell(nchan_cmp,1);
-    fs_chan_names_tmp(in_fs) = cellstr(fs_chan_names);
+    fs_chan_names_tmp(in_fs) = fs_chan_names;
     fs_chan_names_tmp(in_fs==0) = chan_comp(in_fs==0);
     fs_chan_names = fs_chan_names_tmp;
     
@@ -68,52 +73,63 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     MNI_coord_tmp(in_fs,:) = MNI_coord;
     MNI_coord = MNI_coord_tmp;
 else
-    error('this exception is not accounted for, please check')
+    disp(sbj_name)
+    chan_comp(in_fs == 0)
+    fs_chan_names(in_chan_cmp == 0)
+    mismatch_labels = 1;
+    warning('this exception is not accounted for, please check')
 end
-    
-%% Reorder and save in subjVar
-new_order = nan(1,nchan_cmp);
-for i = 1:nchan_cmp
-    tmp = find(ismember(fs_chan_names, chan_comp(i)));
-    if ~isempty(tmp)
-        new_order(i) = tmp(1);
+
+if ~exist('mismatch_labels')
+    %% Reorder and save in subjVar
+    new_order = nan(1,nchan_cmp);
+    for i = 1:nchan_cmp
+        tmp = find(ismember(fs_chan_names, chan_comp(i)));
+        if ~isempty(tmp)
+            new_order(i) = tmp(1);
+        end
     end
-end
-
-subjVar.native_coord = native_coord(new_order,:);
-subjVar.MNI_coord = MNI_coord(new_order,:);
-if strcmp(data_format, 'TDT')
-    subjVar.elect_names = chan_comp;
-else
-    subjVar.elect_names = globalVar.channame;
-end
-
-
-%% Demographics
-subjVar.demographics = GetDemographics(sbj_name);
-if isempty(subjVar.demographics)
-    warning(['There is no demographic info for ' sbj_name '. Please add it to the google sheet.'])
-else
-end
-
-if ~exist([dirs.original_data filesep sbj_name], 'dir')
-    mkdir([dirs.original_data filesep sbj_name])
-else
-end
-
-%% Save subjVar
-if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
-    prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
-    ID = input(prompt,'s');
-    if strcmp(ID, 'y')
+    
+    subjVar.native_coord = native_coord(new_order,:);
+    subjVar.MNI_coord = MNI_coord(new_order,:);
+    if strcmp(data_format, 'TDT')
+        subjVar.elect_names = chan_comp;
+    else
+        %     subjVar.elect_names = globalVar.channame;
+        subjVar.elect_names = globalVar.chan_comp;
+    end
+    
+    
+    %% Demographics
+    subjVar.demographics = GetDemographics(sbj_name);
+    if isempty(subjVar.demographics)
+        warning(['There is no demographic info for ' sbj_name '. Please add it to the google sheet.'])
+    else
+    end
+    
+    if ~exist([dirs.original_data filesep sbj_name], 'dir')
+        mkdir([dirs.original_data filesep sbj_name])
+    else
+    end
+    
+    %% Save subjVar
+    if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
+        prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
+        ID = input(prompt,'s');
+        if strcmp(ID, 'y')
+            save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
+            disp(['subjVar saved for ' sbj_name])
+        else
+            warning(['subjVar NOT saved for ' sbj_name])
+        end
+    else
         save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
         disp(['subjVar saved for ' sbj_name])
-    else
-        warning(['subjVar NOT saved for ' sbj_name])
+        subjVar_created = 1;
     end
+    
 else
-    save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
-    disp(['subjVar saved for ' sbj_name])
+    subjVar_created = 0;
 end
 
 end

@@ -412,11 +412,40 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 sbj_names = googleSheet.subject_name;
-sbj_names = sbj_names(~cellfun(@isempty, sbj_names));
+% selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
+selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)];
+sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
 
-for i = 1:length(sbj_names)
-    PlotCoverage(sbj_names{36}, project_name) % {contains(sbj_names,'DY')}
+comp_root = '/Volumes/LBCN8T/Stanford/data';
+server_root = '/Volumes/neurology_jparvizi$/';
+code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+
+center = 'Stanford';
+% subjVar_created = nan(length(sbj_names),1,1);
+for i = 37:length(sbj_names)
+    % Load subjVar
+    if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
+        load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
+        subjVar_created(i) = 2;
+    else
+        fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names{i}, center);
+        dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+        [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
+    end 
 end
+
+%% Plot coverage for the ones with subjVar
+for i = 1:length(sbj_names)
+    disp(['plotting coverage of subject ' sbj_names{i}])
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    PlotCoverage(sbj_names{i}, project_name, dirs, false)
+end
+
+
+
+
+%%
 % 'S17_117_MC'
 sub = 41;
 sbj_names{sub}
@@ -498,7 +527,7 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 
 %% Copy subjects
-subjs_to_copy = {}; % this is to initiate and copy from excel files
+subjs_to_copy = {'S17_106_SD'}; % this is to initiate and copy from excel files
 project_name = 'MMR';
 neuralData_folders = {'originalData', 'CARData'};
 
@@ -527,13 +556,13 @@ end
 for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
     OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1) 
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names(2), dirs, 1) 
 end
 
 %% Analyse several subjects
-sbj_name_all = {'S17_105_TA'}
-project_name = 'MMR';
-for i = 1:length(sbj_name_all)
+sbj_name_all = {'S10_15_KB2', 'S11_22_EG'}
+project_name = 'UCLA';
+for i = 2:length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
 
@@ -786,7 +815,7 @@ end
 
 
 %% Plot heatmap
-sbj_name = 'S13_57_TVD';
+sbj_name = 'S14_64_SP';
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};

@@ -1,4 +1,4 @@
-function [avgCoords, elecNames, isLeft, avgVids, subVids]=sub2AvgBrainCustom(cfg, dirs, fsDir_local)
+function [avgCoords, elecInfo_table, elecCoord, avgVids, subVids]=sub2AvgBrainCustom(cfg, dirs, fsDir_local)
 %function [avgCoords, elecNames, isLeft, avgVids, subVids]=sub2AvgBrain(subj,cfg)
 %
 % This function maps electrodes from patient space to the FreeSurfer average
@@ -92,6 +92,8 @@ if isempty(elecNames)
     % Import electrode names
     elecFname=fullfile(subDir,'elec_recon',[subj '.electrodeNames']);
     elecInfo=csv2Cell(elecFname,' ',2);
+    elecInfo_table = table(elecInfo(:,1), elecInfo(:,2), elecInfo(:,3));
+    elecInfo_table.Properties.VariableNames = {'Name', 'Depth_Strip_Grid', 'Hem'};
     elecNames=elecInfo(:,1);
     nElec=size(elecInfo,1);
     isLeft=zeros(nElec,1);

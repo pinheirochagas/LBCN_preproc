@@ -3,7 +3,7 @@ function analyseMultipleSubjects(sbj_name, project_name, dirs)
     disp(['preprocessing subject ' sbj_name])
     
     % List Blocks
-    block_names = BlockBySubj(sbj_name,'MMR');
+    block_names = BlockBySubj(sbj_name, project_name);
     
     %% Branch 5 - Time-frequency analyses
     % Load elecs info

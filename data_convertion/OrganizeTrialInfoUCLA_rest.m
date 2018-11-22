@@ -18,6 +18,16 @@ for i = 1:length(block_names)
     trialinfo = table;
     trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % 
     
+    % Correct for when two keys and RTs
+    for i = 1:length(K.theData)
+        if iscell(K.theData(i).keys)
+            K.theData(i).keys = K.theData(i).keys{1};
+        else
+            K.theData(i).keys = K.theData(i).keys(1);
+        end
+        K.theData(i).RT = K.theData(i).RT(1);
+    end
+    
     for i = 1:length(K.theData)
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
     end
@@ -27,8 +37,10 @@ for i = 1:length(block_names)
             K.theData(i).RT = nan;
         else
         end
-end
+    end
 
+    
+    
     trialinfo.RT = vertcat(K.theData(:).RT);
     
     condNames= {'internal-self','internal-other','internal-dist-other',...

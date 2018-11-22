@@ -116,8 +116,6 @@ switch task
                 BN = {'VA121011-05','VA121011-06'};
             case 'S11_31_DZa'
                 BN = {'DZ1211-10'};
-            case 'S11_20_RHa'
-                BN = {'RH0211-02','RH0211-05'};
             case 'S12_32_JTa'
                 BN = {'JT0112-3','JT0112-4'};
             case 'S12_32_JTb'
@@ -320,6 +318,8 @@ switch task
                 BN = {'EG0311-23'};
             case 'S11_25_DL'
                 BN = {'dl_04','dl_44'};
+            case 'S11_20_RHa'
+                BN = {'RH0211-02','RH0211-05'};                
             otherwise
                 BN = [];
         end
