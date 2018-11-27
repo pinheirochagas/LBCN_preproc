@@ -223,30 +223,6 @@ end
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'HFB', 'Band')
 deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 
-
-%% Create subjVar
-fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-
-% Get subjects
-
-for i = 1:length(sbj_names)
-    dirs = InitializeDirs(project_name, sbj_name{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-    subjVar = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
-end
-
-sbj_name = 'S12_33_DA';
-
-[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
-dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
-
-dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
-    load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
-else
-    subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
-end
-
 %% Behavioral analysis
 % Load behavioral data
 load()
@@ -282,6 +258,50 @@ xlabel('Min operand')
 % Eventually replace globalVar to update dirs in case of working from an
 % with an external hard drive
 %UpdateGlobalVarDirs(sbj_name, project_name, block_name, dirs)
+
+%% Branch 6 - integrate brain and electrodes location MNI and native and other info
+% Load and convert Freesurfer to Matlab
+% load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+% elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+
+% Retrieve subjects info
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names = googleSheet.subject_name;
+% selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
+selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)];
+sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
+sbj_names = sbj_names(subjVar_created == 0)
+
+% Create subject variable
+comp_root = '/Volumes/LBCN8T/Stanford/data';
+server_root = '/Volumes/neurology_jparvizi$/';
+code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+
+center = 'Stanford';
+subjVar_created = nan(length(sbj_names_2),1,1);
+
+for i = 1:length(sbj_names_2)
+    % Load subjVar
+    if exist([dirs.original_data filesep sbj_names_2{i} filesep 'subjVar_' sbj_names_2{i} '.mat'], 'file')
+        load([dirs.original_data filesep sbj_names_2{i} filesep 'subjVar_' sbj_names_2{i} '.mat']);
+        subjVar_created(i) = 2;
+    else
+        fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names_2{i}, center);
+        dirs = InitializeDirs(project_name, sbj_names_2{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+        [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names_2{i}, dirs, data_format, fsDir_local);
+    end 
+end
+
+% Plot coverage for the ones with subjVar
+for i = 1:length(sbj_names)
+    disp(['plotting coverage of subject ' sbj_names{i}])
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    PlotCoverage(sbj_names{i}, project_name, dirs, false)
+end
+
+
 
 %% Branch 7 - Plotting
 % plot avg. HFB timecourse for each electrode separately
@@ -402,45 +422,6 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 % TODO: Fix cbrewer 2
 
-
-%% Branch 8 - integrate brain and electrodes location MNI and native and other info
-% Load and convert Freesurfer to Matlab
-% load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
-% elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
-
-% Plot coverage of all subjects
-[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
-googleSheet = GetGoogleSpreadsheet(DOCID, GID);
-sbj_names = googleSheet.subject_name;
-% selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
-selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)];
-sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
-
-comp_root = '/Volumes/LBCN8T/Stanford/data';
-server_root = '/Volumes/neurology_jparvizi$/';
-code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
-
-center = 'Stanford';
-% subjVar_created = nan(length(sbj_names),1,1);
-for i = 37:length(sbj_names)
-    % Load subjVar
-    if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
-        load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
-        subjVar_created(i) = 2;
-    else
-        fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names{i}, center);
-        dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-        [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
-    end 
-end
-
-%% Plot coverage for the ones with subjVar
-for i = 1:length(sbj_names)
-    disp(['plotting coverage of subject ' sbj_names{i}])
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-    PlotCoverage(sbj_names{i}, project_name, dirs, false)
-end
 
 
 
@@ -648,154 +629,53 @@ data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
 
 
 
-%% Make video
-% list subjects
-all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/Memoria/'));
-sbj_names = {all_folders(:).name};
-sbj_names = sbj_names(cellfun(@(x) ~contains(x, '.'), sbj_names));
-sbj_names = sbj_names(3:16);
-sbj_names = {'S18_124'};
 
-%% Avg task
-% conditions to average
-conds_avg_field = 'condNames';
-conds_avg_conds = {'math', 'autobio'};
-data_all = [];
-for ii = 1:length(conds_avg_conds)
-    % Initialize data_all
-    data_all.(conds_avg_conds{ii}) = [];
-end
 
-plot_params = genPlotParams(project_name,'timecourse');
+
+%% Plot heatmap
+project_name = 'MMR';
+% Retrieve subjects info
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names_s = googleSheet.subject_name;
+% selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
+selec_criteria = [~cellfun(@isempty, sbj_names_s)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer) cellfun(@(x) contains(x, '1'), googleSheet.subjVar) cellfun(@(x) contains(x, 'MMR'), googleSheet.task)];
+sbj_names_s = sbj_names_s(sum(selec_criteria,2) == size(selec_criteria,2));
+
+% check the processed ones
+all_folders = dir(fullfile([dirs.result_root filesep project_name]));
+sbj_names_p = {all_folders(:).name};
+sbj_names_p = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
+
+sbj_names = intersect(sbj_names, sbj_names_p);
 
 for i = 1:length(sbj_names)
-    % Concatenate trials from all blocks
-    block_names = BlockBySubj(sbj_names{i},project_name);
-    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
-    elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
-    % Average across trials, normalize and concatenate across subjects
-    for ii = 1:length(conds_avg_conds)
-        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-        %         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
-        data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
-        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
-    end
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    conds_avg_field = 'condNames';
+    conds_avg_conds = {'math'};
+    cond_plot = 'math';
+    colormap_plot = 'RedsWhite';
+    PlotCoverageHeatmap(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
 end
 
-%% Load MNI coordinates
-chan_plot = [];
-elecNames_tmp = [];
-for i = 1%length(sbj_names)
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    coords_tmp = importCoordsFreesurfer(dirs);
-    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
-    close all
-    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
-    for ii = 1:length(elecNames)
-        elecNames_tmp{ii} = elecNames{ii}{2};
-    end
-    [a,idx] = ismember(elecNames_tmp, elect_all{i});
-    MNI_coords = MNI_coords(a,:);
-    idx = idx(a);
-    [b,idx_2] = sort(idx);
-    MNI_coords = MNI_coords(idx_2,:);
-    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
-end
-%%%%%%%%%%%%%%%%%%
-%%% CORRECTION %%%
-%%%%%%%%%%%%%%%%%%
-% Make sure that electrodes labels from freesurfer are the same as in the files
 
 
-%%
-%% Load template brain
-code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
-load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
-cmcortex.left = cortex;
-load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
-cmcortex.right = cortex;
+%% Make video
+project_name = 'MMR';
+% Retrieve subjects info
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names = googleSheet.subject_name;
+% selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
+selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer) cellfun(@(x) contains(x, '1'), googleSheet.subjVar) cellfun(@(x) contains(x, 'MMR'), googleSheet.task)];
+sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
+sbj_names = sbj_names(2:4)
 
-
-
-%% Get indices for colloring
-cond = 'math';
-
-[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
-% cols = flipud(cols);
-% Plot Colorbar
-figureDim = [0 0 .2 .2];
-figure('units','normalized','outerposition',figureDim)
-for i = 15:5:length(cols)
-    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
-    hold on
-end
-axis off
-dir_out = '/Users/pinheirochagas/Desktop/';
-savePNG(gcf,400, [dir_out 'Reds.png'])
-
-
-[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
-col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
-% only for ECoG
-chan_plot(:,1) = -70;
-chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
-
-% Plot parameters
-mark = 'o';
-MarkSizeEffect = 35;
-colRing = [0 0 0]/255;
-time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
-
-
-%% Plot math
-F = struct;
-count = 0;
-
-for e = 1:2:length(time)
-    count = count+1;
-    ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
-    alpha(0.5)
-    % Sort to highlight larger channels
-    for i = 1:size(chan_plot)
-        %         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
-        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);
-    end
-    time_tmp = num2str(time(e));
-    
-    if length(time_tmp) < 6
-        time_tmp = [time_tmp '00'];
-    end
-    if strcmp(time_tmp(1), '-')
-        time_tmp = time_tmp(1:6);
-    else
-        if strcmp(time_tmp, '000')
-        else
-            time_tmp = time_tmp(1:5);
-        end
-    end
-    
-    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
-    cdata = getframe(gcf);
-    F(count).cdata = cdata.cdata;
-    F(count).colormap = [];
-    close all
-end
-
-fig = figure;
-movie(fig,F,1)
-
-videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
-videoRSA.FrameRate = 30;  % Default 30
-videoRSA.Quality = 100;    % Default 75
-open(videoRSA);
-writeVideo(videoRSA, F);
-close(videoRSA);
-
-
-
-
-
-
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math'};
+cond_plot = 'math';
+colormap_plot = 'RedsWhite';
+MakeVideoActivationTime(sbj_names,project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
 
 %% Verify outiler channels
 exclude = math_norm;
@@ -810,51 +690,6 @@ end
 % exclude_chan_math = {[98, 75], [], [], [], [], [], [], 31, [62, 73]};
 % exclude_chan_memo = {[], [], [], [], [], [], [], [31, 25, 19]};
 % el_mniPlot_math(unique([horzcat(exclude_chan_math{:}) horzcat(exclude_chan_memo{:})]),:) = []
-
-
-
-
-%% Plot heatmap
-sbj_name = 'S14_64_SP';
-dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-conds_avg_field = 'condNames';
-conds_avg_conds = {'math', 'autobio'};
-colormap_plot = 'RedsWhite';
-PlotCoverageHeatmap(sbj_name,project_name, conds_avg_field, conds_avg_conds, colormap_plot, dirs)
-
-
-
-%% Load MNI coordinates
-chan_plot = [];
-elecNames_tmp = [];
-for i = 1%length(sbj_names)
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    coords_tmp = importCoordsFreesurfer(dirs);
-    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
-    close all
-    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
-    for ii = 1:length(elecNames)
-        elecNames_tmp{ii} = elecNames{ii}{2};
-    end
-    [a,idx] = ismember(elecNames_tmp, data_sbj.labels);
-    MNI_coords = MNI_coords(a,:);
-    idx = idx(a);
-    [b,idx_2] = sort(idx);
-    MNI_coords = MNI_coords(idx_2,:);
-    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
-end
-%%%%%%%%%%%%%%%%%%
-%%% CORRECTION %%%
-%%%%%%%%%%%%%%%%%%
-% Make sure that electrodes labels from freesurfer are the same as in the files
-
-
-% psychData_dirs = dir(fullfile('/Volumes/LBCN8T/Stanford/data/psychData'));
-% psychData_dirs = psychData_dirs(arrayfun(@(x) ~contains(x.name, '.'), psychData_dirs));
-% psych_sbj = horzcat({psychData_dirs.name})';
-
-
-
 
 
 %% PAC
@@ -891,5 +726,149 @@ save([dirs.MVData filesep sbj_name '_' project_name '_' 'CAR_continuous' '.mat']
 
 
 %% Su's viz
-
+% 
+% 
+% %%
+% %% Make video
+% % list subjects
+% all_folders = dir(fullfile('/Volumes/LBCN8T/Stanford/data/Results/Memoria/'));
+% sbj_names = {all_folders(:).name};
+% sbj_names = sbj_names(cellfun(@(x) ~contains(x, '.'), sbj_names));
+% sbj_names = sbj_names(3:16);
+% sbj_names = {'S18_124'};
+% 
+% %% Avg task
+% % conditions to average
+% conds_avg_field = 'condNames';
+% conds_avg_conds = {'math', 'autobio'};
+% data_all = [];
+% for ii = 1:length(conds_avg_conds)
+%     % Initialize data_all
+%     data_all.(conds_avg_conds{ii}) = [];
+% end
+% 
+% plot_params = genPlotParams(project_name,'timecourse');
+% 
+% for i = 1:length(sbj_names)
+%     % Concatenate trials from all blocks
+%     block_names = BlockBySubj(sbj_names{i},project_name);
+%     data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
+%     elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
+%     % Average across trials, normalize and concatenate across subjects
+%     for ii = 1:length(conds_avg_conds)
+%         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+%         %         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
+%         data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
+%         data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
+%     end
+% end
+% 
+% %% Load MNI coordinates
+% chan_plot = [];
+% elecNames_tmp = [];
+% for i = 1%length(sbj_names)
+%     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+%     coords_tmp = importCoordsFreesurfer(dirs);
+%     [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+%     close all
+%     elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
+%     for ii = 1:length(elecNames)
+%         elecNames_tmp{ii} = elecNames{ii}{2};
+%     end
+%     [a,idx] = ismember(elecNames_tmp, elect_all{i});
+%     MNI_coords = MNI_coords(a,:);
+%     idx = idx(a);
+%     [b,idx_2] = sort(idx);
+%     MNI_coords = MNI_coords(idx_2,:);
+%     chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
+% end
+% %%%%%%%%%%%%%%%%%%
+% %%% CORRECTION %%%
+% %%%%%%%%%%%%%%%%%%
+% % Make sure that electrodes labels from freesurfer are the same as in the files
+% 
+% 
+% %%
+% %% Load template brain
+% code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
+% load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+% cmcortex.left = cortex;
+% load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
+% cmcortex.right = cortex;
+% 
+% 
+% 
+% %% Get indices for colloring
+% cond = 'math';
+% 
+% [col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+% % cols = flipud(cols);
+% % Plot Colorbar
+% figureDim = [0 0 .2 .2];
+% figure('units','normalized','outerposition',figureDim)
+% for i = 15:5:length(cols)
+%     plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
+%     hold on
+% end
+% axis off
+% dir_out = '/Users/pinheirochagas/Desktop/';
+% savePNG(gcf,400, [dir_out 'Reds.png'])
+% 
+% 
+% [col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
+% col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
+% % only for ECoG
+% chan_plot(:,1) = -70;
+% chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
+% 
+% % Plot parameters
+% mark = 'o';
+% MarkSizeEffect = 35;
+% colRing = [0 0 0]/255;
+% time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
+% 
+% 
+% %% Plot math
+% F = struct;
+% count = 0;
+% 
+% for e = 1:2:length(time)
+%     count = count+1;
+%     ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
+%     alpha(0.5)
+%     % Sort to highlight larger channels
+%     for i = 1:size(chan_plot)
+%         %         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
+%         f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);
+%     end
+%     time_tmp = num2str(time(e));
+%     
+%     if length(time_tmp) < 6
+%         time_tmp = [time_tmp '00'];
+%     end
+%     if strcmp(time_tmp(1), '-')
+%         time_tmp = time_tmp(1:6);
+%     else
+%         if strcmp(time_tmp, '000')
+%         else
+%             time_tmp = time_tmp(1:5);
+%         end
+%     end
+%     
+%     text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
+%     cdata = getframe(gcf);
+%     F(count).cdata = cdata.cdata;
+%     F(count).colormap = [];
+%     close all
+% end
+% 
+% fig = figure;
+% movie(fig,F,1)
+% 
+% videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
+% videoRSA.FrameRate = 30;  % Default 30
+% videoRSA.Quality = 100;    % Default 75
+% open(videoRSA);
+% writeVideo(videoRSA, F);
+% close(videoRSA);
 

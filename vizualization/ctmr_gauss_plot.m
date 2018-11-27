@@ -95,7 +95,7 @@ set(gcf,'Renderer', 'zbuffer')
 % hemi- 'l' for left hemipshere, 'r' for right hemisphere
 % views are labelled. A dash between views (Ex: medio-ventral) means that the view is in between the medial and ventral views
 
-if hemi=='l'
+if strcmp(hemi,'left')
     switch viewside
         case 'medial'
             loc_view(90, 0)
@@ -121,7 +121,7 @@ if hemi=='l'
             loc_view(135,0)
     end
 %     set(l,'Position',[-1 0 1])   
-elseif hemi=='r'
+elseif strcmp(hemi,'right')
     switch viewside
         case 'medial'
             loc_view(270, 0)
@@ -150,7 +150,7 @@ elseif hemi=='r'
     end
     
 else
-    error('hemisphere should be either l or r')
+    error('hemisphere should be either leftl or right')
 %     set(l,'Position',[1 0 1])     
 end
 

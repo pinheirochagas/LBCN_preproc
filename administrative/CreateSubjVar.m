@@ -33,7 +33,7 @@ else
 end
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 ppt_chan_names = googleSheet.(sbj_name);
-ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % Dangerous for the ones with skip names
+ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % remove empty cells 
 ppt_chan_names = cellfun(@(x) strrep(x, ' ', ''), ppt_chan_names, 'UniformOutput', false); % Remove eventual spaces
 
 nchan_fs = length(fs_chan_names);
@@ -50,9 +50,10 @@ for i = 1:nchan_cmp
     in_fs(i) = ismember(chan_comp(i),fs_chan_names);
 end
 
-% 1: More channels in freesurfer
-if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     % do nothing
+
+if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
+% 1: More channels in freesurfer
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     fs_chan_names = fs_chan_names(in_chan_cmp);
     native_coord = native_coord(in_chan_cmp,:);
@@ -65,19 +66,50 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     fs_chan_names_tmp(in_fs==0) = chan_comp(in_fs==0);
     fs_chan_names = fs_chan_names_tmp;
     
-    native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+    native_coord_tmp = nan(nchan_cmp,3,1);
+%     native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
     native_coord_tmp(in_fs,:) = native_coord;
     native_coord = native_coord_tmp;
     
-    MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
+    MNI_coord_tmp = nan(nchan_cmp,3,1);
+%     MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
     MNI_coord_tmp(in_fs,:) = MNI_coord;
     MNI_coord = MNI_coord_tmp;
-else
+    % More in 
+elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
+
     disp(sbj_name)
+    disp('channels in EDF/TDT which are not in FS')
     chan_comp(in_fs == 0)
+    disp('channels in FS which are not in EDF/TDT')
     fs_chan_names(in_chan_cmp == 0)
-    mismatch_labels = 1;
-    warning('this exception is not accounted for, please check')
+    warning('this exception is not automatically fixable, please decide:')
+
+    prompt = 'Do you want to remove the FS-only and add the EDF/TDT-only?';
+    ID = input(prompt,'s');
+    if strcmp(ID, 'y')
+        % First remove the FS which are not in EDF/TDT
+        fs_chan_names = fs_chan_names(in_chan_cmp);
+        native_coord = native_coord(in_chan_cmp,:);
+        MNI_coord = MNI_coord(in_chan_cmp,:);
+        
+        % Second add the EDF/TDT which are not in FS
+        fs_chan_names_tmp = cell(nchan_cmp,1);
+        fs_chan_names_tmp(in_fs) = fs_chan_names;
+        fs_chan_names_tmp(in_fs==0) = chan_comp(in_fs==0);
+        fs_chan_names = fs_chan_names_tmp;
+        
+        native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+        native_coord_tmp(in_fs,:) = native_coord;
+        native_coord = native_coord_tmp;
+        
+        MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
+        MNI_coord_tmp(in_fs,:) = MNI_coord;
+        MNI_coord = MNI_coord_tmp;
+    else
+        warning('channel labels not fixed, please double check PPT/FS')
+        mismatch_labels = 1;
+    end
 end
 
 if ~exist('mismatch_labels')
@@ -95,8 +127,12 @@ if ~exist('mismatch_labels')
     if strcmp(data_format, 'TDT')
         subjVar.elect_names = chan_comp;
     else
-        %     subjVar.elect_names = globalVar.channame;
-        subjVar.elect_names = globalVar.chan_comp;
+        %     subjVar.elect_names = chan_comp;
+        if isfield(globalVar, 'channame')
+            subjVar.elect_names = globalVar.channame;
+        else
+            subjVar.elect_names = chan_comp;
+        end
     end
     
     
