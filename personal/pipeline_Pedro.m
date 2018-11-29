@@ -549,7 +549,7 @@ end
 %% Analyse several subjects
 sbj_name_all = subjs_to_copy
 project_name = 'MMR';
-for i = 4:length(sbj_name_all)
+for i = 3:length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
 %%%%%%%%%%%%% CONTINUE PLOT FOR KS %%%%%%%%%%%%%%%%
@@ -668,7 +668,7 @@ end
 
 
 % For individual subjects
-sbj_name = 'S14_74_OD'
+sbj_name = 'S12_45_LR'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -789,6 +789,7 @@ sortrows(labels_tab,2)
 
 %% Load cluster labels
 load('/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster/cluster_labels_smooth.mat')
+dir_out = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster/';
 cluster_numbers = [6 7 8 10 12 15 42 44 61 72];
 % cluster_numbers = [6 7 8 10 12 15 42 44 61 72 78 79 80 84 107 110 111 115];
 cluster_cols = parula(length(cluster_numbers));
@@ -812,6 +813,8 @@ for i = 1:length(views)
         end
     end
 end
+savePNG(gcf, 300, [dir_out 'coverage_MMR.png'])
+
 
 %% Plot clusters
 marker_size = 10;
@@ -834,16 +837,20 @@ for i = 1:length(views)
         end
     end
 end
+savePNG(gcf, 300, [dir_out 'examplar_cluster_MMR.png'])
 
 %% Plot channels
 marker_size = 10;
-figureDim = [0 0 .2 1];
+figureDim = [0 0 .3 1];
 figure('units', 'normalized', 'outerposition', figureDim);
 for c = 1:length(cluster_numbers)
     subplot(5,2,c)
     plot(data_all.math(labels == cluster_numbers(c),:)', 'LineWidth',1, 'Color', cluster_cols(c,:))
-    set(gca,'fontsize',10)
+    title(['cluster' num2str(cluster_numbers(c))])
+    set(gca,'fontsize',15)
 end
+set(gcf,'color','w');
+savePNG(gcf, 300, [dir_out 'examplar_cluster_MMR_brain.png'])
 
 
 
