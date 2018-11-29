@@ -70,13 +70,11 @@ time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
 %% Plot math
 figureDim = [0 0 .4 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
-
-F = struct;
-count = 0;
-
 views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 
+F = struct;
+count = 0;
 for e = 1:2:length(time)
     count = count+1;
     
@@ -84,7 +82,7 @@ for e = 1:2:length(time)
         subplot(3,2,i)
         ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
         % Sort to highlight larger channels
-        for ii = 1:size(chan_plot)
+        for ii = 1:100%size(chan_plot)
             %         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
             if (strcmp(hemis{i}, 'left') == 1 && chan_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && chan_plot(ii,1) < 0)
             else

@@ -175,6 +175,10 @@ if strcmp(datatype,'Spec')
 else % CAR or HFB (i.e. 1 frequency)
     [be.bad_epochs_spec_HFspike, filtered_beh,spkevtind,spkts_spec_HFspike] = LBCN_filt_bad_trial(data.wave',data.fsample);
 end
+%%%%%%%%%%%% NOTE on Su's code %%%%%%%%%%%%%%
+% If the trial is classified as bad, there are no bad indices, since the full trial should be excluded. 
+% If the trial is classified as good, there can be bad indices or not. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Organize bad indices
 for i = 1:size(spkts_raw_LFspike,2)

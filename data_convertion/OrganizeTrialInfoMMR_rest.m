@@ -10,13 +10,30 @@ for i = 1:length(block_names)
     soda_name = dir(fullfile(globalVar.psych_dir, 'sodata*.mat'));
     K = load([globalVar.psych_dir '/' soda_name.name]); % block 55 %% FIND FILE IN THE FOLDER AUTO
     
+    
+    for ii = 1:length(K.theData)
+        if size(K.theData(ii).kinfo,2) ~= 1
+            K.theData(ii).RT = NaN;
+            K.theData(ii).keys = NaN;
+            if ~isstruct(K.theData(ii).flip)
+                K.theData(ii).flip = {};
+                K.theData(ii).flip.StimulusOnsetTime = NaN;
+                %                 fprintf('Making it struct: %d\n',i)
+            end
+            K.theData(ii).flip.StimulusOnsetTime = NaN;
+        else
+        end
+    end
+    
     % start trialinfo
     trialinfo = table;
-    trialinfo.wlist = reshape(K.wlist,length(K.wlist),1);
-    
+    for i = 1:length(K.theData)
+        trialinfo.wlist = reshape(K.wlist,length(K.wlist),1);
+    end 
     for i = 1:length(K.theData)
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
     end
+    
     for i=1:length(K.theData)
         RTa=K.theData(i).RT;
         RTb(i,1)=RTa(1);
@@ -114,6 +131,20 @@ for i = 1:length(block_names)
     trialinfoNew.StimulusOnsetTime(rest_inds) = restOnsets;
     trialinfo = trialinfoNew;
     
+    %% Exceptions
+    if strcmp(sbj_name, 'S12_32_JTb') && strcmp(project_name, 'MMR') && strcmp(bn, 'JT0112-45')
+        trialinfo = trialinfo(2:end,:);
+    else
+    end
+    
+    % Save
+    save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
+end
+
+end
+
+
+
     %     for t = 1:size(trialinfo,1)
     %         onset = trialinfo.StimulusOnsetTime(t,1);
     %         resp = trialinfo.StimulusOnsetTime(t,1)+trialinfo.RT(t);
@@ -141,10 +172,3 @@ for i = 1:length(block_names)
     %     trialinfoNew.allonsets(rest_inds)=NaN;
     %
     %     trialinfo = trialinfoNew;
-    
-    % Save
-    save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
-end
-
-end
-

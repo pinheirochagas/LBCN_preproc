@@ -1,4 +1,3 @@
-% function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, plot_params)
 function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, concat_params)
 %% Define electrodes
 if isempty(elecs)
@@ -76,6 +75,7 @@ for ei = 1:length(elecs)
 %     data_all.label = data_bn.label;
     
     data_all.trialinfo = [data_bn.trialinfo];
+    data_all.trialinfo_all{el} = [data_bn.trialinfo];
     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
 end

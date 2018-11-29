@@ -90,9 +90,13 @@ elseif strcmp(sbj_name, 'S17_106_SD') && strcmp(bn, 'E17-107_0010')
     n_initpulse_onset = 8; n_initpulse_offset = 8; 
 elseif strcmp(sbj_name, 'S17_106_SD') && strcmp(bn, 'E17-107_0011')
     n_initpulse_onset = 10; n_initpulse_offset = 10; 
-    
-    
-    
+elseif strcmp(sbj_name, 'S11_23_MD') && strcmp(project_name, 'UCLA') && strcmp(bn, 'MD0311-01')
+    n_initpulse_onset = 12; n_initpulse_offset = 12;    
+elseif strcmp(sbj_name, 'S12_45_LR') && strcmp(bn, 'LR_06')
+    n_initpulse_onset = 13; n_initpulse_offset = 13;
+elseif strcmp(sbj_name, 'S14_74_OD') && strcmp(bn, 'S14_74_OD_03')
+    n_initpulse_onset = 13; n_initpulse_offset = 13;
+
 end
 end
 

@@ -95,7 +95,6 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1)
 ref_chan = [];
 epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
-%LK 65 105 119 117 106 71 118 67 107 81 66 103 108 37 70 115 80 84 51 83 59 69 60 112 38 54 56 36 91 43 116 113 41 57 35 110 75 73 72 29 47 88 53 102 49 87 120 68 34 39 33 45 52 82 64 50 86 61 109 48 104 62 114 98 93 99 121 78 79 100 101 90 92 63 122 76 111 46 58 44 55 40 97 96 74 42 77 95 85 8 7 5 4
 
 
 %% Copy the iEEG and behavioral files from server to local folders
@@ -168,7 +167,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Calculia')
     
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 3) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2
@@ -273,24 +272,25 @@ selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'),
 sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
 sbj_names = sbj_names(subjVar_created == 0)
 
+
 % Create subject variable
 comp_root = '/Volumes/LBCN8T/Stanford/data';
 server_root = '/Volumes/neurology_jparvizi$/';
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 
 center = 'Stanford';
-subjVar_created = nan(length(sbj_names_2),1,1);
+subjVar_created = nan(length(sbj_names),1,1);
 
-for i = 1:length(sbj_names_2)
+for i = 1:length(sbj_names)
     % Load subjVar
-    if exist([dirs.original_data filesep sbj_names_2{i} filesep 'subjVar_' sbj_names_2{i} '.mat'], 'file')
-        load([dirs.original_data filesep sbj_names_2{i} filesep 'subjVar_' sbj_names_2{i} '.mat']);
+    if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
+        load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
         subjVar_created(i) = 2;
     else
         fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names_2{i}, center);
-        dirs = InitializeDirs(project_name, sbj_names_2{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-        [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names_2{i}, dirs, data_format, fsDir_local);
+        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names{i}, center);
+        dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+        [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
     end 
 end
 
@@ -301,6 +301,12 @@ for i = 1:length(sbj_names)
     PlotCoverage(sbj_names{i}, project_name, dirs, false)
 end
 
+% For individual subjects
+sbj_name = 'S11_20_RHa'
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+[subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
 
 
 %% Branch 7 - Plotting
@@ -534,18 +540,19 @@ for i = 1:length(subjs_to_copy)
     UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
 end
 
-for i = 1:length(subjs_to_copy)
+for i = 2:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
     OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names(2), dirs, 1) 
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 2) 
 end
 
 %% Analyse several subjects
-sbj_name_all = {'S10_15_KB2', 'S11_22_EG'}
-project_name = 'UCLA';
-for i = 2:length(sbj_name_all)
+sbj_name_all = subjs_to_copy
+project_name = 'MMR';
+for i = 4:length(sbj_name_all)
     analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
+%%%%%%%%%%%%% CONTINUE PLOT FOR KS %%%%%%%%%%%%%%%%
 
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -623,16 +630,9 @@ plot(pvalsig, zeros(length(pvalsig),1)', '*')
 
 
 
-%% MMR
-data_calc = data_all.trialinfo(strcmp(data_all.trialinfo.condNames, 'math'),:)
-
-
-
-
-
-
-
 %% Plot heatmap
+
+
 project_name = 'MMR';
 % Retrieve subjects info
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
@@ -640,6 +640,8 @@ googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 sbj_names_s = googleSheet.subject_name;
 % selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer)  ~cellfun(@(x) contains(x, 'both'), googleSheet.hemi)];
 selec_criteria = [~cellfun(@isempty, sbj_names_s)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer) cellfun(@(x) contains(x, '1'), googleSheet.subjVar) cellfun(@(x) contains(x, 'MMR'), googleSheet.task)];
+selec_criteria = [~cellfun(@isempty, sbj_names_s)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer) cellfun(@(x) contains(x, '1'), googleSheet.subjVar)];
+
 sbj_names_s = sbj_names_s(sum(selec_criteria,2) == size(selec_criteria,2));
 
 % check the processed ones
@@ -647,17 +649,36 @@ all_folders = dir(fullfile([dirs.result_root filesep project_name]));
 sbj_names_p = {all_folders(:).name};
 sbj_names_p = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 
-sbj_names = intersect(sbj_names, sbj_names_p);
 
-for i = 1:length(sbj_names)
+
+[a,b] = intersect(sbj_names_s, sbj_names_p);
+
+
+
+
+for i = 6:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     conds_avg_field = 'condNames';
     conds_avg_conds = {'math'};
     cond_plot = 'math';
     colormap_plot = 'RedsWhite';
-    PlotCoverageHeatmap(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
+    PlotCoverageHeatmap(sbj_names{i},'MMR', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
 end
 
+
+
+% For individual subjects
+sbj_name = 'S14_74_OD'
+fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+[subjVar,  subjVar_created] = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math'};
+cond_plot = 'math';
+colormap_plot = 'RedsWhite';
+PlotCoverageHeatmap(sbj_name,'MMR', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
 
 
 %% Make video
@@ -724,8 +745,151 @@ t    = 1:numel(data_all.wave);
 data_all.wave(nanx) = interp1(t(~nanx), data_all.wave(~nanx), t(nanx));
 save([dirs.MVData filesep sbj_name '_' project_name '_' 'CAR_continuous' '.mat'], 'data_all');
 
+%% Cluster analyses
+all_folders = dir(fullfile([dirs.result_root filesep 'heatmap']));
+sbj_names_p = {all_folders(:).name};
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'heatmap'}), sbj_names_p));
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
+
+expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
+sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
+
+concat_params = genConcatParams(1,200);
+data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math'}, concat_params, dirs);
+% Maybe this is more general for SPEC
+% data_concat = ConcatAllAvgResp(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim','condNames',{'math'},concat_params)
+
+% exclude the nans (channels which have only nan)
+for i = 1:size(data_all.math,1)
+    nan_sum(i) = sum(isnan(data_all.math(i,:)));
+end
+
+% exclude reallly extreme values
+for i = 1:size(data_all.math,1)
+    extreme(i) = sum(isnan(data_all.math(i,:)));
+end
+%%% WORK ON THAT!!! %%%
+
+data_all.math = data_all.math(nan_sum==0,:);
+data_all.chan_plot = data_all.chan_plot(nan_sum==0,:);
+data.wave = data_all.math; 
+
+dirout = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster'
+save([dirout filesep 'data.mat'], 'data')
+
+
+%% Load template brain 
+load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
+cmcortex.right = cortex;
+
+labels_tab = tabulate(labels)
+sortrows(labels_tab,2)
+
+%% Load cluster labels
+load('/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster/cluster_labels_smooth.mat')
+cluster_numbers = [6 7 8 10 12 15 42 44 61 72];
+% cluster_numbers = [6 7 8 10 12 15 42 44 61 72 78 79 80 84 107 110 111 115];
+cluster_cols = parula(length(cluster_numbers));
+
+
+%% Plot coverage
+marker_size = 5;
+figureDim = [0 0 .4 1];
+f1 = figure('units', 'normalized', 'outerposition', figureDim);
+views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+for i = 1:length(views)
+    subplot(3,2,i)
+    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    alpha(0.5)
+    % Only plot on the relevant hemisphere
+    for ii = 1:length(data_all.chan_plot)
+        if (strcmp(hemis{i}, 'left') == 1 && data_all.chan_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && data_all.chan_plot(ii,1) < 0)
+        else
+            plot3(data_all.chan_plot(ii,1),data_all.chan_plot(ii,2),data_all.chan_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+        end
+    end
+end
+
+%% Plot clusters
+marker_size = 10;
+figureDim = [0 0 .4 1];
+f1 = figure('units', 'normalized', 'outerposition', figureDim);
+views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+for i = 1:length(views)
+    subplot(3,2,i)
+    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    alpha(0.5)
+    % Only plot on the relevant hemisphere
+    for c = 1:length(cluster_numbers)
+        coords_plot = data_all.chan_plot(labels == cluster_numbers(c),:);
+        for ii = 1:length(coords_plot)
+            if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+            else
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cluster_cols(c,:), 'MarkerEdgeColor', 'k');
+            end
+        end
+    end
+end
+
+%% Plot channels
+marker_size = 10;
+figureDim = [0 0 .2 1];
+figure('units', 'normalized', 'outerposition', figureDim);
+for c = 1:length(cluster_numbers)
+    subplot(5,2,c)
+    plot(data_all.math(labels == cluster_numbers(c),:)', 'LineWidth',1, 'Color', cluster_cols(c,:))
+    set(gca,'fontsize',10)
+end
+
+
+
+
+
+
+
+
+
+cluster_num = 12 % 9 and 12 
+color_el = cdcol.orange;
+
+el_mniPlot = el_mniPlot_all(labels==cluster_num,:);
+el_mniPlot(:,1) = -70;
+
+for c = 1:length(el_mniPlot)
+    f = plot3(el_mniPlot(c,1)*c,el_mniPlot(c,2),el_mniPlot(c,3), 'o', 'Color', 'k', 'MarkerFaceColor', color_el, 'MarkerSize', 20);     
+
+%     el_add2(el_mniPlot(c,:),'g',mark,MarkSizenoEffect*2,[1,2,1])
+%     el_add2(el_mniPlot(c,:),'g',mark,MarkSizenoEffect*2,[1,2,2])
+end
+% save2pdf('/Volumes/NeuroSpin2T/Calc_ECoG/cluster_30.pdf', gcf, 600)
+
+
+
+
+
+
+
 
 %% Su's viz
+sbj_name = 'S13_57_TVD'
+% Concatenate all blocks and channels
+decimate = true;
+final_fs = 200;
+concat_params = genConcatParams(decimate, final_fs);
+concat_params.noise_method = 'trials'; % or timepts maybe better. play with interpolate
+block_names = BlockBySubj(sbj_name,project_name);
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+data = ConcatenateAll(sbj_name,project_name,block_names,dirs,[], 'Band', 'HFB','stim', concat_params);
+
+% Load subject Variable
+load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
+
+
+
 % 
 % 
 % %%
@@ -871,4 +1035,6 @@ save([dirs.MVData filesep sbj_name '_' project_name '_' 'CAR_continuous' '.mat']
 % open(videoRSA);
 % writeVideo(videoRSA, F);
 % close(videoRSA);
+
+
 

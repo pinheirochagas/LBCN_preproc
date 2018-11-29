@@ -31,14 +31,21 @@ if strcmp(data_format, 'edf')
 else
     [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_ppt_log');
 end
+
+
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 ppt_chan_names = googleSheet.(sbj_name);
 ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % remove empty cells 
 ppt_chan_names = cellfun(@(x) strrep(x, ' ', ''), ppt_chan_names, 'UniformOutput', false); % Remove eventual spaces
 
 nchan_fs = length(fs_chan_names);
-chan_comp = ppt_chan_names;
-nchan_cmp = length(ppt_chan_names);
+if strcmp(sbj_name, 'S17_117_MC')
+    chan_comp = globalVar.channame;
+    nchan_cmp = length(globalVar.channame);
+else
+    chan_comp = ppt_chan_names;
+    nchan_cmp = length(ppt_chan_names); 
+end
 
 in_chan_cmp = false(1,nchan_fs);
 for i = 1:nchan_fs
@@ -155,6 +162,7 @@ if ~exist('mismatch_labels')
         if strcmp(ID, 'y')
             save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
             disp(['subjVar saved for ' sbj_name])
+            subjVar_created = 1;
         else
             warning(['subjVar NOT saved for ' sbj_name])
         end

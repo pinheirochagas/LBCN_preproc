@@ -35,11 +35,15 @@ for ii = 1:length(conds_avg_conds)
     data_tmp_integral_norm = data_tmp_integral;
     data_all.(conds_avg_conds{ii}) = data_tmp_integral_norm; 
     % Exclude the nan values for channels
-    data_all.(conds_avg_conds{ii}) = data_all.(conds_avg_conds{ii})(~isnan(subjVar.native_coord(:,1)),:);
+%     data_all.(conds_avg_conds{ii}) = data_all.(conds_avg_conds{ii})(~isnan(subjVar.native_coord(:,1)),:);
 end
 % Exclude the nan values for electrodes
-native_coord = subjVar.native_coord(~isnan(subjVar.native_coord(:,1)),:);
+% native_coord = subjVar.native_coord(~isnan(subjVar.native_coord(:,1)),:);
 
+if size(subjVar.native_coord,1) ~= size(data_sbj.wave,2)
+    error('channel labels mismatch, double check ppt and freesurfer')
+else
+end
 
 % Get color indices
 [col_idx,colors_plot] = colorbarFromValues(data_all.(cond_plot), colormap_plot);
@@ -56,13 +60,16 @@ views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 for i = 1:length(views)
     subplot(3,2,i)
-    coords_plot = CorrectElecLoc(native_coord, views{i}, hemis{i});
+    coords_plot = CorrectElecLoc(subjVar.native_coord, views{i}, hemis{i});
     ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     for ii = 1:length(coords_plot)
         % Only plot on the relevant hemisphere
-        if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+        if ~isnan(col_idx(ii))
+            if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+            else
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
+            end
         else
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
         end
     end
     if strcmp(implant, 'sEEG')
