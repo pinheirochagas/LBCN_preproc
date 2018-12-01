@@ -44,7 +44,7 @@ for ei = 1:length(elecs)
     end
     
     if concat_params.decimate % smooth and downsample (optional)
-        ds_rate = floor(data_bn.fsample/concat_params.fs_targ);
+        ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz. 
         data_all.fsample = data_bn.fsample/ds_rate;
         data_all.time = data_bn.time(1:ds_rate:end);
         if concat_params.sm_win > 0 % if smoothing first

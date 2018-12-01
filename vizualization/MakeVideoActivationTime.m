@@ -53,6 +53,15 @@ for i = 1:length(sbj_names)
     end
 end
 
+%% Check for nans 
+for i = 1:size(data_all.math,1)
+    nan_sum(i) = sum(isnan(data_all.math(i,:)));
+end
+data_all.math = data_all.math(nan_sum==0,:);
+chan_plot = chan_plot(nan_sum==0,:);
+
+
+
 %% Get indices for colloring
 [col_idx,cols] = colorbarFromValues(data_all.(cond_plot)(:), 'RedsWhite');
 col_idx = reshape(col_idx,size(data_all.(cond_plot),1), size(data_all.(cond_plot),2));
@@ -75,7 +84,7 @@ hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 
 F = struct;
 count = 0;
-for e = 1:2:length(time)
+for e = 1%:2:length(time)
     count = count+1;
     
     for i = 1:length(views)

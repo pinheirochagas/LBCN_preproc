@@ -167,7 +167,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'Calculia')
     
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 % Fix it for UCLA
 % subject 'S11_29_RB' exception = 1 for block 2
@@ -540,19 +540,34 @@ for i = 1:length(subjs_to_copy)
     UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
 end
 
-for i = 2:length(subjs_to_copy)
+for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
-    OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 2) 
+%      OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
+     OrganizeTrialInfoUCLA_rest(subjs_to_copy{i}, project_name, block_names, dirs)
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names(2), dirs, 2) 
 end
 
 %% Analyse several subjects
-sbj_name_all = subjs_to_copy
-project_name = 'MMR';
-for i = 3:length(sbj_name_all)
-    analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
+all_folders = dir(fullfile([dirs.result_root filesep 'heatmap']));
+sbj_names_p = {all_folders(:).name};
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'heatmap'}), sbj_names_p));
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'math'}), sbj_names_p));
+mmr_inds = cellfun(@(x) contains(x, {'MMR'}), sbj_names_p);
+
+expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
+sbj_name_all = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
+[~, inds] = unique(sbj_name_all);
+sbj_name_all = sbj_name_all(inds);
+mmr_inds = mmr_inds(inds);
+
+for i = 1:length(sbj_name_all)
+    if mmr_inds == 1
+        project_name = 'MMR';
+    else
+        project_name = 'UCLA';
+    end
+        analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
-%%%%%%%%%%%%% CONTINUE PLOT FOR KS %%%%%%%%%%%%%%%%
 
 %% Medium-long term projects
 % 1. Creat subfunctions of the EventIdentifier specific to each project
@@ -655,20 +670,31 @@ sbj_names_p = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 
 
 
+all_folders = dir(fullfile([dirs.result_root filesep 'heatmap']));
+sbj_names_p = {all_folders(:).name};
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'heatmap'}), sbj_names_p));
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
 
-for i = 6:length(sbj_names)
+expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
+sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
+
+
+
+
+for i = 1:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     conds_avg_field = 'condNames';
-    conds_avg_conds = {'math'};
-    cond_plot = 'math';
-    colormap_plot = 'RedsWhite';
+    conds_avg_conds = {'autobio'};
+    cond_plot = 'autobio';
+    colormap_plot = 'BluesWhite';
     PlotCoverageHeatmap(sbj_names{i},'MMR', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
 end
 
 
 
 % For individual subjects
-sbj_name = 'S12_45_LR'
+% CHECK S11_26_SRa after again more specific
+sbj_name = 'S14_74_OD' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -691,6 +717,14 @@ sbj_names = googleSheet.subject_name;
 selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'), googleSheet.freesurfer) cellfun(@(x) contains(x, '1'), googleSheet.subjVar) cellfun(@(x) contains(x, 'MMR'), googleSheet.task)];
 sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
 sbj_names = sbj_names(2:4)
+
+all_folders = dir(fullfile([dirs.result_root filesep 'heatmap']));
+sbj_names_p = {all_folders(:).name};
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'heatmap'}), sbj_names_p));
+sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
+
+expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
+sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
 
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math'};
@@ -753,9 +787,129 @@ sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
 
 expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
 sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
+sbj_names = unique(sbj_names);
 
 concat_params = genConcatParams(1,200);
-data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math'}, concat_params, dirs);
+data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math', 'autobio'}, concat_params, true, dirs);
+save('/Volumes/LBCN8T_2/Stanford/data/neural_data/data_all_MMR.mat', 'data_all')
+
+% exclude nan values
+data = data_all;
+data.wave = [];
+data.wave = data_all.wave.math;
+
+for i = 1:size(data.wave,1)
+    nan_sum(i) = sum(isnan(data.wave(i,:)));
+end
+fields = {'wave', 'MNI_coord', 'native_coord', 'subjects'};
+for i = 1:length(fields)
+    if strcmp(fields{i}, 'subjects')
+        data.(fields{i})(find(nan_sum > 0)) = [];
+    else
+        data.(fields{i})(find(nan_sum > 0), :) = [];
+    end
+end
+
+% calculate AUC to eventually exclude some channels
+mat_auc = sum(data.wave,2);
+extreme_val = [prctile(mat_auc,1) prctile(mat_auc,99)];
+extreme_elects = find(mat_auc<extreme_val(1) | mat_auc>extreme_val(2));
+
+fields = {'wave', 'MNI_coord', 'native_coord', 'subjects'};
+for i = 1:length(fields)
+    if strcmp(fields{i}, 'subjects')
+        data.(fields{i})(extreme_elects) = [];
+    else
+        data.(fields{i})(extreme_elects, :) = [];
+    end
+end
+
+% explore individual subjects
+subjects = unique(data.subjects);
+for i = 1:length(subjects)
+    subplot(11,5,i)
+    plot(data.time, data.wave(cellfun(@(x) strcmp(x, subjects{i}), data.subjects),:)')
+    title(subjects{i}, 'interpreter', 'none')
+    ylim([min(data.wave(:)) max(data.wave(:))])
+end
+
+% Exclude some subjects
+data.subjects(strcmp(data.subjects, 'S18_125_LU')) = [];
+indx_exclude = find(cellfun(@(x) strcmp(x, 'S18_125_LU'), data.subjects));
+fields = {'wave', 'MNI_coord', 'native_coord', 'subjects'};
+for i = 1:length(fields)
+    if strcmp(fields{i}, 'subjects')
+        data.(fields{i})(indx_exclude) = [];
+    else
+        data.(fields{i})(indx_exclude, :) = [];
+    end
+end
+
+data_all.math = data_all.math(nan_sum==0,:);
+data_all.chan_plot = data_all.chan_plot(nan_sum==0,:);
+data.wave = data_all.math; 
+
+dir_out = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster';
+save([dir_out filesep 'data.mat'], 'data')
+
+%% Load template brain 
+load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
+cmcortex.right = cortex;
+
+
+%% Plot coverage
+marker_size = 5;
+figureDim = [0 0 .4 1];
+f1 = figure('units', 'normalized', 'outerposition', figureDim);
+views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+for i = 1:length(views)
+    subplot(3,2,i)
+    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    alpha(0.5)
+    % Only plot on the relevant hemisphere
+    for ii = 1:length(data.MNI_coord)
+        if (strcmp(hemis{i}, 'left') == 1 && data.MNI_coord(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && data.MNI_coord(ii,1) < 0)
+        else
+            plot3(data.MNI_coord(ii,1),data.MNI_coord(ii,2),data.MNI_coord(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+        end
+    end
+end
+savePNG(gcf, 300, [dir_out 'coverage_MMR.png'])
+
+%% Plot group heatmap
+% calculate auc
+times = [min(find(data.time > 0)): max(find(data.time <= 1))]
+auc_all = trapz(data.wave(:,times), 2);
+[col_idx,colors_plot] = colorbarFromValues(auc_all, colormap_plot);
+
+col_idx(col_idx>50) = 100
+
+%% Plot electrodes as dots in common brain
+marker_size = 5;
+figureDim = [0 0 .4 1];
+f1 = figure('units', 'normalized', 'outerposition', figureDim);
+views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+for i = 1:length(views)
+    subplot(3,2,i)
+    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    for ii = 1:length(data.MNI_coord)
+        % Only plot on the relevant hemisphere
+        if (strcmp(hemis{i}, 'left') == 1 && data.MNI_coord(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && data.MNI_coord(ii,1) < 0)
+        else
+            plot3(data.MNI_coord(ii,1),data.MNI_coord(ii,2),data.MNI_coord(ii,3), 'o', 'MarkerSize', marker_size+col_idx(ii)/10, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
+        end
+    end
+    alpha(0.5)
+end
+
+
+
+
+
 % Maybe this is more general for SPEC
 % data_concat = ConcatAllAvgResp(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim','condNames',{'math'},concat_params)
 
@@ -770,12 +924,7 @@ for i = 1:size(data_all.math,1)
 end
 %%% WORK ON THAT!!! %%%
 
-data_all.math = data_all.math(nan_sum==0,:);
-data_all.chan_plot = data_all.chan_plot(nan_sum==0,:);
-data.wave = data_all.math; 
 
-dirout = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster'
-save([dirout filesep 'data.mat'], 'data')
 
 
 %% Load template brain 
@@ -794,26 +943,6 @@ cluster_numbers = [6 7 8 10 12 15 42 44 61 72];
 % cluster_numbers = [6 7 8 10 12 15 42 44 61 72 78 79 80 84 107 110 111 115];
 cluster_cols = parula(length(cluster_numbers));
 
-
-%% Plot coverage
-marker_size = 5;
-figureDim = [0 0 .4 1];
-f1 = figure('units', 'normalized', 'outerposition', figureDim);
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
-for i = 1:length(views)
-    subplot(3,2,i)
-    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
-    alpha(0.5)
-    % Only plot on the relevant hemisphere
-    for ii = 1:length(data_all.chan_plot)
-        if (strcmp(hemis{i}, 'left') == 1 && data_all.chan_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && data_all.chan_plot(ii,1) < 0)
-        else
-            plot3(data_all.chan_plot(ii,1),data_all.chan_plot(ii,2),data_all.chan_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
-        end
-    end
-end
-savePNG(gcf, 300, [dir_out 'coverage_MMR.png'])
 
 
 %% Plot clusters

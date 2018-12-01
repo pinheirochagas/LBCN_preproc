@@ -1,16 +1,18 @@
-function data_all = ConcatenateAvgTrials(sbj_names,project_name, conds_avg_field, conds_avg_conds,concat_params, dirs)
+function data_all = ConcatenateAvgTrials(sbj_names,project_name, conds_avg_field, conds_avg_conds,concat_params, bad_chan_reject, dirs)
 
 %% Avg task
 % conditions to average
-data_all = [];
+data_all.wave = [];
 for ii = 1:length(conds_avg_conds)
     % Initialize data_all
-    data_all.(conds_avg_conds{ii}) = [];
+    data_all.wave.(conds_avg_conds{ii}) = [];
 end
 
 %% Group data
-plot_params = genPlotParams(project_name,'timecourse');
-chan_plot = [];
+data_all.MNI_coord = [];
+data_all.native_coord = [];
+data_all.subjects = [];
+ 
 for i = 1:length(sbj_names)
     disp(['concatenating subject ' sbj_names{i}])
     %% Concatenate trials from all blocks
@@ -21,28 +23,48 @@ for i = 1:length(sbj_names)
 %         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
         data_tmp_avg = squeeze(trimmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),10,1)); % average trials by electrode
         
-        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_avg]; % concatenate across subjects
+        data_all.wave.(conds_avg_conds{ii}) = [data_all.wave.(conds_avg_conds{ii});data_tmp_avg]; % concatenate across subjects
+        % Reject bad channels
+        if bad_chan_reject
+            data_all.wave.(conds_avg_conds{ii})(data_sbj.badChan,:) = [];
+        else
+        end
+        
     end
     
     %% Concatenate channel coordinates
-    % Load subjVar
-    if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
-        load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
-    else
-        warning('no subjVar, trying to create it')
-        center = 'Stanford';
-        fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-        [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names{i}, center);
-        subjVar = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
-    end
-    chan_plot = [chan_plot;subjVar.MNI_coord]; % concatenate electrodes across subjects
-    if size(subjVar.MNI_coord,1) ~= size(data_sbj.wave,2) 
+    % Load subjVar and add additional info
+    load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
+    if size(subjVar.MNI_coord,1) ~= size(data_sbj.wave,2)
         error('channel labels mismatch, double check ppt and freesurfer')
     else
     end
-end
-data_all.chan_plot = chan_plot;
+    
+    MNI_coords = subjVar.MNI_coord;
+    native_coords = subjVar.native_coord;
+    elect_names = subjVar.elect_names;
+    subjects_tmp = cellstr(repmat(sbj_names{i}, size(data_sbj.wave,2),1));
 
+    if bad_chan_reject
+        MNI_coords(data_sbj.badChan,:) = [];
+        elect_names(data_sbj.badChan) = [];
+        subjects_tmp(data_sbj.badChan) = [];
+        native_coords(data_sbj.badChan,:) = [];
+    else
+    end
+    
+    data_all.MNI_coord = [data_all.MNI_coord;MNI_coords]; % concatenate electrodes across subjects
+    data_all.native_coord = [data_all.native_coord;native_coords]; % concatenate electrodes across subjects
+    data_all.elec_names{i} = elect_names;
+    data_all.subjects = vertcat(data_all.subjects,subjects_tmp);
+    
+    if bad_chan_reject == false
+        data_all.badchans{i} = data_sbj.badChan;
+    else
+    end
+   
+end
+data_all.time = data_sbj.time;
 
 end
 

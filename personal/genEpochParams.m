@@ -46,25 +46,25 @@ switch project_name
         
     case 'MMR'
         if strcmp(locktype, 'stim')
-            epoch_params.bef_time = -0.5;
+            epoch_params.bef_time = -0.2;
             epoch_params.aft_time = 5;
         elseif strcmp(locktype, 'resp')
             epoch_params.bef_time = -3;
             epoch_params.aft_time = 1;
         end
         epoch_params.blc.run = true; % or false
-        epoch_params.blc.win = [-.5 0];
+        epoch_params.blc.win = [-.2 0];
         
     case 'UCLA'
         if strcmp(locktype, 'stim')
-            epoch_params.bef_time = -0.5;
+            epoch_params.bef_time = -0.2;
             epoch_params.aft_time = 5;
         elseif strcmp(locktype, 'resp')
             epoch_params.bef_time = -3;
             epoch_params.aft_time = 1;
         end
         epoch_params.blc.run = true; % or false
-        epoch_params.blc.win = [-.5 0];
+        epoch_params.blc.win = [-.2 0];
         
     case 'Number_comparison'
         if strcmp(locktype, 'stim')

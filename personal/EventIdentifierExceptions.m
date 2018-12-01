@@ -17,7 +17,7 @@ end
 if strcmp(sbj_name, 'S09_07_CM') && strcmp(project_name, 'UCLA') && strcmp(bn, 'ST07-07')
     n_initpulse_onset = 0; n_initpulse_offset = 0;
 elseif strcmp(sbj_name, 'S12_36_SrS') && strcmp(project_name, 'MMR') && strcmp(bn, 'SrS_09')
-    n_initpulse_onset = 10; n_initpulse_offset = 10;
+    n_initpulse_onset = 8; n_initpulse_offset = 8;
 elseif strcmp(sbj_name, 'S13_50_LGM') && strcmp(bn, 'LGM_13')
     n_initpulse_onset = 4; n_initpulse_offset = 4;    
 elseif strcmp(sbj_name, 'S13_53_KS2') && strcmp(project_name, 'MMR') && strcmp(bn, 'KS2_02')

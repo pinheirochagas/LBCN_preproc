@@ -13,6 +13,13 @@ for i = 1:length(block_names)
         K.conds(end+1) = 8; % CHECK IF THIS IS SYSTEMATIC
     else
     end
+    
+    if  isempty(K.theData(1).flip)
+        K.theData = K.theData(2:end);
+        K.conds = K.conds(2:end);
+        K.wlist = K.wlist(2:end);
+    else
+    end
 
     % start trialinfo
     trialinfo = table;

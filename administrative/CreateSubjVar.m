@@ -107,10 +107,17 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         fs_chan_names = fs_chan_names_tmp;
         
         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+        MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
+
+        if in_fs(end) == 0
+           native_coord_tmp(end+1,:) = nan; 
+           MNI_coord_tmp(end+1,:) = nan; 
+        else
+        end
+        
         native_coord_tmp(in_fs,:) = native_coord;
         native_coord = native_coord_tmp;
         
-        MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
         MNI_coord_tmp(in_fs,:) = MNI_coord;
         MNI_coord = MNI_coord_tmp;
     else
