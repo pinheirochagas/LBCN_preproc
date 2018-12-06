@@ -15,7 +15,27 @@ subjVar = [];
 cortex = getcort(dirs);
 % native_coord = importCoordsFreesurfer(dirs);
 % fs_chan_names = importElectNames(dirs);
-[MNI_coord, chanInfo, native_coord, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
+[MNI_coord, chanInfo, native_coord, avgVids, subVids] = sub2AvgBrainCustom([],dirs, sbj_name, fsDir_local);
+
+%% Get the LEPTO coords
+% FreeSurfer Subject Directory
+subDir = dirs.freesurfer;
+subj = dir(subDir);
+subj=subj(~ismember({subj.name},{'.','..', '.DS_Store'}) & horzcat(subj.isdir) == 1);
+subj = subj.name;
+subDir = [subDir subj];
+elecCoordCsv=csv2Cell([subDir filesep 'elec_recon/' subj '.LEPTO'],' ',2);
+nElecTotal=size(elecCoordCsv,1);
+RAS_coord=zeros(nElecTotal,3);
+for csvLoopA=1:nElecTotal,
+    for csvLoopB=1:3,
+        RAS_coord(csvLoopA,csvLoopB)=str2double(elecCoordCsv{csvLoopA,csvLoopB});
+    end
+end
+
+%%
+
+
 fs_chan_names = chanInfo.Name;
 close all
 V = importVolumes(dirs);
@@ -23,6 +43,11 @@ V = importVolumes(dirs);
 subjVar.sbj_name = sbj_name;
 subjVar.cortex = cortex;
 subjVar.V = V;
+[mgrid_coord, elect_names] = getmgrid(dirs);
+subjVar.mgrid_coord = mgrid_coord;
+subjVar.elect_names = elect_names;
+
+		
 
 %% Correct channel name
 % Load naming from google sheet
@@ -64,6 +89,7 @@ if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     fs_chan_names = fs_chan_names(in_chan_cmp);
     native_coord = native_coord(in_chan_cmp,:);
+    RAS_coord = RAS_coord(in_chan_cmp,:);
     MNI_coord = MNI_coord(in_chan_cmp,:);
     
     % 2: More channels in EDF/TDT
@@ -77,6 +103,12 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
 %     native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
     native_coord_tmp(in_fs,:) = native_coord;
     native_coord = native_coord_tmp;
+    
+    
+    RAS_coord_tmp = nan(nchan_cmp,3,1);
+    RAS_coord_tmp(in_fs,:) = RAS_coord;
+    RAS_coord = RAS_coord_tmp;
+    
     
     MNI_coord_tmp = nan(nchan_cmp,3,1);
 %     MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
@@ -98,6 +130,7 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         % First remove the FS which are not in EDF/TDT
         fs_chan_names = fs_chan_names(in_chan_cmp);
         native_coord = native_coord(in_chan_cmp,:);
+        RAS_coord = RAS_coord(in_chan_cmp,:);
         MNI_coord = MNI_coord(in_chan_cmp,:);
         
         % Second add the EDF/TDT which are not in FS
@@ -107,16 +140,21 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         fs_chan_names = fs_chan_names_tmp;
         
         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+        RAS_coord_tmp = nan(size(RAS_coord,1),size(RAS_coord,2),1);
         MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
 
         if in_fs(end) == 0
            native_coord_tmp(end+1,:) = nan; 
+           RAS_coord_tmp(end+1,:) = nan; 
            MNI_coord_tmp(end+1,:) = nan; 
         else
         end
         
         native_coord_tmp(in_fs,:) = native_coord;
         native_coord = native_coord_tmp;
+        
+        RAS_coord_tmp(in_fs,:) = RAS_coord;
+        RAS_coord = RAS_coord_tmp;
         
         MNI_coord_tmp(in_fs,:) = MNI_coord;
         MNI_coord = MNI_coord_tmp;
@@ -137,15 +175,19 @@ if ~exist('mismatch_labels')
     end
     
     subjVar.native_coord = native_coord(new_order,:);
+    subjVar.LEPTO_coord = RAS_coord(new_order,:);
     subjVar.MNI_coord = MNI_coord(new_order,:);
+    
+    % labels mean the corrected names
+    
     if strcmp(data_format, 'TDT')
-        subjVar.elect_names = chan_comp;
+        subjVar.labels = chan_comp; 
     else
         %     subjVar.elect_names = chan_comp;
         if isfield(globalVar, 'channame')
-            subjVar.elect_names = globalVar.channame;
+            subjVar.labels = globalVar.channame;
         else
-            subjVar.elect_names = chan_comp;
+            subjVar.labels = chan_comp;
         end
     end
     

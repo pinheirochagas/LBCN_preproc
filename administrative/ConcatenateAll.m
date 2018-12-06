@@ -9,6 +9,10 @@ if isempty(concat_params)
     concat_params = genConcatParams(false); % default: no downsampling
 end
 
+% Load subjectVar
+load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'])
+
+
 if strcmp(datatype,'Spec')
     tdim = 4; % time dimension after concatenating
     tag = [locktype,'lock_bl_corr']; % specifies type of data to load
@@ -76,9 +80,11 @@ for ei = 1:length(elecs)
     
     data_all.trialinfo = [data_bn.trialinfo];
     data_all.trialinfo_all{el} = [data_bn.trialinfo];
-    data_all.labels{ei} = data_bn.label;
+%     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
 end
+
+data_all.labels = subjVar.labels;
 
 % Concatenate bad channels
 badChan = [];

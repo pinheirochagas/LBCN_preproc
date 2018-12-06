@@ -2,17 +2,21 @@ function data_all = ConcatenateAvgTrials(sbj_names,project_name, conds_avg_field
 
 %% Avg task
 % conditions to average
-data_all.wave = [];
+data_all.wave_mean = [];
+data_all.wave_trimmean = [];
+data_all.wave_trimmean_norm = [];
 for ii = 1:length(conds_avg_conds)
     % Initialize data_all
-    data_all.wave.(conds_avg_conds{ii}) = [];
+    data_all.wave_mean.(conds_avg_conds{ii}) = [];
+    data_all.wave_trimmean.(conds_avg_conds{ii}) = [];
+    data_all.wave_trimmean_norm.(conds_avg_conds{ii}) = [];
 end
 
 %% Group data
 data_all.MNI_coord = [];
 data_all.native_coord = [];
 data_all.subjects = [];
- 
+bad_chans = [];
 for i = 1:length(sbj_names)
     disp(['concatenating subject ' sbj_names{i}])
     %% Concatenate trials from all blocks
@@ -20,17 +24,31 @@ for i = 1:length(sbj_names)
     data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
-%         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-        data_tmp_avg = squeeze(trimmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),10,1)); % average trials by electrode
+        data_tmp_mean = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
+        data_tmp_trimmean = squeeze(trimmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),10,1)); % average trials by electrode
+        data_tmp_trimmean_norm = (data_tmp_trimmean-min(data_tmp_trimmean(:)))/(max(data_tmp_trimmean(:))-min(data_tmp_trimmean(:)));
+       
         
-        data_all.wave.(conds_avg_conds{ii}) = [data_all.wave.(conds_avg_conds{ii});data_tmp_avg]; % concatenate across subjects
+        data_all.wave_mean.(conds_avg_conds{ii}) = [data_all.wave_mean.(conds_avg_conds{ii});data_tmp_mean]; % concatenate across subjects
+        data_all.wave_trimmean.(conds_avg_conds{ii}) = [data_all.wave_trimmean.(conds_avg_conds{ii});data_tmp_trimmean]; % concatenate across subjects
+        data_all.wave_trimmean_norm.(conds_avg_conds{ii}) = [data_all.wave_trimmean_norm.(conds_avg_conds{ii});data_tmp_trimmean_norm]; % concatenate across subjects
+        
         % Reject bad channels
         if bad_chan_reject
-            data_all.wave.(conds_avg_conds{ii})(data_sbj.badChan,:) = [];
+            data_all.wave_mean.(conds_avg_conds{ii})(data_sbj.badChan,:) = [];
+            data_all.wave_trimmean.(conds_avg_conds{ii})(data_sbj.badChan,:) = [];
+            data_all.wave_trimmean_norm.(conds_avg_conds{ii})(data_sbj.badChan,:) = [];
         else
         end
         
     end
+    % Concatenate bad channels
+    if i == 1
+        counter = 0;
+    else
+        counter = size(data_sbj.wave,2);
+    end
+    bad_chans = [bad_chans, data_sbj.badChan+counter];
     
     %% Concatenate channel coordinates
     % Load subjVar and add additional info
@@ -65,6 +83,7 @@ for i = 1:length(sbj_names)
    
 end
 data_all.time = data_sbj.time;
+data_all.badchans_all = bad_chans
 
 end
 

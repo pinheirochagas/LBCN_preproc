@@ -1,4 +1,4 @@
-function PlotCoverageHeatmap(sbj_name,project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
+function PlotCoverageHeatmap(sbj_name,project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, cortex_space, correction_factor, dirs)
 
 %% Prepare data for heatmap
 % Load subjVar 
@@ -11,6 +11,13 @@ else
     [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
     subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
 end
+
+
+%% Load comon brain
+load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
+cmcortex.right = cortex;
 
 % basic parameters:
 decimate = true;
@@ -46,7 +53,7 @@ else
 end
 
 % Get color indices
-[col_idx,colors_plot] = colorbarFromValues(data_all.(cond_plot), colormap_plot);
+[col_idx,colors_plot] = colorbarFromValues(data_all.(cond_plot), colormap_plot, [], true);
 
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
@@ -60,8 +67,17 @@ views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 for i = 1:length(views)
     subplot(3,2,i)
-    coords_plot = CorrectElecLoc(subjVar.native_coord, views{i}, hemis{i});
-    ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    if strcmp(cortex_space, 'MNI')
+        coords_plot = CorrectElecLoc(subjVar.MNI_coord, views{i}, hemis{i}, correction_factor);
+        ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})        
+    elseif strcmp(cortex_space, 'native')
+        coords_plot = CorrectElecLoc(subjVar.LEPTO_coord, views{i}, hemis{i}, correction_factor);
+        ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    else
+        error('you must specify the cortical space to plot, either MNI or native.')
+    end
+    
+
     for ii = 1:length(coords_plot)
         % Only plot on the relevant hemisphere
         if ~isnan(col_idx(ii))
@@ -69,10 +85,12 @@ for i = 1:length(views)
             else
                 plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
             end
+%                 plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
         else
         end
     end
-    if strcmp(implant, 'sEEG')
+    if strcmp(implant, 'sEEG') || strcmp(implant, 'ECoG')
+%     if strcmp(implant, 'sEEG') 
         alpha(0.5)
     else
     end
@@ -89,15 +107,15 @@ text(135,550,1,sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlign
 
 %     light('Position',[1 0 0])
 conds_avg_conds_join = join(conds_avg_conds, '_');
-savePNG(gcf, 300, [dirs.result_root filesep 'heatmap' filesep sbj_name '_heatmap_' project_name '_' conds_avg_conds_join{1} '.png']); % ADD TASK AND CONDITION
+savePNG(gcf, 300, [dirs.result_root filesep 'heatmap' filesep sbj_name '_heatmap_' project_name '_' conds_avg_conds_join{1} '_' cortex_space '.png']); % ADD TASK AND CONDITION
 close all
 
 end
 
 %% Function to optimize electrode location for plotting
-function coords_plot = CorrectElecLoc(coords, views, hemisphere)
+function coords_plot = CorrectElecLoc(coords, views, hemisphere, correction_factor)
 coords_plot = coords;
-correction_factor = 10;
+% correction_factor = 0;
 switch views
     case 'lateral'
         if strcmp(hemisphere, 'right')
