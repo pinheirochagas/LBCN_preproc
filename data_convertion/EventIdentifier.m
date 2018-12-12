@@ -31,7 +31,13 @@ for i = 1:length(block_names)
     
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
-    [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
+    if strcmp(project_name, 'Calculia_production')
+        n_initpulse_onset = 12;
+        n_initpulse_offset = 12;
+    else
+        [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
+    end
+    
     clear anlg
     
     %% Add exceptions

@@ -35,6 +35,7 @@ for ei = 1:length(elecs)
     
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
+    elseif strcmp(concat_params.noise_method,'none')
     else
         bad_trials = [];
         for i = 1:length(concat_params.noise_fields_trials)

@@ -48,9 +48,9 @@ end
 for bn = 1:length(block_name)
    
     %% Check if the globalval.mat exist
-    globalfile = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_name{bn});
+    globalVar_file = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_name{bn});
     
-    if exist(globalfile, 'file') >= 1
+    if exist(globalVar_file, 'file') >= 1
         prompt = ['subjVar already exist for ' sbj_name ' . Load and replace it? (y or n):'] ;
         ID = input(prompt,'s');
         if strcmp(ID, 'y')

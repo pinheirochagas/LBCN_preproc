@@ -90,11 +90,6 @@ CreateFolders(sbj_name, project_name, block_names, center, dirs, data_format, 1)
 % and the behavioral files into the psychData
 % (unless if using CopyFilesServer, which is still under development)
 
-%% Get marked channels and demographics
-% [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-ref_chan = [];
-epi_chan = [];
-empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
 
 
 %% Copy the iEEG and behavioral files from server to local folders
@@ -115,6 +110,8 @@ elseif strcmp(data_format, 'TDT')
 else
     error('Data format has to be either edf or TDT format')
 end
+
+
 
 %% Convert berhavioral data to trialinfo
 switch project_name
@@ -174,6 +171,12 @@ end
 
 
 %% Branch 4 - bad channel rejection
+% [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
+ref_chan = [];
+epi_chan = [];
+empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
+
 BadChanRejectCAR(sbj_name, project_name, block_names, dirs)
 % 1. Continuous data
 %      Step 0. epileptic channels based on clinical evaluation from table_.xls
@@ -193,7 +196,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -205,7 +208,7 @@ for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
@@ -252,6 +255,10 @@ boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Ac
 set(gca,'fontsize',20)
 ylabel('RT (sec.)')
 xlabel('Min operand')
+dirs.result_root
+
+
+
 
 %% DONE PREPROCESSING.
 % Eventually replace globalVar to update dirs in case of working from an
@@ -306,7 +313,7 @@ sbj_name = 'S11_20_RHa'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-[subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+[subjVar,  subjVar_created] = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
 
 
 %% Branch 7 - Plotting
@@ -431,12 +438,12 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 
 %% Copy subjects
-subjs_to_copy = {'S17_106_SD'}; % this is to initiate and copy from excel files
-project_name = 'MMR';
-neuralData_folders = {'originalData', 'CARData'};
+subjs_to_copy = {}; % this is to initiate and copy from excel files
+project_name = 'Memoria';
+neuralData_folders = {'originalData', 'CARData', 'BandData'};
 
 server_root = '/Volumes/neurology_jparvizi$/';
-comp_root = '/Volumes/LBCN30GB/Stanford/data';
+comp_root = '/Volumes/LBCN8T/Stanford/data_amy';
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
@@ -546,7 +553,8 @@ savePNG(gcf, 600, [dirs.result_root '/coverage/' sbj_name '.png']);
 close all
 
 %% Plot electrodes as text
-views = [1 4];
+% load subject variable
+PlotCoverage(sbj_name,project_name, dirs, 1)
 
 for v = 1:length(views)
     subplot(1,length(views),v)
@@ -580,19 +588,22 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 % 1. Creat subfunctions of the EventIdentifier specific to each project
 % 2. Stimuli identity to TTL
 
-%% Concatenate all trials all channels
-plot_params.blc = true;
-data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim', plot_params);
-data_all_spec = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Spec','stim', plot_params);
+%% Decoding
+decimate = 1;
+final_fs = 250;
+concat_params = genConcatParams(decimate, final_fs);
+concat_params.noise_method = 'none';
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[], 'Band', 'HFB','stim', concat_params);
+% data_all_spec = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Spec','stim', plot_params);
 
-exportDataMNE(data_all_spec)
+% exportDataMNE(data_all_spec)
 
-trialinfo = removevars(data_all.trialinfo{1}, {'bad_epochs_raw', 'bad_epochs_HFO' 'bad_epochs', 'bad_inds_raw', 'bad_inds_HFO', 'bad_inds'});
-
-% excluse bad channels
-data_all.wave(:,data_all.badChan,:) = [];
-data_all.labels(data_all.badChan) = [];
-data_all.trialinfo(data_all.badChan) = [];
+trialinfo = removevars(data_all.trialinfo, {'bad_epochs_raw_LFspike', 'bad_epochs_raw_HFspike' 'bad_epochs_raw_jump', 'bad_epochs_spec_HFspike', 'bad_epochs','bad_epochs_HFO', 'bad_inds_raw_LFspike', 'bad_inds_raw_HFspike', 'bad_inds_raw_jump', 'bad_inds_spec_HFspike', 'bad_inds_HFO', 'bad_inds', 'block', 'allonsets', 'StimulusOnsetTime'});
+% 
+% % excluse bad channels
+% data_all.wave(:,data_all.badChan,:) = [];
+% data_all.labels(data_all.badChan) = [];
+% data_all.trialinfo(data_all.badChan) = [];
 
 % check for channels with nan
 nan_channel = [];
@@ -607,17 +618,30 @@ t    = 1:numel(x);
 x(nanx) = interp1(t(~nanx), x(~nanx), t(nanx));
 
 
+%% Select some channels 
+chan_indices = find(contains(data_all.labels, 'LPG'));
+data_all.wave = data_all.wave(:,chan_indices,:);
+data_all.labels = data_all.labels(chan_indices);
+bad_chan_HFO = [17:23, 25:31, 37:39];
+data_all.wave(:,bad_chan_HFO,:) = [];
+data_all.labels(bad_chan_HFO) = [];
+
+
+data_all.wave(:,data_all.badChan,:) = [];
+data_all.labels(data_all.badChan) = [];
 
 
 %Randomly select the same number of conditions
 
 % Save
-save([dirs.data_mvpa '/data_all_' sbj_name '_' project_name '_' 'Spec' '.mat'], 'data_all_spec', '-v7.3');
+dirs.MVPAData = '/Volumes/LBCN8T_2/Stanford/data/MVPAData';
+% save([dirs.MVPAData '/data_all_' sbj_name '_' project_name '_' 'HFB' '.mat'], 'data_all', '-v7.3');
+save([dirs.MVPAData '/data_all_' sbj_name '_' project_name '_' '.mat'], 'data_all');
 
 % Export trialinfo to csv
-data_all.wave = data_all.wave(~contains(trialinfo.wlist, 'Ê'),:,:); % correct that for MMR
-trialinfo = trialinfo(~contains(trialinfo.wlist, 'Ê'),:); % correct that for MMR
-writetable(trialinfo,[dirs.data_mvpa '/trialinfo_' sbj_name '_' project_name '.csv'])
+% data_all.wave = data_all.wave(~contains(trialinfo.wlist, 'Ê'),:,:); % correct that for MMR
+% trialinfo = trialinfo(~contains(trialinfo.wlist, 'Ê'),:); % correct that for MMR
+writetable(trialinfo,[dirs.MVPAData '/trialinfo_' sbj_name '_' project_name '.csv'])
 
 %% Prepare data for cluster-based stats
 % to do
