@@ -670,6 +670,12 @@ switch task
                 BN = {'G023_calculia_04'};
         end
         
+    case 'EglyDriver'
+        switch sbj
+            case 'S18_132_MDC'
+                BN = {'E18-975_0036', 'E18-975_0037', 'E18-975_0039'};
+        end        
+        
     otherwise
 
         BN = nan;
