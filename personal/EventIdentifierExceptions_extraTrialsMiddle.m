@@ -32,8 +32,39 @@ elseif strcmp(sbj_name, 'S11_25_DL') && strcmp(project_name, 'UCLA') && strcmp(b
     warning('using psychtoolbox output - diagnostic plots are meaningless')  
 elseif strcmp(sbj_name, 'S09_07_CM') && strcmp(project_name, 'UCLA') && strcmp(bn, 'ST07-07')
     all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless')  
+% elseif strcmp(sbj_name, 'S16_94_DR') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-168_0021');
+%     all_stim_onset = StimulusOnsetTime;
+%     warning('using psychtoolbox output - diagnostic plots are meaningless')
+% elseif strcmp(sbj_name, 'S16_94_DR') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-168_0023');
+%     all_stim_onset = StimulusOnsetTime;
+%     warning('using psychtoolbox output - diagnostic plots are meaningless')
+% elseif strcmp(sbj_name, 'S16_94_DR') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-168_0039');
+%     all_stim_onset = all_stim_onset;
+%     warning('using psychtoolbox output - diagnostic plots are meaningless')
+    % elseif strcmp(sbj_name, 'S15_89_JQa') && (strcmp(bn, 'E15-497_0012'))
+    %     all_stim_onset = StimulusOnsetTime;
+    %     warning('using psychtoolbox output - diagnostic plots are meaningless')
+    % elseif strcmp(sbj_name, 'S15_89_JQa') && (strcmp(bn, 'E15-497_0012'))
+elseif strcmp(sbj_name, 'S16_94_DR') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-168_0020')
+    all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless')
+elseif strcmp(sbj_name, 'S16_96_LF') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-429_0006')
+    all_stim_onset = StimulusOnsetTime;
     warning('using psychtoolbox output - diagnostic plots are meaningless')    
-    
+elseif strcmp(sbj_name, 'S16_96_LF') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E16-429_0015')
+    all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless')    
+elseif strcmp(sbj_name, 'S16_97_CHM') && strcmp(project_name, 'Calculia') && strcmp(bn,'E16-517_0014')
+    all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless') 
+elseif strcmp(sbj_name, 'S14_64_SP') && strcmp(project_name, 'Calculia') && strcmp(bn,'S14_64_SP_13') ||  strcmp(bn,'S14_64_SP_15')
+    all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless') 
+ 
+elseif strcmp(sbj_name, 'S17_105_TA') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E17-58_0014')
+    all_stim_onset = StimulusOnsetTime;
+    warning('using psychtoolbox output - diagnostic plots are meaningless')
 end
 
 end

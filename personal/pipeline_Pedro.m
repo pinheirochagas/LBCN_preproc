@@ -325,7 +325,7 @@ code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 center = 'Stanford';
 subjVar_created = nan(length(sbj_names),1,1);
 
-for i = 64:length(sbj_names)
+for i = 92:length(sbj_names)
     % Load subjVar
 %     if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
 %         load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
@@ -756,7 +756,7 @@ sbj_names_s = sbj_names_s(sum(selec_criteria,2) == size(selec_criteria,2));
 % check the processed ones
 all_folders = dir(fullfile([dirs.result_root filesep project_name]));
 sbj_names_p = {all_folders(:).name};
-sbj_names_p = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
+sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 
 [a,b] = intersect(sbj_names_s, sbj_names_p);
 
@@ -769,7 +769,7 @@ expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
 sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
 
 project_name = 'Memoria'
-for i = 7:length(sbj_names)
+for i = 14:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     conds_avg_field = 'condNames';
     conds_avg_conds = {'math'};
