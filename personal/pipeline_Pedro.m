@@ -63,6 +63,14 @@ sbj_name = googleSheet.subject_name{sbj_number}
 % center = 'China'; or Stanford
 %center = 'Stanford';
 
+
+
+% sbj_name = 'S16_102_MDO'
+% sbj_name ='S17_114_EB'
+% sbj_name ='S17_115_MP'
+% sbj_name ='S17_106_SD'
+% sbj_name ='S17_69_RTb'
+
 center = googleSheet.center{sbj_number};
 
 %% Get block names
@@ -144,23 +152,6 @@ switch project_name
 end
 
 
-% segment_audio_mic(sbj_name,project_name, dirs, block_names{1})
-
-
-% ADD segment_audio_mic
-
-%Plug into OrganizeTrialInfoCalculiaProduction
-%OrganizeTrialInfoNumberConcatActive
-%OrganizeTrialInfoCalculiaEBS
-% %% Segment audio from mic
-% % adapt: segment_audio_mic
-% switch project_name
-%     case 'Calculia_EBS'
-%     case 'Calculia_production'
-%         load(sprintf('%s/%s_%s_slist.mat',globalVar.psych_dir,sbj_name,bn))
-%         K.slist = slist;
-% end
-% %%%%%%%%%%%%%%%%%%%%%%%
 
 %% Branch 3 - event identifier
 if strcmp(project_name, 'Number_comparison')
@@ -174,8 +165,40 @@ elseif strcmp(project_name, 'EglyDriver')
 else
     EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
-% Fix it for UCLA
-% subject 'S11_29_RB' exception = 1 for block 2
+
+%% Segment audio mic and update trialinfo
+%(in the case of Calculia production and number concatenation)
+bn = block_names{3};
+% Load globalVar
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));    
+% Load mic
+load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, 2)); % going to be present in the globalVar
+% Load trialinto
+load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
+% Manually annotate and save or load existing
+% audioMic_App(anlg,fs,trialinfo)
+load([globalVar.psych_dir '/transcript_', bn '.mat']);
+
+% Correct for empty and nans
+if sum(cellfun(@isempty, trigger_labels)) ~= 0
+    trigger_labels{cellfun(@isempty, trigger_labels)} = 'NaN';
+else
+end
+trigger_ts(contains(trigger_labels, 'NaN'),:) = nan;
+save([globalVar.psych_dir '/transcript_', bn '.mat'], 'trigger_labels', 'trigger_ts')
+% update trialinfo
+trialinfo.RT_resp = trigger_ts/globalVar.Pdio_rate;
+trialinfo.RT = trialinfo.RT_resp(:,1) - trialinfo.allonsets(:,3);
+trialinfo.RT_lock = trialinfo.RT_resp(:,1);
+trialinfo.resp = cellfun(@str2num, trigger_labels)';
+switch project_name
+    case 'Calculia_production'
+        trialinfo.deviation = trialinfo.resp - trialinfo.result;
+        trialinfo.abs_deviation = abs(trialinfo.deviation);
+        trialinfo.Accuracy = double(trialinfo.deviation==0);
+    case 'Number concatenation'     
+end
+save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
 
 
 %% Branch 4 - bad channel rejection
@@ -210,8 +233,6 @@ end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
 epoch_params = genEpochParams(project_name, 'stim');
-epoch_params.blc.fieldtrip = 0; 
-
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs)
@@ -219,6 +240,16 @@ for i = 1:length(block_names)
 %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
+
+epoch_params = genEpochParams(project_name, 'resp');
+for i = 1:length(block_names)
+    bn = block_names{i};
+    parfor ei = 1:length(elecs)
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+    end
+end
+
 
 % epoch_params = genEpochParams(project_name, 'resp');
 % for i = 1:length(block_names)
@@ -235,31 +266,23 @@ deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Sp
 
 %% Behavioral analysis
 % Load behavioral data
-load()
-
-datatype = 'HFB'
-plot_params.blc = true
-locktype = 'stim'
-data_all.trialinfo = [];
+trialinfo_all = [];
 for i = 1:length(block_names)
-    bn = block_names {i};
-    dir_in = [dirs.data_root,'/','Band','Data/HFB/',sbj_name,'/',bn,'/EpochData/'];
-    
-    if plot_params.blc
-        load(sprintf('%s/%siEEG_%slock_bl_corr_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    else
-        load(sprintf('%s/%siEEG_%slock_%s_%.2d.mat',dir_in,datatype,locktype,bn,1));
-    end
+    bn = block_names{i};
+    load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));    
+    load([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
     % concatenate trial info
-    data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
+    trialinfo_all = [trialinfo_all; trialinfo];
 end
+trialinfo = trialinfo_all(trialinfo_all.min_op ~= 0, :)	
+% trialinfo = trialinfo_all(trialinfo_all.isCalc == 1,:)
 
-data_calc = data_all.trialinfo(data_all.trialinfo.isCalc == 1,:)
-acc = sum(data_calc.Accuracy)/length(data_calc.Accuracy);
-mean_rt = mean(data_calc.RT(data_calc.Accuracy == 1));
-sd_rt = std(data_calc.RT(data_calc.Accuracy == 1));
 
-boxplot(data_calc.RT(data_calc.Accuracy == 1), data_calc.OperandMin(data_calc.Accuracy == 1))
+acc = sum(trialinfo.Accuracy)/length(trialinfo.Accuracy);
+mean_rt = mean(trialinfo.RT(trialinfo.Accuracy == 1));
+sd_rt = std(trialinfo.RT(trialinfo.Accuracy == 1));
+
+boxplot(trialinfo.RT(trialinfo.Accuracy == 1), trialinfo.min_op(trialinfo.Accuracy == 1))
 set(gca,'fontsize',20)
 ylabel('RT (sec.)')
 xlabel('Min operand')
@@ -287,7 +310,13 @@ selec_criteria = [~cellfun(@isempty, sbj_names)  ~cellfun(@(x) contains(x, '0'),
 sbj_names = sbj_names(sum(selec_criteria,2) == size(selec_criteria,2));
 sbj_names = sbj_names(subjVar_created == 0)
 
+all_folders = dir(fullfile([dirs.original_data]));
+selec_criteria = ~cellfun(@(x) contains(x, '.'), all_folders.name)
 
+
+all_folders = dir(fullfile(dirs.original_data));
+sbj_names_p = {all_folders(:).name};
+sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 % Create subject variable
 comp_root = '/Volumes/LBCN8T/Stanford/data';
 server_root = '/Volumes/neurology_jparvizi$/';
@@ -296,17 +325,17 @@ code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 center = 'Stanford';
 subjVar_created = nan(length(sbj_names),1,1);
 
-for i = 1:length(sbj_names)
+for i = 64:length(sbj_names)
     % Load subjVar
-    if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
-        load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
-        subjVar_created(i) = 2;
-    else
+%     if exist([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat'], 'file')
+%         load([dirs.original_data filesep sbj_names{i} filesep 'subjVar_' sbj_names{i} '.mat']);
+%         subjVar_created(i) = 2;
+%     else
         fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
         [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_names{i}, center);
         dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
         [subjVar,  subjVar_created(i)] = CreateSubjVar(sbj_names{i}, dirs, data_format, fsDir_local);
-    end 
+%     end 
 end
 
 % Plot coverage for the ones with subjVar
@@ -340,6 +369,8 @@ plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
+plot_params.xlim = [-4 1];
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','condNames',[],plot_params,'Band') % condNames
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
@@ -467,19 +498,23 @@ end
 %% Run after having copied on the destination computer
 comp_root = '/Volumes/LBCN8T/Stanford/data';
 dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-for i = 1:length(subjs_to_copy)
-    block_names = BlockBySubj(subjs_to_copy{i},project_name);
-    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)
+for i = 13:length(subjs_to_copy)
+    block_names = BlockBySubj(subjs_to_copy{i},project_name); % 
+    UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)% 
 end
 
 for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
-%      OrganizeTrialInfoMMR_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-     OrganizeTrialInfoUCLA_rest(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names(2), dirs, 2) 
+    OrganizeTrialInfoMemoria(subjs_to_copy{i}, project_name, block_names, dirs, 'english')
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1) 
 end
 
+ block_names = BlockBySubj(sbj_name,project_name); % 
+ UpdateGlobalVarDirs(sbj_name, project_name, block_names, dirs)%
 
+
+% missing 
+% sodata for S18_129_AS E18-767_0004
 
 %% Analyse several subjects
 all_folders = dir(fullfile([dirs.result_root filesep 'heatmap']));
@@ -503,9 +538,31 @@ for i = 1:length(sbj_name_all)
         analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
 end
 
+project_name = 'Memoria';
+for i = 1:length(sbj_name_all)
+    analyseMultipleSubjects(sbj_name_all{i}, project_name, dirs)
+end
 
+%% ISSURES
+% S16_102_MDO, S17_114_EB S17_115_MP try without parfor
+% > In WaveletFilterAll (line 55)
+% Warning: Directory already exists.
+% > In WaveletFilterAll (line 55)
+% Analyzing and transferring files to the workers ...
+% Error using WaveletFilterAll (line 72)
+% An UndefinedFunction error was thrown on the workers for 'data'.  This
+% might be because the file containing 'data' is not accessible on the
+% workers.  Use addAttachedFiles(pool, files) to specify the required
+% files to be attached.  See the documentation for
+% 'parallel.Pool/addAttachedFiles' for more details.
+% 
+% Error in analyseMultipleSubjects (line 14)
+%     parfor ei = 1:length(elecs)
+% 
+% Caused by:
+%     Undefined function or variable 'data'.
 
-
+% Missing CAR for 
 
 
 %%
@@ -685,7 +742,7 @@ plot(pvalsig, zeros(length(pvalsig),1)', '*')
 
 
 %% Plot heatmap
-project_name = 'MMR';
+project_name = 'Memoria';
 % Retrieve subjects info
 [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
@@ -711,19 +768,19 @@ sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
 expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
 sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
 
-
-for i = 1:length(sbj_names)
+project_name = 'Memoria'
+for i = 7:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     conds_avg_field = 'condNames';
-    conds_avg_conds = {'autobio'};
-    cond_plot = 'autobio';
-    colormap_plot = 'BluesWhite';
-    PlotCoverageHeatmap(sbj_names{i},'MMR', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, dirs)
+    conds_avg_conds = {'math'};
+    cond_plot = 'math';
+    colormap_plot = 'RedsWhite';
+    PlotCoverageHeatmap(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs)
 end
 
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
-sbj_name = 'S14_67_RH' 
+sbj_name = 'S09_07_CM' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -735,7 +792,7 @@ cond_plot = 'math';
 colormap_plot = 'RedsWhite';
 cortex_space = 'native'
 correction_factor = 5;
-PlotCoverageHeatmap(sbj_name,'MMR', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, cortex_space, correction_factor, dirs)
+PlotCoverageHeatmap(sbj_name,'UCLA', conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, cortex_space, correction_factor, dirs)
 
 %% Groups subjects
 dirs

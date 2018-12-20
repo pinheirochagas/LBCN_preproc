@@ -85,7 +85,7 @@ for ei = 1:length(elecs)
     disp(['concatenating elec ',num2str(el)])
 end
 
-data_all.labels = subjVar.labels;
+data_all.labels = subjVar.elect_names;
 
 % Concatenate bad channels
 badChan = [];

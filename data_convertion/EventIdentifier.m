@@ -46,6 +46,9 @@ for i = 1:length(block_names)
     %% Thresholding the signal
     if strcmp(project_name, 'Calculia_production')
         ind_above= pdio < -5;
+    elseif strcmp(sbj_name, 'S16_102_MDO') && strcmp(bn, 'E16-993_0007')
+        pdio = abs(pdio);
+        ind_above= pdio > 2;
     else
         ind_above= pdio > 0.5;
     end
@@ -118,30 +121,33 @@ for i = 1:length(block_names)
         
     end
     
+    
     %% Get trials, insturuction onsets
     if strcmp(project_name, 'Calculia')
         % Add other kind of exceptions for when there is more triggers in the end - Calculia
         all_stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
         stim_onset = all_stim_onset;
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
+        %% modified for Memoria
+    elseif strcmp(project_name, 'Memoria')
+        colnames = trialinfo.Properties.VariableNames;
+        ntrials = size(trialinfo,1);
+        if ismember('nstim',colnames) % for cases where each trial has diff # of stim
+            all_stim_onset = nan(ntrials,max(trialinfo.nstim));
+            
+            counter = 1;
+            for ti = 1:ntrials
+                inds = counter:(counter+trialinfo.nstim(ti)-1);
+                all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
+                counter = counter+trialinfo.nstim(ti);
+            end
+        end
     else
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
     
-    %% modified for Memoria
-    colnames = trialinfo.Properties.VariableNames;
-    ntrials = size(trialinfo,1);
-    if ismember('nstim',colnames) % for cases where each trial has diff # of stim
-        all_stim_onset = nan(ntrials,max(trialinfo.nstim));
-        
-        counter = 1;
-        for ti = 1:ntrials
-            inds = counter:(counter+trialinfo.nstim(ti)-1);
-            all_stim_onset(ti,1:trialinfo.nstim(ti))=stim_onset(inds);
-            counter = counter+trialinfo.nstim(ti);
-        end
-    end
-    
+
+
 
 %%
 % Plot photodiode segmented data

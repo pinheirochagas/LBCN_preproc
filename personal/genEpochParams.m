@@ -49,7 +49,7 @@ switch project_name
             epoch_params.bef_time = -0.5;
             epoch_params.aft_time = 5;
         elseif strcmp(locktype, 'resp')
-            epoch_params.bef_time = -5;
+            epoch_params.bef_time = -4;
             epoch_params.aft_time = 1;
         end
         epoch_params.blc.run = true; % or false

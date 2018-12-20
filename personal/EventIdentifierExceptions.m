@@ -96,7 +96,8 @@ elseif strcmp(sbj_name, 'S12_45_LR') && strcmp(bn, 'LR_06')
     n_initpulse_onset = 13; n_initpulse_offset = 13;
 elseif strcmp(sbj_name, 'S14_74_OD') && strcmp(bn, 'S14_74_OD_03')
     n_initpulse_onset = 13; n_initpulse_offset = 13;
-
+elseif strcmp(sbj_name, 'S17_106_SD') && strcmp(bn, 'E17-107_0016')
+    n_initpulse_onset = 9; n_initpulse_offset = 9;
 end
 end
 
