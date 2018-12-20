@@ -58,6 +58,12 @@ for i = 1:length(block_names)
     onset= find(ind_df==1);
     offset= find(ind_df==-1);
     clear ind_df
+    
+    if strcmp(sbj_name,'S16_97_CHM') && strcmp(bn,'E16-517_0014')
+        onset= onset(1:252);
+    else
+    end 
+    
     pdio_onset= onset/globalVar.Pdio_rate;
     pdio_offset= offset/globalVar.Pdio_rate;
     if length(pdio_onset) < length(pdio_offset)
@@ -114,24 +120,25 @@ for i = 1:length(block_names)
         end
         stim_onset=stim_onset(~isnan(stim_onset));
         disp('Notice:  Trigger has been Complemented.')
-        figure;
+        figure
         plot(beh_sot,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox
         hold on
         plot(stim_onset,'r*') % photodiode/trigger
         
     end
     
-    
     %% Get trials, insturuction onsets
+    colnames = trialinfo.Properties.VariableNames;
+    ntrials = size(trialinfo,1);
+
     if strcmp(project_name, 'Calculia')
         % Add other kind of exceptions for when there is more triggers in the end - Calculia
-        all_stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name, project_name, bn);
-        stim_onset = all_stim_onset;
+        [stim_onset,stim_offset] = StimOnsetExceptions(sbj_name,bn,stim_onset,stim_offset);
+        all_stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, stim_offset, sbj_name, project_name, bn);
+        stim_onset = all_stim_onset;                                  
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
         %% modified for Memoria
     elseif strcmp(project_name, 'Memoria')
-        colnames = trialinfo.Properties.VariableNames;
-        ntrials = size(trialinfo,1);
         if ismember('nstim',colnames) % for cases where each trial has diff # of stim
             all_stim_onset = nan(ntrials,max(trialinfo.nstim));
             
@@ -146,8 +153,6 @@ for i = 1:length(block_names)
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
     end
     
-
-
 
 %%
 % Plot photodiode segmented data
@@ -195,6 +200,12 @@ ylabel('Count');
 %flag large difference
 if ~all(abs(df)<.1)
     warning('behavioral data and photodiod mismatch')
+    prompt = ['behavioral data and photodiod mismatch. Accept it? (y or n):'] ;
+    ID = input(prompt,'s');
+    if strcmp(ID, 'y')
+    else
+       error('Mismatch not accepted.') 
+    end
 end
 
 %% Updating the events with onsets

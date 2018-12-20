@@ -23,7 +23,7 @@ for i = 1:length(block_names)
        else
        end
     end
-    globalVar.center = 'Stanford'
+%     globalVar.center = 'Stanford';
     % Save globalVar
     save(fn,'globalVar');
 end

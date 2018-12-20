@@ -1,4 +1,4 @@
-function stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, sbj_name,project_name, bn)
+function stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, stim_offset, sbj_name,project_name, bn)
 
 if strcmp(sbj_name, 'S15_87_RL') && strcmp(project_name, 'Calculia') && (strcmp(bn, 'E15-282_0025') || strcmp(bn, 'E15-282_0026') || strcmp(bn, 'E15-282_0027'))
     stim_onset = stim_onset(1:end-1);

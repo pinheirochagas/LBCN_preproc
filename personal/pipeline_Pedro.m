@@ -478,11 +478,11 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 %% Copy subjects
 subjs_to_copy = {}; % this is to initiate and copy from excel files
-project_name = 'Memoria';
-neuralData_folders = {'originalData', 'CARData', 'BandData'};
+project_name = 'Calculia';
+neuralData_folders = {'originalData', 'CARData'};
 
 server_root = '/Volumes/neurology_jparvizi$/';
-comp_root = '/Volumes/LBCN8T/Stanford/data_amy';
+comp_root = '/Volumes/LBCN30GB/Stanford/data';
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
@@ -498,15 +498,16 @@ end
 %% Run after having copied on the destination computer
 comp_root = '/Volumes/LBCN8T/Stanford/data';
 dirs = InitializeDirs(project_name, subjs_to_copy{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-for i = 13:length(subjs_to_copy)
+for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name); % 
     UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)% 
 end
 
-for i = 1:length(subjs_to_copy)
+
+for i = 4:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
-    OrganizeTrialInfoMemoria(subjs_to_copy{i}, project_name, block_names, dirs, 'english')
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1) 
+    OrganizeTrialInfoCalculia_combined(subjs_to_copy{i}, project_name, block_names, dirs)
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names(end-1), dirs, 1)
 end
 
  block_names = BlockBySubj(sbj_name,project_name); % 
