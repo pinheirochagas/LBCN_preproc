@@ -503,11 +503,11 @@ for i = 1:length(subjs_to_copy)
     UpdateGlobalVarDirs(subjs_to_copy{i}, project_name, block_names, dirs)% 
 end
 
-
-for i = 4:length(subjs_to_copy)
+% Run for all calculia after
+for i = 1:length(subjs_to_copy)
     block_names = BlockBySubj(subjs_to_copy{i},project_name);
     OrganizeTrialInfoCalculia_combined(subjs_to_copy{i}, project_name, block_names, dirs)
-    EventIdentifier(subjs_to_copy{i}, project_name, block_names(end-1), dirs, 1)
+    EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1)
 end
 
  block_names = BlockBySubj(sbj_name,project_name); % 
@@ -1039,9 +1039,14 @@ expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
 sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
 sbj_names = unique(sbj_names);
 
+
+all_folders = dir(fullfile([dirs.result_root filesep project_name]));
+sbj_names_p = {all_folders(:).name};
+sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
+
 concat_params = genConcatParams(0,[]);
 data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math', 'autobio'}, concat_params, false, dirs);
-save('/Volumes/LBCN8T_2/Stanford/data/neural_data/data_all_MMR.mat', 'data_all')
+save('/Volumes/LBCN8T_2/Stanford/data/neural_data/data_all_memoria.mat', 'data_all')
 
 % select given data
 data = data_all;

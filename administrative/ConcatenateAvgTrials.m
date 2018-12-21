@@ -83,7 +83,7 @@ for i = 1:length(sbj_names)
    
 end
 data_all.time = data_sbj.time;
-data_all.badchans_all = bad_chans
+data_all.badchans_all = bad_chans;
 
 end
 
