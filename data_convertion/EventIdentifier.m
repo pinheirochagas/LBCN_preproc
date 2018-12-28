@@ -161,6 +161,7 @@ figure('units', 'normalized', 'outerposition', figureDim)
 subplot(2,3,1:3)
 hold on
 plot(pdio)
+title(bn, 'interpreter', 'none')
 
 % Event onset
 plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');

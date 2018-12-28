@@ -510,9 +510,11 @@ for i = 1:length(subjs_to_copy)
     EventIdentifier(subjs_to_copy{i}, project_name, block_names, dirs, 1)
 end
 
- block_names = BlockBySubj(sbj_name,project_name); % 
- UpdateGlobalVarDirs(sbj_name, project_name, block_names, dirs)%
-
+sbj_name = subjs_to_copy{6}
+block_names = BlockBySubj(sbj_name,project_name); % 
+UpdateGlobalVarDirs(sbj_name, project_name, block_names, dirs)%
+EventIdentifier(sbj_name, project_name, block_names, dirs, 2)
+close all
 
 % missing 
 % sodata for S18_129_AS E18-767_0004
@@ -1046,7 +1048,7 @@ sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 
 concat_params = genConcatParams(0,[]);
 data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math', 'autobio'}, concat_params, false, dirs);
-save('/Volumes/LBCN8T_2/Stanford/data/neural_data/data_all_memoria.mat', 'data_all')
+save('/Volumes/LBCN8T_2/Stanford/data/data_all_memoria.mat', 'data_all')
 
 % select given data
 data = data_all;
@@ -1113,8 +1115,8 @@ data_all.math = data_all.math(nan_sum==0,:);
 data_all.chan_plot = data_all.chan_plot(nan_sum==0,:);
 data.wave = data_all.math; 
 
-dir_out = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster';
-save([dir_out filesep 'data.mat'], 'data')
+dir_out = '/Volumes/LBCN8T_2/Stanford/data';
+save([dir_out filesep 'data_memoria_math.mat'], 'data')
 
 %% Load template brain 
 load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
@@ -1196,15 +1198,16 @@ cmcortex.left = cortex;
 load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
 cmcortex.right = cortex;
 
+labels = labels+1
 labels_tab = tabulate(labels)
 sortrows(labels_tab,2)
 
 %% Load cluster labels
-load('/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster/cluster_labels_smooth.mat')
-dir_out = '/Volumes/LBCN8T_2/Stanford/data/neural_data/cluster/';
-cluster_numbers = [6 7 8 10 12 15 42 44 61 72];
+load('/Volumes/LBCN8T_2/Stanford/data/cluster_labels_smooth_memoria.mat')
+dir_out = '/Volumes/LBCN8T_2/Stanford/data/';
+cluster_numbers = [9];
 % cluster_numbers = [6 7 8 10 12 15 42 44 61 72 78 79 80 84 107 110 111 115];
-cluster_cols = parula(length(cluster_numbers));
+cluster_cols = hsv(length(cluster_numbers));
 
 
 
@@ -1220,7 +1223,7 @@ for i = 1:length(views)
     alpha(0.5)
     % Only plot on the relevant hemisphere
     for c = 1:length(cluster_numbers)
-        coords_plot = data_all.chan_plot(labels == cluster_numbers(c),:);
+        coords_plot = data.MNI_coord(labels == cluster_numbers(c),:);
         for ii = 1:length(coords_plot)
             if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
             else
@@ -1229,7 +1232,7 @@ for i = 1:length(views)
         end
     end
 end
-savePNG(gcf, 300, [dir_out 'examplar_cluster_MMR.png'])
+savePNG(gcf, 300, [dir_out 'examplar_cluster_memoria.png'])
 
 %% Plot channels
 marker_size = 10;
@@ -1237,12 +1240,12 @@ figureDim = [0 0 .3 1];
 figure('units', 'normalized', 'outerposition', figureDim);
 for c = 1:length(cluster_numbers)
     subplot(5,2,c)
-    plot(data_all.math(labels == cluster_numbers(c),:)', 'LineWidth',1, 'Color', cluster_cols(c,:))
+    plot(data.wave(labels == cluster_numbers(c),:)', 'LineWidth',1, 'Color', cluster_cols(c,:))
     title(['cluster' num2str(cluster_numbers(c))])
     set(gca,'fontsize',15)
 end
 set(gcf,'color','w');
-savePNG(gcf, 300, [dir_out 'examplar_cluster_MMR_brain.png'])
+savePNG(gcf, 300, [dir_out 'examplar_cluster_memoria_brain.png'])
 
 
 
