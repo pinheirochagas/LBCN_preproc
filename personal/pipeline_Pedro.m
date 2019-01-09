@@ -79,7 +79,9 @@ block_names = BlockBySubj(sbj_name,project_name)
 
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
-comp_root = '/Volumes/LBCN8T/Stanford/data';
+comp_root = '/Volumes/NeuroSpin2T/Stanford/data';
+% comp_root = '/Volumes/LBCN8T/Stanford/data';
+
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
@@ -346,7 +348,7 @@ for i = 1:length(sbj_names)
 end
 
 % For individual subjects
-sbj_name = 'S11_20_RHa'
+sbj_name = 'S17_118_TW'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'

@@ -2,7 +2,7 @@ function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,ele
 %% Define electrodes
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
-    load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
+    load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])    
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 if isempty(concat_params)
