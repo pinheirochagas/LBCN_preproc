@@ -1,9 +1,5 @@
 function UpdateGlobalVarDirs(sbj_name, project_name, block_names, dirs)
 
-% List folders to replace
-folder_names1 = {'originalData', 'BandData',...
-    'SpecData', 'psych_dir', 'result_dir'};
-folder_names2 = {'BandData','SpecData'};
 
 for i = 1:length(block_names)
     bn = block_names{i};
@@ -11,15 +7,23 @@ for i = 1:length(block_names)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
     load(fn,'globalVar');
     
-    for ii = 1:length(folder_names1)
-        globalVar.(folder_names1{ii}) = sprintf('%s/%s/%s/%s',dirs.data_root,folder_names1{ii},sbj_name, bn);
+    globalVar.sbj_name = sbj_name;
+    globalVar.originalData = sprintf('%s/%s/%s', dirs.original_data,sbj_name, bn);
+    globalVar.CARData = sprintf('%s/CARData/CAR/%s/%s',dirs.data_root,sbj_name, bn);
+    globalVar.BandData = sprintf('%s/BandData/', dirs.data_root);
+    globalVar.SpecData = sprintf('%s/SpecData/', dirs.data_root);
+    globalVar.psych_dir = sprintf('%s/%s/%s', dirs.psych_root,sbj_name, bn);
+    globalVar.result_dir = sprintf('%s/%s/%s/%s', dirs.result_root, project_name, sbj_name, bn);
+
+    % Remove old fields
+    field_rm = {'FiltData','CompData','HFBData','bad_epochs'};
+    for ii = 1:length(field_rm)
+       if isfield(globalVar, field_rm{ii})
+           globalVar = rmfield(globalVar, field_rm{ii});
+       else
+       end
     end
-    
-    for ii = 1:length(folder_names2)
-        globalVar.(folder_names2{ii}) = sprintf('%s/%s',dirs.data_root,folder_names2{ii});
-    end
-    
-    globalVar.CARData = [dirs.data_root,filesep,'CARData',filesep,'CAR',filesep,sbj_name,filesep,bn];
+%     globalVar.center = 'Stanford';
     % Save globalVar
     save(fn,'globalVar');
 end

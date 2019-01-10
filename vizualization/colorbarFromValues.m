@@ -1,7 +1,7 @@
 function [col_idx,cols] = colorbarFromValues(values, color_map,clim,center_zero)
 %% Get a colormap from a set of values
 %
-ncols = 100; % # of discrete colors within color scale
+ncols = 100 + 1; % # of discrete colors within color scale
 
 if isempty(clim) % if no limits specified, set colorscale limits based on range of data
     if center_zero % i.e. if value of 0 set to center of colormap
@@ -12,7 +12,8 @@ if isempty(clim) % if no limits specified, set colorscale limits based on range 
     end
 else 
     values(values<clim(1))=clim(1);
-    values(values>clim(2))=clim(2);
+%     values(values>clim(2))=clim(2);
+    values(values>clim(2))=values(values>clim(2))/max(values(values>clim(2))) * clim(2); 
     if center_zero % colorbar centered at zero
         clim = [-max(abs(clim(1)),abs(clim(2))) max(abs(clim(1)),abs(clim(2)))];
     end
@@ -37,7 +38,7 @@ elseif strcmp(color_map, 'BluesWhite') == 1
     cols = cmBluesWhite(ncols); 
 else
     cols = cbrewer2(color_map, ncols+1);
-%     cols = cols(end:-1:1,:);
+    cols = cols(end:-1:1,:);
 end
 
 % 

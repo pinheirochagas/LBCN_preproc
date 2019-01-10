@@ -44,27 +44,38 @@ switch project_name
         epoch_params.blc.run = true; % or false
         epoch_params.blc.win = [-.5 0];
         
-    case 'MMR'
+    case 'Calculia_production'
         if strcmp(locktype, 'stim')
             epoch_params.bef_time = -0.5;
+            epoch_params.aft_time = 5;
+        elseif strcmp(locktype, 'resp')
+            epoch_params.bef_time = -4;
+            epoch_params.aft_time = 1;
+        end
+        epoch_params.blc.run = true; % or false
+        epoch_params.blc.win = [-.5 0];     
+        
+    case 'MMR'
+        if strcmp(locktype, 'stim')
+            epoch_params.bef_time = -0.2;
             epoch_params.aft_time = 5;
         elseif strcmp(locktype, 'resp')
             epoch_params.bef_time = -3;
             epoch_params.aft_time = 1;
         end
         epoch_params.blc.run = true; % or false
-        epoch_params.blc.win = [-.5 0];
+        epoch_params.blc.win = [-.2 0];
         
     case 'UCLA'
         if strcmp(locktype, 'stim')
-            epoch_params.bef_time = -0.5;
+            epoch_params.bef_time = -0.2;
             epoch_params.aft_time = 5;
         elseif strcmp(locktype, 'resp')
             epoch_params.bef_time = -3;
             epoch_params.aft_time = 1;
         end
         epoch_params.blc.run = true; % or false
-        epoch_params.blc.win = [-.5 0];
+        epoch_params.blc.win = [-.2 0];
         
     case 'Number_comparison'
         if strcmp(locktype, 'stim')
@@ -81,6 +92,7 @@ end
 
 epoch_params.blc.locktype = 'stim';
 epoch_params.blc.bootstrap = false; 
+epoch_params.blc.fieldtrip = false; 
 epoch_params.noise.method = 'trials';
 epoch_params.noise.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 epoch_params.noise.noise_fields_timepts = {'bad_inds_HFO','bad_inds_raw_HFspike'};

@@ -8,8 +8,8 @@ else
     sbj_name_generic = sbj_name;
 end
 
-folder_names = {'originalData'};%, 'CARData'};
-folder_sublayers={'SpecData', 'BandData', 'CARData'};
+folder_names = {'originalData'};
+folder_sublayers={'SpecData', 'BandData'};
 % Subject folder name
 if import_server
     all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
@@ -33,6 +33,7 @@ for i = 1:length(folder_names)
 end
 folders.psych_dir = sprintf('%s/%s',dirs.psych_root,sbj_name);
 folders.result_dir = sprintf('%s/%s/%s',dirs.result_root,project_name,sbj_name);
+folders.CARData = sprintf('%s/CARData/CAR/%s',dirs.data_root,sbj_name);
 
 fieldname_folders = fieldnames(folders);
 
@@ -42,14 +43,22 @@ for i = 1:length(fieldname_folders)
     end
 end
 
-%% Check if the globalval.mat exist
-globalfile= dir([folders.originalData,filesep,'global*.mat']);
+
 
 for bn = 1:length(block_name)
    
-    clear globalVar
-    if ~isempty(globalfile)
-        load([folders.originalData,filesep,globalfile(bn).name])
+    %% Check if the globalval.mat exist
+    globalVar_file = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_name{bn});
+    
+    if exist(globalVar_file, 'file') >= 1
+        prompt = ['subjVar already exist for ' sbj_name ' . Load and replace it? (y or n):'] ;
+        ID = input(prompt,'s');
+        if strcmp(ID, 'y')
+            disp(['globalVar loaded for ' sbj_name])
+        else
+            warning(['subjVar NOT loaded ' sbj_name])
+        end
+    else
     end
     
 %% Per block - create folders and globalVar
