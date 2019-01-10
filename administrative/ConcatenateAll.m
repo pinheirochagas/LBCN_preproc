@@ -7,7 +7,7 @@ if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 if isempty(concat_params)
-    concat_params = genConcatParams(false); % default: no downsampling
+    concat_params = genConcatParams(project_name,false,[]); % default: no downsampling
 end
 
 if strcmp(datatype,'Spec')
@@ -68,9 +68,10 @@ for ei = 1:length(elecs)
     
 %     data_all.label = data_bn.label;
     
-    data_all.trialinfo{ei} = [data_bn.trialinfo];
+%     data_all.trialinfo{ei} = [data_bn.trialinfo];
+    data_all.trialinfo = data_bn.trialinfo;
     data_all.labels{ei} = data_bn.label;
-    disp(['concatenating elec ',num2str(el)])
+    disp(['concatenating sbj ',sbj_name,', elec ',num2str(el)])
 end
 
 % Concatenate bad channels

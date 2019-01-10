@@ -36,6 +36,15 @@ switch plottype
             cdcol.pink;
             cdcol.purple];
         plot_params.blc = 1;
+    case 'RTLock'
+        plot_params.legend = false;
+        plot_params.xlabel = 'Time (s)';
+        plot_params.ylabel = 'RT-sorted trials';
+        plot_params.textsize = 20;
+        plot_params.freq_range = [70 180];
+        plot_params.cmap = cbrewer2('RdBu');
+        plot_params.cmap = plot_params.cmap(end:-1:1,:);
+        plot_params.blc = 1;
     case 'ERSP'
         plot_params.legend = 'false';
         plot_params.textsize = 14;
@@ -86,7 +95,7 @@ switch task
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];         
     case 'Memoria'
-        plot_params.xlim = [-0.2 7];
+        plot_params.xlim = [-0.2 8.5];
         plot_params.blc = true;
         plot_params.bl_win = [-0.2 0];
     case 'Calculia_China'

@@ -23,4 +23,15 @@ switch sbj_name
             stim_onset = [stim_onset(1:200) NaN stim_onset(201:end)];
             stim_offset = [stim_offset(1:200) NaN stim_offset(201:end)];
         end
+    case 'S17_107_PR'
+        if strcmp(bn,'E17-237_0013')
+            stim_onset = [stim_onset(1:119) NaN stim_onset(120:end)];
+            stim_offset = [stim_offset(1:119) NaN stim_offset(120:end)];
+        end
+    case 'S17_106_SD'
+        if strcmp(bn,'E17-107_0017')
+            stim_onset = [stim_onset(1) NaN stim_onset(2:end)];
+            stim_offset = [stim_offset(1) NaN stim_offset(2:end)];
+        end
+        
 end

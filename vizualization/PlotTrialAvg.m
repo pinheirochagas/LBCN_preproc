@@ -114,14 +114,17 @@ for ci = 1:ncategs
                 else
                 end
                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+%                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
                 hold on
             else %'std'
                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
+%                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
                 hold on
             end
         end
     end
     h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
+%     h(ci)=plot(data.time,nanmedian(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
     hold on
 end
 

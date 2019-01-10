@@ -43,7 +43,7 @@ end
 figure('Position',[200 200 800 400])
 for ci = 1:ncategs
 %     itc_tmp = squeeze(nanmean(exp(1i*(angle(plot_data{ci}))),2));
-    itc_tmp = squeeze(abs(nanmean(exp(1i*(plot_data{ci})),2)));
+    itc_tmp = squeeze(abs(nanmean(exp(1i*(plot_data{ci})),2))); % average across trial dimension
     subplot(1,ncategs,ci)
     imagesc(data.time,1:length(data.freqs),itc_tmp,plot_params.clim)
     axis xy

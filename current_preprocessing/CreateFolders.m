@@ -8,8 +8,8 @@ else
     sbj_name_generic = sbj_name;
 end
 
-folder_names = {'originalData', 'CARData'};
-folder_sublayers={'SpecData', 'BandData'};
+folder_names = {'originalData'};%, 'CARData'};
+folder_sublayers={'SpecData', 'BandData', 'CARData'};
 % Subject folder name
 if import_server
     all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));

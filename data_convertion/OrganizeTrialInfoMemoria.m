@@ -47,8 +47,8 @@ for i = 1:length(block_names)
     conds = cell(ntrials,1);
     nstim_all = nan(ntrials,1);
     for ci = 1:length(condNames)
-        conds(K.conds==ci)=condNames(ci);
-        nstim_all(K.conds==ci) = nstim_per_trial(ci);
+        conds(K.conds(1:ntrials)==ci)=condNames(ci);
+        nstim_all(K.conds(1:ntrials)==ci) = nstim_per_trial(ci);
     end
     trialinfo.condNames = conds;
     %trialinfo.nstim = nstim_all;
@@ -140,7 +140,7 @@ for i = 1:length(block_names)
                 Operator = 1;
             end
             CorrectResult = Operand1 + Operand2*Operator;
-%             PresResult = str2num((C{3}(1:3))); % this is because sometimes there is a wrong character after the last digit
+            %             PresResult = str2num((C{3}(1:3))); % this is because sometimes there is a wrong character after the last digit
             Deviant = CorrectResult - PresResult;
             AbsDeviant = abs(Deviant);
             if (Deviant == 0 && strcmp(trialinfo.keys(i), '1') == 1) || (Deviant ~= 0 && strcmp(trialinfo.keys(i), '2') == 1)

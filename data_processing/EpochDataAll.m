@@ -118,6 +118,7 @@ bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO,
 load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,freq_band,bn,el));
 
 %% Load Common Average data for bad epochs detection
+% data_CAR_tpm = load(sprintf('%s/%s/%s/CARiEEG%s_%.2d.mat',globalVar.CARData,sbj_name,bn,bn,el));
 data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
 
 % Plug channel info

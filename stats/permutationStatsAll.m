@@ -1,4 +1,4 @@
-function [p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,tag,column,conds,datatype,stats_params)
+function [p,p_fdr,sig,greater] = permutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,tag,column,conds,datatype,freq_band,stats_params)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -8,7 +8,8 @@ function [p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,d
 %       elecs: can select subset of electrodes to epoch (default: all)
 %       column:         column name of data.trialinfo where conds are
 %       conds:          cell containing cond name(s) (1 or 2) to compare
-%       datatype: 'CAR','HFB',or 'Spec'
+%       freq_band: e.g., 'CAR','HFB','SpecDense'
+%       datatype: 'Band' or 'Spec'
 %       stats_params:   .task_win:   2-element vector specifying window of time to use in stats (in sec)    
 %                       .bl_win:     2-element vector specifying window to use for baseline (in sec)- only relevent when 1 condition
 %                       .paired:     true or false: 
@@ -38,15 +39,27 @@ if isempty(elecs)
 end
 
 %% loop through electrodes
+data_all = concatBlocks(sbj_name,block_names,dirs,elecs(1),freq_band,datatype,{'wave'},tag);
+nstim = nanmax(data_all.trialinfo.nstim);
+if nstim > 1
+    ISI = nanmedian(data_all.trialinfo.allonsets(:,2)-data_all.trialinfo.allonsets(:,1));
+end
 
-p = nan(1,globalVar.nchan);
+p = nan(globalVar.nchan,nstim);
+greater = nan(globalVar.nchan,nstim);
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,{'wave'},tag);
-    p(ei)= permutationStats(data_all,column,conds,stats_params);
+    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,{'wave'},tag);
+    for si = 1:nstim
+        stats_params_tmp = stats_params;
+        stats_params_tmp.task_win = stats_params_tmp.task_win+ISI*(si-1);
+        [p(ei,si),greater(ei,si)]= permutationStats(data_all,column,conds,stats_params_tmp);
+    end
     disp(['Performing permutation stats on elec: ',num2str(el)])
 end
 
-[p_fdr,sig] = fdr(p,stats_params.alpha);
+% [p_fdr,~] = fdr(p,stats_params.alpha);
+[p_fdr,~] = fdr(p(:),stats_params.alpha);
+sig = p<p_fdr;
 
 
