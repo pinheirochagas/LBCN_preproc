@@ -60,7 +60,8 @@ for i = 1:length(sbj_names)
     
     MNI_coords = subjVar.MNI_coord;
     native_coords = subjVar.native_coord;
-    elect_names = subjVar.elect_names;
+%     elect_names = subjVar.elect_names;
+    elect_names = subjVar.labels;
     subjects_tmp = cellstr(repmat(sbj_names{i}, size(data_sbj.wave,2),1));
 
     if bad_chan_reject

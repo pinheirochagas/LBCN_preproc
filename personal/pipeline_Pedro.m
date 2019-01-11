@@ -1049,8 +1049,8 @@ sbj_names_p = {all_folders(:).name};
 sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
 
 concat_params = genConcatParams(0,[]);
-data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math', 'autobio'}, concat_params, false, dirs);
-save('/Volumes/LBCN8T_2/Stanford/data/data_all_memoria.mat', 'data_all')
+data_all = ConcatenateAvgTrials(sbj_names,project_name, 'condNames', {'math', 'autobio'}, concat_params, true, dirs);
+save('/Volumes/NeuroSpin2T/Stanford/data/data_all_memoria_no_bad_chans.mat', 'data_all')
 
 % select given data
 data = data_all;
@@ -1061,7 +1061,7 @@ data.wave = data_all.wave_trimmean.math;
 fields = {'wave', 'MNI_coord', 'native_coord', 'subjects'};
 for i = 1:length(fields)
     if strcmp(fields{i}, 'subjects')
-        data.(fields{i})(data.badchans_all) = [];
+        data.(fields{i})(data.badchans_all) = [];   
     else
         data.(fields{i})(data.badchans_all,:) = [];
     end
@@ -1094,7 +1094,7 @@ end
 % explore individual subjects
 subjects = unique(data.subjects);
 for i = 1:length(subjects)
-    subplot(11,5,i)
+    subplot(4,4,i)
     plot(data.time, data.wave(cellfun(@(x) strcmp(x, subjects{i}), data.subjects),:)')
     title(subjects{i}, 'interpreter', 'none')
     ylim([min(data.wave(:)) max(data.wave(:))])
