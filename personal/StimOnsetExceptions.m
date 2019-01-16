@@ -65,8 +65,8 @@ switch sbj_name
         if strcmp(bn, 'E16-022_0013')
             stim_onset = [stim_onset(1:23) stim_onset(25) stim_onset(26:end)];
             stim_offset = [stim_offset(1:23) stim_offset(25) stim_offset(26:end)];
-        else 
-        end 
+        else
+        end
     case 'S16_94_DR'
         if strcmp(bn, 'E16-168_0023')
             stim_onset = [stim_onset(9:112) stim_onset(114:end-48)];
@@ -74,7 +74,7 @@ switch sbj_name
         else
         end
         
-case 'S14_80_KBa'
+    case 'S14_80_KBa'
         if strcmp(bn, 'S14_80_KB_22')
             stim_onset = [stim_onset(1:90) stim_onset(92:end)];
             stim_offset = [stim_offset(1:90) stim_offset(92:end)];
@@ -92,7 +92,7 @@ case 'S14_80_KBa'
             stim_offset = [stim_offset(1:240)];
         elseif strcmp(bn, 'S14_74_OD_07')
             stim_onset = [stim_onset(1:240)];
-            stim_offset = [stim_offset(1:240)];        
+            stim_offset = [stim_offset(1:240)];
         elseif strcmp(bn, 'S14_74_OD_08')
             stim_onset = [stim_onset(1:240)];
             stim_offset = [stim_offset(1:240)];
@@ -119,7 +119,17 @@ case 'S14_80_KBa'
         if strcmp(bn, 'S14_66_CZ_30')
             stim_onset = [stim_onset(1:210) stim_onset(213:end)];
             stim_offset = [stim_offset(1:210) stim_offset(213:end)];
-        end        
+        end
+    case 'S17_107_PR'
+        if strcmp(bn,'E17-237_0013')
+            stim_onset = [stim_onset(1:119) NaN stim_onset(120:end)];
+            stim_offset = [stim_offset(1:119) NaN stim_offset(120:end)];
+        end
+    case 'S17_106_SD'
+        if strcmp(bn,'E17-107_0017')
+            stim_onset = [stim_onset(1) NaN stim_onset(2:end)];
+            stim_offset = [stim_offset(1) NaN stim_offset(2:end)];
+        end
         
         
 end
