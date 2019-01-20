@@ -95,7 +95,7 @@ for i = 1:length(bns)
     data_pxx=zeros(length(f),size(data,2));
     
     for k = 1:size(data,2)
-        [Pxx,f] = pwelch(data(1:100*globalVar.iEEG_rate,k),floor(globalVar.iEEG_rate),set_ov,f,floor(globalVar.iEEG_rate));
+        [Pxx,f] = pwelch(data(1:floor(100*globalVar.iEEG_rate),k),floor(globalVar.iEEG_rate),set_ov,f,floor(globalVar.iEEG_rate));
         data_pxx(:,k)=Pxx;
     end
     

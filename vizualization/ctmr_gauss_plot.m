@@ -2,7 +2,6 @@ function ctmr_gauss_plot(cortex,electrodes,weights,hemi,viewside)
 % function [electrodes]=ctmr_gauss_plot(cortex,electrodes,weights)
 
 % hemi- 'l' for left hemipshere, 'r' for right hemisphere
-% view- 1-lateral, 2-medial, 3-top, 4-bottom, 5-front, 6-back, 7- parietal
 
 % projects electrode locations onto their cortical spots in the 
 % left hemisphere and plots about them using a gaussian kernel
@@ -94,43 +93,64 @@ axis off
 set(gcf,'Renderer', 'zbuffer')
 
 % hemi- 'l' for left hemipshere, 'r' for right hemisphere
-% view- 1-lateral, 2-medial, 3-top, 4-bottom, 5-front, 6-back, 7- parietal
+% views are labelled. A dash between views (Ex: medio-ventral) means that the view is in between the medial and ventral views
 
-if hemi=='l'
+if strcmp(hemi,'left')
     switch viewside
-        case 1
-            loc_view(280, 20)
-        case 2
+        case 'medial'
             loc_view(90, 0)
-        case 3
-            loc_view(270,90)
-        case 4
-            loc_view(180,270)
-        case 5
+        case 'lateral'
+            loc_view(270, 0)
+        case 'anterior'
             loc_view(180,0)
-        case 6
+        case 'posterior'
             loc_view(0,0)
-        case 7
-            loc_view(270*3, 0)
+        case 'ventral'
+            loc_view(180,270)
+        case 'dorsal'
+            loc_view(0,90)
+        case 'latero-ventral'
+            loc_view(270,-45)
+        case 'medio-dorsal'
+            loc_view(90,45)
+        case 'medio-ventral'
+            loc_view(90,-45)
+        case 'medio-posterior'
+            loc_view(45,0)
+        case 'medio-anterior'
+            loc_view(135,0)
     end
 %     set(l,'Position',[-1 0 1])   
-else 
+elseif strcmp(hemi,'right')
     switch viewside
-        case 1
+        case 'medial'
             loc_view(270, 0)
-        case 2
+        case 'lateral'
             loc_view(90, 0)
-        case 3
-            loc_view(270,90)
-        case 4
-            loc_view(180,270)
-        case 5
+         case 'anterior'
             loc_view(180,0)
-        case 6
+        case 'posterior'
             loc_view(0,0)
-        case 7
-            loc_view(270*3, 0)
+        case 'dorsal'
+            loc_view(0,90)
+        case 'ventral'
+            loc_view(180,270)
+        case 'parietal'
+            loc_view(65,10)
+       case 'latero-ventral'
+            loc_view(90,-45)
+        case 'medio-dorsal'
+            loc_view(270,45)
+        case 'medio-ventral'
+            loc_view(270,-45)
+        case 'medio-posterior'
+            loc_view(315,0)
+        case 'medio-anterior'
+            loc_view(225,0)  
     end
+    
+else
+    error('hemisphere should be either leftl or right')
 %     set(l,'Position',[1 0 1])     
 end
 
@@ -152,44 +172,5 @@ set(gcf,'color','w')
 
 
 %%
-if hemi=='l'
-    switch viewside
-        case 1
-            loc_view(270, 0)
-        case 2
-            loc_view(90, 0)
-        case 3
-            loc_view(290,15)
-        case 4
-            loc_view(180,270)
-        case 5
-            loc_view(180,0)
-        case 6
-            loc_view(0,0)
-        case 7
-            loc_view(295,10)
-        case 8
-            loc_view(5,90)
-    end
-%     set(l,'Position',[-1 0 1])   
-else 
-    switch viewside
-        case 1
-            loc_view(95, 0)
-        case 2
-            loc_view(270, 0)
-        case 3
-            loc_view(70, 15)
-        case 4
-            loc_view(180,270)
-        case 5
-            loc_view(180,0)
-        case 6
-            loc_view(0,0)
-        case 7
-            loc_view(65,10)
-        case 8
-            loc_view(5,90)
-    end
-%     set(l,'Position',[1 0 1])     
+   
 end

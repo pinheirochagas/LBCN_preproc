@@ -87,9 +87,10 @@ switch task
             cdcol.lilac;
             cdcol.yellow;
             cdcol.turquoise_blue;
-            cdcol.flamered;
+            cdcol.flame_red;
             cdcol.pink;
-            cdcol.carmine];
+            cdcol.carmine
+            cdcol.apricot];
     case 'Calculia_production'
         plot_params.xlim = [-0.2 4];
         plot_params.blc = true;

@@ -81,7 +81,8 @@ end
 % end
 
 % load trialinfo
-load([dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'])
+load([dirs.psych_root,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'])
+
 % Select only trials that are not rest
 % trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
 
@@ -117,16 +118,21 @@ bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO,
 % load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
 load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,freq_band,bn,el));
 
+if ~isfield(data,'label')
+    data.label = globalVar.channame{el};
+else
+end
+
 %% Load Common Average data for bad epochs detection
 % data_CAR_tpm = load(sprintf('%s/%s/%s/CARiEEG%s_%.2d.mat',globalVar.CARData,sbj_name,bn,bn,el));
 data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
 
 % Plug channel info
 data_CAR.wave = data_CAR_tpm.data.wave;
-data_CAR.freqs = data.freqs;
-data_CAR.wavelet_span = data.wavelet_span;
+% data_CAR.freqs = data.freqs;
+% data_CAR.wavelet_span = data.wavelet_span;
 data_CAR.fsample = data_CAR_tpm.data.fsample;
-data_CAR.label = data.label;
+data_CAR.label = globalVar.channame{el};
 clear data_CAR_tpm
 
 %% Epoch Common Average
@@ -170,6 +176,10 @@ if strcmp(datatype,'Spec')
 else % CAR or HFB (i.e. 1 frequency)
     [be.bad_epochs_spec_HFspike, filtered_beh,spkevtind,spkts_spec_HFspike] = LBCN_filt_bad_trial(data.wave',data.fsample);
 end
+%%%%%%%%%%%% NOTE on Su's code %%%%%%%%%%%%%%
+% If the trial is classified as bad, there are no bad indices, since the full trial should be excluded. 
+% If the trial is classified as good, there can be bad indices or not. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Organize bad indices
 for i = 1:size(spkts_raw_LFspike,2)
@@ -223,6 +233,11 @@ be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
 CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
 
 %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
+if strcmp(datatype, 'CAR')
+    epoch_params.blc.run = 0;
+else
+end
+
 if epoch_params.blc.run
     if sep_bl
         data_blc = BaselineCorrect(data,bl_data,epoch_params);

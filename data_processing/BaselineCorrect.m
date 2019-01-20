@@ -137,21 +137,37 @@ else % e.g. HFB data, no frequency dimension
     elseif strcmp(epoch_params.noise.method,'timepts')
         bl_data(bad_inds2) = NaN;
     end
-    bl_data = bl_data(:);
+    bl_data_all = bl_data(:);
 %     bl_data(zscore(bl_data)>bl_reject_thr)=NaN; 
     if epoch_params.blc.bootstrap
         bs_bl = nan(1,1000);
         parfor i = 1:1000
-            bs_bl(i) = nanmean(bl_data(randperm(length(bl_data),ntrials)));
+            bs_bl(i) = nanmean(bl_data_all(randperm(length(bl_data_all),ntrials)));
         end
         bl_mn = nanmean(bs_bl(:));
         bl_sd = nanstd(bs_bl(:));
     else
-        bl_mn = nanmean(bl_data(:));
-        bl_sd = nanstd(bl_data(:));
+        bl_mn = nanmean(bl_data_all(:));
+        bl_sd = nanstd(bl_data_all(:));
     end
 
-    data_blc.wave = (data.wave-bl_mn)./bl_sd;
+    if epoch_params.blc.fieldtrip 
+       %% Baseline correction based on FieldtTrip method: matrix multiplication
+        nsamples = size(data.wave,2);
+        basis = (1:nsamples)-1;
+        order = 0;
+        % create a set of basis functions that will be fitted to the data
+        x = zeros(order+1,nsamples);
+        for i = 0:order
+            x(i+1,:) = basis.^(i);
+        end
+        % estimate the contribution of the basis functions
+        invxcov = inv(x(:,bl_inds)*x(:,bl_inds)');
+        beta = data.wave(:,bl_inds)*x(:,bl_inds)'*invxcov;
+        data_blc.wave = data.wave - beta*x;
+    else
+        data_blc.wave = (data.wave-bl_mn)./bl_sd;
+    end
 end
 
 data_blc.time = data.time;

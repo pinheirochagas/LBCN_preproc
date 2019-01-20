@@ -41,7 +41,16 @@ for i = 1:length(block_names)
     for bb = 1:length(blanks)
         K.theData(blanks(bb)).keys = '0'; % replace 'noanswer' with '0' so can perform vertcat
     end
+    for iii = 1:length(K.theData)
+        if length(K.theData(iii).keys) == 2
+            K.theData(iii).keys = K.theData(iii).keys(1);
+        else
+        end
+    end
+    
     tmp = vertcat(K.theData(1:ntrials).keys);
+    
+    
     trialinfo.keys = tmp;
         
     conds = cell(ntrials,1);
@@ -51,7 +60,7 @@ for i = 1:length(block_names)
         nstim_all(K.conds(1:ntrials)==ci) = nstim_per_trial(ci);
     end
     trialinfo.condNames = conds;
-    %trialinfo.nstim = nstim_all;
+    trialinfo.nstim = nstim_all;
     trialinfo.stim1 = cell(ntrials,1);
     trialinfo.stim2 = cell(ntrials,1);
     trialinfo.stim3 = cell(ntrials,1);

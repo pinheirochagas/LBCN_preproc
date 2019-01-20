@@ -5,6 +5,8 @@ switch project_name
         pac_params.blc = false;
     case 'Memoria'
         pac_params.blc = true;
+    case 'MMR'
+        pac_params.blc = true;
 end
 pac_params.type = 'fullsignal';
 pac_params.phase_freq = [0 32]; % range of freqs used for phase (Hz)

@@ -4,6 +4,7 @@ function dirs = InitializeDirs(project_name,sbj_name, comp_root, server_root, co
 % Get generic name without lower case to match the server 
 if isstrprop(sbj_name(end),'lower')
     sbj_name_generic = sbj_name(1:end-1);
+    sbj_name_generic = sbj_name;
 else
     sbj_name_generic = sbj_name;
 end
@@ -21,7 +22,7 @@ dirs.mni_cortex = sprintf('%s/ECoG Patient Info/Cortex/ColinCortex',dirs.comp_ro
 dirs.cortex = sprintf('%s/ECoG Patient Info/Cortex/Native_cortex',dirs.comp_root);
 dirs.ROI = sprintf('%s/ECoG Patient Info/ROIs',dirs.comp_root);
 dirs.original_data = [dirs.data_root '/originalData'];
-dirs.MVData = [dirs.comp_root,'/MVData'];
+dirs.MVPAData = [dirs.comp_root,'/MVPAData'];
 
 % %Set freesurfer folder
 % all_folders = dir(fullfile('/Volumes/neurology_jparvizi$/'));
