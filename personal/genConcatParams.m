@@ -1,4 +1,4 @@
-function concatParams = genConcatParams(decimate, final_fs)
+function concatParams = genConcatParams(project_name,decimate, final_fs)
 
 concatParams.blc = true;
 concatParams.bl_win = [-0.2 0];
@@ -13,3 +13,12 @@ if decimate
 else
     concatParams.decimate = false;
 end
+
+if strcmp(project_name,'Memoria')
+    concatParams.t_stim = [0 1]; % time relative to each stim. onset
+    concatParams.t_bl = [-0.5 0];
+else
+    concatParams.t_stim = [0 5];
+    concatParams.t_bl = [-0.2 0];
+end
+

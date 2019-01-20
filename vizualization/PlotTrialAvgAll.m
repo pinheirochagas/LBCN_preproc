@@ -156,5 +156,5 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
     title(title_conds)
     fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
     savePNG(gcf, 300, fn_out)
-    close
+%     close
 end

@@ -7,23 +7,23 @@ parpool(4) % initialize number of cores
 %% Initialize Directories
 % project_name = 'Calculia_production';
 % project_name = 'MMR';
-% project_name = 'Memoria';
+project_name = 'Memoria';
 % project_name = 'MFA';
 % project_name = '7Heaven';
 % project_name = 'Scrambled';
 % project_name = 'UCLA';
 % project_name = 'Calculia';
 % project_name = 'Calculia_China';
-project_name = 'Number_comparison';
+% project_name = 'Number_comparison';
 % project_name = 'GradCPT';
 
 %% Create folders
 % sbj_name = 'S15_89b_JQ';
-% sbj_name = 'S14_69b_RT';
+% sbj_name = 'S17_105_TA';
 % sbj_name = 'C17_13';
-% sbj_name = 'S17_110_SC';
-sbj_name = 'S17_116';
-% sbj_name = 'S17_107_PR';
+% sbj_name = 'S14_69b_RT';
+% sbj_name = 'S18_128';
+sbj_name = 'S18_128';
 
 % Center
 % center = 'China';
@@ -32,13 +32,12 @@ center = 'Stanford';
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name);
 % Manually edit this function to include the name of the blocks:
-
+code_root = '/Users/amydaitch/Dropbox/Code/MATLAB/lbcn_preproc';
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/AmyData/ParviziLab';
-% dirs = InitializeDirs('Amy_iMAC', project_name, sbj_name, comp_root, server_root); 
-dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root); 
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root,code_root); 
 %% Get iEEG and Pdio sampling rate and data format
-[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
+[fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center); 
 
 %% Create subject folders
 load_server_files = false;
@@ -105,7 +104,7 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 elseif strcmp(project_name, 'Memoria')
-    EventIdentifier_Memoria(sbj_name, project_name, block_names, dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier_Memoria(sbj_name, project_name, block_names,dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
     EventIdentifier(sbj_name, project_name, block_names, dirs, 2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
@@ -132,21 +131,26 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
+%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDenseLF', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
 %% Branch 6 - Epoching, identification of bad epochs and baseline correction
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
-epoch_params = genEpochParams(project_name, 'resp'); 
-% epoch_params = genEpochParams(project_name, 'stim'); 
+% epoch_params = genEpochParams(project_name, 'resp'); 
+epoch_params_stimlock = genEpochParams(project_name, 'resp'); 
+epoch_params_resplock = genEpochParams(project_name, 'stim'); 
+
 elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 % elecs = {'LAI8'};
 % elecs = ChanNamesToNums(globalVar,{'LAI6'});
 for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs) 
-        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+%     for ei = 1
+%         for ei = 1:length(elecs)
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params_stimlock,'Band')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params_resplock,'Band')
 %         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDenseLF', [],[], epoch_params,'Spec')
     end
 end
@@ -236,12 +240,24 @@ PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condName
 
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
-plot_params.xlim = [-5 1];
+plot_params.xlim = [-0.5 8.5];
+% plot_params.xlim = [-5 1];
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % plot_params.noise_fields_timepts = {'bad_inds'};
 % elecs = {'LRSC1'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','resp','condNames',[],plot_params,'Band')
+% elecs = 1;
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'autobio','math'},plot_params,'Band')
+
+% RT-sorted
+
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+% elecs = [40 6 7 23 24];
+plot_params = genPlotParams(project_name,'RTSort');
+plot_params.xlim = [-0.5 8.5];
+PlotTrialRTSortedAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'autobio'},[],'Band')
+% PlotTrialRTSortedAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},[],'Band')
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
@@ -250,18 +266,18 @@ plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
 
 %% multielectrode plotting
-load cdcol.mat
+load cdcol_2018.mat
 cols.SPLattn = cdcol.lilac;
 cols.SPLmath = cdcol.scarlet;
 cols.PMC = cdcol.ultramarine;
-cols.INS = cdcol.yellowgeen;
-cols.ACC = cdcol.yellowgeen;
+cols.INS = cdcol.yellow_green;
+% cols.ACC = cdcol.yellowgeen;
 
 % S18_124
 % SPLattn = 'LDP7';
-% PMC = 'LDP1';
-% INS = 'LAI6';
-% elecs = {INS,PMC};
+PMC = 'LDP1';
+INS = 'LAI6';
+elecs = {INS,PMC};
 % elecs1 = PMC;
 % elecs2 = VIS;
 
@@ -277,11 +293,11 @@ cols.ACC = cdcol.yellowgeen;
 % elecs = {SPLattn,PMC};
 
 %S18_119
-SPLattn = 'LRSC8';
-INS = 'LavIN10';
-PMC = 'LRSC1';
-ACC = 'LadCIN5';
-elecs = {INS,PMC};
+% SPLattn = 'LRSC8';
+% INS = 'LavIN10';
+% PMC = 'LRSC1';
+% ACC = 'LadCIN5';
+% elecs = {INS,PMC};
 
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
@@ -291,7 +307,7 @@ plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 % plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 plot_params.multielec = true;
 plot_params.scale_amp = false;
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'math'},plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','stim','condNames',{'autobio'},plot_params,'Band')
 %% 
 % plot inter-trial phase coherence for each electrode
 plot_params = genPlotParams(project_name,'ITPC');
@@ -330,25 +346,37 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_calc',[],'tr
 
 % TODO: Fix cbrewer 2
 
-%% STATS
+%% STATS- UNIVARIATE
 tag = 'stimlock_bl_corr';
-[p,p_fdr,sig] = permutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,tag,'condNames',{'math'},'HFB',[]);
+[p,p_fdr,sig,greater] = permutationStatsAll(sbj_name,project_name,block_names,dirs,[],tag,'condNames',{'autobio'},'Band','HFB',[]);
+
+
+%% STATS- temporal cluster permutation
+
+% vs. baseline
+ [pval, t_orig, ~, ~, ~, hfb_timing,hfb_elecs_a,time_events] = clusterPermutationStatsAll(sbj_name,project_name,block_names,dirs,30:50,'HFB','Band','stim','condNames',{'autobio'},[],[]); 
+
+% bw conditions
+[~, ~, ~, ~, ~, ~, hfb_elecs_am] = clusterPermutationStatsAll(sbj_name,project_name,block_names,dirs,elecs,'HFB','Band',locktype,'condNames',{'autobio','math'},[],[],regions{ri});
 
 %% GradCPT- baseline vs. city vs. mtn
 power_by_cond = GradCPT_BL_vs_city_vs_mtn(sbj_name,block_names,dirs,[],'HFB','condNotAfterMtn');
 %% Branch 8 - integrate brain and electrodes location MNI and native and other info
+%% create subject Var
 % Load and convert Freesurfer to Matlab
+project_name = 'Memoria';
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
+code_root = '/Users/amydaitch/Dropbox/Code/MATLAB/lbcn_preproc';
 server_root = '/Volumes/neurology_jparvizi$/';
 comp_root = '/Volumes/AmyData/ParviziLab';
 
 % sbj_names = {'S17_112_EA','S17_116'};
-sbj_names = {'S17_116'};
+sbj_names = {'S18_126'};
 for i = 1:length(sbj_names)
     sbj = sbj_names{i};
     subjVar = [];
     disp(['Freesurfer for subject: ', sbj])
-    dirs = InitializeDirs(project_name, sbj, comp_root, server_root); % 'Pedro_NeuroSpin2T'
+    dirs = InitializeDirs(project_name, sbj, comp_root, server_root,code_root); 
     cortex = getcort(dirs);
     coords = importCoordsFreesurfer(dirs);
     elect_names = importElectNames(dirs);
@@ -361,7 +389,7 @@ for i = 1:length(sbj_names)
     subjVar.elect_MNI = MNI_coords;
     subjVar.elect_names = elect_names;
 %     subjVar.demographics = GetDemographics(sbj_name, dirs);
-    save([dirs.original_data '/' sbj '/subjVar.mat' ], 'subjVar')
+    save([dirs.original_data '/' sbj '/subjVar_',sbj,'.mat' ], 'subjVar')
 end
 
 %%
@@ -404,25 +432,6 @@ text(coords(e,1),coords(e,2),coords(e,3), num2str(elecs(e)), 'FontSize', 20);
 
 
 
-%% Create subjVar
-subjVar = [];
-subjVar.cortex = cortex;
-subjVar.V = V;
-subjVar.elect_native = coords;
-subjVar.elect_MNI = MNI_coords;
-subjVar.elect_names = elect_names;
-subjVar.demographics = GetDemographics(sbj_name, dirs);
-save([dirs.original_data '/' sbj_name '/subjVar.mat' ], 'subjVar')
-
-% demographics
-% date of implantation
-% birth data
-% age
-% gender
-% handedness
-% IQ full
-% IQ verbal
-% ressection?
 
 
 %% Copy subjects
@@ -502,146 +511,104 @@ ylabel('RT (sec.)')
 xlabel('Min operand')
 
 
-%% Avg task (for movie)
-% conditions to average
+%% Make movie of activations over time
+clear
+sbj_names = {'S14_69b_RT','S15_89b_JQ','S16_99_CJ','S17_104_SW','S17_105_TA','S17_106_SD','S17_110_SC','S17_112_EA','S17_114','S17_115','S17_116','S17_118','S18_119','S18_120','S18_124','S18_127','S18_131'};
+% sbj_names = {'S14_69b_RT'};
+norm_by_subj = true;
+project_name = 'Memoria';
+code_root = '/Users/amydaitch/Dropbox/Code/MATLAB/lbcn_preproc';
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/AmyData/ParviziLab';
+dirs = InitializeDirs(project_name, sbj_names{1}, comp_root, server_root,code_root); 
+
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
-data_all = [];
-for ii = 1:length(conds_avg_conds) 
-    % Initialize data_all
-    data_all.(conds_avg_conds{ii}) = [];
-end
 decimate = true;
-concat_params = genConcatParams(decimate);
-concat_params.noise_method = 'trials';
-data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
+fs_ds = 50; % downsampled rate
+concat_params = genConcatParams(decimate,fs_ds);
+concat_params.noise_method = 'timepts';
 
-for i = 1:length(sbj_names)
-    % Concatenate trials from all blocks
-    block_names = BlockBySubj(sbj_names{i},project_name);
-    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', plot_params);
-    elect_all{i} = data_sbj.labels; % QUCK AND DIRTY SOLUTION JUST TO TEST THE REST OF THE CODE
-    % Average across trials, normalize and concatenate across subjects
-    for ii = 1:length(conds_avg_conds)
-        data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
-%         data_tmp_norm = (data_tmp_avg-min(data_tmp_avg(:)))/(max(data_tmp_avg(:))-min(data_tmp_avg(:))); % normalize
-        data_tmp_norm = data_tmp_avg/max(data_tmp_avg(:));
-        data_all.(conds_avg_conds{ii}) = [data_all.(conds_avg_conds{ii});data_tmp_norm]; % concatenate across subjects
-    end
-end
-
-%% Load MNI coordinates
-chan_plot = [];
-elecNames_tmp = [];
-for i = 1%length(sbj_names)
-    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root); % 'Pedro_NeuroSpin2T'
-    coords_tmp = importCoordsFreesurfer(dirs);
-    [MNI_coords, elecNames, isLeft, avgVids, subVids] = sub2AvgBrainCustom([],dirs, fsDir_local);
-    close all
-    elecNames = cellfun(@(x) strsplit(x, '-'), elecNames, 'UniformOutput', false);
-    for ii = 1:length(elecNames)
-        elecNames_tmp{ii} = elecNames{ii}{2};
-    end
-    [a,idx] = ismember(elecNames_tmp, elect_all{i});
-    MNI_coords = MNI_coords(a,:);
-    idx = idx(a);
-    [b,idx_2] = sort(idx);
-    MNI_coords = MNI_coords(idx_2,:);
-    chan_plot = [chan_plot;MNI_coords]; % concatenate electrodes across subjects
-end
-%%%%%%%%%%%%%%%%%%
-%%% CORRECTION %%%
-%%%%%%%%%%%%%%%%%%
-% Make sure that electrodes labels from freesurfer are the same as in the files
+data_all = ConcatenateAllMultisbj(sbj_names,project_name,concat_params,column,conds,norm_by_subj);
+makeVid(data_all,project_name,[])
 
 
-%%
+% data_all = makeVid(sbj_names,project_name,concat_params,conds_avg_field,conds_avg_conds,norm_by_subj);
+
+% for i = 1:54
+%     subplot(7,8,i)
+%     plot(data_all.math(i,:),'r')
+%     hold on
+%     plot(data_all.autobio(i,:),'b')
+%     title(data_all.elect_names(i))
+% end
+
 %% Load template brain 
-code_path = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
-load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
-cmcortex.left = cortex;
-load([code_path filesep 'vizualization/Colin_cortex_left.mat']);
-cmcortex.right = cortex;
 
 
 
-%% Get indices for colloring
-cond = 'math';
+%% Copy Data
+% sbjs = {'S12_33_DA','S12_38_LK','S12_42_NC','S14_69_RTb','S16_99_CJ','S16_100_AF','S17_105_TA','S17_110_SC','S17_112_EA','S18_126','S18_131','S18_130_RH'};
+sbjs = {'S18_126'};%,'S18_128','S18_130'};%'S17_118_TW','S18_119_AG','S18_124_JR2'
+s_psychData = '/Volumes/AmyData2/ParviziLab/psychData';
+d_psychData = '/Volumes/AmyData/ParviziLab/psychData';
+s_neuralData = '/Volumes/AmyData2/ParviziLab/neuralData';
+d_neuralData = '/Volumes/AmyData/ParviziLab/psychData';
 
-[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
-% cols = flipud(cols);
-% Plot Colorbar
-figureDim = [0 0 .2 .2];
-figure('units','normalized','outerposition',figureDim)
-for i = 15:5:length(cols)
-    plot(i, 1, '.', 'MarkerSize', 20+(i/2), 'Color', cols(i,:))
-    hold on
-end
-axis off
-dir_out = '/Users/pinheirochagas/Desktop/';
-savePNG(gcf,400, [dir_out 'Reds.png'])
-
-
-[col_idx,cols] = colorbarFromValues(data_all.(cond)(:), 'RedsWhite');
-col_idx = reshape(col_idx,size(data_all.(cond),1), size(data_all.(cond),2));
-% only for ECoG
-chan_plot(:,1) = -70;
-chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond),2);
-
-% Plot parameters
-mark = 'o';
-MarkSizeEffect = 35;
-colRing = [0 0 0]/255;
-time = data_sbj.time(find(data_sbj.time == -.2):max(find(data_sbj.time <= 5)));
-
-
-%% Plot math
-F = struct;
-count = 0;
-
-for e = 1:2:length(time)
-    count = count+1;
-    ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'l', 1)
-    alpha(0.5)
-    % Sort to highlight larger channels
-    for i = 1:size(chan_plot)
-%         f = plot3(el_mniPlot_all(i,1)/(1-abs(math_memo_norm_all(i,e))),el_mniPlot_all(i,2),el_mniPlot_all(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx_math_memo(i,e),:), 'MarkerSize', MarkSizeEffect*abs(math_memo_norm_all(i,e))+0.01);
-        f = plot3(chan_plot(i,1),chan_plot(i,2),chan_plot(i,3), 'o', 'Color', 'k', 'MarkerFaceColor', cols(col_idx(i,e),:), 'MarkerSize', MarkSizeEffect*abs(data_all.(cond)(i,e))+0.01);     
-    end
-    time_tmp = num2str(time(e));
-    
-    if length(time_tmp) < 6
-        time_tmp = [time_tmp '00'];
-    end
-    if strcmp(time_tmp(1), '-')
-        time_tmp = time_tmp(1:6);
-    else
-        if strcmp(time_tmp, '000')
-        else
-            time_tmp = time_tmp(1:5);
-        end
-    end
-    
-    text(50, 15, -60, [time_tmp ' s'], 'FontSize', 40)
-    cdata = getframe(gcf);
-    F(count).cdata = cdata.cdata;
-    F(count).colormap = [];
-    close all
+for i = 1:length(sbjs)
+    disp(['Copying ',sbjs{i}])
+    CopySubject(sbjs{i}, s_psychData, d_psychData, s_neuralData, d_neuralData)
 end
 
-fig = figure;
-movie(fig,F,1)
+%% ROL
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
+elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+ROLparams = genROLParams();
+[ROL] = getROLAll(sbj_name,project_name,block_names,dirs,[],'HFB',ROLparams,'condNames',[]);
 
-videoRSA = VideoWriter([dir_out 'mmr_math.avi']);
-videoRSA.FrameRate = 30;  % Default 30
-videoRSA.Quality = 100;    % Default 75
-open(videoRSA);
-writeVideo(videoRSA, F);
-close(videoRSA);
+%% lagged correlation (permutation)
+% S18_124
+% elecs = sort([77:79,107,7:9,17:19,28,29]);
+code_root = '/Users/amydaitch/Dropbox/Code/MATLAB/lbcn_preproc';
+server_root = '/Volumes/neurology_jparvizi$/';
+comp_root = '/Volumes/AmyData/ParviziLab';
+project_name = 'Memoria';
 
+% sbjs = {'S14_69b_RT','S16_99_CJ','S16_100_AF','S17_105_TA','S17_110_SC','S17_112_EA','S17_116','S17_118','S18_119','S18_124','S18_125','S18_126','S18_127','S18_128','S18_129','S18_130','S18_131'};
+ROIs = {'PMC','mPFC','Hipp'};
 
+% sbjs = {'S18_128','S18_129','S18_130','S18_131','S17_116'}; %S18_119- check elec names, 'S18_125'
+sbjs = {'S18_126'};
+% elecs =53:60;
+for si = 1:length(sbjs)
+    sbj = sbjs{si};
+    dirs = InitializeDirs(project_name, sbj, comp_root, server_root,code_root); 
+    block_names = BlockBySubj(sbj,project_name);
+    load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj,project_name,sbj,block_names{1}),'globalVar');
+%     elecs = [];
+%     for ri = 1:length(ROIs)
+%         ROI = ROIs{ri};
+%         [elec_names,~] = ElectrodeBySubjROI(sbj,ROI)
+%         elecs = [elecs ChanNamesToNums(globalVar,elec_names)]
+%     end
+%     elecs = sort(elecs);
+    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+    xcorr_all = laggedCorrPerm(sbj,project_name,block_names,dirs,elecs,elecs,'HFB',[],'condNames',{'autobio'});
+end
 
+%% 
+e1 = 39;
+e2 = 44;
+plot(xcorr_all.lags,xcorr_all.trace_mn.autobio{e1 ,e2,4},'r-','lineWidth',5)
+hold on
 
-
-
+plot(xcorr_all.lags,xcorr_all.permtrace_mn.autobio{e1 ,e2,4},'color',[0.5 0.5 0.5],'lineWidth',5)
+plot(xcorr_all.lags,xcorr_all.permtrace_mn.autobio{e1 ,e2,4}+xcorr_all.permtrace_sd.autobio{e1 ,e2,4},'--','color',[0.5 0.5 0.5],'lineWidth',2)
+plot(xcorr_all.lags,xcorr_all.permtrace_mn.autobio{e1 ,e2,4}-xcorr_all.permtrace_sd.autobio{e1 ,e2,4},'--','color',[0.5 0.5 0.5],'lineWidth',2)
+plot([0 0],ylim,'k-','linewidth',2)
+plot(xlim,[0 0],'k-','linewidth',2)
+set(gcf,'color','w')
+set(gca,'fontsize',16)
+xlabel('lag (s)')
+title('LP7 (SPL) - LPI12 (PMC)')
 

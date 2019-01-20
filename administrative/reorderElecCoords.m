@@ -5,11 +5,13 @@ function subjVar_new = reorderElecCoords(subjVar,globalVar)
 nchan_gv = globalVar.nchan; % # of chans according to globalVar
 nchan_fs = length(subjVar.elect_names); % # of chans from freesurfer
 % nchan = length(subjVar.elect_names);
+names_tdt = globalVar.channame;
+names_fs = subjVar.elect_names;
 
-new_order = nan(1,nchan_fs);
+ispresent = nan(1,nchan_fs);
 
 for i = 1:nchan_fs
-    tmp = find(ismember(globalVar.channame,subjVar.elect_names(i)));
+    tmp = find(ismember(names_tdt,names_fs(i)));
     if ~isempty(tmp)
         new_order(i)= tmp(1);
     end

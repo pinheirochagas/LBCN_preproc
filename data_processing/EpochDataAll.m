@@ -124,6 +124,7 @@ else
 end
 
 %% Load Common Average data for bad epochs detection
+% data_CAR_tpm = load(sprintf('%s/%s/%s/CARiEEG%s_%.2d.mat',globalVar.CARData,sbj_name,bn,bn,el));
 data_CAR_tpm = load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
 
 % Plug channel info
