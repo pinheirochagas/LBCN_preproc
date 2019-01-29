@@ -12,7 +12,7 @@ if strcmp(center, 'Stanford')
             fs_Pdio = 1000;
             data_format = 'edf';
         end
-    elseif strcmp(sbj_name_split{3}, 'RTb')
+    elseif strcmp(sbj_name_split{3}, 'RTb') || strcmp(sbj_name_split{3}, 'KBb')
             fs_iEEG = 1000;
             fs_Pdio = 1000;
             data_format = 'edf';        

@@ -69,18 +69,18 @@ sbj_name = googleSheet.subject_name{sbj_number}
 % sbj_name ='S17_114_EB'
 % sbj_name ='S17_115_MP'
 % sbj_name ='S17_106_SD'
-% sbj_name ='S17_69_RTb'
+% sbj_name ='S11_29_RB'
 
-center = googleSheet.center{sbj_number};
-
+% center = googleSheet.center{sbj_number};
+center = 'Stanford'
 %% Get block names
 block_names = BlockBySubj(sbj_name,project_name)
 % Manually edit this function to include the name of the blocks:
 
 % Make sure your are connected to CISCO and logged in the server
 server_root = '/Volumes/neurology_jparvizi$/';
-comp_root = '/Volumes/NeuroSpin2T/Stanford/data';
-% comp_root = '/Volumes/LBCN8T/Stanford/data';
+% comp_root = '/Volumes/NeuroSpin2T/Stanford/data';
+comp_root = '/Volumes/LBCN8T/Stanford/data';
 
 code_root = '/Users/pinheirochagas/Pedro/Stanford/code/lbcn_preproc/';
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -159,18 +159,16 @@ end
 if strcmp(project_name, 'Number_comparison')
     event_numcomparison_current(sbj_name, project_name, block_names, dirs, 9) %% MERGE THIS
 % elseif strcmp(project_name, 'Memoria')
-%     EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
-elseif strcmp(project_name, 'Calculia')
-    
+%     EventIdentifier_Memoria(sbj_name, project_name, block_names(3), dirs) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.)
 elseif strcmp(project_name, 'EglyDriver')
     EventIdentifier_EglyDriver(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names(4), dirs,2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 
 %% Segment audio mic and update trialinfo
 %(in the case of Calculia production and number concatenation)
-bn = block_names{3};
+bn = block_names{1};
 % Load globalVar
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));    
 % Load mic
@@ -205,7 +203,7 @@ save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');
 
 %% Branch 4 - bad channel rejection
 % [refChan, badChan, epiChan, emptyChan] = GetMarkedChans(sbj_name);
-load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
+load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}));
 ref_chan = [];
 epi_chan = [];
 empty_chan = []; % INCLUDE THAT in SaveDataNihonKohden SaveDataDecimate
@@ -229,7 +227,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 for i = 1:length(block_names)
     parfor ei = 1:length(elecs)
         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
-%         WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
+        WaveletFilterAll(sbj_name, project_name, block_names{i}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
     end
 end
 
@@ -239,7 +237,7 @@ for i = 1:length(block_names)
     bn = block_names{i};
     parfor ei = 1:length(elecs)
         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
-%         EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
+        EpochDataAll(sbj_name, project_name, bn, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
     end
 end
 
@@ -348,7 +346,7 @@ for i = 1:length(sbj_names)
 end
 
 % For individual subjects
-sbj_name = 'S17_118_TW'
+sbj_name = 'S14_75_TB'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -366,27 +364,27 @@ dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root)
 % plot_params.textsize = 10;
 % PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band')
 
+
 % plot avg. HFB timecourse for each electrode separately
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
 PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
-plot_params.xlim = [-4 1];
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','condNames',[],plot_params,'Band') % condNames
 
 % plot ERSP (event-related spectral perturbations) for each electrode
 plot_params = genPlotParams(project_name,'ERSP');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-% elecs = {'LP7'};
 PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',[],plot_params)% condNames
+
 
 
 % plot HFB timecourse, grouping multiple conds together
 plot_params = genPlotParams(project_name,'timecourse');
 plot_params.noise_method = 'trials'; %'trials','timepts','none'
 plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,61,'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
+PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',{{'math','autobio'},{'math'}},plot_params,'Band')
+
 
 % plot HFB timecourse for multiple elecs on same plot
 plot_params = genPlotParams(project_name,'timecourse');
@@ -479,8 +477,8 @@ PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'stim','conds_math_memory'
 
 
 %% Copy subjects
-subjs_to_copy = {}; % this is to initiate and copy from excel files
-project_name = 'Calculia';
+subjs_to_copy = {'S16_97_CHM'}; % this is to initiate and copy from excel files
+project_name = 'MMR';
 neuralData_folders = {'originalData', 'CARData'};
 
 server_root = '/Volumes/neurology_jparvizi$/';
@@ -785,7 +783,7 @@ end
 
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
-sbj_name = 'S09_07_CM' 
+sbj_name = 'S17_113_CAM' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'

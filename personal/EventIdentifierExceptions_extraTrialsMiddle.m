@@ -65,6 +65,12 @@ elseif strcmp(sbj_name, 'S14_64_SP') && strcmp(project_name, 'Calculia') && strc
 elseif strcmp(sbj_name, 'S17_105_TA') && strcmp(project_name, 'Calculia') && strcmp(bn, 'E17-58_0014')
     all_stim_onset = StimulusOnsetTime;
     warning('using psychtoolbox output - diagnostic plots are meaningless')
+
+elseif strcmp(sbj_name, 'S15_82_JB') && strcmp(project_name, 'MMR') && strcmp(bn, 'S15_82_JB_07')
+    all_stim_onset = StimulusOnsetTime;    
+    warning('using psychtoolbox output - diagnostic plots are meaningless')
 end
+
+
 
 end

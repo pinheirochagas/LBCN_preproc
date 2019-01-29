@@ -67,7 +67,7 @@ if isempty(fs_targ)
 end
 
 %% Per electrode
-load(sprintf('%s/%s/%s/CARiEEG%s_%.2d.mat',globalVar.CARData,sbj_name,bn,bn,el));
+load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
 
 data = WaveletFilter(data.wave,data.fsample,fs_targ,freqs,span,norm,avgfreq);
 data.label = globalVar.channame{el};

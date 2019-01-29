@@ -26,13 +26,11 @@ switch sbj_name
         
     case 'S14_67_RH'
         if strcmp(bn, 'S14_67_RH_08')
-            stim_onset = [stim_onset(1:74) stim_onset(75:end)];
-            stim_offset = [stim_offset(1:74) stim_offset(75:end)];
-            stim_onset = stim_onset(1:end-2);
-            stim_offset = stim_offset(1:end-2);
+            stim_onset = stim_onset(3:end-2);
+            stim_offset = stim_offset(3:end-2);
         elseif strcmp(bn, 'S14_67_RH_09')
-            stim_onset = stim_onset(1:end-2);
-            stim_offset = stim_offset(1:end-2);
+            stim_onset = stim_onset(3:end-2);
+            stim_offset = stim_offset(3:end-2);
         elseif strcmp(bn, 'S14_67_RH_12')
             stim_onset = stim_onset(1:end-2);
             stim_offset = stim_offset(1:end-2);
@@ -42,10 +40,19 @@ switch sbj_name
             stim_onset = stim_onset(1:end-2);
             stim_offset = stim_offset(1:end-2);
         elseif strcmp(bn, 'S14_67_RH_16')
-            stim_onset = [stim_onset(1:45) stim_onset(49:end)];
-            stim_offset = [stim_offset(1:45) stim_offset(49:end)];
+            stim_onset = [stim_onset(13:45) stim_onset(49:end)];
+            stim_offset = [stim_offset(13:45) stim_offset(49:end)];
             stim_onset = stim_onset(1:end-2);
             stim_offset = stim_offset(1:end-2);
+        elseif strcmp(bn, 'S14_67_RH_05')   % added 01/17
+            stim_onset = stim_onset(3:end);
+            stim_offset = stim_offset(3:end);
+        elseif strcmp(bn, 'S14_67_RH_06')   % added 01/17
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);
+       elseif strcmp(bn, 'S14_67_RH_17')   %added 01/08
+            stim_onset = stim_onset(1:end-2);
+            stim_offset = stim_offset(1:end-2);            
         end
         
     case 'S15_89_JQa'
@@ -130,6 +137,8 @@ switch sbj_name
             stim_onset = [stim_onset(1) NaN stim_onset(2:end)];
             stim_offset = [stim_offset(1) NaN stim_offset(2:end)];
         end
+        
+        
         
         
 end

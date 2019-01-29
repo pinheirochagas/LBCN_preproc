@@ -32,7 +32,13 @@ elseif strcmp(sbj_name, 'S15_84_KG') && strcmp(project_name, 'MMR') && strcmp(bn
 elseif strcmp(sbj_name, 'S15_84_KG') && strcmp(project_name, 'MMR') && strcmp(bn, 'S15_84_KG_04')
     all_stim_onset = all_stim_onset(1:end-1);    
 elseif strcmp(sbj_name, 'S14_64_SP') && strcmp(project_name, 'Calculia') && strcmp(bn,'S14_64_SP_13')
+    all_stim_onset = all_stim_onset(1:end-1);    
+elseif strcmp(sbj_name, 'S11_29_RB') && strcmp(bn,'RB0911-20')
     all_stim_onset = all_stim_onset(1:end-1);     
+elseif strcmp(sbj_name, 'S14_80_KBa') && strcmp(bn,'S14_80_KB_03')
+    all_stim_onset = all_stim_onset(1:end-1); 
+elseif strcmp(sbj_name, 'S15_82_JB') && strcmp(bn, 'S15_82_JB_06') && strcmp(project_name, 'MMR')
+    all_stim_onset = all_stim_onset(1:end-1); 
 end
 
 end
