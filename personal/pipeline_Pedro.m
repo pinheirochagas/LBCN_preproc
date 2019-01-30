@@ -149,6 +149,8 @@ switch project_name
         OrganizeTrialInfoMFA(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
     case 'Calculia'
         OrganizeTrialInfoCalculia_combined(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
+    case 'Context'
+        OrganizeTrialInfoContext(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?        
     case 'EglyDriver'
         OrganizeTrialInfo_EglyDriver(sbj_name, project_name, block_names, dirs) % FIX 1 trial missing from K.conds?
 end
