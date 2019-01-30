@@ -131,10 +131,10 @@ for i = 1:length(block_names)
     colnames = trialinfo.Properties.VariableNames;
     ntrials = size(trialinfo,1);
 
-    if strcmp(project_name, 'Calculia')
+    if strcmp(project_name, 'Calculia') || strcmp(project_name, 'Context') || strcmp(project_name, 'Scrambled') || strcmp(project_name, 'MMR') || strcmp(project_name, 'UCLA')
         % Add other kind of exceptions for when there is more triggers in the end - Calculia
         [stim_onset,stim_offset] = StimOnsetExceptions(sbj_name,bn,stim_onset,stim_offset);
-        all_stim_onset = EventIdentifierExceptions_moreTriggersCalculia(stim_onset, stim_offset, sbj_name, project_name, bn);
+        all_stim_onset = EventIdentifierExceptions_moreTriggers(stim_onset, stim_offset, sbj_name, project_name, bn);
         stim_onset = all_stim_onset;                                  
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
         %% modified for Memoria

@@ -163,7 +163,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'EglyDriver')
     EventIdentifier_EglyDriver(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names(4), dirs,2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs,2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 
 %% Segment audio mic and update trialinfo

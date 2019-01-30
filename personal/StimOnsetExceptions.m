@@ -50,9 +50,25 @@ switch sbj_name
         elseif strcmp(bn, 'S14_67_RH_06')   % added 01/17
             stim_onset = stim_onset(1:end-2);
             stim_offset = stim_offset(1:end-2);
-       elseif strcmp(bn, 'S14_67_RH_17')   %added 01/08
+        elseif strcmp(bn, 'S14_67_RH_17')   %added 01/08
             stim_onset = stim_onset(1:end-2);
-            stim_offset = stim_offset(1:end-2);            
+            stim_offset = stim_offset(1:end-2);
+        end
+        
+    case 'S13_57_TVD'
+        if strcmp(bn, 'TVD_23')
+            stim_onset = [stim_onset(1:31) stim_onset(33:62) stim_onset(64:93) stim_onset(95:124) stim_onset(126:155) stim_onset(157:end)];
+            stim_offset = [stim_offset(1:31) stim_offset(33:62) stim_offset(64:93) stim_offset(95:124) stim_offset(126:155) stim_offset(157:end)];
+        elseif strcmp(bn, 'TVD_24')
+            stim_onset = [stim_onset(1:31) stim_onset(33:62) stim_onset(64:93) stim_onset(95:124) stim_onset(126:155) stim_onset(157:end)];
+            stim_offset = [stim_offset(1:31) stim_offset(33:62) stim_offset(64:93) stim_offset(95:124) stim_offset(126:155) stim_offset(157:end)];
+        elseif strcmp(bn, 'TVD_25')
+            stim_onset = [stim_onset(1:31) stim_onset(33:62) stim_onset(64:93) stim_onset(95:124) stim_onset(126:155) stim_onset(157:end)];
+            stim_offset = [stim_offset(1:31) stim_offset(33:62) stim_offset(64:93) stim_offset(95:124) stim_offset(126:155) stim_offset(157:end)];
+        elseif strcmp(bn, 'TVD_26')
+            stim_onset = [stim_onset(1:31) stim_onset(33:62) stim_onset(64:93) stim_onset(95:124) stim_onset(126:155) stim_onset(157:end)];
+            stim_offset = [stim_offset(1:31) stim_offset(33:62) stim_offset(64:93) stim_offset(95:124) stim_offset(126:155) stim_offset(157:end)];
+        else
         end
         
     case 'S15_89_JQa'
@@ -74,6 +90,37 @@ switch sbj_name
             stim_offset = [stim_offset(1:23) stim_offset(25) stim_offset(26:end)];
         else
         end
+        
+    case 'S12_45_LR'
+        if strcmp(bn, 'LR_32') || strcmp(bn, 'LR_33')
+            stim_onset = [stim_onset(2:21) stim_onset(23:42) stim_onset(44:63) stim_onset(65:84) stim_onset(86:105) stim_onset(107:126) stim_onset(128:147) stim_onset(149:168) stim_onset(170:189) stim_onset(191:end)];
+            stim_offset = [stim_offset(2:21) stim_offset(23:42) stim_offset(44:63) stim_offset(65:84) stim_offset(86:105) stim_offset(107:126) stim_offset(128:147) stim_offset(149:168) stim_offset(170:189) stim_offset(191:end)];
+        else
+        end
+        
+    case 'S13_53_KS2'
+        
+        if strcmp(bn, 'KS2_24')
+            stim_onset = [stim_onset(1:21) stim_onset(23:42) stim_onset(44:63) stim_onset(65:84) stim_onset(86:105) stim_onset(107:126) stim_onset(128:147) stim_onset(149:168) stim_onset(170:189) stim_onset(190:end-1)];
+            stim_offset = [stim_offset(1:21) stim_offset(23:42) stim_offset(44:63) stim_offset(65:84) stim_offset(86:105) stim_offset(107:126) stim_offset(128:147) stim_offset(149:168) stim_offset(170:189) stim_offset(190:end-1)];
+        elseif strcmp(bn, 'KS2_25')
+            stim_onset = [stim_onset(1:16) stim_onset(18:32) stim_onset(34:48) stim_onset(50:64) stim_onset(66:80) stim_onset(82:96) stim_onset(98:112) stim_onset(114:128) stim_onset(130:144) stim_onset(146:160) stim_onset(162:176) stim_onset(178:193)];
+            stim_offset = [stim_offset(1:16) stim_offset(18:32) stim_offset(34:48) stim_offset(50:64) stim_offset(66:80) stim_offset(82:96) stim_offset(98:112) stim_offset(114:128) stim_offset(130:144) stim_offset(146:160) stim_onset(162:176) stim_offset(178:193)];
+        elseif strcmp(bn, 'KS2_26')
+            stim_onset = [stim_onset(1:21) stim_onset(23:42) stim_onset(44:63) stim_onset(65:84) stim_onset(86:105) stim_onset(107:126) stim_onset(128:147) stim_onset(149:168) stim_onset(170:189) stim_onset(190:end)];
+            stim_offset = [stim_offset(1:21) stim_offset(23:42) stim_offset(44:63) stim_offset(65:84) stim_offset(86:105) stim_offset(107:126) stim_offset(128:147) stim_offset(149:168) stim_offset(170:189) stim_offset(190:end)];
+        elseif strcmp(bn, 'KS2_27')
+            stim_onset = [stim_onset(1:17) stim_onset(19:33) stim_onset(35:49) stim_onset(51:65) stim_onset(67:81) stim_onset(83:97) stim_onset(99:113) stim_onset(115:129) stim_onset(131:145) stim_onset(147:161) stim_onset(164:end)];% stim_onset(180:end)]
+            stim_offset = [stim_offset(1:17) stim_offset(19:33) stim_offset(35:49) stim_offset(51:65) stim_offset(67:81) stim_offset(83:97) stim_offset(99:113) stim_offset(115:129) stim_offset(131:145) stim_offset(147:161) stim_offset(164:end)];% stim_offset(180:end)]
+        elseif strcmp(bn, 'KS2_28')
+            stim_onset = [stim_onset(1:22) stim_onset(24:43) stim_onset(45:64) stim_onset(66:85) stim_onset(87:106) stim_onset(108:127) stim_onset(129:148) stim_onset(150:169) stim_onset(171:189) stim_onset(190:end)];
+            stim_offset = [stim_offset(1:22) stim_offset(24:43) stim_offset(45:64) stim_offset(66:85) stim_offset(87:106) stim_offset(108:127) stim_offset(129:148) stim_offset(150:169) stim_offset(171:189) stim_offset(190:end)];
+        elseif strcmp(bn, 'KS2_29')
+            stim_onset = [stim_onset(1:22) stim_onset(24:43) stim_onset(45:64) stim_onset(66:85) stim_onset(87:106) stim_onset(108:127) stim_onset(129:148) stim_onset(150:169) stim_onset(171:189) stim_onset(190:end)];
+            stim_offset = [stim_offset(1:22) stim_offset(24:43) stim_offset(45:64) stim_offset(66:85) stim_offset(87:106) stim_offset(108:127) stim_offset(129:148) stim_offset(150:169) stim_offset(171:189) stim_offset(190:end)];
+        else
+        end
+        
     case 'S16_94_DR'
         if strcmp(bn, 'E16-168_0023')
             stim_onset = [stim_onset(9:112) stim_onset(114:end-48)];
@@ -88,10 +135,13 @@ switch sbj_name
             stim_onset = [stim_onset(1:98) stim_onset(100:end)];
             stim_offset = [stim_offset(1:98) stim_offset(100:end)];
         end
-    case 'S14_68_NB'
+    case 'S14_68_NB'    % 01/29: last version
         if strcmp(bn, 'S14_68_NB_15')
-            stim_onset = [stim_onset(1:235)];
-            stim_offset = [stim_offset(1:235)];
+            stim_onset = stim_onset(1:end-1);
+            stim_offset = stim_offset(1:end-1);
+        elseif strcmp(bn, 'S14_68_NB_11')
+            stim_onset = [stim_onset(1:70) stim_onset(76:end)]; % added 01/29
+            stim_offset = [stim_onset(1:70) stim_onset(76:end)];
         end
     case 'S14_74_OD'
         if strcmp(bn, 'S14_74_OD_06')
@@ -124,8 +174,8 @@ switch sbj_name
         end
     case 'S14_66_CZ'
         if strcmp(bn, 'S14_66_CZ_30')
-            stim_onset = [stim_onset(1:210) stim_onset(213:end)];
-            stim_offset = [stim_offset(1:210) stim_offset(213:end)];
+            stim_onset = [stim_onset(1:210) stim_onset(233:end-1)]; % updated 01/29
+            stim_offset = [stim_offset(1:210) stim_offset(233:end-1)];
         end
     case 'S17_107_PR'
         if strcmp(bn,'E17-237_0013')
