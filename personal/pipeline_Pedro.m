@@ -773,15 +773,36 @@ sbj_names_p = sbj_names_p(cellfun(@(x) contains(x, {'MMR'}), sbj_names_p));
 expression = '\w{1}\d{2}\w{1}\d{2,3}\w{1}[A-Za-z10-9]{2,3}';
 sbj_names = cellfun(@(x) regexp(x, expression,'match'), sbj_names_p);
 
-project_name = 'Memoria'
+project_name = 'MMR';
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math'};
+cond_plot = 'math';
+colormap_plot = 'RedsWhite';
 for i = 14:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-    conds_avg_field = 'condNames';
-    conds_avg_conds = {'math'};
-    cond_plot = 'math';
-    colormap_plot = 'RedsWhite';
     PlotCoverageHeatmap(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs)
 end
+
+%% Plot selectivity
+project_name = 'MMR';
+% Retrieve subjects info
+[DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
+googleSheet = GetGoogleSpreadsheet(DOCID, GID);
+sbj_names = googleSheet.subject_name;
+sbj_names = googleSheet.subject_name(strcmp(googleSheet.task, 'MMR'));
+
+
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+cond_plot = 'math';
+colormap_plot = 'RedsWhite';
+
+for i = 1:1
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    PlotSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs)
+end
+
+
 
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
@@ -1296,11 +1317,15 @@ load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
 dir_out = '/Volumes/LBCN8T_2/Stanford/data/neural_data/';
 
 if ~exist([dir_out sbj_name], 'dir')
-    mkdir([dir_out sbj_name])
+    mkdir([dir_out sbj_name]) 
 else
 end
 save([dir_out sbj_name filesep 'data_all_' project_name '_' sbj_name '.mat'], 'data', '-v7.3')
 save([dir_out sbj_name filesep 'subjVar.mat'], 'subjVar')
+
+
+%% Selectivity maps
+
 
 
 
