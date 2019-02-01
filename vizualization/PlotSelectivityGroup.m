@@ -97,7 +97,7 @@ for i = 1:length(views)
     end
 end
 
-savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity2_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity4_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
 close all
 
 end

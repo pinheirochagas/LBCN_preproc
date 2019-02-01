@@ -165,7 +165,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'EglyDriver')
     EventIdentifier_EglyDriver(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs,2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs,1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 
 %% Segment audio mic and update trialinfo
@@ -800,7 +800,7 @@ correction_factor = 10;
 
 for i = 60:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-    elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs);
+    elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, dirs);
     load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
     PlotSelectivity(dirs, subjVar, project_name, elect_select{i}, 'native', 10)
 end
@@ -841,10 +841,63 @@ end
 elect_select_good = horzcat(elect_select_good{:});
 
 
-PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 10)
+PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 5)
 
 
 
+
+% For memoria
+project_name = 'Memoria';
+
+all_folders = dir(fullfile([dirs.result_root filesep project_name]));
+sbj_names_p = {all_folders(:).name};
+sbj_names = sbj_names_p(cellfun(@(x) ~contains(x, '.'), sbj_names_p));
+
+
+sbj_delete = [find(strcmp(sbj_names,'S16_102_MDO')), find(strcmp(sbj_names,'S17_106_SD')), find(strcmp(sbj_names,'S17_118_TW')), find(strcmp(sbj_names,'S18_130_RH')), find(strcmp(sbj_names,'S18_131_CB')), find(strcmp(sbj_names,'S18_127_AK')), find(strcmp(sbj_names,'S18_129_AS'))]
+
+
+conds_avg_field = 'condNames';
+conds_avg_conds = {'math', 'autobio'};
+cond_plot = 'math';
+
+for i = 24:length(sbj_names)
+    dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+    elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, dirs);
+    load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
+    PlotSelectivity(dirs, subjVar, project_name, elect_select{i}, 'native', 5)
+end
+
+
+
+elect_select_good = elect_select;
+elect_select_good(sbj_delete) = [];
+% elect_select_good = horzcat(elect_select_good{:});
+sbj_names_good = sbj_names;
+sbj_names_good(sbj_delete) = [];
+
+coords_all = [];
+% concatenate all coords
+for i = 1:length(sbj_names_good)
+    load([dirs.original_data filesep  sbj_names_good{i} filesep 'subjVar_'  sbj_names_good{i} '.mat']);
+    if size(subjVar.MNI_coord,1) == size(elect_select_good{i},2)
+    else
+       warning(['electrode mismatch in subject ' sbj_names_good{i}]) 
+    end
+    coords = subjVar.MNI_coord;
+    coords_all = [coords_all;coords]; % concatenate electrodes across subjects
+end
+elect_select_good = horzcat(elect_select_good{:});
+
+
+PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 5)
+
+
+
+
+
+
+%%
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
 sbj_name = 'S17_118_TW' 

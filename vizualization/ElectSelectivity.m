@@ -1,4 +1,4 @@
-function elect_select = ElectSelectivity(sbj_name,project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, cortex_space, correction_factor, dirs)
+function elect_select = ElectSelectivity(sbj_name,project_name, conds_avg_field, conds_avg_conds, dirs)
 
 %% Prepare data for heatmap
 % Load subjVar 
@@ -11,13 +11,6 @@ else
     [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
     subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
 end
-
-
-%% Load comon brain
-load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
-cmcortex.left = cortex;
-load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
-cmcortex.right = cortex;
 
 % basic parameters:
 decimate = false;
@@ -36,14 +29,30 @@ for ii = 1:length(conds_avg_conds)
     baseline_all.(conds_avg_conds{ii}) = [];
 end
 
-% Average 1 second of each trial per electrode
+% Get average parameters
+switch project_name
+    case 'MMR'
+        avg_init = 0;
+        avg_end = 1;
+        bs_init = -0.200;
+        bs_end = 0;        
+    case 'Memoria'
+        event_onsets = [0 cumsum(nanmean(diff(data_sbj.trialinfo.allonsets,1,2)))];
+        avg_init = event_onsets(3);
+        avg_end = event_onsets(4);
+        bs_init = -0.500;
+        bs_end = 0;        
+end
+
+
+
 for ii = 1:length(conds_avg_conds)
     data_tmp = data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:); % average trials by electrode
     
-    data_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>0)): max(find(data_sbj.time<1))),3);
+    data_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>avg_init)): max(find(data_sbj.time<avg_end))),3);
     data_all.(conds_avg_conds{ii}) = data_tmp_avg; 
     
-    baseline_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>-200)): max(find(data_sbj.time<0))),3);
+    baseline_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>bs_init)): max(find(data_sbj.time<bs_end))),3);
     baseline_all.(conds_avg_conds{ii}) = baseline_tmp_avg; 
     
 end
