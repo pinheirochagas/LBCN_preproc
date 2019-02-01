@@ -1,6 +1,5 @@
-function PlotSelectivity(dirs,subjVar, project_name, elect_select, cortex_space, correction_factor)
+function PlotSelectivityGroup(dirs,coords, project_name, elect_select, cortex_space, correction_factor)
 
-coords = subjVar.LEPTO_coord;
 
 %% Load comon brain (replace by fsaverage)
 % load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
@@ -12,6 +11,38 @@ coords = subjVar.LEPTO_coord;
 % [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 % googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 % implant = googleSheet.implant{strcmp(googleSheet.subject_name, sbj_name)};
+
+
+cmcortex.right=load('/Users/pinheirochagas/Pedro/Stanford/code/fieldtrip/template/anatomy/surface_pial_rigth.mat');
+cmcortex.left= load('/Users/pinheirochagas/Pedro/Stanford/code/fieldtrip/template/anatomy/surface_pial_left.mat')
+
+ft_plot_mesh(cmcortex.left);
+
+
+
+
+fspial_surf = ft_read_headshape(['/Applications/freesurfer/fsaverage/surf/lefth.pial']);
+fspial_surf.coordsys = 'fsaverage';
+
+% 1.1: FT_surface based registration to fs_average
+f1=figure;
+title({'FT_SURFACE registration';'on fsaverage brain'}, 'Interpreter', 'none');
+ft_plot_mesh(fspial_surf);
+ft_plot_sens(elec_fsavg_frs,'elecsize',20,'style', 'r');
+if strcmp(hemisphere, 'r')
+    view([120 0]);
+elseif strcmp(hemisphere, 'l')
+    view([-120 0]);
+end
+alpha(0.7)
+material dull;
+lighting gouraud;
+camlight;
+
+
+
+
+
 
 
 %% Define elect size and color

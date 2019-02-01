@@ -1,4 +1,4 @@
-function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params,datatype)
+function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params,datatype, elect_select)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -128,11 +128,14 @@ for ei = 1:length(elecs)
         PlotTrialAvg(data_all,column,conds,plot_params);
         
         if strcmp(plot_params.label,'name')
-            suptitle([data_all.label,tagchan])
+            suptitle([data_all.label,tagchan, elect_select{ei}])
         elseif strcmp(plot_params.label,'number')
             suptitle(['Elec ',num2str(el),tagchan])
         end
-        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+        
+        fn_out = sprintf('%s/%s/%s_%s_%s_%s_%slock_%s%s.png',dirs.result_root,'selectivity',sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+
+%         fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
         if plot_params.single_trial
             savePNG(gcf, 100, fn_out)
         else

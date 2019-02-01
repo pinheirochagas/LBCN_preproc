@@ -796,17 +796,58 @@ conds_avg_field = 'condNames';
 conds_avg_conds = {'math', 'autobio'};
 cond_plot = 'math';
 colormap_plot = 'RedsWhite';
+correction_factor = 10;
 
-for i = 1:1
+for i = 60:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
-    PlotSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs)
+    elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, cond_plot, colormap_plot, 'native', 0, dirs);
+    load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
+    PlotSelectivity(dirs, subjVar, project_name, elect_select{i}, 'native', 10)
 end
+
+
+%plot selective channels 
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+
+for i = 1:length(sbj_names)
+    elect_plot = find(~strcmp(elect_select{i}, 'no selectivity'));
+    block_names = BlockBySubj(sbj_names{i},project_name);
+    PlotTrialAvgAll(sbj_names{i},project_name,block_names,dirs,elect_plot,'HFB','stim','condNames',{'autobio', 'math'} ,plot_params,'Band', elect_select{i}(elect_plot)) % condNames
+end
+
+
+%% Plot all channels in fsaverage
+sbj_delete = [49,52,54,59 find(strcmp(sbj_names,'S17_113_CAM')), find(strcmp(sbj_names,'S14_80_KBa')), find(strcmp(sbj_names,'S15_87_RL')), find(strcmp(sbj_names,'S14_75_TB')) ];
+
+elect_select_good = elect_select;
+elect_select_good(sbj_delete) = [];
+% elect_select_good = horzcat(elect_select_good{:});
+sbj_names_good = sbj_names;
+sbj_names_good(sbj_delete) = [];
+
+coords_all = [];
+% concatenate all coords
+for i = 1:length(sbj_names_good)
+    load([dirs.original_data filesep  sbj_names_good{i} filesep 'subjVar_'  sbj_names_good{i} '.mat']);
+    if size(subjVar.MNI_coord,1) == size(elect_select_good{i},2)
+    else
+       warning(['electrode mismatch in subject ' sbj_names_good{i}]) 
+    end
+    coords = subjVar.MNI_coord;
+    coords_all = [coords_all;coords]; % concatenate electrodes across subjects
+end
+elect_select_good = horzcat(elect_select_good{:});
+
+
+PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'native', 10)
 
 
 
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
-sbj_name = 'S17_113_CAM' 
+sbj_name = 'S17_118_TW' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
