@@ -1,4 +1,4 @@
-function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params,datatype, elect_select)
+function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,locktype,column,conds,plot_params,datatype)
 
 %% INPUTS
 %       sbj_name: subject name
@@ -128,7 +128,8 @@ for ei = 1:length(elecs)
         PlotTrialAvg(data_all,column,conds,plot_params);
         
         if strcmp(plot_params.label,'name')
-            suptitle([data_all.label,tagchan, elect_select{ei}])
+%             suptitle([data_all.label,tagchan, elect_select{ei}])
+            suptitle([data_all.label,tagchan])
         elseif strcmp(plot_params.label,'number')
             suptitle(['Elec ',num2str(el),tagchan])
         end

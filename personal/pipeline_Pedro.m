@@ -846,7 +846,7 @@ PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 5
 
 
 
-% For memoria
+%% For MEMORIA
 project_name = 'Memoria';
 
 all_folders = dir(fullfile([dirs.result_root filesep project_name]));
@@ -869,6 +869,9 @@ for i = 24:length(sbj_names)
 end
 
 
+
+
+% FS average
 
 elect_select_good = elect_select;
 elect_select_good(sbj_delete) = [];
@@ -893,6 +896,16 @@ elect_select_good = horzcat(elect_select_good{:});
 PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 5)
 
 
+%plot selective channels 
+plot_params = genPlotParams(project_name,'timecourse');
+plot_params.noise_method = 'trials'; %'trials','timepts','none'
+plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+
+for i = 1:length(sbj_names_good)
+    elect_plot = find(~strcmp(elect_select_good{i}, 'no selectivity'));
+    block_names = BlockBySubj(sbj_names_good{i},project_name);
+    PlotTrialAvgAll(sbj_names_good{i},project_name,block_names,dirs,elect_plot,'HFB','stim','condNames',{'autobio', 'math'} ,plot_params,'Band') % condNames
+end
 
 
 
