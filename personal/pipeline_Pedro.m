@@ -841,7 +841,7 @@ end
 elect_select_good = horzcat(elect_select_good{:});
 
 
-PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'native', 10)
+PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 10)
 
 
 

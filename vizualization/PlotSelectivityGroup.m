@@ -12,64 +12,51 @@ function PlotSelectivityGroup(dirs,coords, project_name, elect_select, cortex_sp
 % googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 % implant = googleSheet.implant{strcmp(googleSheet.subject_name, sbj_name)};
 
+% sort electrodes based on selectivity
+[elect_select,idx] = sort(elect_select);
+elect_select = flip(elect_select);
+coords = coords(idx,:);
+coords = flip(coords);
 
-cmcortex.right=load('/Users/pinheirochagas/Pedro/Stanford/code/fieldtrip/template/anatomy/surface_pial_rigth.mat');
-cmcortex.left= load('/Users/pinheirochagas/Pedro/Stanford/code/fieldtrip/template/anatomy/surface_pial_left.mat')
-
-ft_plot_mesh(cmcortex.left);
-
-
-
-
-fspial_surf = ft_read_headshape(['/Applications/freesurfer/fsaverage/surf/lefth.pial']);
-fspial_surf.coordsys = 'fsaverage';
-
-% 1.1: FT_surface based registration to fs_average
-f1=figure;
-title({'FT_SURFACE registration';'on fsaverage brain'}, 'Interpreter', 'none');
-ft_plot_mesh(fspial_surf);
-ft_plot_sens(elec_fsavg_frs,'elecsize',20,'style', 'r');
-if strcmp(hemisphere, 'r')
-    view([120 0]);
-elseif strcmp(hemisphere, 'l')
-    view([-120 0]);
-end
-alpha(0.7)
-material dull;
-lighting gouraud;
-camlight;
-
-
-
-
-
+cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial']);
+cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.pial']);
+cmcortex.right.vert =  cmcortex.right.pos;
+cmcortex.left.vert =  cmcortex.left.pos;
 
 
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(10, length(elect_select), 1);
-elect_size(strcmp(elect_select, 'no selectivity')) = 5;
+elect_size = repmat(7, length(elect_select), 1);
+elect_size(strcmp(elect_select, 'no selectivity')) = 1;
+
+
+
 
 for i = 1:length(elect_select)
 
     if strcmp(elect_select{i}, 'math only')
         elect_col(i,:) = cdcol.indian_red;
+        elect_col_edge(i,:) = [0 0 0];
     elseif strcmp(elect_select{i}, 'math selective')
         elect_col(i,:) = cdcol.raspberry_red;
+        elect_col_edge(i,:) = [0 0 0];
     elseif strcmp(elect_select{i}, 'math and memory')
         elect_col(i,:) = cdcol.manganese_violet;
+        elect_col_edge(i,:) = [0 0 0];
     elseif strcmp(elect_select{i}, 'memory only')
         elect_col(i,:) = cdcol.marine_blue;
+        elect_col_edge(i,:) = [0 0 0];
     elseif strcmp(elect_select{i}, 'memory selective')
         elect_col(i,:) = cdcol.azurite_blue;
+        elect_col_edge(i,:) = [0 0 0];
     else
-        elect_col(i,:) = [0 0 0];
+        elect_col(i,:) = [.5 .5 .5];
+        elect_col_edge(i,:) = [.5 .5 .5];
     end
 end
 
 %% Plot electrodes as dots in native space 
-marker_size = 10;
 figureDim = [0 0 .4 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
 views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
@@ -91,7 +78,7 @@ for i = 1:length(views)
         % Only plot on the relevant hemisphere
         if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
         else
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', elect_col(ii,:));
         end
     end
     alpha(0.7)
@@ -109,9 +96,8 @@ for i = 1:length(views)
     else
     end
 end
-text(135,550,1,subjVar.sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
 
-savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity2_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
 close all
 
 end
