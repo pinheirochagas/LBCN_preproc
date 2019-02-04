@@ -76,14 +76,21 @@ elseif strcmp(sbj_name, 'S16_97_CHM') && (strcmp(bn, 'E16-517_0016'))
     
 elseif strcmp(sbj_name, 'S17_105_TA') && (strcmp(bn, 'E17-58_0014'))
     stim_onset = stim_onset(1:end-4);
+
 elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_26'))
-    stim_onset = stim_onset(1:end-2);
+    stim_onset = stim_onset(5:end-1);
+elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_27'))
+    stim_onset = stim_onset(3:end);
+elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_29'))
+    stim_onset = stim_onset(3:end);
 elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_30'))
-    stim_onset = stim_onset(1:end-1);
+    stim_onset = stim_onset(12:end);
 elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_37'))
     stim_onset = stim_onset(1:end-1);
 elseif strcmp(sbj_name, 'S14_66_CZ') && (strcmp(bn, 'S14_66_CZ_40'))
     stim_onset = stim_onset(1:end-1);
+    
+    
 elseif strcmp(sbj_name, 'S14_67_RH') && (strcmp(bn, 'S14_67_RH_05')) % added 01/17
     stim_onset = stim_onset(1:end-2);
 elseif strcmp(sbj_name, 'S12_41_KS') && (strcmp(bn, 'KS_25'))

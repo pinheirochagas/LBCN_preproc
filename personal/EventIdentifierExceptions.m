@@ -157,18 +157,30 @@ elseif strcmp(sbj_name, 'S17_105_TA') && strcmp(bn, 'E17-58_0013') && strcmp(pro
     n_initpulse_onset = 4; n_initpulse_offset = 4;
 elseif strcmp(sbj_name, 'S17_105_TA') && strcmp(bn, 'E17-58_0016') && strcmp(project_name, 'Calculia')
     n_initpulse_onset = 4; n_initpulse_offset = 4;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_26') && strcmp(project_name, 'Calculia')
-    n_initpulse_onset = 16; n_initpulse_offset = 16;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_27') && strcmp(project_name, 'Calculia')
-    n_initpulse_onset = 14; n_initpulse_offset = 14;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_30') && strcmp(project_name, 'Calculia')
-    n_initpulse_onset = 14; n_initpulse_offset = 14;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_37') && strcmp(project_name, 'Calculia')
+% 
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_26') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 16; n_initpulse_offset = 16;
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_27') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 14; n_initpulse_offset = 14;
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_30') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 14; n_initpulse_offset = 14;
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_37') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 8; n_initpulse_offset = 8;
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_39') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 14; n_initpulse_offset = 14;
+% elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_40') && strcmp(project_name, 'Calculia')
+%     n_initpulse_onset = 14; n_initpulse_offset = 14;
+
+elseif strcmp(sbj_name,'S14_66_CZ') && strcmp(project_name, 'Calculia') && strcmp(bn, 'S14_66_CZ_37')
     n_initpulse_onset = 8; n_initpulse_offset = 8;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_39') && strcmp(project_name, 'Calculia')
+elseif strcmp(sbj_name,'S14_66_CZ') && strcmp(project_name, 'Calculia') && strcmp(bn, 'S14_66_CZ_39')
     n_initpulse_onset = 14; n_initpulse_offset = 14;
-elseif strcmp(sbj_name, 'S14_66_CZ') && strcmp(bn, 'S14_66_CZ_40') && strcmp(project_name, 'Calculia')
+elseif strcmp(sbj_name,'S14_66_CZ') && strcmp(project_name, 'Calculia') && strcmp(bn, 'S14_66_CZ_40')
     n_initpulse_onset = 14; n_initpulse_offset = 14;
+
+
+
+
 elseif strcmp(sbj_name, 'S11_29_RB') && strcmp(project_name, 'UCLA')
     n_initpulse_onset = 12; n_initpulse_offset = 12;    
 elseif strcmp(sbj_name, 'S13_56_THS') && strcmp(bn, 'THS_08')
