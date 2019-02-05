@@ -5,6 +5,8 @@ function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format
 % so we use LEPTO_coord for when ploting in native space and 
 % MNI_coord for when ploting in fsaverage
 
+% Sometimes the empty means cut channel (literaly physically cut from the grid)
+
 
 if strcmp(data_format, 'edf')
     % Load a given globalVar
@@ -35,7 +37,7 @@ subjVar.V = V;
 
 %% Correct channel name
 % Load naming from google sheet
-if strcmp(data_format, 'edf')
+if strcmp(data_format, 'edf') && ~strcmp(sbj_name, 'S17_118_TW')
     [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_fs_figures');
 else
     [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_ppt_log');
@@ -56,6 +58,10 @@ else
     nchan_cmp = length(ppt_chan_names); 
 end
 
+% channels in EDF/TDT which are not in FS 
+% this could be because those channels were not recorded, but only implanted (EDF)
+%               because somebody forgot to paste the correspondent .mat TDT file 
+                %(this would indicate an error, and could potentially vary across block)
 in_chan_cmp = false(1,nchan_fs);
 for i = 1:nchan_fs
     in_chan_cmp(i) = ismember(fs_chan_names(i),chan_comp);

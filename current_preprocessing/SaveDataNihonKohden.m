@@ -44,6 +44,8 @@ for i = 1:length(block_name)
     pdio_newinds = [1:length(pdio_oldinds)]; %how to save data
     ecog_oldinds = find(~contains(hdr.label, 'EKG') & ~contains(hdr.label, 'DC') & ~contains(hdr.label, 'REF') & ~contains(hdr.label, 'Annotations')); %index in EDF file
     ecog_newinds = 1:length(ecog_oldinds);
+    
+    % Maybe add A64, which 
 
     % Loop across channels
     channame = cell(size(ecog_newinds));

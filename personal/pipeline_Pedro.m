@@ -348,7 +348,7 @@ for i = 1:length(sbj_names)
 end
 
 % For individual subjects
-sbj_name = 'S14_75_TB'
+sbj_name = 'S17_80_KBb'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -798,7 +798,7 @@ cond_plot = 'math';
 colormap_plot = 'RedsWhite';
 correction_factor = 10;
 
-for i = 60:length(sbj_names)
+for i = 1:length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, dirs);
     load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
@@ -913,11 +913,13 @@ end
 %%
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
-sbj_name = 'S17_118_TW' 
+sbj_name = 'S18_130_RH' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 [subjVar,  subjVar_created] = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+subjVar
+
 
 conds_avg_field = 'condNames';
 conds_avg_conds = {'math'};
