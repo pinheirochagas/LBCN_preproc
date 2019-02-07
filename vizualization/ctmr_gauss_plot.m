@@ -80,7 +80,7 @@ a=get(gca);
 %%RELEVANCE OF CHANNEL FOR COMPARISON's ACROSS CORTICES
 d=a.CLim;
 set(gca,'CLim',[-max(abs(d)) max(abs(d))])
-l=light;
+% l=light;
 colormap(cm)
 lighting gouraud; %play with lighting...
 %lighting flat; %play with lighting...

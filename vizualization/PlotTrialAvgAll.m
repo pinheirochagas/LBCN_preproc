@@ -134,9 +134,9 @@ for ei = 1:length(elecs)
             suptitle(['Elec ',num2str(el),tagchan])
         end
         
-        fn_out = sprintf('%s/%s/%s_%s_%s_%s_%slock_%s%s.png',dirs.result_root,'selectivity',sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+%         fn_out = sprintf('%s/%s/%s_%s_%s_%s_%slock_%s%s.png',dirs.result_root,'selectivity',sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
 
-%         fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
         if plot_params.single_trial
             savePNG(gcf, 100, fn_out)
         else

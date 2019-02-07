@@ -185,7 +185,9 @@ elseif strcmp(sbj_name, 'S11_29_RB') && strcmp(project_name, 'UCLA')
     n_initpulse_onset = 12; n_initpulse_offset = 12;    
 elseif strcmp(sbj_name, 'S13_56_THS') && strcmp(bn, 'THS_08')
     n_initpulse_onset = 13; n_initpulse_offset = 13;  
- 
+elseif strcmp(sbj_name, 'S11_28_LS') && strcmp(bn, 'LS0911-08')
+    n_initpulse_onset = 12; n_initpulse_offset = 12;  
+
 end
 end
 

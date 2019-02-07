@@ -20,8 +20,20 @@ coords = flip(coords);
 
 cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial']);
 cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.pial']);
+
+cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.inflated_avg']);
+cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.inflated_avg']);
+
+cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial_semi_inflated']);
+cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.pial_semi_inflated']);
+
+
 cmcortex.right.vert =  cmcortex.right.pos;
 cmcortex.left.vert =  cmcortex.left.pos;
+
+% ctmr_gauss_plot(cmcortex.left ,[0 0 0], 0, 'left', 'ventral')
+
+
 
 
 %% Define elect size and color
@@ -55,6 +67,22 @@ for i = 1:length(elect_select)
         elect_col_edge(i,:) = [.5 .5 .5];
     end
 end
+
+
+
+ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'ventral')
+ctmr_gauss_plot(cmcortex.right,[0 0 0], 0, 'right', 'ventral')
+l=light
+
+for ii = 1:length(coords_plot)
+    % Only plot on the relevant hemisphere
+    if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+    else
+        plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', elect_col(ii,:));
+    end
+end
+alpha(0.9)
+
 
 %% Plot electrodes as dots in native space 
 figureDim = [0 0 .4 1];

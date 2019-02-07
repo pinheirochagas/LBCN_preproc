@@ -39,6 +39,9 @@ elseif strcmp(sbj_name, 'S14_80_KBa') && strcmp(bn,'S14_80_KB_03')
     all_stim_onset = all_stim_onset(1:end-1); 
 elseif strcmp(sbj_name, 'S15_82_JB') && strcmp(bn, 'S15_82_JB_06') && strcmp(project_name, 'MMR')
     all_stim_onset = all_stim_onset(1:end-1); 
+elseif strcmp(sbj_name, 'S11_28_LS') && strcmp(bn, 'LS0911-08')
+    all_stim_onset = all_stim_onset(1:end-1);     
+    
 end
 
 end

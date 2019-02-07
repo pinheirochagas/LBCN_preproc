@@ -72,15 +72,7 @@ for i = 1:length(block_names)
     else
     end
     
-    if all(mean(df_SOT)>1)
-        warning('delay between photodiode & psychtoolbox is greater than 1 ms!!')
-        prompt = ['There is a problematic delay! Accept it? (y or n):'] ;
-        ID = input(prompt,'s');
-        if strcmp(ID, 'y')
-        else
-            error('Mismatch not accepted.')
-        end
-    end
+
     
     % %remove onset flash
     pdio_onset(1:n_initpulse_onset)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
@@ -216,6 +208,17 @@ if ~all(abs(df)<.1)
     if strcmp(ID, 'y')
     else
        error('Mismatch not accepted.') 
+    end
+end
+
+
+if all(mean(df_SOT)>1)
+    warning('delay between photodiode & psychtoolbox is greater than 1 ms!!')
+    prompt = ['There is a problematic delay! Accept it? (y or n):'] ;
+    ID = input(prompt,'s');
+    if strcmp(ID, 'y')
+    else
+        error('Mismatch not accepted.')
     end
 end
 

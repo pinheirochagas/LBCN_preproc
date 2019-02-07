@@ -69,7 +69,7 @@ sbj_name = googleSheet.subject_name{sbj_number}
 % sbj_name ='S17_114_EB'
 % sbj_name ='S17_115_MP'
 % sbj_name ='S17_106_SD'
-% sbj_name ='S11_29_RB'
+% sbj_name ='S15_87_RL'
 
 % center = googleSheet.center{sbj_number};
 center = 'Stanford'
@@ -165,7 +165,7 @@ if strcmp(project_name, 'Number_comparison')
 elseif strcmp(project_name, 'EglyDriver')
     EventIdentifier_EglyDriver(sbj_name, project_name, block_names, dirs, 1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 else
-    EventIdentifier(sbj_name, project_name, block_names, dirs,1) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
+    EventIdentifier(sbj_name, project_name, block_names, dirs,2) % new ones, photo = 1; old ones, photo = 2; china, photo = varies, depends on the clinician, normally 9.
 end
 
 %% Segment audio mic and update trialinfo
@@ -348,7 +348,7 @@ for i = 1:length(sbj_names)
 end
 
 % For individual subjects
-sbj_name = 'S17_80_KBb'
+sbj_name = 'S17_118_TW'
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -798,11 +798,11 @@ cond_plot = 'math';
 colormap_plot = 'RedsWhite';
 correction_factor = 10;
 
-for i = 1:length(sbj_names)
+for i = 1:5%length(sbj_names)
     dirs = InitializeDirs(project_name, sbj_names{i}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
     elect_select{i} = ElectSelectivity(sbj_names{i},project_name, conds_avg_field, conds_avg_conds, dirs);
     load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
-    PlotSelectivity(dirs, subjVar, project_name, elect_select{i}, 'native', 10)
+%     PlotSelectivity(dirs, subjVar, project_name, elect_select{i}, 'native', 10)
 end
 
 
@@ -819,8 +819,8 @@ end
 
 
 %% Plot all channels in fsaverage
-sbj_delete = [49,52,54,59 find(strcmp(sbj_names,'S17_113_CAM')), find(strcmp(sbj_names,'S14_80_KBa')), find(strcmp(sbj_names,'S15_87_RL')), find(strcmp(sbj_names,'S14_75_TB')) ];
-
+% sbj_delete = [49,52,54,59 find(strcmp(sbj_names,'S17_113_CAM')), find(strcmp(sbj_names,'S14_80_KBa')), find(strcmp(sbj_names,'S15_87_RL')), find(strcmp(sbj_names,'S14_75_TB')) ];
+sbj_delete = [];
 elect_select_good = elect_select;
 elect_select_good(sbj_delete) = [];
 % elect_select_good = horzcat(elect_select_good{:});
@@ -829,7 +829,7 @@ sbj_names_good(sbj_delete) = [];
 
 coords_all = [];
 % concatenate all coords
-for i = 1:length(sbj_names_good)
+for i = 1:5%length(sbj_names_good)
     load([dirs.original_data filesep  sbj_names_good{i} filesep 'subjVar_'  sbj_names_good{i} '.mat']);
     if size(subjVar.MNI_coord,1) == size(elect_select_good{i},2)
     else
@@ -838,7 +838,7 @@ for i = 1:length(sbj_names_good)
     coords = subjVar.MNI_coord;
     coords_all = [coords_all;coords]; % concatenate electrodes across subjects
 end
-elect_select_good = horzcat(elect_select_good{:});
+elect_select_good = horzcat(elect_select_good{1:5});
 
 
 PlotSelectivityGroup(dirs, coords_all, project_name, elect_select_good, 'MNI', 5)
@@ -913,7 +913,7 @@ end
 %%
 % For individual subjects
 % CHECK S11_26_SRa after again more specific
-sbj_name = 'S18_130_RH' 
+sbj_name = 'S17_118_TW' 
 fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
 [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
@@ -1433,9 +1433,23 @@ save([dir_out sbj_name filesep 'data_all_' project_name '_' sbj_name '.mat'], 'd
 save([dir_out sbj_name filesep 'subjVar.mat'], 'subjVar')
 
 
-%% Selectivity maps
+%% Count number of subjects
+project_name = 'MMR';
+dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+all_folders = dir(fullfile([dirs.result_root filesep project_name]))
+all_folders = all_folders(arrayfun(@(x) ~contains(x.name, '.'), all_folders));
+sbj_names = {all_folders(:).name};
 
+%Subjects with figures
+for i = 1:length(all_folders)
+    figures(i) = exist([all_folders(i).folder filesep all_folders(i).name filesep 'Figures']);
+end
 
+%Subjects with subjVar and matched labels
+for i = 1:length(sbj_names)
+    load([dirs.original_data filesep  sbj_names{i} filesep 'subjVar_'  sbj_names{i} '.mat']);
+    coord_match(i) = 1*(length(subjVar.labels) == length(subjVar.LEPTO_coord));
+end
 
 
 % 
