@@ -72,21 +72,6 @@ end
 
 
 
-ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'posterior')
-l=light
-ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'posterior')
-ctmr_gauss_plot(cmcortex.right,[0 0 0], 0, 'right', 'posterior')
-
-for ii = 1:length(coords_plot)
-    % Only plot on the relevant hemisphere
-    if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
-    else
-        plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', elect_col(ii,:));
-    end
-end
-alpha(0.9)
-
-
 %% Plot electrodes as dots in native space 
 figureDim = [0 0 .4 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
