@@ -18,14 +18,16 @@ elect_select = flip(elect_select);
 coords = coords(idx,:);
 coords = flip(coords);
 
-cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial']);
-cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.pial']);
+fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf/'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
 
-cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.inflated_avg']);
-cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.inflated_avg']);
+cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.pial']);
+cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.pial']);
 
-cmcortex.right = ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial_semi_inflated']);
-cmcortex.left= ft_read_headshape(['/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/lh.pial_semi_inflated']);
+cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.inflated_avg']);
+cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.inflated_avg']);
+
+cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.pial_semi_inflated']);
+cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.pial_semi_inflated']);
 
 
 cmcortex.right.vert =  cmcortex.right.pos;
@@ -70,9 +72,10 @@ end
 
 
 
-ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'ventral')
-ctmr_gauss_plot(cmcortex.right,[0 0 0], 0, 'right', 'ventral')
+ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'posterior')
 l=light
+ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'posterior')
+ctmr_gauss_plot(cmcortex.right,[0 0 0], 0, 'right', 'posterior')
 
 for ii = 1:length(coords_plot)
     % Only plot on the relevant hemisphere
