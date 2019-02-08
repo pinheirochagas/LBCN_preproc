@@ -31,18 +31,18 @@ end
 %     deleteContinuousData(sbj_name, dirs, project_name, block_names, 'SpecDense', 'Spec')
 disp(['preprocessing subject ' sbj_name ' DONE!'])
 
-% plot avg. HFB timecourse for each electrode separately
-disp(['plotting subject ' sbj_name ' HFB'])
-plot_params = genPlotParams(project_name,'timecourse');
-plot_params.noise_method = 'trials'; %'trials','timepts','none'
-plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
-% 
-% plot ERSP (event-related spectral perturbations) for each electrode
-disp(['plotting subject ' sbj_name ' SpecDense'])
-plot_params = genPlotParams(project_name,'ERSP');
-plot_params.noise_method = 'trials'; %'trials','timepts','none'
-plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',[],plot_params)% condNames
+% % plot avg. HFB timecourse for each electrode separately
+% disp(['plotting subject ' sbj_name ' HFB'])
+% plot_params = genPlotParams(project_name,'timecourse');
+% plot_params.noise_method = 'trials'; %'trials','timepts','none'
+% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
+% % 
+% % plot ERSP (event-related spectral perturbations) for each electrode
+% disp(['plotting subject ' sbj_name ' SpecDense'])
+% plot_params = genPlotParams(project_name,'ERSP');
+% plot_params.noise_method = 'trials'; %'trials','timepts','none'
+% plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
+% PlotERSPAll(sbj_name,project_name,block_names,dirs,[],'SpecDense','stim','condNames',[],plot_params)% condNames
 
 end

@@ -20,6 +20,12 @@ for i = 1:length(block_names)
             n_stim_per_trial = 5;
         case 'Number_comparison'
             n_stim_per_trial = 2;
+        case 'Context'
+            n_stim_per_trial = 5;
+        case 'Scrambled'
+            n_stim_per_trial = 1;
+        case 'AllCateg'
+            n_stim_per_trial = 1;
     end
     
     %% Load globalVar
@@ -61,6 +67,9 @@ for i = 1:length(block_names)
     
     if strcmp(sbj_name,'S16_97_CHM') && strcmp(bn,'E16-517_0014')
         onset= onset(1:252);
+    elseif strcmp(sbj_name,'S15_87_RL') && strcmp(bn,'E15-282_0018')
+        onset= onset(1:20);
+        offset = offset(1:20);
     else
     end 
     
@@ -172,6 +181,7 @@ plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');
 %% Comparing photodiod with behavioral data
 % Add another exception for subjects who have 1 trialinfo less
 all_stim_onset = EventIdentifierExceptions_oneTrialLess(all_stim_onset,sbj_name, project_name, bn);
+%StimulusOnsetTime = EventIdentifierExceptions_TrialLessStimOnsetTime(StimulusOnsetTime, sbj_name,project_name, bn);
 
 % Add another exception for subjects who have additional photo/trigger trials in the middle
 % and visual inspection shows good correspondence between photo/trigger and psychtoolbox output
@@ -203,22 +213,22 @@ ylabel('Count');
 %flag large difference
 if ~all(abs(df)<.1)
     warning('behavioral data and photodiod mismatch')
-    prompt = ['behavioral data and photodiod mismatch. Accept it? (y or n):'] ;
-    ID = input(prompt,'s');
-    if strcmp(ID, 'y')
-    else
-       error('Mismatch not accepted.') 
-    end
+%     prompt = ['behavioral data and photodiod mismatch. Accept it? (y or n):'] ;
+%     ID = input(prompt,'s');
+%     if strcmp(ID, 'y')
+%     else
+%        error('Mismatch not accepted.') 
+%     end
 end
 
-
-if all(mean(df_SOT)>1)
+%flag large difference in timing
+if all(mean(df)>1)
     warning('delay between photodiode & psychtoolbox is greater than 1 ms!!')
     prompt = ['There is a problematic delay! Accept it? (y or n):'] ;
     ID = input(prompt,'s');
     if strcmp(ID, 'y')
     else
-        error('Mismatch not accepted.')
+       error('Mismatch not accepted.') 
     end
 end
 
@@ -250,4 +260,6 @@ disp('updating trialinfo')
 fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
 save(fn, 'trialinfo');
 
+
+close all
 end
