@@ -15,7 +15,7 @@ FS_name = X.name;   % FS name as in under Freesurfer folder of each patients' se
 
 % getting DK atlas labels
 fprintf('Using DK-atlas to get the general anatomical labels.\n')
-anatLoc_raw = elec2Parc_subf(FS_folder,FS_name,'DK');
+anatLoc_raw = elec2Parc_subf(FS_folder,FS_name,'DK'); % change that to custom and add freesurfer folder solution
 elinfo.FS_label = anatLoc_raw(:,1);
 elinfo.anatLoc_raw = anatLoc_raw(:,2);
 
@@ -77,7 +77,7 @@ end
 % Yeo7 network
 if ~exist([FS_folder, filesep, 'label', filesep, 'rh_Yeo2011_7Networks_N1000.mat'], 'file')
     fprintf('There is no Yeo7-annotation file. So createIndivYeoMapping is running. This might take some time.\n')
-    createIndivYeoMapping_subf(FS_folder)
+    createIndivYeoMapping_subf(FS_folder, dirs.fsDir_local)
 end
 fprintf('Using Yeo7-atlas to get the network labels.\n')
 [Yeo7_raw, ~]=elec2Parc_subf(FS_folder,FS_name,'Y7',GM_depths);
@@ -301,98 +301,18 @@ for i=1:length(anatLabel)
         end
     end
 end
-% 
-% WMvsGM = cell2table(WMvsGM);
-% anatLoc=cell2table(anatLoc);
-% for i=1:length(anatLabel)
-%     if any(strcmp(anatLabel{i,2},{'Left-Cerebral-White-Matter','Right-Cerebral-White-Matter'}))
-%         if startsWith(anatLabel{i,2},'Left-')
-%             LvsR{i} = 'Left';
-%         elseif startsWith(anatLabel{i,2},'Right-')
-%             LvsR{i} = 'Right';
-%         else
-%             LvsR{i} = 'ToBeDefined';
-%         end
-%         WMvsGM{i} = 'WM';
-%         anatLoc{i} = 'WM';
-%     elseif startsWith(anatLabel{i,2},{'Left-','Right-'}) && ~any(strcmp(anatLabel{i,2},{'Left-Cerebral-White-Matter','Right-Cerebral-White-Matter'}))
-%         splittedLoc = erase(anatLabel{i,2},{'Left-','Right-'});
-%         if contains(splittedLoc,{'WM','White-Matter','Putamen'})
-%             WMvsGM{i} = 'WM';
-%             anatLoc{i} = 'WM';
-%         elseif any(contains(splittedLoc,{'Hippocampus','Amygdala','Insula','Operculum'}))
-%             WMvsGM{i} = 'GM';
-%             anatLoc{i} = splittedLoc;
-%         elseif any(contains(splittedLoc,{'Inf-Lat-Ven','choroid-plexus','Lateral-Ventricle','Cerebellum-Cortex'}))
-%             WMvsGM{i} = 'Unknown';
-%             anatLoc{i} = 'Unknown';
-%         else
-%             WMvsGM{i} = 'ToBeDefined';
-%             anatLoc{i} = splittedLoc;
-%             warning('Cannot define/localize WMvsGM of %s, please check!\n',anatLabel{i,2})
-%         end
-%         if startsWith(anatLabel{i,2},'Left-')
-%             LvsR{i} = 'Left';
-%         elseif startsWith(anatLabel{i,2},'Right-')
-%             LvsR{i} = 'Right';
-%         else
-%             LvsR{i} = 'ToBeDefined';
-%         end
-%     elseif startsWith(anatLabel{i,2},'ctx')
-%         splittedLoc = strsplit(anatLabel{i,2},'-');
-%         if strcmp(splittedLoc{2},'lh')
-%             LvsR{i} = 'Left';
-%         elseif strcmp(splittedLoc{2},'rh')
-%             LvsR{i} = 'Right';
-%         else
-%             LvsR{i} = 'ToBeDefined';
-%             warning('Cannot define/localize L/R of %s, please check!\n',anatLabel{i,2})
-%         end
-%         WMvsGM{i} = 'GM';
-%         anatLoc{i} = splittedLoc{3};   % Using DK-Atlas as anatomical location
-%     elseif strcmp(anatLabel{i,2},'Unknown')
-%         LvsR{i} = 'Unknown';
-%         WMvsGM{i} = 'Unknown';
-%         anatLoc{i} = 'Unknown';
-%     elseif startsWith(anatLabel{i,2},'WM-')
-%         splittedLoc = strsplit(anatLabel{i,2},'-');
-%         if strcmp(splittedLoc{2}, 'hypointensities')
-%             anatLoc{i} = 'Unknown';
-%         else
-%             anatLoc{i} = 'ToBeDefined';
-%             warning('Cannot define/localize anatLoc of %s, please check!\n',anatLabel{i,2})
-%         end
-%         if strcmp(splittedLoc{2},'lh')
-%             LvsR{i} = 'Left';
-%         elseif strcmp(splittedLoc{2},'rh')
-%             LvsR{i} = 'Right';
-%         elseif strcmp(splittedLoc{2}, 'hypointensities')
-%             LvsR{i} = 'Right';
-%         else
-%             LvsR{i} = 'Unknown';
-%             warning('Cannot define/localize L/R of %s, please check!\n',anatLabel{i,2})
-%         end
-%         WMvsGM{i} = 'WM';
-%     else
-%         warning('Label %s from DK that is not included. First include that!',anatLabel{i,2})
-%         return
-%     end
-% end
 end
 
 %% Subfunction4:
-function createIndivYeoMapping_subf(FS_folder)
+function createIndivYeoMapping_subf(sub_dir, avg_dir)
 %
 % This function assigns each point on an individual subject's pial surface
 % to the Yeo-7 area and Yeo-17 area atlases, which are based on resting
 % state fMRI data. It simply takes the mapping of the individual brain to
 % that of the FreeSurfer average brain and assigns each point in the
 % individual the label of the closest point in the average brain.
-%
-labelFolder=fullfile(FS_folder,'label');
-fsDir=getFsurfSubDir();
-avg_dir=[fsDir '/' 'fsaverage'];
-sub_dir=FS_folder;
+
+labelFolder=fullfile(sub_dir,'label');
 
 %% 7 area labels taken from the original paper:
 % Yeo BT, Krienen FM, Sepulcre J, Sabuncu MR, Lashkari D, Hollinshead M, 
@@ -410,8 +330,8 @@ y7labels{6}='Limbic';
 y7labels{7}='Frontoparietal';
 y7labels{8}='Default';
 
-for hemLoop=1:2,
-    if hemLoop==1,
+for hemLoop=1:2
+    if hemLoop==1
         hem='lh';
     else
         hem='rh';
@@ -439,10 +359,10 @@ for hemLoop=1:2,
     %% Load Yeo atlases
     fname7=[hem '.Yeo2011_7Networks_N1000.annot'];
     fname17=[hem '.Yeo2011_17Networks_N1000.annot'];
-    [avgBrainYeo7, label7, colortable7]=read_annotation(fullfile(fsDir,'fsaverage','label',fname7));
-    [avgBrainYeo17, label17, colortable17]=read_annotation(fullfile(fsDir,'fsaverage','label',fname17));
+    [avgBrainYeo7, label7, colortable7]=read_annotation(fullfile(avg_dir,'label',fname7));
+    [avgBrainYeo17, label17, colortable17]=read_annotation(fullfile(avg_dir,'label',fname17));
     
-    for b=2:8,
+    for b=2:8
         colortable7.struct_names{b}=y7labels{b};
     end
     
@@ -453,7 +373,7 @@ for hemLoop=1:2,
     
     %% Map pial surface vertices in subject's sphere to avg sph
     fprintf('Processing vertex:\n');
-    for b=1:n_sub_vert,
+    for b=1:n_sub_vert
         if ~rem(b,1000)
             fprintf('%d of %d\n',b,n_sub_vert);
         end

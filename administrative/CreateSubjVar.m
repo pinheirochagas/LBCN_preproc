@@ -1,4 +1,4 @@
-function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local)
+function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format)
 
 %% Coordinate systems
 % LEPTO_coord and native_coord the same
@@ -23,7 +23,7 @@ subjVar = [];
 cortex = getcort(dirs);
 % native_coord = importCoordsFreesurfer(dirs);
 % fs_chan_names = importElectNames(dirs);
-[MNI_coord, chanInfo, RAS_coord] = sub2AvgBrainCustom([],dirs, sbj_name, fsDir_local);
+[MNI_coord, chanInfo, RAS_coord] = sub2AvgBrainCustom([],dirs, sbj_name, dirs.fsDir_local);
 
 
 fs_chan_names = chanInfo.Name;
@@ -180,6 +180,9 @@ if ~exist('mismatch_labels')
     else
     end
     
+    %% Electrode labelling
+    subjVar = localizeElect(subjVar,dirs);
+
     %% Save subjVar
     if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
 %         prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;

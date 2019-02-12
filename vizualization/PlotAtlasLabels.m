@@ -1,22 +1,31 @@
-function PlotAtlasLabels(subjVar,plot_label)
+function PlotAtlasLabels(subjVar,cfg)
+% plot_label = type of label to plot
+%   FS_label: freesurfer label
+%   Destr_ind: Destrieux atlas
+%   Yeo_ind: Yeo2007
 
 correction_factor = false;
 load('cdcol_2018.mat');
-marker_size = 8;
-figureDim = [0 0 .4 1];
+marker_size = 2;
+figureDim = [0 0 1 1];
 
 figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
-shading interp; lighting gouraud; material dull;
 
-for i = 1:length(views)
-    subplot(3,2,i)
-    coords_plot = CorrectElecLoc(subjVar.LEPTO_coord, views{i}, hemis{i}, correction_factor);
-    ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})    
+% Define subplot dims
+if isprime(length(cfg.views)) && length(cfg.views) < 7
+    subplot_dim = [ceil(sqrt(length(cfg.views))), 1];
+else
+    subplot_dim = [ceil(sqrt(length(cfg.views))), ceil(sqrt(length(cfg.views)))];
+end
+
+
+for i = 1:length(cfg.views)
+    subplot(subplot_dim(1), subplot_dim(2),i)
+    coords_plot = CorrectElecLoc(subjVar.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
+    ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})    
     for ii = 1:length(coords_plot)
-        % Only plot on the relevant hemisphere
-        if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+        % Only plot on the relevant cfg.hemisphere
+        if (strcmp(cfg.hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(cfg.hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
         else
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
         end
@@ -25,14 +34,7 @@ for i = 1:length(views)
     for it = 1:length(coords_plot)
         hold on
         if ~contains(subjVar.elinfo.FS_label(it),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(it),'Depth')
-            switch plot_label
-                case 'chan_label'
-                    text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.FS_label(it), 'FontSize', 7);
-                case 'anat_label'
-                    text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.Destr_ind(it), 'FontSize', 7);
-                case 'netw_label'
-                    text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.Yeo_ind(it), 'FontSize', 7);
-            end
+            text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.(cfg.plot_label)(it), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
         else
         end
     end
