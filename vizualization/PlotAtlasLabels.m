@@ -4,7 +4,6 @@ function PlotAtlasLabels(subjVar,cfg)
 %   Destr_ind: Destrieux atlas
 %   Yeo_ind: Yeo2007
 
-correction_factor = false;
 load('cdcol_2018.mat');
 marker_size = 2;
 figureDim = [0 0 1 1];
