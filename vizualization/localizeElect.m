@@ -155,8 +155,10 @@ end
 
 % Arranging elinfo according to subjVar.label:
 cell_elinfo = table2cell(elinfo);
+subjVar_final.elinfo = elinfo;
+subjVar_final.elinfo(:,:) = [];
 for i = 1:length(subjVar.labels)
-    if contains(subjVar.labels{i},'empty')  % if empty channel
+    if contains(subjVar.labels{i},'empty','IgnoreCase',true)  % if empty channel
         subjVar_final.elinfo(i,:) = subjVar.labels(i);
     else
         rows = any(strcmp(cell_elinfo, subjVar.labels{i}), 2);
