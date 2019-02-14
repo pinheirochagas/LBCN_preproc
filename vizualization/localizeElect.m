@@ -166,8 +166,6 @@ for i = 1:length(subjVar.labels)
     end
 end
 
-
-
 end
 
 
