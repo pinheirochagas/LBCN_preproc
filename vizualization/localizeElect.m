@@ -166,6 +166,10 @@ for i = 1:length(subjVar.labels)
     end
 end
 
+% Unify elinfo
+subjVar_final.elinfo.LEPTO_coord = subjVar_final.LEPTO_coord;
+subjVar_final.elinfo.MNI_coord = subjVar_final.MNI_coord;
+subjVar_final = rmfield(subjVar_final, {'labels', 'LEPTO_coord', 'MNI_coord'});
 end
 
 
