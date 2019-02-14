@@ -1,17 +1,69 @@
 function [subjVar_final] = localizeElect(subjVar,dirs)
+% localizeElect, labels every electrode from patients' Freesurfer folder to
+% Desikan-Killiany, Destrieux, Yeo7 atlases. 
+% 
+% Inputs: 
+%       - subjVar
+%           should include areas of:
+%               LEPTO_coord: leptomeningeal surface coordinates generated
+%               by iELVis
+%               labels: electrode names as in iELVis
+%       - dirs        
+%           should include areas of:
+%               freesurfer: folder in which Freesurfer folder is found
+%               (note that patient folder 
+%               fsDir_local: which is the folder of fsaverage
+%
+% Output:
+%       - subjVar_final: updated version of subjVar, which includes table
+%       names elinfo. This table has columns of:
+%            FS_label: labels as found in Freesurfer elec_recon folder.
+%            anatLoc_raw: raw outputs of Desikan-Killiany atlas labeling
+%            for surface electrodes and aparc+aseg labeling for depth
+%            electrodes.
+%            WMvsGM: classification of electrodes either in gray matter or
+%            white matter. GM if surface electrode or in cortex as
+%            annotated in aparc+aseg. WM, if noncortical depth electrodes
+%            (includes subcortical and medical temporal structures).
+%            LvsR: lateralizing electrodes according to iELVis labeling.
+%            Desikan_Killiany: outputs of Desikan-Killiany atlas labeling
+%            for surface electrodes and depth electrodes in gray matter
+%            (annotated as 'ctx-' in aparc+aseg).
+%            DK_index: index of DK label.
+%            DK_lobe: assignment of electrode to 5 lobes (temporal,
+%            frontal, occipital, parietal, insula) grouped according to DK
+%            atlas.
+%            Destrieux: outputs of Destrieux atlas labeling
+%            for surface electrodes and depth electrodes in gray matter
+%            (annotated as 'ctx-' in aparc+aseg).
+%            Destr_index: index of Destrieux label.
+%            Destr_long: explanation of Destrieux label.
+%            Yeo7: outputs of Yeo7 atlas labeling
+%            for surface electrodes and depth electrodes in gray matter
+%            (annotated as 'ctx-' in aparc+aseg).
+%            Yeo_ind: index of Yeo7.
+%
+%
+% Written and edited by Serdar Akkol and Pedro Pinheiro-Chagas.
+% LBCN, Stanford University 2019.
+% Areas of improvement: adding Yeo17.
+% 
+
+
 subjVar_final=subjVar;
 elinfo = table;
-% elinfo.coords = subjVar.LEPTO_coord;
-% elinfo.labels = subjVar.labels;
 
 X=dir(dirs.freesurfer);
 X = X(~ismember({X.name},{'.','..', '.DS_Store'}) & horzcat(X.isdir) == 1);
 if length(X)>1
-    warning('There are more than 1 folder under server/patient_code/Freesurfer. Please review and run again')
-    return
+    warning('There are more than 1 folder under server/patient_code/Freesurfer. Please select the Freesurfer for this patient.')
+    FS_folder = uigetdir;
+    [~,FS_name,~] = fileparts(FS_folder);
+else
+    FS_folder=fullfile(X.folder,X.name);  % FS location in fullfile eg.'/Volumes/neurology_jparvizi$/CHINA_C17_02/Freesurfer/C17_02'
+    FS_name = X.name;   % FS name as in under Freesurfer folder of each patients' server
 end
-FS_folder=fullfile(X.folder,X.name);  % FS location in fullfile eg.'/Volumes/neurology_jparvizi$/CHINA_C17_02/Freesurfer/C17_02'
-FS_name = X.name;   % FS name as in under Freesurfer folder of each patients' server
+
 
 % getting DK atlas labels
 fprintf('Using DK-atlas to get the general anatomical labels.\n')
@@ -103,16 +155,16 @@ end
 
 % Arranging elinfo according to subjVar.label:
 cell_elinfo = table2cell(elinfo);
+subjVar_final.elinfo = elinfo;
+subjVar_final.elinfo(:,:) = [];
 for i = 1:length(subjVar.labels)
-    if contains(subjVar.labels{i},'empty')  % if empty channel
+    if contains(subjVar.labels{i},'empty','IgnoreCase',true)  % if empty channel
         subjVar_final.elinfo(i,:) = subjVar.labels(i);
     else
         rows = any(strcmp(cell_elinfo, subjVar.labels{i}), 2);
         subjVar_final.elinfo(i,:) = elinfo(rows==1,:);
     end
 end
-
-
 
 end
 
@@ -122,6 +174,9 @@ end
 
 %% Subfunction1: 
 function [elecParc, label_list] =elec2Parc_subf(FS_folder,subj,atlas,GM_depths)
+% Original function is elec2parc, which is part of iELVis toolbox. Modified to skip
+% gray matter depth electrodes to be labeled in in surface atlases
+% (Destrieux, Desikan-Killiany and Yeo).
 
 % Folder with surface files
 surfaceFolder=fullfile(FS_folder,'surf');
@@ -248,8 +303,9 @@ end
 
 %% Subfunction2:
 function anatLabel=vox2Seg_subf(coordILA,fsSubDir)
+% Original function is vox2Seg, from iELVis toolbox. Modified to run as subfunction.
 asegFname=[fsSubDir '/mri/aparc+aseg.mgz'];
-%asegFname=[fsdir '/' fsSub '/mri/aparc.a2009s+aseg.mgz'];
+
 if ~exist(asegFname,'file')
    error('File %s not found.',asegFname); 
 end
@@ -275,6 +331,14 @@ end
 
 %% Subfunction3: WMvsGM
 function [WMvsGM, LvsR, anatLoc] = filterRegion(anatLabel, FS_folder,FS_name)
+% This subfunction gets information if electrode is in gray matter vs white
+% matter, Left vs Right and anatomical location in Desikan-Killiany atlas
+% if surface electrode or in aseg+aparc.mgz if depth electrode. 
+% - WMvsGM is defined as being in cortex (GM), if surface electrode (GM) or 
+% in other regions (WM).
+% - LvsR is defined according to iELVis .ELECTRODENAMES file.
+% - anatLoc is region name from DK atlas if surface electrode or from 
+% aseg+aparc if depth electrode.
 
 labelFname=fullfile(FS_folder,'elec_recon',sprintf('%s.electrodeNames',FS_name));
 elecLabels=csv2Cell(labelFname,' ',2);
@@ -307,6 +371,8 @@ end
 
 %% Subfunction4:
 function createIndivYeoMapping_subf(sub_dir, avg_dir)
+% Original function is createIndivYeoMapping, from iELVis toolbox. Modified
+% to run independent from SUBJECT_DIR of Freesurfer. 
 %
 % This function assigns each point on an individual subject's pial surface
 % to the Yeo-7 area and Yeo-17 area atlases, which are based on resting
