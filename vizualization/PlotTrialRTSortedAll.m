@@ -55,7 +55,7 @@ plottag = '';
 for ei = 1
     el = elecs(ei);
     %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
+    data_all = concatBlocks(sbj_name, project_name, block_names,dirs,el,freq_band,datatype,concatfield,tag);
     groupall = false;
     
     if isempty(conds)

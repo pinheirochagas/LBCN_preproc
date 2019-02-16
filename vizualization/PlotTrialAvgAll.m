@@ -74,7 +74,7 @@ end
 for ei = 1
     el = elecs(ei);
 %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
+    data_all = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if plot_params.multielec
         groupall = true;
     else
@@ -106,7 +106,7 @@ for ei = 1:length(elecs)
     el = elecs(ei);
     
 %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
+    data_all = concatBlocks(sbj_name,project_name, block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end

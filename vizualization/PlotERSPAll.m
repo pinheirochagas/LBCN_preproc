@@ -48,7 +48,7 @@ concatfield = {'wave'}; % concatenate amplitude across blocks
 % determine folder name for plots by compared conditions
 for ei = 1
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
+    data_all = concatBlocks(sbj_name,project_name, block_names,dirs,el,freq_band,'Spec',concatfield,tag);
     if isempty(conds)
         tmp = find(~cellfun(@isempty,(data_all.trialinfo.(column))));
         conds = unique(data_all.trialinfo.(column)(tmp));
@@ -73,7 +73,7 @@ for ei = 1:length(elecs)
         tagchan = ' (good)';
     end
     
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,'Spec',concatfield,tag);
+    data_all = concatBlocks(sbj_name, project_name, block_names,dirs,el,freq_band,'Spec',concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end

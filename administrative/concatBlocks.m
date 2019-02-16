@@ -1,4 +1,4 @@
-function data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfields,tag)
+function data_all = concatBlocks(sbj_name, project_name, block_names,dirs,el,freq_band,datatype,concatfields,tag)
 
 % this function concatenates data (either spectral or single timecourse) across blocks for a single electrode
 %% INPUTS:
@@ -37,6 +37,20 @@ for bi = 1:length(block_names)
     end
     data.trialinfo.block = cell(height(data.trialinfo),1);
     data.trialinfo.block(:) = {bn}; % keep track of which trials coming from which block
+    
+    % Specifics of each project
+    switch project_name 
+        case 'Calculia'        
+            data.trialinfo.keys = [];
+            for i = 1:size(data.trialinfo,1)
+                if data.trialinfo.isActive(i) == 1
+                    data.trialinfo.condNames(i) = {[data.trialinfo.condNames{i} '_active']};
+                else
+                    data.trialinfo.condNames(i) = {[data.trialinfo.condNames{i} '_passive']};
+                end
+            end
+    end
+   
     % concatenate trial info across blocks
     data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
 end
