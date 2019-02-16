@@ -158,12 +158,15 @@ if ~exist('mismatch_labels')
     % labels mean the corrected names
     if strcmp(data_format, 'TDT')
         subjVar.labels = chan_comp; 
+        subjVar.labels_EDF = [];
     else
         %     subjVar.elect_names = chan_comp;
         if isfield(globalVar, 'channame')
-            subjVar.labels = globalVar.channame;
+            subjVar.labels_EDF = globalVar.channame;
+            subjVar.labels = chan_comp;
         else
             subjVar.labels = chan_comp;
+            subjVar.labels_EDF = [];
         end
     end
     

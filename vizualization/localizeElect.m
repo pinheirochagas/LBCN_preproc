@@ -292,7 +292,11 @@ for hemLoop=1:2,
                 [~, minId]=min(sum( (repmat(pialCoord(elecIdsThisHem(elecLoop),:),nVertex,1)-cort.vert).^2,2 ));
                 
                 % Grab parcellation label for that vertex
-                elecParc{elecIdsThisHem(elecLoop),2}=colortable.struct_names{find(colortable.table(:,5)==label(minId))};
+                if sum(colortable.table(:,5)==label(minId))
+                    elecParc{elecIdsThisHem(elecLoop),2}=colortable.struct_names{find(colortable.table(:,5)==label(minId))};
+                else
+                    elecParc{elecIdsThisHem(elecLoop),2}='undefined';
+                end
             end
         end
         
