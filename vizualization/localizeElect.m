@@ -5,8 +5,6 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 % Inputs: 
 %       - subjVar
 %           should include areas of:
-%               LEPTO_coord: leptomeningeal surface coordinates generated
-%               by iELVis
 %               labels: electrode names as in iELVis
 %       - dirs        
 %           should include areas of:
@@ -158,7 +156,7 @@ cell_elinfo = table2cell(elinfo);
 subjVar_final.elinfo = elinfo;
 subjVar_final.elinfo(:,:) = [];
 for i = 1:length(subjVar.labels)
-    if contains(subjVar.labels{i},'empty','IgnoreCase',true)  % if empty channel
+    if contains(subjVar.labels{i},{'empty','ground','useless','trigger'},'IgnoreCase',true)  % if empty channel
         subjVar_final.elinfo(i,:) = subjVar.labels(i);
     else
         rows = any(strcmp(cell_elinfo, subjVar.labels{i}), 2);
