@@ -2,7 +2,7 @@ function [col_idx,cols] = colorbarFromValues(values, color_map,clim,center_zero)
 %% Get a colormap from a set of values
 %
 ncols = 100 + 1; % # of discrete colors within color scale
-ncols = length(values) + 2;
+ncols = length(values);
 
 if isempty(clim) % if no limits specified, set colorscale limits based on range of data
     if center_zero % i.e. if value of 0 set to center of colormap
@@ -21,25 +21,28 @@ else
     col_idx=floor((values-clim(1))/(clim(2)-clim(1)) * ncols) + 1;
     
 end
-    
-if strcmp(color_map, 'parula') == 1
-    cols = parula(ncols);
-elseif strcmp(color_map, 'RedBlue') == 1
-    cols = cmRedBlue(ncols);
-    cols = cols(end:-1:1,:);
-elseif strcmp(color_map, 'VioletGreen') == 1
-    cols = cmVioletGreen(ncols);
-elseif strcmp(color_map, 'PinkGreen') == 1
-    cols = cmPinkGreen(ncols);
-elseif strcmp(color_map, 'YellowGreen') == 1
-    cols = cmYellowGreen(ncols);
-elseif strcmp(color_map, 'RedsWhite') == 1
-    cols = cmRedsWhite(ncols);  
-elseif strcmp(color_map, 'BluesWhite') == 1
-    cols = cmBluesWhite(ncols); 
-else
-    cols = cbrewer2(color_map, ncols+1);
-    cols = cols(end:-1:1,:);
+
+switch color_map
+    case 'parula'
+        cols = parula(ncols);
+    case 'viridis'
+        cols = viridis(ncols);
+    case 'RedBlue'
+        cols = cmRedBlue(ncols);
+        cols = cols(end:-1:1,:);
+    case 'VioletGreen'
+        cols = cmVioletGreen(ncols);
+    case 'PinkGreen'
+        cols = cmPinkGreen(ncols);
+    case 'YellowGreen'
+        cols = cmYellowGreen(ncols);
+    case 'RedsWhite'
+        cols = cmRedsWhite(ncols);
+    case 'BluesWhite' == 1
+        cols = cmBluesWhite(ncols);
+    otherwise
+        cols = cbrewer2(color_map, ncols+1);
+        cols = cols(end:-1:1,:);
 end
 
 % 
