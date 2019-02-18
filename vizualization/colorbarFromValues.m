@@ -2,7 +2,7 @@ function [col_idx,cols] = colorbarFromValues(values, color_map,clim,center_zero)
 %% Get a colormap from a set of values
 %
 ncols = 100 + 1; % # of discrete colors within color scale
-ncols = length(values);
+% ncols = length(values);
 
 if isempty(clim) % if no limits specified, set colorscale limits based on range of data
     if center_zero % i.e. if value of 0 set to center of colormap
