@@ -57,9 +57,13 @@ for i = 1:length(sbj_names)
     else
     end
     
+    subjects_tmp = cellstr(repmat(sbj_names{i}, size(data_sbj.wave,2),1));
+
     % Concatenate elinfo
     if bad_chan_reject
         subjVar.elinfo(data_sbj.badChan,:) = [];
+        subjects_tmp(data_sbj.badChan) = [];
+
     else
     end
     
@@ -73,14 +77,12 @@ for i = 1:length(sbj_names)
 %     native_coords = subjVar.native_coord;
 %     %     elect_names = subjVar.elect_names;
 %     elect_names = subjVar.labels;
-     subjects_tmp = cellstr(repmat(sbj_names{i}, size(data_sbj.wave,2),1));
-%     
-%     if bad_chan_reject
-%         MNI_coords(data_sbj.badChan,:) = [];
-%         elect_names(data_sbj.badChan) = [];
-%         subjects_tmp(data_sbj.badChan) = [];
-%         native_coords(data_sbj.badChan,:) = [];
-%     else
+%      %
+%      if bad_chan_reject
+%          MNI_coords(data_sbj.badChan,:) = [];
+%          elect_names(data_sbj.badChan) = [];
+%          native_coords(data_sbj.badChan,:) = [];
+%      else
 %     end
 %     
 %     data_all.MNI_coord = [data_all.MNI_coord;MNI_coords]; % concatenate electrodes across subjects
