@@ -31,7 +31,7 @@ concatfields = {'wave'}; % type of data to concatenate
 for ei = 1:length(elecs)
     el = elecs(ei);
 
-    data_bn = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
+    data_bn = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
     
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
@@ -85,7 +85,7 @@ for ei = 1:length(elecs)
     disp(['concatenating elec ',num2str(el)])
 end
 
-data_all.labels = subjVar.labels;
+data_all.labels = subjVar.elinfo.FS_label;
 
 % Concatenate bad channels
 badChan = [];
