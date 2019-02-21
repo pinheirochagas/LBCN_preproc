@@ -1,5 +1,4 @@
 function handle=tripatch(struct, nofigure, varargin)
-% TRIPATCH handle=tripatch(struct, nofigure)
 
 if nargin<2 | isempty(nofigure)
    figure

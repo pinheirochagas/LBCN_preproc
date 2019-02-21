@@ -1,4 +1,4 @@
-function pathological_chan_id = BadChanRejectIdentify(sbj_name, project_name, bns, dirs)
+function pathological_chan_id = BadChanRejectIdentify(sbj_name, project_name, bns, dirs, notchfilter_flag, thr)
 
 for i = 1:length(bns)
     bn = bns{i};
@@ -33,10 +33,13 @@ for i = 1:length(bns)
         end % lame hack-around for channel names
         % add notch here.
         load([sub_info.data(data_nr).name nl '.mat'])
-        disp(['notch filtering electrode ' nl ' out of ' num2str(globalVar.nchan)])
         
         %Filtering 60 Hz line noise & harmonics
-        wave = noiseFiltData(globalVar, wave);
+        if notchfilter_flag
+            disp(['notch filtering electrode ' nl ' out of ' num2str(globalVar.nchan)])
+            wave = noiseFiltData(globalVar, wave);
+        else
+        end
         wave = wave.'; %because has incorrect ordering for efficiency, should be time x 1
         data(:,n)=-wave; % invert: data are recorded inverted
         clear wave nl
@@ -44,8 +47,13 @@ for i = 1:length(bns)
     data_all = data;
     data=single(data);
     
+    % m
+    
+    % spike
+    
+    
     % Detect bad Su' 
-    [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
+    [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, thr);
 
 %     
 %     %% Run algorithm
