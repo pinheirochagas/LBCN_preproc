@@ -44,7 +44,8 @@ for i = 1:length(bns)
     data_all = data;
     data=single(data);
     
-    %% Run algorithm
+    % Run algorithm
+    %% ----- STEP 1: based on deviations on the raw signal -----
     bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan globalVar.emptyChan];
     a=var(data);
     b=find(a>(5*median(a))); % 5 * greated than median.
@@ -74,7 +75,7 @@ for i = 1:length(bns)
     data(:,globalVar.badChan)=[];
     chan_lbls(globalVar.badChan)=[];
     
-    %% Step 2: Bad channel detection based on spikes in the raw data
+    %% ----- STEP 2: based on the number of spikes on the raw signal -----
     nr_jumps=zeros(1,size(data,2));
     for k=1:size(data,2)
         nr_jumps(k)=length(find(diff(data(:,k))>80)); % find jumps>80uV
@@ -89,7 +90,7 @@ for i = 1:length(bns)
     clcl=chan_lbls(jm);% Real channel numbers of outliers
     disp(['spiky channels: ' int2str(clcl)]);
     
-    %% Bad channel detection step 3: Bad channel detection based on powerspectra
+    %% ----- STEP 3: based on deviations on the power spectrum -----
     set_ov=0; % overlap
     f = 0:250; %
     data_pxx=zeros(length(f),size(data,2));
@@ -123,7 +124,7 @@ for i = 1:length(bns)
     % Update globalVar.badChan
     globalVar.badChan = [bad_chan_spec globalVar.badChan];
     
-    %% Bad channel detection step 4: Bad channel detection based on HFOs
+    %% ----- STEP 4: based on HFOs, Su's code -----
     [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
     % pathological_event are in bipolar montage
     

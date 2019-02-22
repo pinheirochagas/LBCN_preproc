@@ -34,5 +34,9 @@ end
 % convert percentile to p-value
 p = min(p,1-p)*2;
 
+if sum(isnan(adata)) >= .8*length(adata) || sum(isnan(bdata)) >= .8*length(bdata)
+    p = nan;
+else
+end
 
 end

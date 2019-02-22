@@ -1,76 +1,72 @@
-function elect_select = ElectSelectivity(sbj_name,project_name, conds_avg_field, conds_avg_conds, dirs)
+function [el_selectivity, sm_data, sc1c2, sc1b1, sc2b2] = ElectSelectivity(sbj_name,project_name, block_names, dirs, tag, column, conds, datatype, freq_band, stats_params)
 
-%% Prepare data for heatmap
-% Load subjVar 
-if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
-    load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
-else
-    warning('no subjVar, trying to create it')
-    center = 'Stanford';
-    fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-    [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
-    subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
+%%
+% Get stats parameters
+if isempty(stats_params)
+    stats_params = genStatsParams(project_name);
 end
 
-% basic parameters:
-decimate = false;
-final_fs = 50;
+% Concatenate all trials all channels
+cfg = [];
+cfg.decimate = false;
+concat_params = genConcatParams(project_name, cfg);
+data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],datatype,freq_band,tag, concat_params);
 
-concat_params = genConcatParams(project_name,decimate, final_fs);
-concat_params.noise_method = 'trials';
-block_names = BlockBySubj(sbj_name,project_name);
-data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
-
+% Average data and baseline windows
 data_all = [];
-baseline_all = [];
-for ii = 1:length(conds_avg_conds)
+for ii = 1:length(conds)
     % Initialize data_all
-    data_all.(conds_avg_conds{ii}) = [];
-    baseline_all.(conds_avg_conds{ii}) = [];
+    data_all.(conds{ii}) = [];
 end
 
-% Get average parameters
-switch project_name
-    case 'MMR'
-        avg_init = 0;
-        avg_end = 1;
-        bs_init = -0.200;
-        bs_end = 0;        
-    case 'Memoria'
-        event_onsets = [0 cumsum(nanmean(diff(data_sbj.trialinfo.allonsets,1,2)))];
-        avg_init = event_onsets(3);
-        avg_end = event_onsets(4);
-        bs_init = -0.500;
-        bs_end = 0;        
+data_field = 'wave';
+data_win = min(find(data_sbj.time>stats_params.task_win(1))):max(find(data_sbj.time<stats_params.task_win(2)));
+baseline_win = min(find(data_sbj.time>stats_params.bl_win(1))):max(find(data_sbj.time<stats_params.bl_win(2)));
+for ii = 1:length(conds)
+    trial_idx = strcmp(data_sbj.trialinfo.(column), conds{ii});
+    if strcmp(datatype, 'Band')
+        data_tmp_avg = nanmean(data_sbj.(data_field)(trial_idx,:,data_win),3); % average time win by electrode
+    else strcmp(datatype, 'Spec')
+        data_tmp_avg = nanmean(data_sbj.(data_field)(trial_idx,:,:,:),4); % average time win by electrode
+    end 
+        data_all.(conds{ii}) = data_tmp_avg; 
+end
+
+if strcmp(datatype, 'Band')
+    baseline_all = nanmean(data_sbj.(data_field)(:,:,baseline_win),3);
+else
+    baseline_all = nanmean(data_sbj.(data_field)(:,:,:,baseline_win),4);
 end
 
 
-
-for ii = 1:length(conds_avg_conds)
-    data_tmp = data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:); % average trials by electrode
-    
-    data_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>avg_init)): max(find(data_sbj.time<avg_end))),3);
-    data_all.(conds_avg_conds{ii}) = data_tmp_avg; 
-    
-    baseline_tmp_avg = nanmean(data_tmp(:,:,min(find(data_sbj.time>bs_init)): max(find(data_sbj.time<bs_end))),3);
-    baseline_all.(conds_avg_conds{ii}) = baseline_tmp_avg; 
-    
-end
-
-% Calculate difference between 2 conditions
+% Calculate difference between 2 conditions across channels
 for ii = 1:size(data_sbj.wave,2)
-    [H,P,CI,STATS] = ttest2(data_all.(conds_avg_conds{1})(:,ii),data_all.(conds_avg_conds{2})(:,ii)); STATS.H = H; STATS.P = P; STATS.CI = CI;
-    sc1c2(ii) = STATS;
-    [H,P,CI,STATS] = ttest2(data_all.(conds_avg_conds{1})(:,ii),baseline_all.(conds_avg_conds{1})(:,ii)); STATS.H = H; STATS.P = P; STATS.CI = CI;
+    data_cond1 = data_all.(conds{1})(:,ii);
+    data_cond2 = data_all.(conds{2})(:,ii);
+    data_baseline = baseline_all(:,ii);
+    
+    fprintf('calculating stats for channel %d\n', ii)
+    
+    [H,P,CI,STATS] = ttest2(data_cond1,data_cond2); STATS.H = H; STATS.P = P; STATS.CI = CI;
+    STATS.P_perm = permutation_unpaired(data_cond1, data_cond2, stats_params.nreps);
+    sc1c2(ii,:) = STATS;
+
+    [H,P,CI,STATS] = ttest2(data_cond1,data_baseline); STATS.H = H; STATS.P = P; STATS.CI = CI;
+    STATS.P_perm = permutation_unpaired(data_cond1, data_baseline, stats_params.nreps);
     sc1b1(ii) = STATS;
-    [H,P,CI,STATS] = ttest2(data_all.(conds_avg_conds{2})(:,ii),baseline_all.(conds_avg_conds{2})(:,ii)); STATS.H = H; STATS.P = P; STATS.CI = CI;
-    sc2b2(ii) = STATS;    
+    
+    [H,P,CI,STATS] = ttest2(data_cond2,data_baseline); STATS.H = H; STATS.P = P; STATS.CI = CI;
+    STATS.P_perm = permutation_unpaired(data_cond2, data_baseline, stats_params.nreps);
+    sc2b2(ii) = STATS; 
+    
+    sm_data.mean(ii,:) = [nanmean(data_cond1) nanmean(data_cond2) nanmean(data_baseline)];
+    sm_data.std(ii,:) = [nanstd(data_cond1) nanstd(data_cond2) nanstd(data_baseline)];
 end
 
 % FDR correction
-sc1c2_FDR = mafdr(vertcat(sc1c2.P));
-sc1b1_FDR = mafdr(vertcat(sc1b1.P));
-sc2b2_FDR = mafdr(vertcat(sc2b2.P));
+sc1c2_FDR = mafdr(vertcat(sc1c2.P_perm));
+sc1b1_FDR = mafdr(vertcat(sc1b1.P_perm));
+sc2b2_FDR = mafdr(vertcat(sc2b2.P_perm));
 
 for i = 1:length(sc1c2_FDR)
     sc1c2(i).P_FDR = sc1c2_FDR(i);
@@ -78,26 +74,40 @@ for i = 1:length(sc1c2_FDR)
     sc2b2(i).P_FDR = sc2b2_FDR(i);
 end
 
-% FDR correct at some point.
 for ii = 1:size(data_sbj.wave,2)
     if sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR > 0.05 
-        elect_select{ii} = 'math only';
+        elect_select{ii,1} = [conds{1} ' only'];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii} = 'math selective';
+        elect_select{ii,1} = [conds{1} ' selective'];
+        
+    elseif sc1b1(ii).P_FDR <0.05
+        elect_select{ii,1} = [conds{1} ' responsive'];
+    
     elseif sc1c2(ii).P_FDR > 0.05 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii} = 'math and memory';
+        elect_select{ii,1} = [conds{1} ' and ' conds{2}];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR > 0.05 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii} = 'memory only';        
+        elect_select{ii,1} = [conds{2} ' only'];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR < 0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii} = 'memory selective';         
+        elect_select{ii,1} = [conds{2} ' selective'];
+        
+    elseif sc2b2(ii).P_FDR <0.05
+        elect_select{ii,1} = [conds{2} ' responsive'];      
+        
     else
-        elect_select{ii} = 'no selectivity';  
+        elect_select{ii,1} = 'no selectivity';  
     end
     
 end
-% 
-% ele = 30
-% 
-% plot(data_sbj.time, squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.condNames, 'math'),ele,:),1))')
-% hold on
-% plot(data_sbj.time, squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.condNames, 'autobio'),ele,:),1))')
+
+act = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) > sm_data.mean(:,3)],2) == 2);
+deact = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) * -1;
+act_deact_cond1 = sum([act, deact],2);
+act = (sum([sc2b2_FDR < 0.05 sm_data.mean(:,1) > sm_data.mean(:,3)],2) == 2);
+deact = (sum([sc2b2_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) * -1;
+act_deact_cond2 = sum([act, deact],2);
+
+% organize output in a sinlge table
+el_selectivity = table(elect_select, act_deact_cond1, act_deact_cond2, sc1c2_FDR, sc1b1_FDR, sc2b2_FDR);
+
+end
+

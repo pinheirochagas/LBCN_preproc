@@ -105,12 +105,6 @@ if sep_bl
     end
 end
 
-%% Get HFO bad trials:
-pTS = globalVar.pathological_event_bipolar_montage;
-[bad_epochs_HFO, bad_indices_HFO] = exclude_trial(pTS.ts,pTS.channel, lockevent, globalVar.channame, epoch_params.bef_time, epoch_params.aft_time, globalVar.iEEG_rate);
-% Put the indices to the final sampling rate
-bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO, 'UniformOutput',false); %%% CHECK THAT
-% bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate/globalVar.fs_comp)), bad_indices_HFO, 'UniformOutput',false);
 
 %% Per electrode
 
@@ -159,6 +153,11 @@ data.trialinfo = trialinfo;
 ntrials = size(data.trialinfo,1);
 
 %% Epoch rejection
+% Get HFO bad trials:
+pTS = globalVar.pathological_event_bipolar_montage;
+[bad_epochs_HFO, bad_indices_HFO] = exclude_trial(pTS.ts,pTS.channel, lockevent, globalVar.channame, epoch_params.bef_time, epoch_params.aft_time, globalVar.iEEG_rate);
+% Put the indices to the final sampling rate
+bad_indices_HFO = cellfun(@(x) round(x./(globalVar.iEEG_rate)), bad_indices_HFO, 'UniformOutput',false); %%% CHECK THAT
 
 % Su method 1: reject based on spikes in LF and HF components of signal
 [be.bad_epochs_raw_LFspike, filtered_beh,spkevtind,spkts_raw_LFspike] = LBCN_filt_bad_trial(data_CAR.wave',data_CAR.fsample);
