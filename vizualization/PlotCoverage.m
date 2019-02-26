@@ -1,24 +1,5 @@
-function PlotCoverage(sbj_name, dirs, plot_label, correction_factor)
+function PlotCoverage(subjVar , dirs_save, plot_label, correction_factor)
 
-
-% Load subjVar
-if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
-    load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat']);
-else
-    center = 'Stanford';
-    fsDir_local = '/Applications/freesurfer/subjects/fsaverage';
-    [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center);
-    subjVar = CreateSubjVar(sbj_name, dirs, data_format, fsDir_local);
-end
-
-%% Load a given globalVar
-if plot_label
-    gv_dir = dir(fullfile([dirs.data_root filesep 'originalData/' sbj_name]));
-    gv_inds = arrayfun(@(x) contains(x.name, 'global'), gv_dir);
-    fn_tmp = gv_dir(gv_inds);
-    load([fn_tmp(1).folder filesep fn_tmp(1).name])
-else
-end
 
 load('cdcol_2018.mat')
 marker_size = 8;
@@ -37,7 +18,7 @@ for i = 1:length(views)
     subplot(3,2,i)
 %     subplot(1,2,i)
     
-    coords_plot = CorrectElecLoc(subjVar.native_coord, views{i}, hemis{i}, correction_factor);
+    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     %     f1 = plot3(coords_plot(:,1),coords_plot(:,2),coords_plot(:,3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
     
@@ -63,11 +44,11 @@ for i = 1:length(views)
     
     alpha(0.7)
 end
-text(135,550,1,sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
+text(135,550,1,subjVar.sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
 if plot_label
-    savePNG(gcf, 300, [dirs.result_root '/coverage/' sbj_name '_labels.png']);
+    savePNG(gcf, 300, [dirs_save '/individual_coverage/' subjVar.sbj_name '_labels.png']);
 else
-    savePNG(gcf, 300, [dirs.result_root '/coverage/' sbj_name '.png']);
+    savePNG(gcf, 300, [dirs_save '/individual_coverage/' subjVar.sbj_name '.png']);
 end
 
 close all
