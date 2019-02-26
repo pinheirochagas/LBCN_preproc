@@ -115,7 +115,7 @@ D_info = D_info(all(~cellfun(@isempty, D_info{:,:}),2),:);
 
 cell_Dinfo = table2cell(D_info);
 for i = 1:length(elinfo.Destrieux)
-    rows = any(strcmp(cell_Dinfo, elinfo.Destrieux{i}), 2);
+    rows = any(contains(cell_Dinfo, elinfo.Destrieux{i}), 2);
     if ~any(rows)  % if empty channel
         elinfo.Destr_ind(i) = elinfo.Destrieux(i);
         elinfo.Destr_long(i) = elinfo.Destrieux(i);
@@ -152,6 +152,31 @@ for i = 1:length(elinfo.Destrieux)
     end
 end
 
+% Yeo17 network
+if ~exist([FS_folder, filesep, 'label', filesep, 'rh_Yeo2011_17Networks_N1000.mat'], 'file')
+    fprintf('There is no Yeo7-annotation file. So createIndivYeoMapping is running. This might take some time.\n')
+    createIndivYeoMapping_subf(FS_folder, dirs.fsDir_local)
+end
+fprintf('Using Yeo17-atlas to get the network labels.\n')
+[Yeo17_raw, ~]=elec2Parc_subf(FS_folder,FS_name,'Y17',GM_depths);
+elinfo.Yeo17 = Yeo17_raw(:,2);
+% FIND THE CORRESPONDING INDEX OF THAT LABEL FOR YEO7 ATLAS
+Yeo17_info = table;
+Yeo17_info.Yeo17_index = googleSheet.Yeo17_index;
+Yeo17_info.Yeo17_labels = googleSheet.Yeo17_labels;
+Yeo17_info = Yeo17_info(all(~cellfun(@isempty, Yeo17_info{:,:}),2),:);
+
+cell_Yeo17info = table2cell(Yeo17_info);
+for i = 1:length(elinfo.Destrieux)
+    rows = any(strcmp(cell_Yeo17info, elinfo.Yeo17{i}), 2);
+    if ~any(rows)   % if empty channel
+        elinfo.Yeo17_ind(i) = elinfo.Yeo7(i);
+        elinfo.Yeo17(i) = elinfo.Yeo7(i);
+    else
+        elinfo.Yeo17_ind(i) = cell_Yeo17info(rows==1,1);
+        elinfo.Yeo17(i) = cell_Yeo17info(rows==1,2);
+    end
+end
 
 % Arranging elinfo according to subjVar.label:
 cell_elinfo = table2cell(elinfo);
