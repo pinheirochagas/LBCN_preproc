@@ -139,7 +139,7 @@ Yeo_info.Yeo_labels = googleSheet.Yeo_labels;
 Yeo_info = Yeo_info(all(~cellfun(@isempty, Yeo_info{:,:}),2),:);
 
 cell_Yeoinfo = table2cell(Yeo_info);
-for i = 1:length(elinfo.Destrieux)
+for i = 1:length(elinfo.Yeo7)
     rows = any(strcmp(cell_Yeoinfo, elinfo.Yeo7{i}), 2);
     if ~any(rows)   % if empty channel
         elinfo.Yeo_ind(i) = elinfo.Yeo7(i);
@@ -162,11 +162,11 @@ Yeo17_info.Yeo17_labels = googleSheet.Yeo17_labels;
 Yeo17_info = Yeo17_info(all(~cellfun(@isempty, Yeo17_info{:,:}),2),:);
 
 cell_Yeo17info = table2cell(Yeo17_info);
-for i = 1:length(elinfo.Destrieux)
-    rows = any(strcmp(cell_Yeo17info, elinfo.Yeo7{i}), 2);
+for i = 1:length(elinfo.Yeo17)
+    rows = any(strcmp(cell_Yeo17info, elinfo.Yeo17{i}), 2);
     if ~any(rows)   % if empty channel
-        elinfo.Yeo17_ind(i) = elinfo.Yeo7(i);
-        elinfo.Yeo17(i) = elinfo.Yeo7(i);
+        elinfo.Yeo17_ind(i) = elinfo.Yeo17(i);
+        elinfo.Yeo17(i) = elinfo.Yeo17(i);
     else
         elinfo.Yeo17_ind(i) = cell_Yeo17info(rows==1,1);
         elinfo.Yeo17(i) = cell_Yeo17info(rows==1,2);
