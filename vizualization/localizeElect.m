@@ -77,6 +77,12 @@ elinfo.anatLoc_raw = anatLoc_raw(:,2);
 % find all subdural electrodes and depth electrodes which are in GM:
 GM_depths = elinfo.FS_label(strcmp(elinfo.WMvsGM,'GM'),1);
 
+% organize code looping and not repeating atlas 
+% atlases = {'Desikan_Killiany', };
+% atlas_subfields{1} = {'DK_index', 'DK_lobe'};
+% atlas_subfields{2};
+
+
 % Desikan-Killiany:
 fprintf('Using Desikan-Killiany atlas to get the major anatomical landmarks of electrodes in gray matter.\n')
 [DK_raw, ~] = elec2Parc_subf(FS_folder,FS_name,'DK',GM_depths);
@@ -170,8 +176,8 @@ cell_Yeo17info = table2cell(Yeo17_info);
 for i = 1:length(elinfo.Destrieux)
     rows = any(strcmp(cell_Yeo17info, elinfo.Yeo17{i}), 2);
     if ~any(rows)   % if empty channel
-        elinfo.Yeo17_ind(i) = elinfo.Yeo7(i);
-        elinfo.Yeo17(i) = elinfo.Yeo7(i);
+        elinfo.Yeo17_ind(i) = elinfo.Yeo17(i);
+        elinfo.Yeo17(i) = elinfo.Yeo17(i);
     else
         elinfo.Yeo17_ind(i) = cell_Yeo17info(rows==1,1);
         elinfo.Yeo17(i) = cell_Yeo17info(rows==1,2);
