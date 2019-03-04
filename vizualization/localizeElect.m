@@ -46,7 +46,8 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 %
 % Written and edited by Serdar Akkol and Pedro Pinheiro-Chagas.
 % LBCN, Stanford University 2019.
-% Areas of improvement: adding Yeo17.
+% Areas of improvement: organize the atlases using loop and not repeating
+% for each atlas.
 % 
 
 
@@ -66,13 +67,14 @@ end
 
 
 % getting DK atlas labels
-fprintf('Using DK-atlas to get the general anatomical labels.\n')
-anatLoc_raw = elec2Parc_subf(FS_folder,FS_name,'DK'); % change that to custom and add freesurfer folder solution
-elinfo.FS_label = anatLoc_raw(:,1);
-elinfo.anatLoc_raw = anatLoc_raw(:,2);
+fprintf('Using DK-atlas and FreeSurfer segmentation labels to get surface or depth labels.\n')
+FS_vol = elec2Parc_subf(FS_folder,FS_name,'DK'); % change that to custom and add freesurfer folder solution
+elinfo.FS_label = FS_vol(:,1);
+elinfo.FS_vol = FS_vol(:,2);
+elinfo.FS_ind = FS_vol(:,3);
 
-% arranging anatLoc_raw into WMvsGM, LvsR, and filtered anatLoc
-[elinfo.WMvsGM, elinfo.LvsR, elinfo.anatLoc] = filterRegion(anatLoc_raw,FS_folder,FS_name);
+% arranging FS_vol into WMvsGM, LvsR, and sEEG_ECoG
+[elinfo.WMvsGM, elinfo.LvsR, elinfo.sEEG_ECoG] = filterRegion(FS_vol,FS_folder,FS_name);
 
 % find all subdural electrodes and depth electrodes which are in GM:
 GM_depths = elinfo.FS_label(strcmp(elinfo.WMvsGM,'GM'),1);
@@ -166,7 +168,7 @@ end
 fprintf('Using Yeo17-atlas to get the network labels.\n')
 [Yeo17_raw, ~]=elec2Parc_subf(FS_folder,FS_name,'Y17',GM_depths);
 elinfo.Yeo17 = Yeo17_raw(:,2);
-% FIND THE CORRESPONDING INDEX OF THAT LABEL FOR YEO7 ATLAS
+% FIND THE CORRESPONDING INDEX OF THAT LABEL FOR YEO17 ATLAS
 Yeo17_info = table;
 Yeo17_info.Yeo17_index = googleSheet.Yeo17_index;
 Yeo17_info.Yeo17_labels = googleSheet.Yeo17_labels;
@@ -197,10 +199,19 @@ for i = 1:length(subjVar.labels)
     end
 end
 
+% Make FS_ind double if number
+for i=1:size(subjVar_final.elinfo,1)
+    if ~contains(subjVar_final.elinfo.FS_ind{i},{'empty','NaN'},'IgnoreCase',true)
+        subjVar_final.elinfo.FS_ind{i} = str2double(subjVar_final.elinfo.FS_ind(i));
+    elseif contains(subjVar_final.elinfo.FS_ind{i},'NaN','IgnoreCase',true)
+        subjVar_final.elinfo.FS_ind{i} = NaN;
+    end
+end
+
 % Unify elinfo
 subjVar_final.elinfo.LEPTO_coord = subjVar_final.LEPTO_coord;
 subjVar_final.elinfo.MNI_coord = subjVar_final.MNI_coord;
-subjVar_final = rmfield(subjVar_final, {'labels', 'LEPTO_coord', 'MNI_coord'});
+subjVar_final = rmfield(subjVar_final, {'labels','LEPTO_coord', 'MNI_coord'});
 end
 
 
@@ -267,7 +278,7 @@ pvoxCoord(:,3)=sVol(3)-pvoxCoord(:,3);
 labelFname=fullfile(FS_folder,'elec_recon',sprintf('%s.electrodeNames',subj));
 elecLabels=csv2Cell(labelFname,' ',2);
 
-elecParc=cell(nElec,2);
+elecParc=cell(nElec,3);
 hem=[];
 for hemLoop=1:2,
     if hemLoop==1
@@ -314,9 +325,10 @@ for hemLoop=1:2,
             % Go through and set depth electrode assignments to depth:
             if elecLabels{elecIdsThisHem(elecLoop),2}=='D' && ~any(strcmp(GM_depths,elecLabels{elecIdsThisHem(elecLoop)}))
                 if strcmp(atlas,'DK')
-                    elecParc{elecIdsThisHem(elecLoop),2}=vox2Seg_subf(pvoxCoord(elecIdsThisHem(elecLoop),:),FS_folder);
-                else
+                    [elecParc{elecIdsThisHem(elecLoop),2}, elecParc{elecIdsThisHem(elecLoop),3}]=vox2Seg_subf(pvoxCoord(elecIdsThisHem(elecLoop),:),FS_folder);
+                else    % depth electrodes according to other surface atlases
                     elecParc{elecIdsThisHem(elecLoop),2}='Depth';
+                    elecParc{elecIdsThisHem(elecLoop),3} = 'NaN';
                 end
             else
                 % Find closest vertex
@@ -325,8 +337,10 @@ for hemLoop=1:2,
                 % Grab parcellation label for that vertex
                 if sum(colortable.table(:,5)==label(minId))
                     elecParc{elecIdsThisHem(elecLoop),2}=colortable.struct_names{find(colortable.table(:,5)==label(minId))};
+                    elecParc{elecIdsThisHem(elecLoop),3} = 'NaN';
                 else
                     elecParc{elecIdsThisHem(elecLoop),2}='undefined';
+                    elecParc{elecIdsThisHem(elecLoop),3} = 'NaN';
                 end
             end
         end
@@ -341,7 +355,7 @@ end
 end
 
 %% Subfunction2:
-function anatLabel=vox2Seg_subf(coordILA,fsSubDir)
+function [anatLabel, anatLabel_ind] =vox2Seg_subf(coordILA,fsSubDir)
 % Original function is vox2Seg, from iELVis toolbox. Modified to run as subfunction.
 asegFname=[fsSubDir '/mri/aparc+aseg.mgz'];
 
@@ -366,10 +380,13 @@ fclose(fid);
 id=find(aseg.vol(coordILA(1),coordILA(2),coordILA(3))==tbl{1});
 id=min(id);
 anatLabel=tbl{2}{id};
+
+% to get anatLabel (FS_vol) index
+anatLabel_ind = num2mstr(tbl{1}(id));
 end
 
 %% Subfunction3: WMvsGM
-function [WMvsGM, LvsR, anatLoc] = filterRegion(anatLabel, FS_folder,FS_name)
+function [WMvsGM, LvsR, sEEG_ECoG] = filterRegion(FS_vol, FS_folder,FS_name)
 % This subfunction gets information if electrode is in gray matter vs white
 % matter, Left vs Right and anatomical location in Desikan-Killiany atlas
 % if surface electrode or in aseg+aparc.mgz if depth electrode. 
@@ -386,23 +403,21 @@ elecLabels=csv2Cell(labelFname,' ',2);
 LvsR = elecLabels(:,3);
 % LvsR = cell2table(LvsR);
 
-% WMvsGM & anatLoc:
-nElec=length(anatLabel);
+% WMvsGM & anatLoc & sEEG_ECoG:
+nElec=length(FS_vol);
 WMvsGM{nElec,1}='';
-anatLoc{nElec,1}='';
+sEEG_ECoG{nElec,1}='';
 
-for i=1:length(anatLabel)
+for i=1:length(FS_vol)
     if strcmp(elecLabels{i,2},'S') || strcmp(elecLabels{i,2},'G')
-        anatLoc{i,1}= anatLabel{i,2};
         WMvsGM{i,1} = 'GM';
+        sEEG_ECoG{i,1} = 'ECoG';
     elseif strcmp(elecLabels{i,2},'D')
-        if contains(anatLabel{i,2}, 'ctx-')
+        sEEG_ECoG{i,1} = 'sEEG';
+        if contains(FS_vol{i,2}, 'ctx-')
             WMvsGM{i,1} = 'GM';
-            expr = regexp(anatLabel{i,2},'ctx-[rl]h-','split');
-            anatLoc{i,1}= expr{2};
         else
             WMvsGM{i,1} = 'WM';
-            anatLoc{i,1}= anatLabel{i,2};
         end
     end
 end
