@@ -18,9 +18,11 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 %       - subjVar_final: updated version of subjVar, which includes table
 %       names elinfo. This table has columns of:
 %            FS_label: labels as found in Freesurfer elec_recon folder.
-%            anatLoc_raw: raw outputs of Desikan-Killiany atlas labeling
+%            FS_vol: raw outputs of Desikan-Killiany atlas labeling
 %            for surface electrodes and aparc+aseg labeling for depth
 %            electrodes.
+%            FS_ind: index of aparc+aseg labeling in
+%            FreeSurferColorLUTnoFormat.txt.
 %            WMvsGM: classification of electrodes either in gray matter or
 %            white matter. GM if surface electrode or in cortex as
 %            annotated in aparc+aseg. WM, if noncortical depth electrodes
