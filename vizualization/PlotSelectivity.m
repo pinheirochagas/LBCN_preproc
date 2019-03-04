@@ -1,6 +1,7 @@
 function PlotSelectivity(dirs,subjVar, project_name, elect_select, cortex_space, correction_factor)
 
-coords = subjVar.LEPTO_coord;
+coords = elect_select.LEPTO_coord;
+elect_select = elect_select.elect_select;
 
 %% Load comon brain (replace by fsaverage)
 % load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
@@ -18,7 +19,10 @@ coords = subjVar.LEPTO_coord;
 load('cdcol_2018.mat')
 
 elect_size = repmat(10, length(elect_select), 1);
-elect_size(strcmp(elect_select, 'no selectivity')) = 5;
+elect_size(strcmp(elect_select, 'no selectivity')) = 2;
+elect_size(strcmp(elect_select, 'math responsive')) = 5;
+elect_size(strcmp(elect_select, 'autobio responsive')) = 5;
+
 
 for i = 1:length(elect_select)
 
@@ -26,12 +30,16 @@ for i = 1:length(elect_select)
         elect_col(i,:) = cdcol.indian_red;
     elseif strcmp(elect_select{i}, 'math selective')
         elect_col(i,:) = cdcol.raspberry_red;
-    elseif strcmp(elect_select{i}, 'math and memory')
+    elseif strcmp(elect_select{i}, 'math and autobio')
         elect_col(i,:) = cdcol.manganese_violet;
-    elseif strcmp(elect_select{i}, 'memory only')
+    elseif strcmp(elect_select{i}, 'autobio only')
         elect_col(i,:) = cdcol.marine_blue;
     elseif strcmp(elect_select{i}, 'memory selective')
         elect_col(i,:) = cdcol.azurite_blue;
+    elseif strcmp(elect_select{i}, 'math responsive')
+        elect_col(i,:) = cdcol.raspberry_red;
+    elseif strcmp(elect_select{i}, 'autobio responsive')
+        elect_col(i,:) = cdcol.azurite_blue;        
     else
         elect_col(i,:) = [0 0 0];
     end
