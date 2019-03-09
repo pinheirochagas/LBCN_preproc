@@ -18,28 +18,23 @@ elect_select = elect_select.elect_select;
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(10, length(elect_select), 1);
+elect_size = repmat(9, length(elect_select), 1);
 elect_size(strcmp(elect_select, 'no selectivity')) = 2;
-elect_size(strcmp(elect_select, 'math responsive')) = 5;
-elect_size(strcmp(elect_select, 'autobio responsive')) = 5;
+elect_size(strcmp(elect_select, 'math and autobio')) = 7;
 
 
 for i = 1:length(elect_select)
 
     if strcmp(elect_select{i}, 'math only')
-        elect_col(i,:) = cdcol.indian_red;
+        elect_col(i,:) = cdcol.carmine;
     elseif strcmp(elect_select{i}, 'math selective')
-        elect_col(i,:) = cdcol.raspberry_red;
+        elect_col(i,:) = cdcol.pink;
     elseif strcmp(elect_select{i}, 'math and autobio')
-        elect_col(i,:) = cdcol.manganese_violet;
+        elect_col(i,:) = cdcol.purple;
     elseif strcmp(elect_select{i}, 'autobio only')
-        elect_col(i,:) = cdcol.marine_blue;
-    elseif strcmp(elect_select{i}, 'memory selective')
-        elect_col(i,:) = cdcol.azurite_blue;
-    elseif strcmp(elect_select{i}, 'math responsive')
-        elect_col(i,:) = cdcol.raspberry_red;
-    elseif strcmp(elect_select{i}, 'autobio responsive')
-        elect_col(i,:) = cdcol.azurite_blue;        
+        elect_col(i,:) = cdcol.ultramarine;
+    elseif strcmp(elect_select{i}, 'autobio selective')
+        elect_col(i,:) = cdcol.light_blue;       
     else
         elect_col(i,:) = [0 0 0];
     end

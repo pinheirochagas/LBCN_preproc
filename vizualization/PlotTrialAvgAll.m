@@ -12,7 +12,7 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,
 %       column: column of data.trialinfo by which to sort trials for plotting
 %       conds:  cell containing specific conditions to plot within column (default: all of the conditions within column)
 %               can group multiple conds together by having a cell of cells
-%               (e.g. conds = {{'math'},{'autobio','self-internal'}})            
+%               (e.g. conds = {{'math'},{'autobio','self-internal'}})
 %       col:    colors to use for plotting each condition (otherwise will
 %               generate randomly)
 %       plot_params:    controls plot features (see genPlotParams.m script)
@@ -36,8 +36,9 @@ if isempty(elecs)
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 
+
 if plot_params.multielec
-    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,freq_band,filesep,locktype,'lock',filesep,'multielec']; 
+    dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,freq_band,filesep,locktype,'lock',filesep,'multielec'];
 else
     dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'Figures',filesep,datatype,'Data',filesep,freq_band,filesep,locktype,'lock'];
 end
@@ -65,7 +66,7 @@ col_tmp = plot_params.col;
 
 % if plotting multiple elecs, adjust y-axis limits based on min and max of
 % all elecs
-if (plot_params.multielec) 
+if (plot_params.multielec)
     ymin = 0;
     ymax = 0;
 end
@@ -73,7 +74,7 @@ end
 % determine folder name for plots by compared conditions
 for ei = 1
     el = elecs(ei);
-%     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+    %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
     data_all = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if plot_params.multielec
         groupall = true;
@@ -105,7 +106,7 @@ end
 for ei = 1:length(elecs)
     el = elecs(ei);
     
-%     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
+    %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
     data_all = concatBlocks(sbj_name,project_name, block_names,dirs,el,freq_band,datatype,concatfield,tag);
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
@@ -116,39 +117,41 @@ for ei = 1:length(elecs)
         tagchan = ' (good)';
     end
     
-    if (plot_params.multielec) % if plotting multiple elecs in same figure (will group all conditions together)
+    if plot_params.multielec % if plotting multiple elecs in same figure (will group all conditions together)
         plot_params.col = col_tmp(ei,:); % plot each elec in diff color
         h(ei) = PlotTrialAvg(data_all,column,conds,plot_params);
         hold on
-        ymin = min(ymin,min(h(ei).YData));
-        ymax = max(ymax,max(h(ei).YData));
+        ymin(ei) = (min(h(ei).YData) - (std(h(ei).YData)/sqrt(size(h(ei).YData,2)))) / 1.2;
+        ymax(ei) = (max(h(ei).YData) + (std(h(ei).YData)/sqrt(size(h(ei).YData,2)))) * 1.2;
         elec_names{ei} = [data_all.label,tagchan];
         elec_names_all = [elec_names_all,'_',data_all.label];
     else
         PlotTrialAvg(data_all,column,conds,plot_params);
         
         if strcmp(plot_params.label,'name')
-%             suptitle([data_all.label,tagchan, elect_select{ei}])
+            %             suptitle([data_all.label,tagchan, elect_select{ei}])
             suptitle([data_all.label,tagchan])
         elseif strcmp(plot_params.label,'number')
             suptitle(['Elec ',num2str(el),tagchan])
         end
         
-%         fn_out = sprintf('%s/%s/%s_%s_%s_%s_%slock_%s%s.png',dirs.result_root,'selectivity',sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-
-        fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-        if plot_params.single_trial
-            savePNG(gcf, 100, fn_out)
-        else
-            savePNG(gcf, 200, fn_out)
+        %% Save
+        if plot_params.save == true
+            if isempty(plot_params.save_dir)
+                fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                savePNG(gcf, 300, fn_out)
+            else
+                fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                savePNG(gcf, 300, fn_out)
+            end
         end
-        close
+%         close
     end
 end
 
 % Continued to increment to the hold on multiple elecs
 if plot_params.multielec  % if plotting multiple elecs, create legend based on elec #
-    ylim([ymin ymax])
+    ylim([min(ymin) max(ymax)])
     plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
     leg = legend(h,elec_names);
     legend boxoff
@@ -158,7 +161,16 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
         title_conds = [title_conds,'+',conds{ci}];
     end
     title(title_conds)
-    fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
-    savePNG(gcf, 300, fn_out)
-%     close
+    
+    if plot_params.save == true
+        if isempty(plot_params.save_dir)
+            fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
+            savePNG(gcf, 300, fn_out)
+        else
+            fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
+            savePNG(gcf, 300, fn_out)
+        end
+    end
+    
+    %     close
 end

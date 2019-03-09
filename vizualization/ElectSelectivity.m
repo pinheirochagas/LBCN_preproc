@@ -68,6 +68,7 @@ sc1c2_FDR = mafdr(vertcat(sc1c2.P_perm));
 sc1b1_FDR = mafdr(vertcat(sc1b1.P_perm));
 sc2b2_FDR = mafdr(vertcat(sc2b2.P_perm));
 
+
 for i = 1:length(sc1c2_FDR)
     sc1c2(i).P_FDR = sc1c2_FDR(i);
     sc1b1(i).P_FDR = sc1b1_FDR(i);
@@ -80,18 +81,19 @@ for ii = 1:size(data_sbj.wave,2)
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{1} ' selective'];
         
-    elseif sc1b1(ii).P_FDR <0.05
-        elect_select{ii,1} = [conds{1} ' responsive'];
-    
     elseif sc1c2(ii).P_FDR > 0.05 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{1} ' and ' conds{2}];
+        
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR > 0.05 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{2} ' only'];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR < 0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{2} ' selective'];
         
-    elseif sc2b2(ii).P_FDR <0.05
-        elect_select{ii,1} = [conds{2} ' responsive'];      
+    elseif sc1c2(ii).P_FDR > 0.05 && sc1c2(ii).P_perm < 0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_perm > 0.05 && sc2b2(ii).tstat > 0
+        elect_select{ii,1} = [conds{1} ' selective'];    
+        
+    elseif sc1c2(ii).P_FDR > 0.05 && sc1c2(ii).P_perm < 0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_perm > 0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
+        elect_select{ii,1} = [conds{1} ' selective'];  
         
     else
         elect_select{ii,1} = 'no selectivity';  
