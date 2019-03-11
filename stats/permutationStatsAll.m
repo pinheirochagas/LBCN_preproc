@@ -39,8 +39,14 @@ if isempty(elecs)
 end
 
 %% loop through electrodes
-data_all = concatBlocks(sbj_name,block_names,dirs,elecs(1),freq_band,datatype,{'wave'},tag);
-nstim = nanmax(data_all.trialinfo.nstim);
+data_all = concatBlocks(sbj_name,project_name,block_names,dirs,elecs(1),freq_band,datatype,{'wave'},tag);
+
+if strcmp(project_name, 'MMR')
+    nstim = 1;
+else
+    nstim = nanmax(data_all.trialinfo.nstim);
+end
+
 if nstim > 1
     ISI = nanmedian(data_all.trialinfo.allonsets(:,2)-data_all.trialinfo.allonsets(:,1));
 end
@@ -49,10 +55,10 @@ p = nan(globalVar.nchan,nstim);
 greater = nan(globalVar.nchan,nstim);
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freq_band,datatype,{'wave'},tag);
+    data_all = concatBlocks(sbj_name, project_name, block_names,dirs,el,freq_band,datatype,{'wave'},tag);
     for si = 1:nstim
         stats_params_tmp = stats_params;
-        stats_params_tmp.task_win = stats_params_tmp.task_win+ISI*(si-1);
+%         stats_params_tmp.task_win = stats_params_tmp.task_win+ISI*(si-1);
         [p(ei,si),greater(ei,si)]= permutationStats(data_all,column,conds,stats_params_tmp);
     end
     disp(['Performing permutation stats on elec: ',num2str(el)])

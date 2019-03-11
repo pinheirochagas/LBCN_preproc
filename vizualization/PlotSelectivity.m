@@ -30,7 +30,7 @@ for i = 1:length(elect_select)
     elseif strcmp(elect_select{i}, 'math selective')
         elect_col(i,:) = cdcol.pink;
     elseif strcmp(elect_select{i}, 'math and autobio')
-        elect_col(i,:) = cdcol.purple;
+        elect_col(i,:) = cdcol.mauve;
     elseif strcmp(elect_select{i}, 'autobio only')
         elect_col(i,:) = cdcol.ultramarine;
     elseif strcmp(elect_select{i}, 'autobio selective')
@@ -83,8 +83,8 @@ for i = 1:length(views)
 end
 text(135,550,1,subjVar.sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
 
-savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
-close all
+% savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+% close all
 
 end
 
