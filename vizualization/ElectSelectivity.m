@@ -27,7 +27,7 @@ baseline_win = min(find(data_sbj.time>stats_params.bl_win(1))):max(find(data_sbj
 for ii = 1:length(conds)
     trial_idx = strcmp(data_sbj.trialinfo.(column), conds{ii});
     if strcmp(datatype, 'Band')
-        data_tmp_avg = nanmedian(data_sbj.(data_field)(trial_idx,:,data_win),3); % average time win by electrode
+        data_tmp_avg = nanmean(data_sbj.(data_field)(trial_idx,:,data_win),3); % average time win by electrode
     else strcmp(datatype, 'Spec')
         data_tmp_avg = nanmedian(data_sbj.(data_field)(trial_idx,:,:,:),4); % average time win by electrode
     end
@@ -37,7 +37,7 @@ for ii = 1:length(conds)
 end
 
 if strcmp(datatype, 'Band')
-    baseline_all = nanmedian(data_sbj.(data_field)(:,:,baseline_win),3);
+    baseline_all = nanmean(data_sbj.(data_field)(:,:,baseline_win),3);
 else
     baseline_all = nanmedian(data_sbj.(data_field)(:,:,:,baseline_win),4);
 end

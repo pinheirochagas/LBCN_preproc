@@ -1,4 +1,4 @@
-function PlotSelectivity(dirs,subjVar, project_name, elect_select, cortex_space, correction_factor)
+function PlotSelectivity(dirs, subjVar, elect_select, cortex_space, correction_factor, overlay)
 
 coords = elect_select.LEPTO_coord;
 elect_select = elect_select.elect_select;
@@ -14,6 +14,11 @@ elect_select = elect_select.elect_select;
 % googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 % implant = googleSheet.implant{strcmp(googleSheet.subject_name, sbj_name)};
 
+
+subDir = dirs.freesurfer;
+subj = dir(subDir);
+subj=subj(~ismember({subj.name},{'.','..', '.DS_Store'}) & horzcat(subj.isdir) == 1);
+subj = subj.name;
 
 %% Define elect size and color
 load('cdcol_2018.mat')
@@ -44,8 +49,24 @@ end
 marker_size = 10;
 figureDim = [0 0 .4 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+
+if overlay == false
+    views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+else
+    cfg=[];
+    cfg.elecCoord = 'n';
+    cfg.view='l';
+    cfg.overlayParcellation='Y7';
+    cfg.surfType = 'pial';
+    cfg.fsurfSubDir = dirs.freesurfer;
+    cfg.ignoreDepthElec = 'n';
+    cfg.title = [];
+    views = {'l', 'r', 'lm', 'rm', 'li', 'ri'};
+end
+
+
 for i = 1:length(views)
     subplot(3,2,i)
     if strcmp(cortex_space, 'MNI')
@@ -53,7 +74,12 @@ for i = 1:length(views)
         ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})        
     elseif strcmp(cortex_space, 'native')
         coords_plot = CorrectElecLoc(coords, views{i}, hemis{i}, correction_factor);
-        ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+        if overlay == false
+            ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+        else
+            cfg.view = views{i};
+            plotPialSurfCustom(subj,cfg)
+        end
     else
         error('you must specify the cortical space to plot, either MNI or native.')
     end
@@ -81,7 +107,8 @@ for i = 1:length(views)
     else
     end
 end
-text(135,550,1,subjVar.sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
+% text(135,550,1,subjVar.sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
+text(135,550,1,'YEO_7', 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
 
 % savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
 % close all

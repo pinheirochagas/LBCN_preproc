@@ -340,7 +340,7 @@
 % Size of electrodes should be relative to brain size?
 % Make elecColors and colorbar work for bipolar lines too
 
-function cfgOut=plotPialSurf(fsSub,cfg)
+function cfgOut=plotPialSurfCustom(fsSub,cfg)
 
 %% Parse parameters
 if ~isfield(cfg, 'elecSize'),       elecSize = 8;          else  elecSize = cfg.elecSize;      end
@@ -379,6 +379,8 @@ if ~isfield(cfg, 'olayCbar'),       olayCbar=[];          else olayCbar=cfg.olay
 if ~isfield(cfg, 'olayUnits'),      olayUnits=[];         else olayUnits=cfg.olayUnits; end
 
 global overlayData elecCbarMin elecCbarMax olayCbarMin olayCbarMax; % Needed for ?omni plots
+
+
 
 try
     checkCfg(cfg,'plotPialSurf.m');
