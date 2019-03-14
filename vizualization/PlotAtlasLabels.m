@@ -20,7 +20,7 @@ end
 
 for i = 1:length(cfg.views)
     subplot(subplot_dim(1), subplot_dim(2),i)
-    coords_plot = CorrectElecLoc(subjVar.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
+    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})    
     for ii = 1:length(coords_plot)
         % Only plot on the relevant cfg.hemisphere
