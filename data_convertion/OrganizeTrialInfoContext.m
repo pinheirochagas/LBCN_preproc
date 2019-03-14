@@ -93,7 +93,7 @@ for bi = 1:length(block_names)
     
     %Converting from number word to digit in order to do the rest of the
     %calculations; saved in the trialinfo as operand1,operand2, presResult
-    trialinfo = words2num(K,trialinfo,ntrials);
+    trialinfo = words2numb(K,trialinfo,ntrials);
     
     %calculating CorrResult
     for i=1:ntrials

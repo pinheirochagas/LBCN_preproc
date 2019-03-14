@@ -140,6 +140,7 @@ for ei = 1:length(elecs)
             if isempty(plot_params.save_dir)
                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
                 savePNG(gcf, 300, fn_out)
+                close
             else
                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
                 savePNG(gcf, 300, fn_out)
@@ -147,6 +148,7 @@ for ei = 1:length(elecs)
         end
 %         close
     end
+
 end
 
 % Continued to increment to the hold on multiple elecs

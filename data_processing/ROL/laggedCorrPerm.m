@@ -59,16 +59,20 @@ end
 
 for ci = 1:length(conds)
     tmp_trials = find(strcmp(data.trialinfo.(column),conds{ci}));
-    nstim(ci)=round(nanmedian(data.trialinfo.nstim(tmp_trials)));
-    cond = conds{ci};
-    sig.(cond) = cell(globalVar.nchan,nstim(ci));
-end
+    if strcmp(project_name, 'MMR')
+        nstim(ci)=1;
+    else
+        nstim(ci)=round(nanmedian(data.trialinfo.nstim(tmp_trials)));
+    end
+        cond = conds{ci};
+        sig.(cond) = cell(globalVar.nchan,nstim(ci));
+    end
 
 disp('Concatenating data across blocks...')
 elecs = union(elecs1,elecs2);
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freqband,'Band',concatfield,tag);
+    data_all = concatBlocks(sbj_name, project_name, block_names,dirs,el,freqband,'Band',concatfield,tag);
     if (xcorr_params.smooth)
         data_all.wave = convn(data_all.wave,gusWin','same');
     end
@@ -113,6 +117,11 @@ for e1 = elecs1
             elseif strcmp(cond,'autobio')
                 stim_nums = 4;
             end
+            if strcmp(project_name, 'MMR')
+                stim_nums = 1;
+            else
+            end
+            
             for si = stim_nums
                 if isnan(xcorr_all.zscore.(cond)(e1,e2,si)) % don't rerun if already saved previously
                     C_all = nan(ntrials(ci),siglength*2-1);
