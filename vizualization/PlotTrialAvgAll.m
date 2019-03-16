@@ -128,6 +128,8 @@ for ei = 1:length(elecs)
     else
         PlotTrialAvg(data_all,column,conds,plot_params);
         
+            
+            
         if strcmp(plot_params.label,'name')
             %             suptitle([data_all.label,tagchan, elect_select{ei}])
             suptitle([data_all.label,tagchan])
@@ -140,6 +142,8 @@ for ei = 1:length(elecs)
             if isempty(plot_params.save_dir)
                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
                 savePNG(gcf, 300, fn_out)
+                fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.pdf',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                save2pdf(fn_out, gcf, 300)
                 close
             else
                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
@@ -168,6 +172,7 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
         if isempty(plot_params.save_dir)
             fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
             savePNG(gcf, 300, fn_out)
+            save2pdf(fn_out, gcf, 300)
         else
             fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
             savePNG(gcf, 300, fn_out)

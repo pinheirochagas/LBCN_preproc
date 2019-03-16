@@ -105,6 +105,11 @@ for ci = 1:ncategs
         box on 
     else
         if ~strcmp(plot_params.eb,'none')
+            if isfield(plot_params, 'ylim')
+                ylim(plot_params.ylim);
+            else
+            end
+            
             lineprops.style= '-';
             lineprops.width = plot_params.lw;
             lineprops.edgestyle = '-';
@@ -113,7 +118,10 @@ for ci = 1:ncategs
                     plot_data{ci} = [plot_data{ci}; plot_data{ci}]; % plot_data has to have at least 2 trials for sd
                 else
                 end
-                mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+                hold on
+                plot(data.time,nanmean(plot_data{ci}) + nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
+                plot(data.time,nanmean(plot_data{ci}) - nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
+                % mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
 %                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
                 hold on
             else %'std'

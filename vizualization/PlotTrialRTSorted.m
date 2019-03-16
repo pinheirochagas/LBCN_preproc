@@ -74,7 +74,7 @@ for ci = 1:ncategs
     for i = 1:length(grouped_trials{ci})
         RTLock{ci}(i) = trial_data{ci}.allonsets(i,nstim(ci))-trial_data{ci}.allonsets(i,1)+trial_data{ci}.RT(i);        
         postRTinds = find(data.time>RTLock{ci}(i));
-        plot_data{ci}(i,postRTinds)=nan;
+        plot_data{ci}(i,postRTinds+100)=nan;
     end
     trial_data{ci}.RTLock = RTLock{ci}';
     % define which colomn to sort
@@ -90,7 +90,7 @@ for ci = 1:ncategs
 end
 
 % smooth and plot data
-figureDim = [0 0 .4 .8];
+figureDim = [0 0 .25 .6];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 
@@ -123,9 +123,9 @@ for ci = 1:ncategs
         
         
         plot([0 0],ylim,'k-','LineWidth',2)
-        title(cond_names{ci})
+%         title(cond_names{ci})
         xlabel(plot_params.xlabel)
-        ylabel('RT-sorted trials')
+        ylabel('Trials sorted by RT')
         set(gca,'fontsize',plot_params.textsize)
         set(gca, 'xlim', plot_params.xlim)
         
@@ -136,10 +136,12 @@ for ci = 1:ncategs
             end
         end
         
-        box off
+        box on
         
         hold on
-        colorbar
+        cbar = colorbar;
+        cbar.Location = 'northoutside';
+        set(gca,'YTickLabel',[])
     else
         h = imagesc(0);
     end

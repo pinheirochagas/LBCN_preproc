@@ -97,11 +97,32 @@ for ei = 1:length(elecs)
         suptitle([data_all.label,tagchan])
     elseif strcmp(plot_params.label,'number')
         suptitle(['Elec ',num2str(el),tagchan])
+    else
     end
     fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
     savePNG(gcf, 100, fn_out)
     
+    %% Video
+    if plot_params.video == true
+        colorbar('off')
+        cdata = getframe(gcf);
+        F(ei).cdata = cdata.cdata;
+        F(ei).colormap = [];
+        
+    else
+    end
     close
 end
+
+
+fig = figure;
+movie(fig,F,1)
+fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s_video.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+videoRSA = VideoWriter(fn_out);
+videoRSA.FrameRate = 5;  % Default 30
+videoRSA.Quality = 100;    % Default 75
+open(videoRSA);
+writeVideo(videoRSA, [F,F,F,F,F,F,F,F,F,F,F]);
+close(videoRSA);
 end
 
