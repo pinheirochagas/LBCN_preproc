@@ -21,7 +21,11 @@ end
 ncategs = length(conds);
 
 cmap = cbrewer2('RdBu');
-cmap = cmap(end:-1:1,:);
+cmap = cmap(end:-1:1,:); % flip colormap
+% add white to deal with the nan post RT. 
+cmap(2:end+1, :) = cmap;
+cmap(1, :) = [1 1 1];
+
 
 %%
 winSize = floor(data.fsample*plot_params.sm);
@@ -64,17 +68,25 @@ for ci = 1:ncategs
     plot_data_all{ci} = data.wave(grouped_trials_all{ci},:);
     trial_data_all{ci} = data.trialinfo(grouped_trials_all{ci},:);
     
-    nstim(ci) = round(nanmedian(trial_data{ci}.nstim));
+    nstim(ci) = size(trial_data{ci}.allonsets,2);
+    
     RTLock{ci}=nan(1,length(grouped_trials{ci}));
     for i = 1:length(grouped_trials{ci})
-        RTLock{ci}(i) = trial_data{ci}.allonsets(i,nstim(ci))-trial_data{ci}.allonsets(i,1)+trial_data{ci}.RT(i);
+        RTLock{ci}(i) = trial_data{ci}.allonsets(i,nstim(ci))-trial_data{ci}.allonsets(i,1)+trial_data{ci}.RT(i);        
         postRTinds = find(data.time>RTLock{ci}(i));
-%         plot_data{ci}(i,postRTinds)=0;
+        plot_data{ci}(i,postRTinds)=nan;
     end
-    [~,sortInds] = sort(trial_data{ci}.RT);
+    trial_data{ci}.RTLock = RTLock{ci}';
+    % define which colomn to sort
+    
+   if strcmp(plot_params.sort_column, 'RT')
+        [~,sortInds] = sortrows(trial_data{ci},{'RTLock'});        
+   elseif strcmp(plot_params.sort_column, 'operand2')        
+        [~,sortInds] = sortrows(trial_data{ci},{'operand2', 'RTLock'});        
+   end
+
     plot_data{ci}=plot_data{ci}(sortInds,:);
     trial_data{ci} = trial_data{ci}(sortInds,:);
-    RTLock{ci} = RTLock{ci}(sortInds);
 end
 
 % smooth and plot data
@@ -91,26 +103,36 @@ for ci = 1:ncategs
         h = imagesc(data.time,1:size(plot_data{ci},1),plot_data{ci},clims);
         colormap(cmap)
         hold on
-        plot(RTLock{ci},1:size(plot_data{ci},1),'k*')
-        for i = 1:size(plot_data{ci},1)
-            if strcmp(trial_data{ci}.keys(i),'1')
-                text(5,i,[trial_data{ci}.wlist{i},' (True)'])
-            elseif strcmp(trial_data{ci}.keys(i),'2')
-                text(5,i,[trial_data{ci}.wlist{i},' (False)'])
-            else
-                text(5,i,trial_data{ci}.wlist{i})
+        plot(trial_data{ci}.RTLock,1:size(plot_data{ci},1),'.', 'MarkerSize', 10, 'Color', 'k')
+        
+        % Plot stimuli list
+        if plot_params.plot_slist == 1
+            
+            for i = 1:size(plot_data{ci},1)
+                if strcmp(trial_data{ci}.keys(i),'1')
+                    text(5,i,[trial_data{ci}.wlist{i},' (True)'])
+                elseif strcmp(trial_data{ci}.keys(i),'2')
+                    text(5,i,[trial_data{ci}.wlist{i},' (False)'])
+                else
+                    text(5,i,trial_data{ci}.wlist{i})
+                end
             end
+            
+        else
         end
-        plot([0 0],ylim,'k-','LineWidth',5)
+        
+        
+        plot([0 0],ylim,'k-','LineWidth',2)
         title(cond_names{ci})
         xlabel(plot_params.xlabel)
         ylabel('RT-sorted trials')
         set(gca,'fontsize',plot_params.textsize)
+        set(gca, 'xlim', plot_params.xlim)
         
         if size(data.trialinfo.allonsets,2) > 1
             time_events = cumsum(nanmean(diff(data.trialinfo.allonsets(:,1:nstim(ci)),1,2)));
             for i = 1:length(time_events)
-                plot([time_events(i) time_events(i)],ylim,'k-','LineWidth',2)
+                plot([time_events(i) time_events(i)],ylim,'k-','LineWidth',1)
             end
         end
         

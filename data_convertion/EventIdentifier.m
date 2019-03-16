@@ -236,13 +236,13 @@ end
  if ismember('nstim',colnames)
     nstim = trialinfo.nstim;
  else
-    nstim = ones(size(trialinfo,1),1);
+    trialinfo.nstim = repmat(size(trialinfo.allonsets,2),size(trialinfo.allonsets,1),1);
  end
 
 trialinfo.allonsets(event_trials,:) = all_stim_onset;
 trialinfo.RT_lock = nan(ntrials,1);
-for ti = 1:ntrials
-    trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,nstim(ti));
+for ti = 1:size(trialinfo,1)
+    trialinfo.RT_lock(ti) = trialinfo.RT(ti) + trialinfo.allonsets(ti,trialinfo.nstim(ti));
 end
 trialinfo.allonsets(rest_trials,:) = (trialinfo.StimulusOnsetTime(rest_trials,:)-trialinfo.StimulusOnsetTime(rest_trials-1,:))+trialinfo.allonsets(rest_trials-1,:);
 

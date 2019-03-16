@@ -49,6 +49,20 @@ for bi = 1:length(block_names)
                     data.trialinfo.condNames(i) = {[data.trialinfo.condNames{i} '_passive']};
                 end
             end
+            
+        case 'Context'        
+            data.trialinfo.condNames2 = data.trialinfo.condNames;
+            data.trialinfo.condNamesBasic = data.trialinfo.condNames;
+            for i = 1:size(data.trialinfo,1)
+                if data.trialinfo.isActive(i) == 1
+                    data.trialinfo.condNames(i) = {[data.trialinfo.condition{i} '_active']};
+                    data.trialinfo.condNamesBasic(i) = {'active'};
+                else
+                    data.trialinfo.condNames(i) = {[data.trialinfo.condition{i} '_passive']};
+                    data.trialinfo.condNamesBasic(i) = {'passive'};
+                end
+            end
+            
     end
    
     % concatenate trial info across blocks

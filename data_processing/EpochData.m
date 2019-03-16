@@ -13,6 +13,7 @@ nfreq = size(data.wave,1);  % determine if single timeseries or spectral data (i
 ntrials = size(lockevent,1);
 siglength = size(data.wave,2);
 start_inds = floor(lockevent*data.fsample);
+% start_inds = lockevent;
 bef_ind = floor(bef_time*data.fsample);
 aft_ind = floor(aft_time*data.fsample);
 len_trial = aft_ind-bef_ind + 1;

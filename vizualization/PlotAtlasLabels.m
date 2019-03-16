@@ -4,11 +4,20 @@ function PlotAtlasLabels(subjVar,cfg)
 %   Destr_ind: Destrieux atlas
 %   Yeo_ind: Yeo2007
 
+
 load('cdcol_2018.mat');
 marker_size = 2;
 figureDim = [0 0 1 1];
 
 figure('units', 'normalized', 'outerposition', figureDim)
+
+if strcmp(cfg.plot_label,'numbers')
+    for i = 1:size(subjVar.elinfo,1)
+        subjVar.elinfo.numbers{i} = num2str(i);
+    end
+else
+end
+
 
 % Define subplot dims
 if isprime(length(cfg.views)) && length(cfg.views) < 7
@@ -20,7 +29,7 @@ end
 
 for i = 1:length(cfg.views)
     subplot(subplot_dim(1), subplot_dim(2),i)
-    coords_plot = CorrectElecLoc(subjVar.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
+    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})    
     for ii = 1:length(coords_plot)
         % Only plot on the relevant cfg.hemisphere
