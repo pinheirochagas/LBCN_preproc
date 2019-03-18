@@ -3,7 +3,7 @@ function PlotCoverageElect(subjVar, elect, correction_factor)
 
 load('cdcol_2018.mat')
 marker_size = 6;
-marker_size_hl = 12;
+marker_size_hl = 22;
 
 figureDim = [0 0 .4 1];
 % figureDim = [0 0 1 .4];

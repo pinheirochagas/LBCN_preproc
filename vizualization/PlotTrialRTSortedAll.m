@@ -93,30 +93,31 @@ for ei = 1:length(elecs)
     
     PlotTrialRTSorted(data_all,column,conds,plot_params);
     
-    if strcmp(plot_params.label,'name')
-        suptitle([data_all.label,tagchan])
-    elseif strcmp(plot_params.label,'number')
-        suptitle(['Elec ',num2str(el),tagchan])
-    else
-    end
+%     if strcmp(plot_params.label,'name')
+%         suptitle([data_all.label,tagchan])
+%     elseif strcmp(plot_params.label,'number')
+%         suptitle(['Elec ',num2str(el),tagchan])
+%     else
+%     end
     fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
     savePNG(gcf, 100, fn_out)
-    
+    fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.pdf',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+    save2pdf(fn_out, gcf, 100)
+
     %% Video
     if plot_params.video == true
         colorbar('off')
         cdata = getframe(gcf);
         F(ei).cdata = cdata.cdata;
         F(ei).colormap = [];
-        
     else
     end
     close
 end
 
 
-fig = figure;
-movie(fig,F,1)
+% fig = figure;
+% movie(fig,F,1)
 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s_video.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
 videoRSA = VideoWriter(fn_out);
 videoRSA.FrameRate = 5;  % Default 30

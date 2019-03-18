@@ -108,8 +108,8 @@ else
     end
 end
 
-for e1 = elecs1
-    for e2 = elecs2(elecs2>e1)
+for e1 = 1:length(elecs1)
+    for e2 = 1:length(elecs1)
         for ci = 1:length(conds)
             cond = conds{ci};
             if strcmp(cond,'math')
@@ -123,46 +123,48 @@ for e1 = elecs1
             end
             
             for si = stim_nums
-                if isnan(xcorr_all.zscore.(cond)(e1,e2,si)) % don't rerun if already saved previously
+                if isnan(xcorr_all.zscore.(cond)(elecs1(e1),elecs2(e2),si)) % don't rerun if already saved previously
                     C_all = nan(ntrials(ci),siglength*2-1);
+                    C_all2 = nan(ntrials(ci),siglength*2-1);
+
                     for i = 1:ntrials
                         % [C_all(i,:),lags] = crosscorr(ROL.autobio.traces{e1,4}(i,:),ROL.autobio.traces{e2,4}(i,:),'NumLags',nlags);
-                        [C_all(i,:),lags] = xcorr(sig.(cond){e1,si}(i,:)/nanmax(sig.(cond){e1,si}(:)),sig.(cond){e2,si}(i,:)/nanmax(sig.(cond){e2,si}(:)));
+                        [C_all(i,:),lags] = xcorr(sig.(cond){elecs1(e1),si}(i,:)/nanmax(sig.(cond){elecs1(e1),si}(:)),sig.(cond){elecs2(e2),si}(i,:)/nanmax(sig.(cond){elecs2(e2),si}(:)));                        
                         % [C_all(i,:),lags] = xcov(normMinMax(ROL.autobio.HFB_traces{e1,4}(i,:)),normMinMax(ROL.autobio.HFB_traces{e2,4}(i,:)));
                     end
                     xcorr_all.lags = lags/fs;
                     C_real = nanmean(C_all);
-                    xcorr_all.trace_mn.(cond){e1,e2,si}=C_real;
-                    xcorr_all.trace_mn.(cond){e2,e1,si}=C_real(end:-1,1);
+                    xcorr_all.trace_mn.(cond){elecs1(e1),elecs2(e2),si}=C_real;
+                    xcorr_all.trace_mn.(cond){elecs2(e2),elecs1(e1),si}=C_real(end:-1,1);
                     C_perm = nan(xcorr_params.nreps,siglength*2-1);
                     for ri = 1:xcorr_params.nreps
                         randinds = randperm(ntrials);
                         C_all = nan(ntrials(ci),siglength*2-1);
                         for i = 1:ntrials
                             %         [C_all(i,:),lags] = crosscorr(ROL.autobio.traces{e1,4}(i,:),ROL.autobio.traces{e2,4}(randinds(i),:),'NumLags',nlags);
-                            [C_all(i,:),lags] = xcorr(sig.(cond){e1,si}(i,:)/nanmax(sig.(cond){e1,si}(:)),sig.(cond){e2,si}(randinds(i),:)/nanmax(sig.(cond){e2,si}(:)));
+                            [C_all(i,:),lags] = xcorr(sig.(cond){elecs1(e1),si}(i,:)/nanmax(sig.(cond){elecs1(e1),si}(:)),sig.(cond){elecs2(e2),si}(randinds(i),:)/nanmax(sig.(cond){elecs2(e2),si}(:)));
                             % [C_all(i,:),lags] = xcov(normMinMax(ROL.autobio.HFB_traces{e1,4}(i,:)),normMinMax(ROL.autobio.HFB_traces{e2,4}(i,:)));
                             C_perm(ri,:) = nanmean(C_all);
                         end
                     end
                     
-                    xcorr_all.permtrace_mn.(cond){e1,e2,si}=nanmean(C_perm);
-                    xcorr_all.permtrace_mn.(cond){e2,e1,si}=xcorr_all.permtrace_mn.(cond){e1,e2,si}(end:-1:1);
-                    xcorr_all.permtrace_sd.(cond){e1,e2,si}=nanstd(C_perm);
-                    xcorr_all.permtrace_sd.(cond){e2,e1,si}=xcorr_all.permtrace_sd.(cond){e1,e2,si}(end:-1:1);
+                    xcorr_all.permtrace_mn.(cond){elecs1(e1),elecs2(e2),si}=nanmean(C_perm);
+                    xcorr_all.permtrace_mn.(cond){elecs2(e2),elecs1(e1),si}=xcorr_all.permtrace_mn.(cond){elecs1(e1),elecs2(e2),si}(end:-1:1);
+                    xcorr_all.permtrace_sd.(cond){elecs1(e1),elecs2(e2),si}=nanstd(C_perm);
+                    xcorr_all.permtrace_sd.(cond){elecs2(e2),elecs1(e1),si}=xcorr_all.permtrace_sd.(cond){elecs1(e1),elecs2(e2),si}(end:-1:1);
                     
                     [~,maxind]=max(C_real);
                     
-                    xcorr_all.tlag_max.(cond)(e1,e2,si)=lags(maxind)/fs;
-                    xcorr_all.tlag_max.(cond)(e2,e1,si)=-lags(maxind)/fs;
+                    xcorr_all.tlag_max.(cond)(elecs1(e1),elecs2(e2),si)=lags(maxind)/fs;
+                    xcorr_all.tlag_max.(cond)(elecs2(e2),elecs1(e1),si)=-lags(maxind)/fs;
                     
                     max_inds = maxind-half_win:maxind+half_win;
                     max_inds = max_inds(max_inds>0 & max_inds <= length(C_real));
                     realmax = nanmean(C_real(max_inds));
                     permmax = nanmean(C_perm(:,max_inds),2);
-                    xcorr_all.zscore.(cond)(e1,e2,si)=(realmax-nanmean(permmax))/nanstd(permmax);
-                    xcorr_all.zscore.(cond)(e2,e1,si)=xcorr_all.zscore.(cond)(e1,e2,si);
-                    disp(['sbj: ',sbj_name,', e1: ',num2str(e1),', e2: ',num2str(e2),', condition: ',cond,', stim: ', num2str(si)])
+                    xcorr_all.zscore.(cond)(elecs1(e1),elecs2(e2),si)=(realmax-nanmean(permmax))/nanstd(permmax);
+                    xcorr_all.zscore.(cond)(elecs2(e2),elecs1(e1),si)=xcorr_all.zscore.(cond)(elecs1(e1),elecs2(e2),si);
+                    disp(['sbj: ',sbj_name,', e1: ',num2str(elecs1(e1)),', e2: ',num2str(elecs2(e2)),', condition: ',cond,', stim: ', num2str(si)])
                 end
             end
         end
