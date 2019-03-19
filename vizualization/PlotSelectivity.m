@@ -89,9 +89,14 @@ for i = 1:length(views)
         % Only plot on the relevant hemisphere
         if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
         else
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', 'k');
+%             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
         end
     end
+    
+                plot3(coords_plot(61,1),coords_plot(61,2),coords_plot(61,3), 'o', 'MarkerSize', 20, 'MarkerFaceColor', 'w', 'MarkerEdgeColor', 'w');
+
+    
     alpha(0.7)
 %     if strcmp(implant, 'sEEG') || strcmp(implant, 'ECoG')
 % %     if strcmp(implant, 'sEEG') 
@@ -111,6 +116,10 @@ end
 text(135,550,1,'YEO_7', 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
 
 % savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+
+% savePNG(gcf, 300, [dirs.result_root filesep '57_yeo7_ventral.png']); % ADD TASK AND CONDITION
+
+
 % close all
 
 end

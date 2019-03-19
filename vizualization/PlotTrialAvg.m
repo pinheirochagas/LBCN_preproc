@@ -129,6 +129,8 @@ for ci = 1:ncategs
 %                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
                 hold on
             end
+%             y_lim = ylim;
+%             ylim([-1 y_lim(2)])
         end
     end
     h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));

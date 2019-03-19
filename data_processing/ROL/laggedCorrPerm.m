@@ -58,9 +58,11 @@ if xcorr_params.blc
 end
 
 for ci = 1:length(conds)
-    tmp_trials = find(strcmp(data.trialinfo.(column),conds{ci}));
+%     tmp_trials = find(strcmp(data.trialinfo.(column),conds{ci}));
     if strcmp(project_name, 'MMR')
         nstim(ci)=1;
+    elseif strcmp(project_name, 'Context')
+        nstim(ci)=5;
     else
         nstim(ci)=round(nanmedian(data.trialinfo.nstim(tmp_trials)));
     end
@@ -109,7 +111,7 @@ else
 end
 
 for e1 = 1:length(elecs1)
-    for e2 = 1:length(elecs1)
+    for e2 = 1:length(elecs2)
         for ci = 1:length(conds)
             cond = conds{ci};
             if strcmp(cond,'math')
@@ -117,13 +119,16 @@ for e1 = 1:length(elecs1)
             elseif strcmp(cond,'autobio')
                 stim_nums = 4;
             end
+            
             if strcmp(project_name, 'MMR')
                 stim_nums = 1;
-            else
+            elseif strcmp(project_name, 'Context')
+                stim_nums = [3 5];
             end
             
             for si = stim_nums
-                if isnan(xcorr_all.zscore.(cond)(elecs1(e1),elecs2(e2),si)) % don't rerun if already saved previously
+                if elecs1(e1) ~= elecs2(e2) % don't run for pairs of same channel
+%                 if isnan(xcorr_all.zscore.(cond)(elecs1(e1),elecs2(e2),si)) % don't rerun if already saved previously
                     C_all = nan(ntrials(ci),siglength*2-1);
                     C_all2 = nan(ntrials(ci),siglength*2-1);
 
@@ -137,7 +142,7 @@ for e1 = 1:length(elecs1)
                     xcorr_all.trace_mn.(cond){elecs1(e1),elecs2(e2),si}=C_real;
                     xcorr_all.trace_mn.(cond){elecs2(e2),elecs1(e1),si}=C_real(end:-1,1);
                     C_perm = nan(xcorr_params.nreps,siglength*2-1);
-                    for ri = 1:xcorr_params.nreps
+                    for ri = 1:xcorr_params.nreps 
                         randinds = randperm(ntrials);
                         C_all = nan(ntrials(ci),siglength*2-1);
                         for i = 1:ntrials
