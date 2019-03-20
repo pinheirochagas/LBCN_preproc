@@ -96,19 +96,19 @@ end
 disp('DONE')
 
 % check if file exists already- load
-fn_xcorr = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'ROL',filesep,'permuted_xcorr_',sbj_name,'_',freqband,'.mat'];
-if exist(fn_xcorr)
-    load(fn_xcorr)
-else
-    for ci = 1:length(conds)
-        cond = conds{ci};
-        xcorr_all.zscore.(cond) = nan(globalVar.nchan,globalVar.nchan,nstim(ci));
-        xcorr_all.tlag_max.(cond) = nan(globalVar.nchan,globalVar.nchan,nstim(ci));
-        xcorr_all.trace_mn.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
-        xcorr_all.permtrace_mn.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
-        xcorr_all.permtrace_sd.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
-    end
-end
+% fn_xcorr = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep,'ROL',filesep,'permuted_xcorr_',sbj_name,'_',freqband,'.mat'];
+% if exist(fn_xcorr)
+%     load(fn_xcorr)
+% else
+%     for ci = 1:length(conds)
+%         cond = conds{ci};
+%         xcorr_all.zscore.(cond) = nan(globalVar.nchan,globalVar.nchan,nstim(ci));
+%         xcorr_all.tlag_max.(cond) = nan(globalVar.nchan,globalVar.nchan,nstim(ci));
+%         xcorr_all.trace_mn.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
+%         xcorr_all.permtrace_mn.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
+%         xcorr_all.permtrace_sd.(cond) = cell(globalVar.nchan,globalVar.nchan,nstim(ci));
+%     end
+% end
 
 for e1 = 1:length(elecs1)
     for e2 = 1:length(elecs2)
@@ -123,7 +123,8 @@ for e1 = 1:length(elecs1)
             if strcmp(project_name, 'MMR')
                 stim_nums = 1;
             elseif strcmp(project_name, 'Context')
-                stim_nums = [3 5];
+%                 stim_nums = [3 5];
+                stim_nums = [5];
             end
             
             for si = stim_nums
@@ -140,7 +141,24 @@ for e1 = 1:length(elecs1)
                     xcorr_all.lags = lags/fs;
                     C_real = nanmean(C_all);
                     xcorr_all.trace_mn.(cond){elecs1(e1),elecs2(e2),si}=C_real;
-                    xcorr_all.trace_mn.(cond){elecs2(e2),elecs1(e1),si}=C_real(end:-1,1);
+                    xcorr_all.trace_mn.(cond){elecs2(e2),elecs1(e1),si}=C_real(end:-1,1); % work on that, smart. 
+                    % Record the lag diff
+                    [~,I] = max(abs(xcorr_all.trace_mn.(cond){elecs1(e1),elecs2(e2),si}));
+                    xcorr_all.lagDiff.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]) = xcorr_all.lags(I);
+                    
+                    % Correlate with RT
+                    xcorr_all.trace.(cond){elecs2(e2),elecs1(e1),si}=C_all; % work on that, smart.
+                    
+                    for il = 1:length(lags)
+                        good_trials = find(~isnan(C_all(:,1)));
+                        RT = data_all.trialinfo.RT(grouped_trials_all{ci});
+                        RT_nan = find(~isnan(RT));
+                        good_trials = intersect(RT_nan,good_trials);                        
+                        [rho(il),p(il)] = corr(RT(good_trials), C_all(good_trials,il));
+                    end
+                    xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).rho = rho;
+                    xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).p = p;
+                                        
                     C_perm = nan(xcorr_params.nreps,siglength*2-1);
                     for ri = 1:xcorr_params.nreps 
                         randinds = randperm(ntrials);
@@ -181,5 +199,5 @@ if ~exist([dir_out,'ROL'])
     mkdir(dir_out,'ROL')
 end
 
-save([dir_out,'ROL',filesep,'permuted_xcorr_',sbj_name,'_',freqband,'.mat'],'xcorr_all','xcorr_params')
+save([dir_out,'ROL',filesep,'permuted_xcorr_',sbj_name,'_',freqband, [num2str(elecs1) num2str(elecs1)], '5s.mat'],'xcorr_all','xcorr_params')
 
