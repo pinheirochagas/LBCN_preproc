@@ -147,7 +147,7 @@ for e1 = 1:length(elecs1)
                     xcorr_all.lagDiff.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]) = xcorr_all.lags(I);
                     
                     % Correlate with RT
-                    xcorr_all.trace.(cond){elecs2(e2),elecs1(e1),si}=C_all; % work on that, smart.
+                    xcorr_all.trace.(cond){elecs2(e1),elecs1(e2),si}=C_all; % work on that, smart.
                     
                     for il = 1:length(lags)
                         good_trials = find(~isnan(C_all(:,1)));
@@ -158,7 +158,9 @@ for e1 = 1:length(elecs1)
                     end
                     xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).rho = rho;
                     xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).p = p;
-                                        
+                    xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).RT = RT;
+                    xcorr_all.corr_RT.(['el', num2str(elecs1(e1)) '_' 'el', num2str(elecs2(e2))]).good_trials = good_trials;
+                    
                     C_perm = nan(xcorr_params.nreps,siglength*2-1);
                     for ri = 1:xcorr_params.nreps 
                         randinds = randperm(ntrials);
