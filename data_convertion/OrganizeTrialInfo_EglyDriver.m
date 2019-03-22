@@ -18,6 +18,13 @@ for bi = 1:length(block_names)
         
     end
     
+    for i = 1:size(trialinfo.is_targ)
+        if trialinfo.is_targ(i) == 1
+            trialinfo.CondNames{i} = 'target_present';
+        else
+            trialinfo.CondNames{i} = 'target_absent';
+        end
+    end
     
     %% Save trialinfo
     save([globalVar.psych_dir '/trialinfo_', bn '.mat'], 'trialinfo');

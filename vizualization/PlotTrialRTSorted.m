@@ -74,7 +74,7 @@ for ci = 1:ncategs
     for i = 1:length(grouped_trials{ci})
         RTLock{ci}(i) = trial_data{ci}.allonsets(i,nstim(ci))-trial_data{ci}.allonsets(i,1)+trial_data{ci}.RT(i);        
         postRTinds = find(data.time>RTLock{ci}(i));
-        plot_data{ci}(i,postRTinds+100)=nan;
+        plot_data{ci}(i,postRTinds)=nan;
     end
     trial_data{ci}.RTLock = RTLock{ci}';
     % define which colomn to sort
@@ -90,7 +90,7 @@ for ci = 1:ncategs
 end
 
 % smooth and plot data
-figureDim = [0 0 .25 .6];
+figureDim = [0 0 .4 .8];
 figure('units', 'normalized', 'outerposition', figureDim)
 
 
@@ -107,7 +107,7 @@ for ci = 1:ncategs
         
         % Plot stimuli list
         if plot_params.plot_slist == 1
-            
+            % Here configure which field you wanna plot
             for i = 1:size(plot_data{ci},1)
                 if strcmp(trial_data{ci}.keys(i),'1')
                     text(5,i,[trial_data{ci}.wlist{i},' (True)'])
@@ -123,9 +123,9 @@ for ci = 1:ncategs
         
         
         plot([0 0],ylim,'k-','LineWidth',2)
-%         title(cond_names{ci})
+        title(cond_names{ci})
         xlabel(plot_params.xlabel)
-        ylabel('Trials sorted by RT')
+        ylabel('RT-sorted trials')
         set(gca,'fontsize',plot_params.textsize)
         set(gca, 'xlim', plot_params.xlim)
         
@@ -136,12 +136,10 @@ for ci = 1:ncategs
             end
         end
         
-        box on
+        box off
         
         hold on
-        cbar = colorbar;
-        cbar.Location = 'northoutside';
-        set(gca,'YTickLabel',[])
+        colorbar
     else
         h = imagesc(0);
     end

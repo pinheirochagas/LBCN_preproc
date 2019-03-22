@@ -82,7 +82,7 @@ for ci = 1:ncategs
         hold on
         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
 %         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
-        title(cond_names{ci})
+        title(cond_names{ci}, 'Interpreter', 'none')
         y_lim = [max(-5,min(plot_data_all{ci}(:))),min(10,max(plot_data_all{ci}(:)))];
         xlim(plot_params.xlim)
         ylim(y_lim)
