@@ -4,10 +4,10 @@ coords = elect_select.LEPTO_coord;
 elect_select = elect_select.elect_select;
 
 %% Load comon brain (replace by fsaverage)
-% load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
-% cmcortex.left = cortex;
-% load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
-% cmcortex.right = cortex;
+load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
+cmcortex.left = cortex;
+load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
+cmcortex.right = cortex;
 % 
 % 
 % [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);

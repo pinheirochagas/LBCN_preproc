@@ -82,6 +82,8 @@ lab = lab(idx);
 colsh.L = cols(lab<100,:);
 colsh.R = cols(lab>99,:);
 
+
+
 cfg=[];
 cfg.elecCoord = 'n';
 cfg.view='l';
@@ -93,7 +95,7 @@ switch cfgl.atlas
     case 'Destr_ind'
         cfg.overlayParcellation='D';        
 end
-cfg.surfType = cfgl.surfType; % 'pial'
+cfg.surfType = 'pial'; % 'pial'
 
 cfg.title= []; 
 cfg.fsurfSubDir = '/Applications/freesurfer/subjects/';
@@ -115,7 +117,7 @@ for hi = 1:2
     for i = ip
         cfg.view = views{i};
         subplot(3,2,i)
-        cfgOut=plotPialSurfCustom(sbj_name,cfg);
+        cfgOut=plotPialSurfCustom('fsaverage',cfg);
         if cfgl.plot_elects
             alpha(0.3)
             for ii = 1:size(elinfo.(hemis{hi}),1)
