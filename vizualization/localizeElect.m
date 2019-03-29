@@ -43,7 +43,13 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 %            Yeo7: outputs of Yeo7 atlas labeling
 %            for surface electrodes and depth electrodes in gray matter
 %            (annotated as 'ctx-' in aparc+aseg).
-%            Yeo_ind: index of Yeo7.
+%            Yeo7_ind: index of Yeo7.
+%            Yeo17: outputs of Yeo17 atlas labeling
+%            for surface electrodes and depth electrodes in gray matter
+%            (annotated as 'ctx-' in aparc+aseg).
+%            Yeo17_ind: index of Yeo17.
+%            LEPTO_coord: MNI coordinates of electrodes in native brain.
+%            MNI_coord: MNI coordinates of electrodes in fsaverage brain.
 %
 %
 % Written and edited by Serdar Akkol and Pedro Pinheiro-Chagas.
@@ -145,20 +151,20 @@ fprintf('Using Yeo7-atlas to get the network labels.\n')
 [Yeo7_raw, ~]=elec2Parc_subf(FS_folder,FS_name,'Y7',GM_depths);
 elinfo.Yeo7 = Yeo7_raw(:,2);
 % FIND THE CORRESPONDING INDEX OF THAT LABEL FOR YEO7 ATLAS
-Yeo_info = table;
-Yeo_info.Yeo_index = googleSheet.Yeo_index;
-Yeo_info.Yeo_labels = googleSheet.Yeo_labels;
-Yeo_info = Yeo_info(all(~cellfun(@isempty, Yeo_info{:,:}),2),:);
+Yeo7_info = table;
+Yeo7_info.Yeo7_index = googleSheet.Yeo7_index;
+Yeo7_info.Yeo7_labels = googleSheet.Yeo7_labels;
+Yeo7_info = Yeo7_info(all(~cellfun(@isempty, Yeo7_info{:,:}),2),:);
 
-cell_Yeoinfo = table2cell(Yeo_info);
+cell_Yeo7info = table2cell(Yeo7_info);
 for i = 1:length(elinfo.Destrieux)
-    rows = any(strcmp(cell_Yeoinfo, elinfo.Yeo7{i}), 2);
+    rows = any(strcmp(cell_Yeo7info, elinfo.Yeo7{i}), 2);
     if ~any(rows)   % if empty channel
-        elinfo.Yeo_ind(i) = elinfo.Yeo7(i);
+        elinfo.Yeo7_ind(i) = elinfo.Yeo7(i);
         elinfo.Yeo7(i) = elinfo.Yeo7(i);
     else
-        elinfo.Yeo_ind(i) = cell_Yeoinfo(rows==1,1);
-        elinfo.Yeo7(i) = cell_Yeoinfo(rows==1,2);
+        elinfo.Yeo7_ind(i) = cell_Yeo7info(rows==1,1);
+        elinfo.Yeo7(i) = cell_Yeo7info(rows==1,2);
     end
 end
 

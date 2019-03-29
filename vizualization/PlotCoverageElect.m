@@ -1,4 +1,4 @@
-function PlotCoverageElect(subjVar, elect, correction_factor)
+function PlotCoverageElect(subjVar, correction_factor)
 
 
 load('cdcol_2018.mat')
@@ -17,24 +17,19 @@ hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 % hemis = {'left', 'left'};
 
 for i = 1:length(views)
-    subplot(3,2,i)
-    %     subplot(1,2,i)
-    
+    subplot(3,2,i)    
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
-    %     f1 = plot3(coords_plot(:,1),coords_plot(:,2),coords_plot(:,3), 'o', 'MarkerSize', 10, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
     
-    for ii = setdiff([1:length(coords_plot)], elect)
-        % Only plot on the relevant hemisphere
-        if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
-        else
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+    for ii = 1:length(coords_plot)
+        if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
+%             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
+        elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
+%             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
         end
-        
-    end
-    
-    plot3(coords_plot(elect,1),coords_plot(elect,2),coords_plot(elect,3), 'o', 'MarkerSize', marker_size_hl, 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'k');
-    
+    end    
     alpha(0.7)
 end
 end
