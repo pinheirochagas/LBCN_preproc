@@ -22,6 +22,12 @@ end
 % Define subplot dims
 if isprime(length(cfg.views)) && length(cfg.views) < 7
     subplot_dim = [ceil(sqrt(length(cfg.views))), 1];
+elseif length(cfg.views) == 6
+    subplot_dim = [3 2];
+elseif length(cfg.views) == 8
+    subplot_dim = [2 4];
+elseif length(cfg.views) == 10
+    subplot_dim = [2 5];
 else
     subplot_dim = [ceil(sqrt(length(cfg.views))), ceil(sqrt(length(cfg.views)))];
 end
@@ -30,22 +36,39 @@ end
 for i = 1:length(cfg.views)
     subplot(subplot_dim(1), subplot_dim(2),i)
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
-    ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})    
+    ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})
     for ii = 1:length(coords_plot)
         % Only plot on the relevant cfg.hemisphere
-        if (strcmp(cfg.hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(cfg.hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
-        else
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+        if (strcmp(cfg.hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
+            %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
+            if ~contains(subjVar.elinfo.FS_label(ii),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(ii),'Depth')
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.(cfg.plot_label)(ii)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
+            else
+            end
+        elseif (strcmp(cfg.hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
+            %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
+            if ~contains(subjVar.elinfo.FS_label(ii),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(ii),'Depth')
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.(cfg.plot_label)(ii)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
+            else
+            end
         end
         
+        %
+        %         if (strcmp(cfg.hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(cfg.hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+        %         else
+        %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+        %         end
+        
     end
-    for it = 1:length(coords_plot)
-        hold on
-        if ~contains(subjVar.elinfo.FS_label(it),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(it),'Depth')
-            text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.(cfg.plot_label)(it), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
-        else
-        end
-    end
+%     for it = 1:length(coords_plot)
+%         hold on
+%         if ~contains(subjVar.elinfo.FS_label(it),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(it),'Depth')
+%             text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), num2str(subjVar.elinfo.(cfg.plot_label)(it)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
+%         else
+%         end
+%     end
     alpha(0.7)
 end
 
