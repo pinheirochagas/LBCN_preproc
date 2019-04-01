@@ -55,7 +55,7 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 % Written and edited by Serdar Akkol and Pedro Pinheiro-Chagas.
 % LBCN, Stanford University 2019.
 % Areas of improvement: organize the atlases using loop and not repeating
-% for each atlas.
+% for each atlas.(line 90)
 % 
 
 
@@ -207,6 +207,8 @@ for i = 1:length(subjVar.labels)
     end
 end
 
+
+
 % Make FS_ind double if number
 for i=1:size(subjVar_final.elinfo,1)
     if ~contains(subjVar_final.elinfo.FS_ind{i},{'empty','NaN'},'IgnoreCase',true)
@@ -215,6 +217,10 @@ for i=1:size(subjVar_final.elinfo,1)
         subjVar_final.elinfo.FS_ind{i} = NaN;
     end
 end
+
+% Add chan_num in the order from chan_names sheet
+chan_num=(1:size(subjVar_final.elinfo,1))';
+subjVar_final.elinfo = [array2table(chan_num),subjVar_final.elinfo];
 
 % Unify elinfo
 subjVar_final.elinfo.LEPTO_coord = subjVar_final.LEPTO_coord;
