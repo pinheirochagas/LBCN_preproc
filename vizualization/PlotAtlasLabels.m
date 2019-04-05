@@ -1,8 +1,15 @@
 function PlotAtlasLabels(subjVar,cfg)
-% plot_label = type of label to plot
-%   FS_label: freesurfer label
-%   Destr_ind: Destrieux atlas
-%   Yeo_ind: Yeo2007
+% cfg can be arranged like this: 
+%   cfg=[];
+%   cfg.views = {'lateral', 'medial', 'ventral', 'dorsal','posterior','lateral', 'medial', 'ventral', 'dorsal','posterior'};
+%   cfg.hemis = {'left', 'left', 'left', 'left', 'left', 'right', 'right', 'right', 'right', 'right'};
+%   % cfg.views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral', 'dorsal','dorsal'};
+%   % cfg.hemis = {'left', 'right', 'left', 'right', 'left', 'right','left', 'right'};
+%   cfg.label_fontsize = 10;
+%   cfg.plot_label = 'chan_num';
+%   cfg.correction_factor = 0;
+% subjVar should contain elinfo table. Any column from elinfo can be used
+% to plot on brain as text.
 
 
 load('cdcol_2018.mat');
