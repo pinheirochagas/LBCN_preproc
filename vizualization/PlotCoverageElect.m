@@ -1,9 +1,12 @@
-function PlotCoverageElect(subjVar, correction_factor)
+function PlotCoverageElect(subjVar,correction_factor, ifsave, savefold)
+% This function plots the electrodes on native brain, requiring only
+% subjVar (which should have elinfo table), correction factor (default: 0)
+% and ifsave (true/false) to save the plots to savefold 
+% (savefold/Individual_Coverage/[subj_name]).
 
 
 load('cdcol_2018.mat')
 marker_size = 6;
-marker_size_hl = 22;
 
 figureDim = [0 0 .4 1];
 % figureDim = [0 0 1 .4];
@@ -12,9 +15,15 @@ figureDim = [0 0 .4 1];
 figure('units', 'normalized', 'outerposition', figureDim)
 views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
-%
-% views = {'lateral', 'ventral'};
-% hemis = {'left', 'left'};
+
+if nargin == 1
+    correction_factor = 0;
+    ifsave = false;
+elseif nargin == 2
+    ifsave = false;
+elseif nargin == 3 && ifsave == true
+    savefold = uigetdir('/Volumes/');
+end
 
 for i = 1:length(views)
     subplot(3,2,i)    
@@ -31,6 +40,14 @@ for i = 1:length(views)
         end
     end    
     alpha(0.7)
+end
+
+if ifsave
+    if ~exist([savefold filesep 'Individual_Coverage'],'dir')
+        mkdir([savefold filesep 'Individual_Coverage'])
+    end
+    savePNG(gcf, 300, [savefold filesep 'Individual_Coverage' filesep subjVar.sbj_name '_coverage.png']);
+    close all
 end
 end
 
