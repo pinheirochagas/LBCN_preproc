@@ -1,4 +1,6 @@
 function PlotAtlasLabels(subjVar,cfg)
+% This function plots any information from subjVar.elinfo onto native
+% brain. An example to plot channel numbers on native brain:
 % cfg can be arranged like this: 
 %   cfg=[];
 %   cfg.views = {'lateral', 'medial', 'ventral', 'dorsal','posterior','lateral', 'medial', 'ventral', 'dorsal','posterior'};
@@ -47,35 +49,32 @@ for i = 1:length(cfg.views)
     for ii = 1:length(coords_plot)
         % Only plot on the relevant cfg.hemisphere
         if (strcmp(cfg.hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
-            %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            %plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
             if ~contains(subjVar.elinfo.FS_label(ii),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(ii),'Depth')
-                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.(cfg.plot_label)(ii)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
+                if ~isnumeric(subjVar.elinfo.(cfg.plot_label)(ii))  % Because chan_num is numeric, I needed to add this in order not to get an error
+                    txt=subjVar.elinfo.(cfg.plot_label)(ii);
+                else
+                    txt=num2str(subjVar.elinfo.(cfg.plot_label)(ii));
+                end
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), txt, 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
             else
             end
         elseif (strcmp(cfg.hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
-            %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+            %plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
             if ~contains(subjVar.elinfo.FS_label(ii),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(ii),'Depth')
-                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.(cfg.plot_label)(ii)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
+                if ~isnumeric(subjVar.elinfo.(cfg.plot_label)(ii))  % Because chan_num is numeric, I needed to add this in order not to get an error
+                    txt=subjVar.elinfo.(cfg.plot_label)(ii);
+                else
+                    txt=num2str(subjVar.elinfo.(cfg.plot_label)(ii));
+                end
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), txt, 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
             else
             end
         end
         
-        %
-        %         if (strcmp(cfg.hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(cfg.hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
-        %         else
-        %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
-        %         end
-        
     end
-%     for it = 1:length(coords_plot)
-%         hold on
-%         if ~contains(subjVar.elinfo.FS_label(it),'empty') && ~strcmp(subjVar.elinfo.Destr_ind(it),'Depth')
-%             text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), num2str(subjVar.elinfo.(cfg.plot_label)(it)), 'FontSize', cfg.label_fontsize, 'FontWeight', 'bold', 'Color', 'r', 'HorizontalAlignment', 'center');
-%         else
-%         end
-%     end
     alpha(0.7)
 end
 
