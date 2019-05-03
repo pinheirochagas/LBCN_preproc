@@ -90,12 +90,18 @@ load([dirs.psych_root,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'
 if strcmp(epoch_params.locktype,'stim')
     lockevent = trialinfo.allonsets(:,1);
     if strcmp(project_name, 'EglyDriver')
-        lockevent = trialinfo.allonsets(:,3);
+        lockevent = trialinfo.allonsets(:,2);
     else
     end
     
 elseif strcmp(epoch_params.locktype,'resp')
-    lockevent = trialinfo.RT_lock;
+    
+    if strcmp(project_name, 'EglyDriver')
+        lockevent = trialinfo.allonsets(:,4);
+    else
+        lockevent = trialinfo.RT_lock;
+    end
+    
 else
     lockevent = [];
 end

@@ -63,6 +63,9 @@ for bi = 1:length(block_names)
                 end
             end
             
+        case 'EglyDriver'       
+%             interval_tmp = discretize(data.trialinfo.int_cue_targ_time, 5);
+%             data.trialinfo.condNames_interval = cellstr(num2str(interval_tmp));
     end
    
     % concatenate trial info across blocks

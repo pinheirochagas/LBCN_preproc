@@ -57,6 +57,16 @@ for i = 1:length(block_names)
     
     stim_dur= stim_offset - stim_onset;
     
+    
+    
+    
+
+
+    
+    
+    
+    
+    
     %% Load trialinfo
     % ---------------------------------------------
     % Create specific subfunctions to extract the relevant info for each
@@ -76,24 +86,64 @@ for i = 1:length(block_names)
     % Event onset
 
     diff_pdio_onset = diff(pdio_onset)
-    pdio_onset(find(diff_pdio_onset<0.4)+1) = [];
+%     pdio_onset(find(diff_pdio_onset<0.4)+1) = [];
     
-    if strcmp(bn, 'E19-199_0039')
-         pdio_onset(1:4) = [];
-        pdio_onset([end]) = [];
-        trialinfo(1,:) = [];
-    else
-        pdio_onset([end]) = [];
-    end
+%     if strcmp(bn, 'E19-199_0039')
+%          pdio_onset(1:4) = [];
+%         pdio_onset([end]) = [];
+%         trialinfo(1,:) = [];
+%     elseif strcmp(bn, 'E19-320_0019')
+%          pdio_onset(1:44) = [];
+%         pdio_onset([end]) = [];
+% %         trialinfo(1:9,:) = [];
+%     elseif strcmp(bn, 'E19-320_0022')
+%          pdio_onset(1:44) = [];
+%         pdio_onset([end]) = [];
+% %         trialinfo(1:9,:) = [];        
+%     else
+%         pdio_onset([end]) = [];
+%     end
     hold on
     plot(pdio_onset*globalVar.Pdio_rate,0.9*ones(length(pdio_onset),1),'r*');
-    plot(pdio_offset*globalVar.Pdio_rate,0.9*ones(length(pdio_offset),1),'g*');    
+%     plot(pdio_offset*globalVar.Pdio_rate,0.9*ones(length(pdio_offset),1),'g*');    
 
 
-    n_stim_per_trial = 5;
+    n_stim_per_trial = 6;
     allonsets = reshape(pdio_onset,n_stim_per_trial,length(pdio_onset)/n_stim_per_trial)';    
-       
-    trialinfo.allonsets = allonsets;
+    alloffsets = reshape(pdio_offset,n_stim_per_trial,length(pdio_offset)/n_stim_per_trial)';
+
+    
+    
+    
+%% Plot comparison photo/trigger 
+StimulusOnsetTime = trialinfo.stimulus_onset_time(:,3); % **
+
+df_SOT= diff(StimulusOnsetTime);
+df_stim_onset = diff(allonsets(:,3));
+
+%plot overlay
+subplot(2,3,4)
+plot(df_SOT,'o','MarkerSize',8,'LineWidth',3) % psychtoolbox
+hold on
+plot(df_stim_onset,'r*') % photodiode/trigger
+df= df_SOT - df_stim_onset;
+
+%% Plot diffs, across experiment and histogram
+subplot(2,3,5)
+plot(df);
+title('Diff. behavior diode (exp)');
+xlabel('Trial number');
+ylabel('Time (ms)');
+subplot(2,3,6)
+hist(df)
+title('Diff. behavior diode (hist)');
+xlabel('Time (ms)');
+ylabel('Count');   
+
+    
+    
+%     [([trialinfo.stimulus_onset_time(:,end) - trialinfo.stimulus_onset_time(:,end-2)])*1000 - trialinfo.int_cue_targ_time]
+
     
 %    
 %     trialinfo.allonsets(event_trials,:) = all_stim_onset;

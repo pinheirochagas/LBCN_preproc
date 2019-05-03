@@ -119,10 +119,10 @@ for ci = 1:ncategs
                 else
                 end
                 hold on
-                plot(data.time,nanmean(plot_data{ci}) + nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
-                plot(data.time,nanmean(plot_data{ci}) - nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
-                % mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
-%                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+%                 plot(data.time,nanmean(plot_data{ci}) + nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
+%                 plot(data.time,nanmean(plot_data{ci}) - nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
+                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+%                mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
                 hold on
             else %'std'
                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
@@ -156,8 +156,25 @@ if ~plot_params.single_trial
             plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
         end
     else
-        
     end
+
+
+%         time_events = [mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '1'))), ...
+%                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '2'))), ...
+%                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '3'))), ...
+%                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '4'))), ...
+%                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '5')))]/1000    
+%                    
+%         for i = 1:length(time_events)
+%             plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+%         end
+
+
+
+
+
+%         
+%     end
     plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
     plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
     ylim(y_lim)

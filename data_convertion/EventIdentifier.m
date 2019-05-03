@@ -26,6 +26,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
         case 'AllCateg'
             n_stim_per_trial = 1;
+        case 'VTCLoc'
+            n_stim_per_trial = 1;
     end
     
     %% Load globalVar
@@ -187,6 +189,8 @@ all_stim_onset = EventIdentifierExceptions_oneTrialLess(all_stim_onset,sbj_name,
 % and visual inspection shows good correspondence between photo/trigger and psychtoolbox output
 all_stim_onset = EventIdentifierExceptions_extraTrialsMiddle(all_stim_onset, StimulusOnsetTime, sbj_name, project_name, bn);
 
+
+
 %% Plot comparison photo/trigger 
 df_SOT= diff(StimulusOnsetTime)';
 df_stim_onset = diff(all_stim_onset(:,1))';
@@ -233,11 +237,15 @@ if all(mean(df)>1)
 end
 
 %% Updating the events with onsets
- if ismember('nstim',colnames)
+if ismember('nstim',colnames)
     nstim = trialinfo.nstim;
- else
-    trialinfo.nstim = repmat(size(trialinfo.allonsets,2),size(trialinfo.allonsets,1),1);
- end
+else
+    if exist('n_stim_per_trial')
+        trialinfo.nstim = repmat(n_stim_per_trial, size(trialinfo,1), 1);
+    else
+        trialinfo.nstim = repmat(size(trialinfo.allonsets,2),size(trialinfo.allonsets,1),1);
+    end
+end
 
 trialinfo.allonsets(event_trials,:) = all_stim_onset;
 trialinfo.RT_lock = nan(ntrials,1);
