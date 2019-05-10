@@ -3,25 +3,33 @@
 hfa = ft_selectdata(cfg, hfa) - this is hfb epoched
 data - this is the cardata epoched
 
+cfg = [];
+cfg.latency = [0.5 1.2];
+data = ft_selectdata(cfg, data);
+hfa = ft_selectdata(cfg, hfa);
 
+trialinfo = hfa.trialinfo
+
+ 
 % bring data into spike format
 for CH = 1:length(hfa.label)
     
     spike.time{CH} = [];
     spike.trial{CH} = [];
     
-    for tr = 1:size(hfa.trialinfo,1)
+    for tr = 1:size(trialinfo,2)
         
-        currentdat = squeeze(hfa.trial(tr,CH,:))';
+        currentdat = squeeze(hfa.trial{tr}(CH,:));
         
         % detect peaks on that
         [val idx] = findpeaks(currentdat);
         
         % limit to before target presentation
-        current_targ = nearest(hfa.time, hfa.trialinfo.int_cue_targ_time(tr,1)/1000);
+%         current_targ = nearest(hfa.time, hfa.trialinfo.int_cue_targ_time(tr,1)/1000);
         
         
-        dist    = abs(hfa.time - hfa.trialinfo.int_cue_targ_time(tr,1)/1000);
+        dist    = hfa.time{1} - trialinfo{1}(tr,1)/1000;
+        dist(dist<0) = [];
         minDist = min(dist);
         current_targ = find(dist == minDist);
         
@@ -29,7 +37,7 @@ for CH = 1:length(hfa.label)
         val = val(find(idx < current_targ));
         idx = idx(find(idx < current_targ));
         
-        spike.time{CH} = [spike.time{CH}, hfa.time(idx)];
+        spike.time{CH} = [spike.time{CH}, hfa.time{1}(idx)];
         spike.trial{CH} = [spike.trial{CH}, tr * ones(1,length(idx))];
         
     end
@@ -40,27 +48,34 @@ end
 
 clear val idx
 
-spike.trialtime = repmat([hfa.time(1) hfa.time(end)], size(hfa.trialinfo,1), 1);
+spike.trialtime = repmat([hfa.time{1}(1) hfa.time{1}(end)], size(trialinfo,2), 1);
 
 % toggle spike presentation
 spike = ft_checkdata(spike, 'datatype', 'raw', 'fsample', 1000);
-
-cfg = [];
-cfg.latency = [0.5 1.2];
-data4 = ft_selectdata(cfg, data3)
+% 
+% cfg = [];
+% cfg.latency = [0.5 1.2];
+% data = ft_selectdata(cfg, data);
 
 
 % fuse spike and LFP events
 cfg = [];
 cfg.keeptrials = 'yes';
 spike = ft_timelockanalysis(cfg, spike)
-spike.time = data.time;
+% spike.time = data.time;
 
 spike = rmfield(spike, 'avg')
 spike = rmfield(spike, 'var')
 spike = rmfield(spike, 'dof')
 
-all = ft_appenddata([], data, spike)
+for i = 1:200
+    spike3.trial{i} = squeeze(spike.trial(i,:,:))
+end
+
+data_all = ft_appenddata([], data, spike)
+
+
+
 
 for CH = 1:length(data.label)
     
@@ -69,7 +84,7 @@ for CH = 1:length(data.label)
     cfg.spikechannel = spike.label{CH};
     cfg.channel      = data.label(CH);
     cfg.latency      = [0.3 1.7];
-    sta_erp          = ft_spiketriggeredaverage(cfg, all);
+    sta_erp          = ft_spiketriggeredaverage(cfg, data_all);
     
     GAERP(CH,:) = sta_erp.avg;
     

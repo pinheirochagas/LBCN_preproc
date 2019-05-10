@@ -123,6 +123,11 @@ end
 % load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,datatype,bn,el));
 load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,freq_band,bn,el));
 
+% if strcmp(datatype, 'CAR')
+%     data.fsample = 1000;
+% end
+
+
 if ~isfield(data,'label')
     data.label = globalVar.channame{el};
 else
