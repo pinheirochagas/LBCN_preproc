@@ -150,13 +150,13 @@ if ~plot_params.single_trial
     %% Plot lines to mark events
     y_lim = ylim;
     
-    if size(data.trialinfo.allonsets,2) > 1
-        time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
-        for i = 1:length(time_events)
-            plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
-        end
-    else
-    end
+%     if size(data.trialinfo.allonsets,2) > 1
+%         time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
+%         for i = 1:length(time_events)
+%             plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+%         end
+%     else
+%     end
 
 
 %         time_events = [mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '1'))), ...
@@ -176,6 +176,9 @@ if ~plot_params.single_trial
 %         
 %     end
     plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
+    plot([.5 .5],y_lim, 'Color', [0 0 0], 'LineWidth',1)
+    plot([1.2 1.2],y_lim, 'Color', [0 0 0], 'LineWidth',1)
+
     plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
     ylim(y_lim)
     

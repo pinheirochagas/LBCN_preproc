@@ -1,4 +1,4 @@
-function PlotCoverageElect(subjVar,correction_factor, ifsave, savefold)
+function PlotCoverageElect(subjVar,correction_factor, cfg)
 % This function plots the electrodes on native brain, requiring only
 % subjVar (which should have elinfo table), correction factor (default: 0)
 % and ifsave (true/false) to save the plots to savefold 
@@ -6,49 +6,83 @@ function PlotCoverageElect(subjVar,correction_factor, ifsave, savefold)
 
 
 load('cdcol_2018.mat')
-marker_size = 6;
+marker_size = 8;
+marker_size_high = 14;
+MarkerFaceColor = cdcol.light_cadmium_red;
 
-figureDim = [0 0 .4 1];
+
+% [0.1 0.1 0.1];
+MarkerFaceColor_high = [1 0 0];
+
+figureDim = [0 0 1 1];
 % figureDim = [0 0 1 .4];
 
 
-figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+for i = 1:size(subjVar.elinfo,1)
+    elec_init{i} =  subjVar.elinfo.FS_label{i}(1:2)    
+end
+elec_init = unique(elec_init)
+cols = hsv(length(elec_init))
 
-if nargin == 1
-    correction_factor = 0;
-    ifsave = false;
-elseif nargin == 2
-    ifsave = false;
-elseif nargin == 3 && ifsave == true
-    savefold = uigetdir('/Volumes/');
+for i = 1:size(subjVar.elinfo,1)
+    init = subjVar.elinfo.FS_label{i}(1:2)
+    MarkerFaceColor(i,:) = cols(find(strcmp(init, elec_init)),:)
 end
 
+
+figure('units', 'normalized', 'outerposition', figureDim)
+% views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+% hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+% 
+views = {'lateral', 'lateral', 'posterior', 'posterior'};
+hemis = {'left', 'right', 'left', 'right'};
+
+% 
+% if nargin == 1
+%     correction_factor = 0;
+%     ifsave = false;
+% elseif nargin == 2
+%     ifsave = false;
+% elseif nargin == 3 && ifsave == true
+%     savefold = uigetdir('/Volumes/');
+% end
+
 for i = 1:length(views)
-    subplot(3,2,i)    
+%     subplot(3,2,i)    
+    subplot(2,2,i)    
+    
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     
     for ii = 1:length(coords_plot)
         if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
 %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', MarkerFaceColor(ii,:), 'MarkerEdgeColor', MarkerFaceColor(ii,:));
         elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
 %             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
-            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', cdcol.light_cadmium_red, 'MarkerEdgeColor', cdcol.light_cadmium_red);
+            plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', MarkerFaceColor(ii,:), 'MarkerEdgeColor', MarkerFaceColor(ii,:));
         end
-    end    
-    alpha(0.7)
+    end
+    
+    if ~isempty(cfg.chan_highlight)
+        if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight},'L'))
+            plot3(coords_plot(cfg.chan_highlight,1),coords_plot(cfg.chan_highlight,2),coords_plot(cfg.chan_highlight,3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', MarkerFaceColor_high, 'MarkerEdgeColor', MarkerFaceColor);
+        elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight},'R'))
+            plot3(coords_plot(cfg.chan_highlight,1),coords_plot(cfg.chan_highlight,2),coords_plot(cfg.chan_highlight,3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', MarkerFaceColor_high, 'MarkerEdgeColor',MarkerFaceColor);
+        else
+        end
+    end
+        
+    alpha(0.3)
 end
 
-if ifsave
-    if ~exist([savefold filesep 'Individual_Coverage'],'dir')
-        mkdir([savefold filesep 'Individual_Coverage'])
-    end
-    savePNG(gcf, 300, [savefold filesep 'Individual_Coverage' filesep subjVar.sbj_name '_coverage.png']);
-    close all
-end
+% if ifsave
+%     if ~exist([savefold filesep 'Individual_Coverage'],'dir')
+%         mkdir([savefold filesep 'Individual_Coverage'])
+%     end
+%     savePNG(gcf, 300, [savefold filesep 'Individual_Coverage' filesep subjVar.sbj_name '_coverage.png']);
+%     close all
+% end
 end
 
 %% Function to optimize electrode location for plotting
