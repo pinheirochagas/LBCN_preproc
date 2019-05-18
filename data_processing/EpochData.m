@@ -9,11 +9,14 @@ function [epoched_data] = EpochData(data,lockevent,bef_time,aft_time)
 %   bef_time: time (in s) before lockevent to start each epoch of data
 %   aft_time: time (in s) after lockevent to end each epoch of data
 
+
+
 nfreq = size(data.wave,1);  % determine if single timeseries or spectral data (i.e. multiple frequencies)
 ntrials = size(lockevent,1);
 siglength = size(data.wave,2);
 start_inds = floor(lockevent*data.fsample);
 % start_inds = lockevent;
+data.fsample = floor(data.fsample);
 bef_ind = floor(bef_time*data.fsample);
 aft_ind = floor(aft_time*data.fsample);
 len_trial = aft_ind-bef_ind + 1;

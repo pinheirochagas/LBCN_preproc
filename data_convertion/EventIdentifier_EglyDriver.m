@@ -21,8 +21,8 @@ for i = 1:length(block_names)
     
     
     %% Thresholding the signal
-    if strcmp(project_name, 'Calculia_production')
-        ind_above= pdio < -5;
+    if strcmp(project_name, 'EglyDriver_stim')
+        ind_above= pdio < 0.02;
     else
         ind_above= pdio > 0.5;
     end
@@ -161,10 +161,10 @@ ylabel('Count');
 %     end
 %     trialinfo = trialinfo(trialinfo.allonsets(:,1) ~= 0,:);
     
+trialinfo.allonsets = allonsets;
     
     %% Update trialinfo
     disp('updating trialinfo')
     fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
     save(fn, 'trialinfo');
-    close all
 end
