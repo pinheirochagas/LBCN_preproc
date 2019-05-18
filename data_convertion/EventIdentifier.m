@@ -14,7 +14,7 @@ for i = 1:length(block_names)
             n_stim_per_trial = 5;
         case 'Calculia'
             n_stim_per_trial = 5;
-        case 'Calculia_production'
+        case {'Calculia_production', 'Calculia_production_stim'}
             n_stim_per_trial = 3;
         case 'Calculia_China'
             n_stim_per_trial = 5;
@@ -39,7 +39,7 @@ for i = 1:length(block_names)
     
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
-    if strcmp(project_name, 'Calculia_production')
+    if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim') 
         n_initpulse_onset = 12;
         n_initpulse_offset = 12;
     else
@@ -57,6 +57,16 @@ for i = 1:length(block_names)
     elseif strcmp(sbj_name, 'S16_102_MDO') && strcmp(bn, 'E16-993_0007')
         pdio = abs(pdio);
         ind_above= pdio > 2;
+        
+%     elseif strcmp(project_name, 'Calculia_production_stim')
+%         ind_above= pdio > 2.2;
+        
+    elseif strcmp(sbj_name,'S19_137_AF') &&  (strcmp(bn, 'E19-380_0078') || strcmp(bn, 'E19-380_0079'))
+        ind_above= pdio > 2.7;
+        
+    elseif strcmp(sbj_name,'S19_137_AF') &&  (strcmp(bn, 'E19-380_0081') || strcmp(bn, 'E19-380_0083'))
+        ind_above= pdio > 2;        
+        
     else
         ind_above= pdio > 0.5;
     end
@@ -84,11 +94,16 @@ for i = 1:length(block_names)
     end
     
 
-    
     % %remove onset flash
     pdio_onset(1:n_initpulse_onset)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
     pdio_offset(1:n_initpulse_offset)=[]; %
     clear n_initpulse_onset; clear n_initpulse_offset;
+    
+    
+    if strcmp(sbj_name,'S19_137_AF')
+        pdio_onset= pdio_onset(1:216);    
+    else
+    end
     
     %get osnets from diode
     pdio_dur= pdio_offset - pdio_onset;
@@ -269,5 +284,5 @@ fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
 save(fn, 'trialinfo');
 
 
-close all
+% close all
 end
