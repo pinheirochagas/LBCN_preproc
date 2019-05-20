@@ -14,7 +14,7 @@ for i = 1:length(block_names)
             n_stim_per_trial = 5;
         case 'Calculia'
             n_stim_per_trial = 5;
-        case 'Calculia_production'
+        case {'Calculia_production', 'Calculia_production_stim'}
             n_stim_per_trial = 3;
         case 'Calculia_China'
             n_stim_per_trial = 5;
@@ -25,6 +25,8 @@ for i = 1:length(block_names)
         case 'Scrambled'
             n_stim_per_trial = 1;
         case 'AllCateg'
+            n_stim_per_trial = 1;
+        case 'VTCLoc'
             n_stim_per_trial = 1;
     end
     
@@ -37,7 +39,7 @@ for i = 1:length(block_names)
     
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
-    if strcmp(project_name, 'Calculia_production')
+    if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim') 
         n_initpulse_onset = 12;
         n_initpulse_offset = 12;
     else
@@ -55,6 +57,16 @@ for i = 1:length(block_names)
     elseif strcmp(sbj_name, 'S16_102_MDO') && strcmp(bn, 'E16-993_0007')
         pdio = abs(pdio);
         ind_above= pdio > 2;
+        
+%     elseif strcmp(project_name, 'Calculia_production_stim')
+%         ind_above= pdio > 2.2;
+        
+    elseif strcmp(sbj_name,'S19_137_AF') &&  (strcmp(bn, 'E19-380_0078') || strcmp(bn, 'E19-380_0079'))
+        ind_above= pdio > 2.7;
+        
+    elseif strcmp(sbj_name,'S19_137_AF') &&  (strcmp(bn, 'E19-380_0081') || strcmp(bn, 'E19-380_0083'))
+        ind_above= pdio > 2;        
+        
     else
         ind_above= pdio > 0.5;
     end
@@ -82,11 +94,16 @@ for i = 1:length(block_names)
     end
     
 
-    
     % %remove onset flash
     pdio_onset(1:n_initpulse_onset)=[]; % Add in calculia production the finisef to experiment to have 12 pulses
     pdio_offset(1:n_initpulse_offset)=[]; %
     clear n_initpulse_onset; clear n_initpulse_offset;
+    
+    
+    if strcmp(sbj_name,'S19_137_AF')
+        pdio_onset= pdio_onset(1:216);    
+    else
+    end
     
     %get osnets from diode
     pdio_dur= pdio_offset - pdio_onset;
@@ -187,6 +204,8 @@ all_stim_onset = EventIdentifierExceptions_oneTrialLess(all_stim_onset,sbj_name,
 % and visual inspection shows good correspondence between photo/trigger and psychtoolbox output
 all_stim_onset = EventIdentifierExceptions_extraTrialsMiddle(all_stim_onset, StimulusOnsetTime, sbj_name, project_name, bn);
 
+
+
 %% Plot comparison photo/trigger 
 df_SOT= diff(StimulusOnsetTime)';
 df_stim_onset = diff(all_stim_onset(:,1))';
@@ -233,11 +252,15 @@ if all(mean(df)>1)
 end
 
 %% Updating the events with onsets
- if ismember('nstim',colnames)
+if ismember('nstim',colnames)
     nstim = trialinfo.nstim;
- else
-    trialinfo.nstim = repmat(size(trialinfo.allonsets,2),size(trialinfo.allonsets,1),1);
- end
+else
+    if exist('n_stim_per_trial')
+        trialinfo.nstim = repmat(n_stim_per_trial, size(trialinfo,1), 1);
+    else
+        trialinfo.nstim = repmat(size(trialinfo.allonsets,2),size(trialinfo.allonsets,1),1);
+    end
+end
 
 trialinfo.allonsets(event_trials,:) = all_stim_onset;
 trialinfo.RT_lock = nan(ntrials,1);
@@ -261,5 +284,5 @@ fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
 save(fn, 'trialinfo');
 
 
-close all
+% close all
 end

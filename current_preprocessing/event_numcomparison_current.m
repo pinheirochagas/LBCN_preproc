@@ -23,6 +23,8 @@ for i = 1:length(block_names)
         n_initpulse_onset = 10;
     elseif strcmp(sbj_name, 'G18_24') && strcmp(bn, 'G024_comparison_03')
         n_initpulse_onset = 8;
+     
+        
     end
     
     
@@ -164,10 +166,10 @@ for i = 1:length(block_names)
     xlabel('Time (s)');
     ylabel('Count');
     
-    %flag large difference
-    if ~all(abs(df)<.1)
-        disp('behavioral data and photodiod mismatch'),return
-    end
+%     %flag large difference
+%     if ~all(abs(df)<.1)
+%         disp('behavioral data and photodiod mismatch'),return
+%     end
     
     
     %% Plug it into trialinfo
@@ -175,7 +177,7 @@ for i = 1:length(block_names)
     trialinfo.RT_lock = trialinfo.RT + trialinfo.allonsets(:,end);
     
     %% Save trialinfo
-    fn= sprintf('%s/trialinfo_%s.mat',globalVar.result_dir,bn);
+    fn= sprintf('%s/trialinfo_%s.mat',globalVar.psych_dir,bn);
     save(fn, 'trialinfo');   
     
 end

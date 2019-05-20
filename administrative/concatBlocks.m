@@ -63,6 +63,29 @@ for bi = 1:length(block_names)
                 end
             end
             
+        case 'EglyDriver'       
+%             interval_tmp = discretize(data.trialinfo.int_cue_targ_time, 5);
+%             data.trialinfo.condNames_interval = cellstr(num2str(interval_tmp));
+            for i = 1:size(data.trialinfo,1)
+                if data.trialinfo.cue_pos(i) == 1 || data.trialinfo.cue_pos(i) == 2
+                 data.trialinfo.CondNamesCueLoc{i} = [data.trialinfo.CondNames{i} '_left'];
+                else
+                 data.trialinfo.CondNamesCueLoc{i} = [data.trialinfo.CondNames{i} '_right'];
+                end
+            end
+
+
+
+
+        case 'EglyDriver_stim'
+            for i = 1:size(data.trialinfo,1)
+                if data.trialinfo.TTL(i,3) == 128
+                 data.trialinfo.CondNames{i} = [data.trialinfo.CondNames{i} '_stim'];
+                else
+                 data.trialinfo.CondNames{i} = [data.trialinfo.CondNames{i} '_nostim'];
+                end
+            end
+
     end
    
     % concatenate trial info across blocks

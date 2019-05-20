@@ -41,7 +41,7 @@ for ei = 1:length(elecs)
         for i = 1:length(concat_params.noise_fields_trials)
             bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
         end
-        if strcmp(datatype,'Band')
+        if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
             data_bn.wave(bad_trials,:) = NaN;
         else
             data_bn(bad_trials,:,:) = NaN;
@@ -85,7 +85,24 @@ for ei = 1:length(elecs)
     disp(['concatenating elec ',num2str(el)])
 end
 
-data_all.labels = subjVar.elinfo.FS_label;
+
+%% Correct for the actual recorded channels
+nchan_fs = size(subjVar.elinfo,1);
+in_chan_cmp = false(1,nchan_fs);
+for i = 1:nchan_fs
+    in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+end
+
+nchan_cmp = size(globalVar.channame,2);
+in_fs = false(1,nchan_cmp);
+for i = 1:nchan_cmp
+    in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+end
+
+
+data_all.wave = data_all.wave(:, in_fs, :);
+data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
+data_all.label = subjVar.elinfo.FS_label;
 
 % Concatenate bad channels
 badChan = [];
@@ -99,5 +116,38 @@ end
 % data_all.fsample = data.fsample;
 data_all.badChan = unique(badChan);
 data_all.project_name = project_name;
+
+if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
+    
+    % Reshape to trials and then channelsXtimes
+    for i = 1:size(data_all.wave,1)
+        waveOrg{i} = squeeze(data_all.wave(i,:,:));
+    end
+    
+    data_all.trial =  waveOrg;
+    data_all = rmfield(data_all, 'wave');
+    data_all = rmfield(data_all, 'badChan');
+    data_all = rmfield(data_all, 'project_name');
+    data_all = rmfield(data_all, 'trialinfo_all');
+    
+    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+    time = data_all.time;
+    ntrials = size(data_all.trialinfo,1);
+    data_all =  rmfield(data_all, 'trialinfo');
+    data_all =  rmfield(data_all, 'time');
+    
+    for i = 1:ntrials
+        data_all.trialinfo{i} = trialinfo;
+        data_all.time{i} = time;
+    end
+    
+    data_all.label = data_all.label';
+       
+else
+    
+end
+
+
+
 end
 

@@ -178,7 +178,8 @@ for i = 1:length(bns)
     % Subtract CAR and save   
     for cii = 1:size(data_all,1)
         %%% WHY DO I HAVE TO SWITCH SIGN TO MATCH PREVIOUS (with separate FiltData)?!!! %%%
-        data.wave = -single(data_all(cii,:) - CAR); % subtract CAR 
+        data.wave = -single(data_all(cii,:) - CAR); % subtract CAR
+%         data.wave = -single(data_all(cii,:)); % subtract CAR
         %%% WHY DO I HAVE TO SWITCH SIGN TO MATCH PREVIOUS? (with separate FiltData)!!! %%%
         data.fsample = globalVar.iEEG_rate;
         disp(['Writing: ' sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn, cii)])
