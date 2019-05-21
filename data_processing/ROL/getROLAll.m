@@ -92,7 +92,7 @@ end
 disp('Concatenating data across blocks...')
 for ei = 1:length(elecs)
     el = elecs(ei);
-    data_all = concatBlocks(sbj_name,block_names,dirs,el,freqband,'Band',concatfield,tag);
+    data_all = concatBlocks(sbj_name,project_name,block_names,dirs,el,freqband,'Band',concatfield,tag);
 %     if ROLparams.power
 %         data_all.wave = data_all.wave.^2;
 %     end

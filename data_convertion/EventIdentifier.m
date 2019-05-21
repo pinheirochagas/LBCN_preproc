@@ -100,7 +100,7 @@ for i = 1:length(block_names)
     clear n_initpulse_onset; clear n_initpulse_offset;
     
     
-    if strcmp(sbj_name,'S19_137_AF')
+    if strcmp(sbj_name,'S19_137_AF') && strcmp(project_name,'EglyDriver_stim')
         pdio_onset= pdio_onset(1:216);    
     else
     end

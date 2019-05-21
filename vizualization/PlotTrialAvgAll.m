@@ -121,7 +121,7 @@ for ei = 1:length(elecs)
         tagchan = ' (good)';
     end
     
-    if plot_params.multielec % if plotting multiple elecs in same figure (will group all conditions together)
+    if plot_params.multielec % if  multiple elecs in same figure (will group all conditions together)
         plot_params.col = col_tmp(ei,:); % plot each elec in diff color
         h(ei) = PlotTrialAvg(data_all,column,conds,plot_params);
         hold on
