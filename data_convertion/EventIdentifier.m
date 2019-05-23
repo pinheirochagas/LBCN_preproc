@@ -270,6 +270,12 @@ end
 trialinfo.allonsets(rest_trials,:) = (trialinfo.StimulusOnsetTime(rest_trials,:)-trialinfo.StimulusOnsetTime(rest_trials-1,:))+trialinfo.allonsets(rest_trials-1,:);
 
 
+%% Exception for when only the first onset is detected in calculia. 
+% if strcmp(bn, 
+% 
+% else
+% end
+
 %% Account for when recording started in the middle of photodiode signal
 if trialinfo.allonsets(1) == 0
     warning('First trial excluded, since recording started in the middle of the photidiode signal')

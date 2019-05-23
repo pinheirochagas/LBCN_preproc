@@ -90,6 +90,9 @@ for bi = 1:length(block_names)
    
     % concatenate trial info across blocks
     data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
+    
+    
+    
 end
 
 % add all additional info back to concatenated data structure (e.g. channame, time, freq)

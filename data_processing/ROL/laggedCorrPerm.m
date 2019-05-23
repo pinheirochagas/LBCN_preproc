@@ -135,6 +135,8 @@ for e1 = 1:length(elecs1)
 
                     for i = 1:ntrials
                         % [C_all(i,:),lags] = crosscorr(ROL.autobio.traces{e1,4}(i,:),ROL.autobio.traces{e2,4}(i,:),'NumLags',nlags);
+                        
+                        % NORMALIZE THE SIGNAL FIRST!
                         [C_all(i,:),lags] = xcorr(sig.(cond){elecs1(e1),si}(i,:)/nanmax(sig.(cond){elecs1(e1),si}(:)),sig.(cond){elecs2(e2),si}(i,:)/nanmax(sig.(cond){elecs2(e2),si}(:)));                        
                         % [C_all(i,:),lags] = xcov(normMinMax(ROL.autobio.HFB_traces{e1,4}(i,:)),normMinMax(ROL.autobio.HFB_traces{e2,4}(i,:)));
                     end
