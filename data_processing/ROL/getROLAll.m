@@ -146,8 +146,8 @@ if ~exist([dir_out,'ROL'])
 end
 
 if ROLparams.bootstrap
-    save([dir_out,'ROL',filesep,'ROL_bs_',sbj_name','.mat'],'ROL','ROLparams')
+%     save([dir_out,'ROL',filesep,'ROL_bs_',sbj_name','.mat'],'ROL','ROLparams')
 else
-    save([dir_out,'ROL',filesep,'ROL_no_bs_',sbj_name','.mat'],'ROL','ROLparams')
+%     save([dir_out,'ROL',filesep,'ROL_no_bs_',sbj_name','.mat'],'ROL','ROLparams')
 end
 
