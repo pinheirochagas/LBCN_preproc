@@ -50,17 +50,26 @@ end
 
 cols = viridis(size(data_all.wave,2))
 
+time = data.time
+
 for i = 1:size(data_all.wave,2)
     hold on
-    plot(squeeze(mean(data_all.wave(:,i,:))), 'Color', cols(i,:), 'LineWidth', 2)
+    plot(squeeze(mean(data_all.wave(:,i,50:end-200))), 'Color', cols(i,:), 'LineWidth', 2)
 end
 set(gca,'color',[.7 .7 .7])
 set(gcf,'color',[.7 .7 .7])
 set(gca, 'FontSize', 20)
-% ylim([data_all.freqs(1) data_all.freqs(end)])
+cb = colorbar('north')
+colormap(viridis)
+freqs = data.freqs;
+freqs = freqs(1:floor(length(freqs)/10):length(freqs));
+freqs_norm = freqs/max(freqs);
 
+cb.Ticks = freqs_norm;
+cb.TickLabels = cellstr(num2str(floor(freqs)'));
+cb.FontSize = 16
 
-
+save
 
 
 
