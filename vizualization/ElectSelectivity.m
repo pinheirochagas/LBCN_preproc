@@ -58,11 +58,17 @@ end
 
 % Calculate difference between 2 conditions across channels
 for ii = 1:size(data_sbj.wave,2)
+    if ii == 1
+        fprintf('calculating stats for subject %s\n', sbj_name)
+    else
+    end
+    
     data_cond1_avg = data_all_avg.(conds{1})(:,ii);
     data_cond2_avg = data_all_avg.(conds{2})(:,ii);
     data_baseline = baseline_all(:,ii);
     
     fprintf('calculating stats for channel %d\n', ii)
+
     
     [H,P,CI,STATS] = ttest2(data_cond1_avg,data_cond2_avg); STATS.H = H; STATS.P = P; STATS.CI = CI;
     STATS.P_perm = permutation_unpaired(data_cond1_avg, data_cond2_avg, stats_params.nreps);

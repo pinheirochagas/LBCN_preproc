@@ -24,7 +24,11 @@ function [ROL] = getROLAll(sbj_name,project_name,block_names,dirs,elecs,freqband
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
     load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
-    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+    elecs = setdiff(1:globalVar.nchan,globalVar.refChan); 
+    
+    load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat']);
+
+    elecs = size(subjVar.elinfo,1);
 end
 
 if isempty(freqband)
@@ -38,7 +42,7 @@ end
 load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
 
 dir_in = [dirs.data_root,filesep,'BandData',filesep,freqband,filesep,sbj_name,filesep,block_names{1},'/EpochData/'];
-load(sprintf('%s/%siEEG_stimlock_bl_corr_%s_%.2d.mat',dir_in,freqband,block_names{1},elecs(1)));
+load(sprintf('%s/%siEEG_stimlock_bl_corr_%s_%.2d.mat',dir_in,freqband,block_names{1},1));
 % ntrials = size(data.trialinfo,1);
 nstim = size(data.trialinfo.allonsets,2); % (max) number of stim per trial 
 

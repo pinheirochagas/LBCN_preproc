@@ -12,6 +12,12 @@ end
 % Load subjectVar
 load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'])
 
+if ~isfield(subjVar, 'elinfo')
+    data_format = GetFSdataFormat(sbj_name, 'Stanford');
+    subjVar = CreateSubjVar(sbj_name, dirs, data_format);
+else
+end
+
 
 if strcmp(datatype,'Spec')
     tdim = 4; % time dimension after concatenating
@@ -93,16 +99,20 @@ for i = 1:nchan_fs
     in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
 end
 
-nchan_cmp = size(globalVar.channame,2);
-in_fs = false(1,nchan_cmp);
-for i = 1:nchan_cmp
-    in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+% If TDT, channels are all in freesurfer? 
+if ~isempty(str2num(globalVar.channame{1}))
+else
+    nchan_cmp = size(globalVar.channame,2);
+    in_fs = false(1,nchan_cmp);
+    for i = 1:nchan_cmp
+        in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+    end
+    data_all.wave = data_all.wave(:, in_fs, :);
+    data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
+    data_all.label = subjVar.elinfo.FS_label;
 end
 
 
-data_all.wave = data_all.wave(:, in_fs, :);
-data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
-data_all.label = subjVar.elinfo.FS_label;
 
 % Concatenate bad channels
 badChan = [];
