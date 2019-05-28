@@ -20,7 +20,7 @@ final_fs = 50;
 
 
 %% Plot electrodes as dots in native space 
-marker_size = 10;
+marker_size = 13;
 figureDim = [0 0 1 1];
 % figureDim = [0 0 1 .4];
 
@@ -62,7 +62,7 @@ for i = 1:length(views)
         else
         end
     end
-        alpha(1)
+        alpha(.7)
     
     if i == 2
         yl = ylim;

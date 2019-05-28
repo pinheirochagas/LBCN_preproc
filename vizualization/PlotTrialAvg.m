@@ -165,9 +165,9 @@ if ~plot_params.single_trial
 %                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '4'))), ...
 %                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '5')))]/1000    
 %                    
-%         for i = 1:length(time_events)
-%             plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
-%         end
+        for i = 1:length(time_events)
+            plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+        end
 
 
 
@@ -175,12 +175,12 @@ if ~plot_params.single_trial
 
 % %         
 % %     end
-%     plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
+    plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
 %     plot([.5 .5],y_lim, 'Color', [0 0 0], 'LineWidth',1)
 %     plot([1.2 1.2],y_lim, 'Color', [0 0 0], 'LineWidth',1)
 % 
     plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
-%     ylim(y_lim)
+    ylim(y_lim)
     
     box on % Pedro concluded
 end

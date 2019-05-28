@@ -28,7 +28,7 @@ if isempty(elecs)
     
     load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat']);
 
-    elecs = size(subjVar.elinfo,1);
+    elecs = 1:size(subjVar.elinfo,1);
 end
 
 if isempty(freqband)

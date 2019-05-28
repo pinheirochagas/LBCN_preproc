@@ -1,5 +1,8 @@
 function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, concat_params)
 %% Define electrodes
+
+load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
+
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
     load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])    
