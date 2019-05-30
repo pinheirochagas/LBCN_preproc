@@ -39,9 +39,14 @@ for i = 1:length(block_names)
     
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
-    if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim') 
-        n_initpulse_onset = 12;
-        n_initpulse_offset = 12;
+    if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim')
+        if strcmp(sbj_name, 'S18_124_JR2')
+            n_initpulse_onset = 0;
+            n_initpulse_offset = 0;
+        else
+            n_initpulse_onset = 12;
+            n_initpulse_offset = 12;
+        end
     else
         [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     end
