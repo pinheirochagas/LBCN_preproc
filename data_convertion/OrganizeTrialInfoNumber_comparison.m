@@ -188,7 +188,20 @@ for i = 1:length(block_names)
     % add keys
     trialinfo.keys = trialinfo.num1; % initialize
     for ii = 1:length(results_table.keys)
-        key = str2num(results_table.keys{ii});
+        
+        if ~strcmp(results_table.keys{ii}, 'noanswer')
+            if strcmp(results_table.keys{ii}, 'n')
+                results_table.keys{ii} = '1';
+            elseif  strcmp(results_table.keys{ii}, 'm')
+                results_table.keys{ii} = '2';
+            end
+        else
+        end
+        
+        
+        key = str2num(results_table.keys{ii}(1));
+        
+        
         if ~isempty(key)
             trialinfo.keys(ii) = key;
         else
