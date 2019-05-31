@@ -143,12 +143,13 @@ if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
-    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+%    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+    trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
+
     time = data_all.time;
     ntrials = size(data_all.trialinfo,1);
     data_all =  rmfield(data_all, 'trialinfo');
     data_all =  rmfield(data_all, 'time');
-    
     for i = 1:ntrials
         data_all.trialinfo{i} = trialinfo;
         data_all.time{i} = time;
