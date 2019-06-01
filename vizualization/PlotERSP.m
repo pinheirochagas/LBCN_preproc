@@ -118,15 +118,15 @@ else
         set(gca,'fontsize',plot_params.textsize)
         box off
         y_lim = ylim;
-%         plotLines(data, y_lim)
+         plotLines(data, y_lim)
 
-
-
-        plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
-        plot([.5 .5],y_lim, 'Color', [0 0 0], 'LineWidth',1)
-        plot([1.2 1.2],y_lim, 'Color', [0 0 0], 'LineWidth',1)
-
-        plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
+% 
+% 
+%         plot([0 0],y_lim, 'Color', [0 0 0], 'LineWidth',2)
+%         plot([.5 .5],y_lim, 'Color', [0 0 0], 'LineWidth',1)
+%         plot([1.2 1.2],y_lim, 'Color', [0 0 0], 'LineWidth',1)
+% 
+%         plot(xlim,[0 0], 'Color', [.5 .5 .5], 'LineWidth',1)
         ylim(y_lim)
 
         

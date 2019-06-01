@@ -14,11 +14,18 @@ dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root)
 
 % Load single channel with Spec
 chan = find(strcmp(subjVar.labels_EDF, 'LK10'));
+chan = 61
 data_all = concatBlocks(sbj_name, project_name, block_names,dirs,chan,'SpecDense','Spec',{'wave'},'stimlock_bl_corr')
 
 data_all.wave = permute(data_all.wave,[2,1,3]);
 
 trialinfo = removevars(data_all.trialinfo, {'bad_epochs_raw_LFspike', 'bad_epochs_raw_HFspike' 'bad_epochs_raw_jump', 'bad_epochs_spec_HFspike', 'bad_epochs','bad_epochs_HFO', 'bad_inds_raw_LFspike', 'bad_inds_raw_HFspike', 'bad_inds_raw_jump', 'bad_inds_spec_HFspike', 'bad_inds_HFO', 'bad_inds', 'block', 'allonsets', 'StimulusOnsetTime'});
+if strcmp(project_name, 'MMR')
+    trialinfo = removevars(data_all.trialinfo, {'wlist'});
+    trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
+else
+end
+
 data_all.label = cellstr(num2str(data_all.freqs'));
 data_all.project_name = project_name;
 
