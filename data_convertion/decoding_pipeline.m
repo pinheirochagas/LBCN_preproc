@@ -22,8 +22,23 @@ data_all.wave = permute(data_all.wave,[2,1,3]);
 trialinfo = removevars(data_all.trialinfo, {'bad_epochs_raw_LFspike', 'bad_epochs_raw_HFspike' 'bad_epochs_raw_jump', 'bad_epochs_spec_HFspike', 'bad_epochs','bad_epochs_HFO', 'bad_inds_raw_LFspike', 'bad_inds_raw_HFspike', 'bad_inds_raw_jump', 'bad_inds_spec_HFspike', 'bad_inds_HFO', 'bad_inds', 'block', 'allonsets', 'StimulusOnsetTime'});
 if strcmp(project_name, 'MMR')
     trialinfo = removevars(data_all.trialinfo, {'wlist'});
-    trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
+%     trialinfo = trialinfo(~strcmp(trialinfo.condNames, 'rest'),:);
 else
+end
+
+trialinfo.cross_decade = zeros(size(trialinfo,1),1)
+for i = 1:size(trialinfo,1)
+    if trialinfo.isCalc(i) ~= 1
+        trialinfo.cross_decade(i) = nan;
+    else
+        opmax_tmp = num2str(trialinfo.OperandMax(i));
+        res_tmp = num2str(trialinfo.CorrectResult(i));
+        if str2num(opma_tmp(1)) ==  str2num(res_tmp(1))
+            trialinfo.cross_decade(i) = 0;
+        else
+            trialinfo.cross_decade(i) = 1;
+        end
+    end
 end
 
 data_all.label = cellstr(num2str(data_all.freqs'));
