@@ -132,6 +132,34 @@ data_all.project_name = project_name;
 
 if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     
+    if isfield(exclude_nan_chan, 'fieldtrip') && concat_params.exclude_nan_chan
+        % check for channels with nan
+        nan_channel = [];
+        for i = 1:size(data_all.wave,2)
+            for ii = 1:size(data_all.wave,1)
+                n_nan = sum(isnan(data_all.wave(ii,i,:)));
+                if n_nan > 0
+                    if n_nan > floor(size(data_all.wave,3)*0.1) % if number of nans exceed more than 10% of the trial time points, simply replace it with zeros.
+                        data_all.wave(ii,i,:) = zeros(size(data_all.wave,3),1)';
+                        n_trial_nan(i,ii) = 1;
+                    else % if less than 10% interpolate
+                        data_all.wave(ii,i,:) = fillmissing(data_all.wave(ii,i,:),'linear');
+                        n_trial_nan(i,ii) = 0;
+                    end
+                else
+                    
+                end
+                nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
+            end
+        end
+        % Exclude channels with more than 10% of nan trials.
+        sum_n_trial_nan = sum(n_trial_nan,2);
+        good_chans = logical(sum_n_trial_nan< size(data_all.wave,1)*0.05);
+        data_all.wave = data_all.wave(:,good_chans,:);
+        data_all.trialinfo_all = data_all.trialinfo_all{good_chans};
+        data_all.label = data_all.label{good_chans};
+    end
+    
     % Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
         waveOrg{i} = squeeze(data_all.wave(i,:,:));
