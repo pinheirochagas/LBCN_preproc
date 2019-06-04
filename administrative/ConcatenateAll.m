@@ -5,7 +5,7 @@ load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name
 
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
-    load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])    
+    load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
     elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 end
 if isempty(concat_params)
@@ -25,7 +25,7 @@ end
 if strcmp(datatype,'Spec')
     tdim = 4; % time dimension after concatenating
     tag = [locktype,'lock_bl_corr']; % specifies type of data to load
-
+    
 elseif strcmp(datatype,'Band')
     tdim = 3;
     tag = [locktype,'lock_bl_corr']; % specifies type of data to load
@@ -39,13 +39,13 @@ concatfields = {'wave'}; % type of data to concatenate
 
 for ei = 1:length(elecs)
     el = elecs(ei);
-
+    
     data_bn = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
     
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
     elseif strcmp(concat_params.noise_method,'none')
-    else
+    elseif strcmp(concat_params.noise_method,'trial')
         bad_trials = [];
         for i = 1:length(concat_params.noise_fields_trials)
             bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
@@ -58,7 +58,7 @@ for ei = 1:length(elecs)
     end
     
     if concat_params.decimate % smooth and downsample (optional)
-        ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz. 
+        ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz.
         data_all.fsample = data_bn.fsample/ds_rate;
         data_all.time = data_bn.time(1:ds_rate:end);
         if concat_params.sm_win > 0 % if smoothing first
@@ -81,39 +81,45 @@ for ei = 1:length(elecs)
     
     % Concatenate all subjects all trials
     if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
-        data_all.wave(:,ei,:) = data_bn.wave;   
+        data_all.wave(:,ei,:) = data_bn.wave;
     elseif strcmp(datatype,'Spec')
         data_all.wave(:,:,ei,:) = data_bn.wave;
     end
     
-%     data_all.label = data_bn.label;
+    %     data_all.label = data_bn.label;
     
     data_all.trialinfo = [data_bn.trialinfo];
     data_all.trialinfo_all{el} = [data_bn.trialinfo];
-%     data_all.labels{ei} = data_bn.label;
+    %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
 end
 
 
 %% Correct for the actual recorded channels
-nchan_fs = size(subjVar.elinfo,1);
-in_chan_cmp = false(1,nchan_fs);
-for i = 1:nchan_fs
-    in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+if size(data_all.wave, 2) ~= size(subjVar.elinfo,1)
+    if ~isempty(str2num(globalVar.channame{1}))
+        disp('Correctig for the actual recorded channels')
+        nchan_fs = size(subjVar.elinfo,1);
+        in_chan_cmp = false(1,nchan_fs);
+        for i = 1:nchan_fs
+            in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+        end
+        % If TDT, channels are all in freesurfer?
+    else
+        nchan_cmp = size(globalVar.channame,2);
+        in_fs = false(1,nchan_cmp);
+        for i = 1:nchan_cmp
+            in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+        end
+        data_all.wave = data_all.wave(:, in_fs, :);
+        data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
+        data_all.label = subjVar.elinfo.FS_label;
+    end
+else
+        data_all.label = subjVar.elinfo.FS_label;
 end
 
-% If TDT, channels are all in freesurfer? 
-if ~isempty(str2num(globalVar.channame{1}))
-else
-    nchan_cmp = size(globalVar.channame,2);
-    in_fs = false(1,nchan_cmp);
-    for i = 1:nchan_cmp
-        in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
-    end
-    data_all.wave = data_all.wave(:, in_fs, :);
-    data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
-    data_all.label = subjVar.elinfo.FS_label;
-end
+
 
 
 
@@ -130,35 +136,39 @@ end
 data_all.badChan = unique(badChan);
 data_all.project_name = project_name;
 
+
+%% Exclude or not channels
+if isfield(concat_params, 'exclude_nan_chan') && concat_params.exclude_nan_chan
+    % check for channels with nan
+    nan_channel = [];
+    for i = 1:size(data_all.wave,2)
+        for ii = 1:size(data_all.wave,1)
+            n_nan = sum(isnan(data_all.wave(ii,i,:)));
+            if n_nan > 0
+                if n_nan > floor(size(data_all.wave,3)*0.1) % if number of nans exceed more than 10% of the trial time points, simply replace it with zeros.
+                    data_all.wave(ii,i,:) = zeros(size(data_all.wave,3),1)';
+                    n_trial_nan(i,ii) = 1;
+                else % if less than 10% interpolate
+                    sprintf('interpolating nan values of chan %s, trial%s.png', num2str(i), num2str(ii))
+                    data_all.wave(ii,i,:) = fillmissing(data_all.wave(ii,i,:),'linear');
+                    n_trial_nan(i,ii) = 0;
+                end
+            else
+                
+            end
+            nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
+        end
+    end
+    % Exclude channels with more than 10% of nan trials.
+    sum_n_trial_nan = sum(n_trial_nan,2);
+    good_chans = logical(sum_n_trial_nan< size(data_all.wave,1)*0.05);
+    data_all.wave = data_all.wave(:,good_chans,:);
+    data_all.trialinfo_all = data_all.trialinfo_all{good_chans};
+    data_all.label = data_all.label{good_chans};
+end
+
 if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     
-    if isfield(exclude_nan_chan, 'fieldtrip') && concat_params.exclude_nan_chan
-        % check for channels with nan
-        nan_channel = [];
-        for i = 1:size(data_all.wave,2)
-            for ii = 1:size(data_all.wave,1)
-                n_nan = sum(isnan(data_all.wave(ii,i,:)));
-                if n_nan > 0
-                    if n_nan > floor(size(data_all.wave,3)*0.1) % if number of nans exceed more than 10% of the trial time points, simply replace it with zeros.
-                        data_all.wave(ii,i,:) = zeros(size(data_all.wave,3),1)';
-                        n_trial_nan(i,ii) = 1;
-                    else % if less than 10% interpolate
-                        data_all.wave(ii,i,:) = fillmissing(data_all.wave(ii,i,:),'linear');
-                        n_trial_nan(i,ii) = 0;
-                    end
-                else
-                    
-                end
-                nan_channel(i) = sum(sum(isnan(data_all.wave(:,i,:))));
-            end
-        end
-        % Exclude channels with more than 10% of nan trials.
-        sum_n_trial_nan = sum(n_trial_nan,2);
-        good_chans = logical(sum_n_trial_nan< size(data_all.wave,1)*0.05);
-        data_all.wave = data_all.wave(:,good_chans,:);
-        data_all.trialinfo_all = data_all.trialinfo_all{good_chans};
-        data_all.label = data_all.label{good_chans};
-    end
     
     % Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
@@ -171,9 +181,9 @@ if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
-%    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+    %    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
-
+    
     time = data_all.time;
     ntrials = size(data_all.trialinfo,1);
     data_all =  rmfield(data_all, 'trialinfo');
@@ -184,7 +194,7 @@ if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     end
     
     data_all.label = data_all.label';
-       
+    
 else
     
 end

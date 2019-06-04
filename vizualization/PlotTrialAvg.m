@@ -66,30 +66,42 @@ for ci = 1:ncategs
     plot_data_all{ci} = data.wave(grouped_trials_all{ci},:);
 end
 
-% smooth and plot data
-if ~plot_params.multielec
+% smooth and plot data    
+if plot_params.single_trial
+    figureDim = [0 0 .5 1];
+else
     figureDim = [0 0 .3 .4];
-    figure('units', 'normalized', 'outerposition', figureDim)
 end
+% figure('units', 'normalized', 'outerposition', figureDim)
 
+    
 hold on
 for ci = 1:ncategs
 %     plot_data{ci} = convn(plot_data{ci},gusWin','same');
     lineprops.col{1} = plot_params.col(ci,:);
     if plot_params.single_trial
-        subplot(ncategs,1,ci)
+%         subplot(ncategs,1,ci)
+        subplot(ncategs/2,2,ci)
         plot(data.time,plot_data_all{ci}', 'r')
         hold on
         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
 %         plot(data.time,plot_data{ci}', 'Color', [.5 .5 .5]) % plot over non-noisy trials in grey
         title(cond_names{ci}, 'Interpreter', 'none')
-        y_lim = [max(-5,min(plot_data_all{ci}(:))),min(10,max(plot_data_all{ci}(:)))];
+        y_lim = [-1 15];
+%         y_lim = [max(-5,min(plot_data_all{ci}(:))),min(plot_params.ylim_min,max(plot_data_all{ci}(:)))];
+                
         xlim(plot_params.xlim)
         ylim(y_lim)
         xlabel(plot_params.xlabel)
         ylabel(plot_params.ylabel)
         set(gca,'fontsize',plot_params.textsize)
         box off
+%         if ci < ncategs -2
+%             set(gca,'xtick',[])
+%             xlabel([])
+% 
+%         else 
+%         end
         
         if size(data.trialinfo.allonsets,2) > 1
             time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
@@ -126,7 +138,7 @@ for ci = 1:ncategs
                 hold on
             else %'std'
                 mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
-%                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);
+%                 mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci}),lineprops,1);i
                 hold on
             end
 %             y_lim = ylim;
@@ -165,9 +177,9 @@ if ~plot_params.single_trial
 %                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '4'))), ...
 %                        mean(data.trialinfo.int_cue_targ_time(strcmp(data.trialinfo.condNames_interval, '5')))]/1000    
 %                    
-        for i = 1:length(time_events)
-            plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
-        end
+%         for i = 1:length(time_events)
+%             plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+%         end
 
 
 

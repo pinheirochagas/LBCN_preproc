@@ -55,6 +55,39 @@ save([dirs.MVPAData '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
 writetable(trialinfo,[dirs.MVPAData '/trialinfo_' sbj_name '_' project_name '.csv'])
 
 
+%% All chans time domain data
+sbj_name = 'S19_137_AF';
+
+cfg.decimate = 1;
+cfg.final_fs = 500;
+concat_params = genConcatParams(project_name, cfg);
+concat_params.fieldtrip = false; 
+concat_params.exclude_nan_chan = false;
+concat_params.noise_method = 'none';
+
+
+data_all = ConcatenateAll(sbj_name,project_name,block_names,dirs,[], 'CAR', 'CAR','stim', concat_params);
+trialinfo = removevars(data.trialinfo, {'bad_epochs_raw_LFspike', 'bad_epochs_raw_HFspike' 'bad_epochs_raw_jump', 'bad_epochs_spec_HFspike', 'bad_epochs','bad_epochs_HFO', 'bad_inds_raw_LFspike', 'bad_inds_raw_HFspike', 'bad_inds_raw_jump', 'bad_inds_spec_HFspike', 'bad_inds_HFO', 'bad_inds', 'block', 'allonsets', 'StimulusOnsetTime'});
+
+% select some channels
+chans = find(contains(subjVar.elinfo.FS_label, 'VAG')| contains(subjVar.elinfo.FS_label, 'VPG'));
+data_all.wave = data_all.wave(:,chans,:);
+data_all.label = data_all.label(chans);
+
+
+dirs.MVPAData = '/Volumes/LBCN8T_2/Stanford/data/MVPAData';
+save([dirs.MVPAData '/data_all_' sbj_name '_' project_name '.mat'], 'data_all');
+writetable(trialinfo,[dirs.MVPAData '/trialinfo_' sbj_name '_' project_name '.csv'])
+
+
+trialinfo = removevars(data.trialinfo{1}, {'bad_epochs_raw_LFspike', 'bad_epochs_raw_HFspike' 'bad_epochs_raw_jump', 'bad_epochs_spec_HFspike', 'bad_epochs','bad_epochs_HFO', 'bad_inds_raw_LFspike', 'bad_inds_raw_HFspike', 'bad_inds_raw_jump', 'bad_inds_spec_HFspike', 'bad_inds_HFO', 'bad_inds', 'block', 'allonsets', 'StimulusOnsetTime'});
+data =  rmfield(data, 'trialinfo');
+ti_names = (trialinfo.Properties.VariableNames);
+for i = 1:length(ti_names)
+    data.trialinfo.(ti_names{i}) = trialinfo.(ti_names{i});
+end
+
+
 
 
 

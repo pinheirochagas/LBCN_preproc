@@ -18,7 +18,8 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,
 %       plot_params:    controls plot features (see genPlotParams.m script)
 
 
-sbj_name_generic = sbj_name(1:end-3);
+sbj_name_tmp = strsplit(sbj_name, '_')
+sbj_name_generic = sbj_name(1:end-(length(sbj_name_tmp{end})+1));
 
 
 if isempty(plot_params)
@@ -80,6 +81,9 @@ for ei = 1
     el = elecs(ei);
     %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
     data_all = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfield,tag);
+    
+
+    
     if plot_params.multielec
         groupall = true;
     else
@@ -112,6 +116,13 @@ for ei = 1:length(elecs)
     
     %     data_all = concatBlocks(sbj_name,block_names,dirs,el,datatype,concatfield,tag);
     data_all = concatBlocks(sbj_name,project_name, block_names,dirs,el,freq_band,datatype,concatfield,tag);
+    
+        % correct data.label
+    if plot_params.correct_label
+        data_all.label = plot_params.FS_labels{el};
+    else
+    end
+    
     if strcmp(plot_params.noise_method,'timepts')
         data_all = removeBadTimepts(data_all,plot_params.noise_fields_timepts);
     end
