@@ -1,7 +1,6 @@
-function PlotSelectivity(dirs, subjVar, elect_select, cfg)
+function PlotSelectivity(dirs, subjVar, einfo, cfg)
 
-coords = elect_select.LEPTO_coord;
-elect_select = elect_select.elect_select;
+coords = einfo.LEPTO_coord;
 
 %% Load comon brain (replace by fsaverage)
 % [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
@@ -15,21 +14,21 @@ subj = subj.name;
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(9, length(elect_select), 1);
-elect_size(strcmp(elect_select, 'no selectivity')) = 2;
-elect_size(strcmp(elect_select, 'math and autobio')) = 7;
+elect_size = repmat(9, length(einfo.elect_select), 1);
+elect_size(strcmp(einfo.elect_select, 'no selectivity')) = 2;
+elect_size(strcmp(einfo.elect_select, 'math and autobio')) = 7;
 
-marker_size = repmat(10,length(elect_select), 1);
-for i = 1:length(elect_select)
-    if strcmp(elect_select{i}, 'math only')
+marker_size = repmat(10,length(einfo.elect_select), 1);
+for i = 1:length(einfo.elect_select)
+    if strcmp(einfo.elect_select{i}, 'math only')
         elect_col(i,:) = cdcol.carmine;
-    elseif strcmp(elect_select{i}, 'math selective')
+    elseif strcmp(einfo.elect_select{i}, 'math selective')
         elect_col(i,:) = cdcol.pink;
-    elseif strcmp(elect_select{i}, 'math and autobio')
+    elseif strcmp(einfo.elect_select{i}, 'math and autobio')
         elect_col(i,:) = cdcol.mauve;
-    elseif strcmp(elect_select{i}, 'autobio only')
+    elseif strcmp(einfo.elect_select{i}, 'autobio only')
         elect_col(i,:) = cdcol.ultramarine;
-    elseif strcmp(elect_select{i}, 'autobio selective')
+    elseif strcmp(einfo.elect_select{i}, 'autobio selective')
         elect_col(i,:) = cdcol.light_blue;
     else
         elect_col(i,:) = [0 0 0];

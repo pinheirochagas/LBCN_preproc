@@ -82,7 +82,7 @@ for ci = 1:length(conds)
     end
 %     HFB_trace_bc.(cond) = cell(globalVar.nchan,nstim);
 %     ROL.(cond).HFB_trace_bc = cell(globalVar.nchan,nstim);
-    ROL.(cond).traces = cell(globalVar.nchan,nstim);
+%     ROL.(cond).traces = cell(globalVar.nchan,nstim);
 %     HFB_trace_bs.(cond) = cell(globalVar.nchan,nstim);
     sig.(cond) = cell(globalVar.nchan,nstim); 
 end
@@ -138,16 +138,16 @@ for ei = 1:length(elecs)
                 end
             end
 %             ROL.(cond).HFB_trace_bc{el,ii}=Resp_data.trace_bc;
-                ROL.(cond).traces{el,ii}=Resp_data.traces;
+%                 ROL.(cond).traces{el,ii}=Resp_data.traces;
         end
     end
     disp(['Computing ROL for elec: ',num2str(el)])
 end
-
-dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep];
-if ~exist([dir_out,'ROL'])
-    mkdir(dir_out,'ROL')
-end
+% 
+% dir_out = [dirs.result_root,filesep,project_name,filesep,sbj_name,filesep];
+% if ~exist([dir_out,'ROL'])
+%     mkdir(dir_out,'ROL')
+% end
 
 if ROLparams.bootstrap
 %     save([dir_out,'ROL',filesep,'ROL_bs_',sbj_name','.mat'],'ROL','ROLparams')

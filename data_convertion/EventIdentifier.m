@@ -199,6 +199,7 @@ title(bn, 'interpreter', 'none')
 % Event onset
 plot(stim_onset*globalVar.Pdio_rate,0.9*ones(length(stim_onset),1),'r*');
 
+plot(all_stim_onset*globalVar.Pdio_rate,0.9*ones(length(all_stim_onset),1),'r*');
 
 %% Comparing photodiod with behavioral data
 % Add another exception for subjects who have 1 trialinfo less

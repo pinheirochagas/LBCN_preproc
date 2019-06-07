@@ -28,11 +28,19 @@ bl_inds = find(data.time>= params.bl(1) & data.time <= params.bl(2));
 
 
 %% determine threshold based on null/baseline (ITI) distribution
-
 baseline = data.wave(:,bl_inds);
 mean_bl = nanmean(baseline(:));
 std_bl = nanstd(baseline(:));
-data_bc = (data.wave-mean_bl)/std_bl; % baseline corrected data
+        
+if isfield(params, 'bc_correct')
+    if params.bc_correct == 1
+        data_bc = (data.wave-mean_bl)/std_bl; % baseline corrected data
+    else
+    end
+else
+    data_bc = data.wave; % baseline corrected data
+end
+
 
 if params.bootstrap
     ntrials_bs = ceil(ntrials*params.bs_frac);

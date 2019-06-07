@@ -20,7 +20,14 @@ elseif strcmp(sbj_name,'S19_139_JRb') && strcmp(bn, 'E19-495_0004')
     K.theData(1:420) = [];
     ntrials = 420; 
     
+elseif strcmp(sbj_name,'S19_139_JRb') && strcmp(bn, 'E19-495_0035')
+    K.theData(1:420+420) = [];
+    ntrials = 420;     
     
+    
+elseif strcmp(sbj_name,'S19_139_JRb') && strcmp(bn, 'E19-495_0037')
+    K.theData(1:420+420+420) = [];
+    ntrials = 420;         
 % elseif strcmp(sbj_name,'S18_127_AK') && strcmp(bn, 'E18-706_0016')
 %     K.theData(1:420) = [];
 %     ntrials = 420;  

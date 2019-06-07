@@ -19,10 +19,10 @@ for ci = 1:length(block_names)
     
     % start trialinfo
     trialinfo = table;
-    
-    ntrials = K.trial;
-    
-    [K,ntrials] = OrganizeTrialInfoVTCExceptions(sbj_name,bn,K,ntrials);
+%     ntrials = K.trial;
+%     [K,ntrials] = OrganizeTrialInfoVTCExceptions(sbj_name,bn,K,ntrials);
+    K.theData = K.theData(K.starttrial:K.endtrial);
+    ntrials = (K.endtrial - K.starttrial) +1;
     
     for i = 1:ntrials
         
