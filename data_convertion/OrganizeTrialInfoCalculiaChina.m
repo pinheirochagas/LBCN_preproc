@@ -1,7 +1,7 @@
 function OrganizeTrialInfoCalculiaChina(sbj_name, project_name, block_names, dirs)
 
-for i = 1:length(block_names)
-    bn = block_names{i};
+for bi = 1:length(block_names)
+    bn = block_names{bi};
     
     %% Load globalVar
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
