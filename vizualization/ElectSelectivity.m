@@ -74,6 +74,7 @@ for ii = 1:size(data_sbj.wave,2)
     STATS.P_perm = permutation_unpaired(data_cond1_avg, data_cond2_avg, stats_params.nreps);
     sc1c2(ii,:) = STATS;
     
+    
 %     % ---------------------------------------------------------------------
 %     %Cluster based
 %     data_cond1 = permute(data_all.(conds{1})(:,61,:), [2,3,1]);
@@ -113,6 +114,9 @@ for ii = 1:size(data_sbj.wave,2)
     
     sm_data.mean(ii,:) = [nanmean(data_cond1_avg) nanmean(data_cond2_avg) nanmean(data_baseline)];
     sm_data.std(ii,:) = [nanstd(data_cond1_avg) nanstd(data_cond2_avg) nanstd(data_baseline)];
+    
+    sm_data.data_cond1_avg{ii} = data_cond1_avg;
+    sm_data.data_cond2_avg{ii} = data_cond2_avg;
 end
 
 % FDR correction

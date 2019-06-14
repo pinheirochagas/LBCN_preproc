@@ -1,4 +1,4 @@
-function PlotCoverageElect(subjVar,correction_factor, cfg)
+function PlotCoverageElect(subjVar, cfg)
 % This function plots the electrodes on native brain, requiring only
 % subjVar (which should have elinfo table), correction factor (default: 0)
 % and ifsave (true/false) to save the plots to savefold 
@@ -8,11 +8,14 @@ function PlotCoverageElect(subjVar,correction_factor, cfg)
 load('cdcol_2018.mat')
 marker_size = 30;
 marker_size_high = 14;
+
+
+
 MarkerFaceColor = cdcol.light_cadmium_red;
 
 
 % [0.1 0.1 0.1];
-if ~isempty(cfg.highlight_col)
+if isempty(cfg.highlight_col)
     MarkerFaceColor_high = cfg.highlight_col;
 else
     MarkerFaceColor_high = repmat([1 0 0],length(cfg.chan_highlight),1);
@@ -62,7 +65,7 @@ for i = 1:length(views)
       subplot(3,2,i)
 %     subplot(1,2,i)    
     
-    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, correction_factor);
+    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, cfg.correction_factor);
     ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     
     for ii = 1:length(coords_plot)
@@ -84,7 +87,7 @@ for i = 1:length(views)
         end
     end
         
-    alpha(1)
+    alpha(cfg.alpha)
 end
 
 % if ifsave

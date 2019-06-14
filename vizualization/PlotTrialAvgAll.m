@@ -18,7 +18,7 @@ function PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,elecs,freq_band,
 %       plot_params:    controls plot features (see genPlotParams.m script)
 
 
-sbj_name_tmp = strsplit(sbj_name, '_')
+sbj_name_tmp = strsplit(sbj_name, '_');
 sbj_name_generic = sbj_name(1:end-(length(sbj_name_tmp{end})+1));
 
 
