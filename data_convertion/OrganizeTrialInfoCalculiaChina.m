@@ -15,7 +15,7 @@ for i = 1:length(block_names)
     
     trialinfo = K.slist;
     if ~isfield(trialinfo,  'operator')
-        trialinfo.operator = ones(size(trialinfo,1),1);
+        trialinfo.operator = trialinfo.operator_inv.*-1;
     else
     end
     
