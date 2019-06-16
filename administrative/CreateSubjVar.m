@@ -2,7 +2,7 @@ function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format
 
 %% Coordinate systems
 % LEPTO_coord and native_coord the same
-% so we use LEPTO_coord for when ploting in native space and 
+% so we use LEPTO_coord for when ploting in native space and
 % MNI_coord for when ploting in fsaverage
 
 % Sometimes the empty means cut channel (literaly physically cut from the grid)
@@ -43,10 +43,9 @@ else
     [DOCID,GID] = getGoogleSheetInfo('chan_names_ppt', 'chan_names_ppt_log');
 end
 
-
 googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 ppt_chan_names = googleSheet.(sbj_name);
-ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % remove empty cells 
+ppt_chan_names = ppt_chan_names(~cellfun(@isempty, ppt_chan_names)); % remove empty cells
 ppt_chan_names = cellfun(@(x) strrep(x, ' ', ''), ppt_chan_names, 'UniformOutput', false); % Remove eventual spaces
 
 nchan_fs = length(fs_chan_names);
@@ -55,13 +54,13 @@ if strcmp(sbj_name, 'S17_117_MC')
     nchan_cmp = length(globalVar.channame);
 else
     chan_comp = ppt_chan_names;
-    nchan_cmp = length(ppt_chan_names); 
+    nchan_cmp = length(ppt_chan_names);
 end
 
-% channels in EDF/TDT which are not in FS 
+% channels in EDF/TDT which are not in FS
 % this could be because those channels were not recorded, but only implanted (EDF)
-%               because somebody forgot to paste the correspondent .mat TDT file 
-                %(this would indicate an error, and could potentially vary across block)
+%               because somebody forgot to paste the correspondent .mat TDT file
+%(this would indicate an error, and could potentially vary across block)
 in_chan_cmp = false(1,nchan_fs);
 for i = 1:nchan_fs
     in_chan_cmp(i) = ismember(fs_chan_names(i),chan_comp);
@@ -72,10 +71,10 @@ for i = 1:nchan_cmp
     in_fs(i) = ismember(chan_comp(i),fs_chan_names);
 end
 
-    % do nothing
+% do nothing
 
 if sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) == length(in_fs)
-% 1: More channels in freesurfer
+    % 1: More channels in freesurfer
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     fs_chan_names = fs_chan_names(in_chan_cmp);
     RAS_coord = RAS_coord(in_chan_cmp,:);
@@ -95,19 +94,19 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     MNI_coord_tmp = nan(nchan_cmp,3,1);
     MNI_coord_tmp(in_fs,:) = MNI_coord;
     MNI_coord = MNI_coord_tmp;
-    % More in 
+    % More in
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
-
+    
     disp(sbj_name)
     disp('channels in EDF/TDT which are not in FS')
     chan_comp(in_fs == 0)
     disp('channels in FS which are not in EDF/TDT')
     fs_chan_names(in_chan_cmp == 0)
     warning('this exception is not automatically fixable, please decide:')
-
-%     prompt = 'Do you want to remove the FS-only and add the EDF/TDT-only?';
-%     ID = input(prompt,'s');
-       ID = 'y';
+    
+    %     prompt = 'Do you want to remove the FS-only and add the EDF/TDT-only?';
+    %     ID = input(prompt,'s');
+    ID = 'y';
     if strcmp(ID, 'y')
         % First remove the FS which are not in EDF/TDT
         fs_chan_names = fs_chan_names(in_chan_cmp);
@@ -120,13 +119,13 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         fs_chan_names_tmp(in_fs==0) = chan_comp(in_fs==0);
         fs_chan_names = fs_chan_names_tmp;
         
-%         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
+        %         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
         RAS_coord_tmp = nan(size(RAS_coord,1),size(RAS_coord,2),1);
         MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
-
+        
         if in_fs(end) == 0
-           RAS_coord_tmp(end+1,:) = nan; 
-           MNI_coord_tmp(end+1,:) = nan; 
+            RAS_coord_tmp(end+1,:) = nan;
+            MNI_coord_tmp(end+1,:) = nan;
         else
         end
         
@@ -153,11 +152,11 @@ if ~exist('mismatch_labels')
     
     subjVar.LEPTO_coord = RAS_coord(new_order,:);
     subjVar.MNI_coord = MNI_coord(new_order,:);
-
+    
     
     % labels mean the corrected names
     if strcmp(data_format, 'TDT')
-        subjVar.labels = chan_comp; 
+        subjVar.labels = chan_comp;
         subjVar.labels_EDF = [];
     else
         %     subjVar.elect_names = chan_comp;
@@ -185,11 +184,11 @@ if ~exist('mismatch_labels')
     
     %% Electrode labelling
     subjVar = localizeElect(subjVar,dirs);
-
+    
     %% Save subjVar
     if exist([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'file')
-%         prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
-%         ID = input(prompt,'s');
+        %         prompt = ['subjVar already exist for ' sbj_name ' . Replace it? (y or n):'] ;
+        %         ID = input(prompt,'s');
         ID = 'y';
         if strcmp(ID, 'y')
             save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
