@@ -13,6 +13,7 @@ function UpdateTrialinfo(sbj_name,dirs, project_name, datatype, freq_band, tag)
 
 data_replace = {'psychData', datatype};
 
+
 % Get block names and electrodes
 block_names = BlockBySubj(sbj_name,project_name);
 load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,block_names{1}),'globalVar');
