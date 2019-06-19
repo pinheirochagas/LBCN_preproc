@@ -120,12 +120,16 @@ for ii = 1:size(data_sbj.wave,2)
 end
 
 % FDR correction
-sc1c2_FDR = mafdr(vertcat(sc1c2.P_perm));
-sc1b1_FDR = mafdr(vertcat(sc1b1.P_perm));
-sc2b2_FDR = mafdr(vertcat(sc2b2.P_perm));
+sc1c2_FDR = mafdr(vertcat(sc1c2.P_perm), 'BHFDR', true);
+sc1b1_FDR = mafdr(vertcat(sc1b1.P_perm), 'BHFDR', true);
+sc2b2_FDR = mafdr(vertcat(sc2b2.P_perm), 'BHFDR', true);
 sc1c2_Pperm = vertcat(sc1c2.P_perm);
 sc1b1_Pperm = vertcat(sc1b1.P_perm);
 sc2b2_Pperm = vertcat(sc2b2.P_perm);
+
+sc1c2_tstat = vertcat(sc1c2.tstat);
+sc1b1_tstat = vertcat(sc1b1.tstat);
+sc2b2_tstat = vertcat(sc2b2.tstat);
 
 for i = 1:length(sc1c2_FDR)
     sc1c2(i).P_FDR = sc1c2_FDR(i);
@@ -167,7 +171,7 @@ deact = (sum([sc2b2_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) *
 act_deact_cond2 = sum([act, deact],2);
 
 % organize output in a sinlge table
-el_selectivity = table(elect_select, act_deact_cond1, act_deact_cond2, sc1c2_FDR, sc1b1_FDR, sc2b2_FDR, sc1c2_Pperm, sc1b1_Pperm, sc2b2_Pperm);
+el_selectivity = table(elect_select, act_deact_cond1, act_deact_cond2, sc1c2_FDR, sc1b1_FDR, sc2b2_FDR, sc1c2_Pperm, sc1b1_Pperm, sc2b2_Pperm, sc1c2_tstat, sc1b1_tstat, sc2b2_tstat);
 
 end
 

@@ -19,7 +19,7 @@ data_format = GetFSdataFormat(sbj_name, center);
 %% In order to create and save multiple subjVar's.
 sbj_list = {'',''}; % put as many as you want
 
-for i=1:length(sbj_list)
+for i=8:length(sbj_list)
     sbj_name = sbj_list{i};
     fprintf('Now running for %d: %s\n',i,sbj_name)
     dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T' - needs to be run for each subject separately
@@ -28,7 +28,7 @@ for i=1:length(sbj_list)
     spl_sbj=regexp(sbj_name,'_','split');
     
     % please check if the location is correct
-    save(['/Users/parvizilab/Desktop/' spl_sbj{1} '_' spl_sbj{2} '_subjVar.mat'], 'subjVar');
+%     save(['/Users/parvizilab/Desktop/' spl_sbj{1} '_' spl_sbj{2} '_subjVar.mat'], 'subjVar');
 end
 
 %% Here is to plot atlas labels of interest of each electrode.
