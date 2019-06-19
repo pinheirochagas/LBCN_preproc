@@ -133,25 +133,23 @@ for i = 1:length(sc1c2_FDR)
     sc2b2(i).P_FDR = sc2b2_FDR(i);
 end
 
+%% Selectivity
+
 for ii = 1:size(data_sbj.wave,2)
     if sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR > 0.05
         elect_select{ii,1} = [conds{1} ' only'];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii,1} = [conds{1} ' selective'];
-        
+        elect_select{ii,1} = [conds{1} ' selective and ' conds{2} ' act'];
+    elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat < 0
+        elect_select{ii,1} = [conds{1} ' selective and ' conds{2} ' deact'];        
     elseif sc1c2(ii).P_FDR > 0.05 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{1} ' and ' conds{2}];
-        
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR > 0.05 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
         elect_select{ii,1} = [conds{2} ' only'];
     elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR < 0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        elect_select{ii,1} = [conds{2} ' selective'];
-        
-        %     elseif sc1c2(ii).P_FDR > 0.05 && sc1c2(ii).P_perm < 0.05 && sc1c2(ii).tstat > 0 && sc1b1(ii).P_FDR <0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_perm > 0.05 && sc2b2(ii).tstat > 0
-        %         elect_select{ii,1} = [conds{1} ' selective'];
-        %
-        %     elseif sc1c2(ii).P_FDR > 0.05 && sc1c2(ii).P_perm < 0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_perm > 0.05 && sc1b1(ii).tstat > 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
-        %         elect_select{ii,1} = [conds{1} ' selective'];
+        elect_select{ii,1} = [conds{2} ' selective and ' conds{1} ' act'];
+    elseif sc1c2(ii).P_FDR <0.05 && sc1c2(ii).tstat < 0 && sc1b1(ii).P_FDR < 0.05 && sc1b1(ii).tstat < 0 && sc2b2(ii).P_FDR < 0.05 && sc2b2(ii).tstat > 0
+        elect_select{ii,1} = [conds{2} ' selective and ' conds{1} ' deact'];        
         
     else
         elect_select{ii,1} = 'no selectivity';
@@ -159,11 +157,21 @@ for ii = 1:size(data_sbj.wave,2)
     
 end
 
-act = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) > sm_data.mean(:,3)],2) == 2);
-deact = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) * -1;
+
+% Activation vs. deactivations
+sc1b1_tstat = vertcat(sc1b1.tstat);
+sc2b2_tstat = vertcat(sc2b2.tstat);
+
+
+% act = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) > sm_data.mean(:,3)],2) == 2);
+% deact = (sum([sc1b1_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) * -1;
+
+act = (sum([sc1b1_FDR < 0.05 sc1b1_tstat > 0],2) == 2);
+deact = (sum([sc1b1_FDR < 0.05 sc1b1_tstat < 0],2) == 2) * -1;
 act_deact_cond1 = sum([act, deact],2);
-act = (sum([sc2b2_FDR < 0.05 sm_data.mean(:,1) > sm_data.mean(:,3)],2) == 2);
-deact = (sum([sc2b2_FDR < 0.05 sm_data.mean(:,1) < sm_data.mean(:,3)],2) == 2) * -1;
+
+act = (sum([sc2b2_FDR < 0.05 sc2b2_tstat > 0],2) == 2);
+deact = (sum([sc2b2_FDR < 0.05 sc2b2_tstat < 0],2) == 2) * -1;
 act_deact_cond2 = sum([act, deact],2);
 
 % organize output in a sinlge table
