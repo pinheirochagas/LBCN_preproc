@@ -37,20 +37,7 @@ for i = 1:length(block_names)
     
     
     %% Reading PsychData BAHAVIORAL DATA
-    lsi= length(K.theData);
-    
-    SOT= zeros(1,lsi);
-    sbj_resp= NaN*ones(1,lsi);
-    RT = [K.theData.RT];
-    for si= 1:lsi %
-        SOT(si)= K.theData(si).flip.StimulusOnsetTime;
-        if ~isnan(str2num(K.theData(si).keys))
-            sbj_resp(si)= str2num(K.theData(si).keys(1));
-        else
-            sbj_resp(si)= NaN;
-        end
-    end
-    
+    lsi= length(K.theData);    
     
     %% varout is anlg (single percision)
     downRatio= round(globalVar.Pdio_rate/iEEG_rate);
@@ -146,7 +133,7 @@ for i = 1:length(block_names)
     %% Comparing photodiod with behavioral data
     %for just the first stimulus of each trial
     
-    df_SOT= diff(SOT);
+    df_SOT= diff(trialinfo.StimulusOnsetTime');
     % df_stim_onset= diff(stim_onset_fifth); %fifth? why?
     df_stim_onset = diff(all_stim_onset(:,1))';
     %plot overlay

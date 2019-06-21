@@ -22,7 +22,7 @@ end
 
 if epoch_flag
     % Branch 6 - Epoching, identification of bad epochs and baseline correction
-    epoch_params = genEpochParams(project_name, 'resp'); % stim or resp
+    epoch_params = genEpochParams(project_name, 'stim'); % stim or resp
     for bi = 1:length(block_names)
         parfor ei = 1:length(elecs)
             EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')

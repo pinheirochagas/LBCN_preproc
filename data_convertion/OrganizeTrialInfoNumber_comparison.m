@@ -102,28 +102,28 @@ for i = 1:length(block_names)
         for ri = 1:size(trialinfo,1)
             if trialinfo.ratios_num(ri) > 0.7 &&  trialinfo.ratios_num(ri) < 0.72
                 trialinfo.ratios_num(ri) = 0.71;
-                trialinfo.dist_num(ri) = 4;                
+                trialinfo.dist_num(ri) = 4;
             elseif trialinfo.ratios_num(ri) > 0.77 &&  trialinfo.ratios_num(ri) < 0.78
                 trialinfo.ratios_num(ri) = 0.77;
-                trialinfo.dist_num(ri) = 3;                
+                trialinfo.dist_num(ri) = 3;
             elseif trialinfo.ratios_num(ri) > 0.84 &&  trialinfo.ratios_num(ri) < 0.86
-                trialinfo.ratios_num(ri) = 0.85; 
-                trialinfo.dist_num(ri) = 2;                
+                trialinfo.ratios_num(ri) = 0.85;
+                trialinfo.dist_num(ri) = 2;
             elseif trialinfo.ratios_num(ri) > 0.92 &&  trialinfo.ratios_num(ri) < 0.94
-                trialinfo.ratios_num(ri) = 0.92; 
-                trialinfo.dist_num(ri) = 1;                
+                trialinfo.ratios_num(ri) = 0.92;
+                trialinfo.dist_num(ri) = 1;
             elseif trialinfo.ratios_num(ri) > 1.07 &&  trialinfo.ratios_num(ri) < 1.10
-                trialinfo.ratios_num(ri) = 1.08;  
-                trialinfo.dist_num(ri) = 1;                
+                trialinfo.ratios_num(ri) = 1.08;
+                trialinfo.dist_num(ri) = 1;
             elseif trialinfo.ratios_num(ri) > 1.20 &&  trialinfo.ratios_num(ri) < 1.23
-                trialinfo.ratios_num(ri) = 1.21;   
-                trialinfo.dist_num(ri) = 2;                
+                trialinfo.ratios_num(ri) = 1.21;
+                trialinfo.dist_num(ri) = 2;
             elseif trialinfo.ratios_num(ri) > 1.39 &&  trialinfo.ratios_num(ri) < 1.42
-                trialinfo.ratios_num(ri) = 1.41; 
-                trialinfo.dist_num(ri) = 3;                
+                trialinfo.ratios_num(ri) = 1.41;
+                trialinfo.dist_num(ri) = 3;
             elseif trialinfo.ratios_num(ri) > 1.66 &&  trialinfo.ratios_num(ri) < 1.67
-                trialinfo.ratios_num(ri) = 1.66;  
-                trialinfo.dist_num(ri) = 3;                
+                trialinfo.ratios_num(ri) = 1.66;
+                trialinfo.dist_num(ri) = 3;
             else
             end
             
@@ -135,11 +135,11 @@ for i = 1:length(block_names)
                 trialinfo.ratios_lum(li) = trialinfo.lum1(li)/trialinfo.lum2(li);
                 trialinfo.dist_lum(li) = abs(trialinfo.lum1(li)-trialinfo.lum2(li));
             else
-                trialinfo.ratios_lum(li) = trialinfo.lum2(li)/trialinfo.lum1(li);  
+                trialinfo.ratios_lum(li) = trialinfo.lum2(li)/trialinfo.lum1(li);
                 trialinfo.dist_lum(li) = abs(trialinfo.lum2(li)-trialinfo.lum1(li));
             end
         end
-        trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);      
+        trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);
         
     else
         
@@ -163,7 +163,7 @@ for i = 1:length(block_names)
         
         % Add some conditions
         trialinfo.dist_num = discretize(abs(trialinfo.num1-trialinfo.num2cat),4);
-        trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);      
+        trialinfo.dist_lum = discretize(abs(trialinfo.lum1-trialinfo.lum2),4);
     end
     
     
@@ -198,9 +198,11 @@ for i = 1:length(block_names)
         else
         end
         
-        
-        key = str2num(results_table.keys{ii}(1));
-        
+        if iscell(results_table.keys{ii})
+            key = str2num(results_table.keys{ii}{1}(1));
+        else
+            key = str2num(results_table.keys{ii}(1));
+        end
         
         if ~isempty(key)
             trialinfo.keys(ii) = key;
@@ -226,7 +228,11 @@ for i = 1:length(block_names)
     trialinfo.RT = trialinfo.num1; % initialize
     for ii = 1:length(results_table.RT)
         if isnan(trialinfo.keys(ii)) == 0
-            trialinfo.RT(ii) = results_table.RT(ii);
+            if iscell(results_table.RT(1))
+                trialinfo.RT(ii) = results_table.RT{ii}(1);
+            else
+                trialinfo.RT(ii) = results_table.RT(ii);
+            end
         else
             trialinfo.RT(ii) = NaN;
         end
@@ -237,7 +243,7 @@ for i = 1:length(block_names)
         trialinfo.StimulusOnsetTime(i) = theData(i).flip.StimulusOnsetTime;
     end
     
-
+    
     
     for i = 1:size(trialinfo,1)
         if trialinfo.conds(i) == 1

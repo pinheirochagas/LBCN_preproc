@@ -1,4 +1,4 @@
-function UpdateTrialinfo(sbj_name,dirs, project_name, datatype, freq_band, tag)
+function UpdateTrialinfo(sbj_name,dirs, project_name, datatype, freq_band, data_replace, tag)
 % this function updates the trialinfo in the psychdata folder and in the
 % epoched data files with additional fields for data analysis not predicted
 % when data was first epoched.
@@ -11,7 +11,7 @@ function UpdateTrialinfo(sbj_name,dirs, project_name, datatype, freq_band, tag)
 %       tag: tag in filename between data type and block name, specifying which type of data to load (e.g. 'stimlock_bl_corr')
 
 
-data_replace = {'psychData', datatype};
+% data_replace = {'psychData', datatype};
 
 
 % Get block names and electrodes
