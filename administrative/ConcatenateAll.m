@@ -61,12 +61,12 @@ for ei = 1:length(elecs)
         ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz.
         data_all.fsample = data_bn.fsample/ds_rate;
         data_all.time = data_bn.time(1:ds_rate:end);
-        if concat_params.sm_win > 0 % if smoothing first
-            winSize = floor(data_bn.fsample*concat_params.sm_win);
-            gusWin= gausswin(winSize)/sum(gausswin(winSize));
-            data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension
-        else
-        end
+%         if concat_params.sm_win > 0 % if smoothing first
+%             winSize = floor(data_bn.fsample*concat_params.sm_win);
+%             gusWin= gausswin(winSize)/sum(gausswin(winSize));
+%             data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension
+%         else
+%         end
         % downsample
         if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
             data_bn.wave = data_bn.wave(:,1:ds_rate:end);
@@ -169,31 +169,33 @@ end
 
 if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     
-    
-    % Reshape to trials and then channelsXtimes
+%     Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
         waveOrg{i} = squeeze(data_all.wave(i,:,:));
     end
     
     data_all.trial =  waveOrg;
+%     data_all.trial =  data_all.wave;
+
     data_all = rmfield(data_all, 'wave');
     data_all = rmfield(data_all, 'badChan');
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
     %    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
-    trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
-    
+%     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
+    trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
     time = data_all.time;
     ntrials = size(data_all.trialinfo,1);
-    data_all =  rmfield(data_all, 'trialinfo');
-    data_all =  rmfield(data_all, 'time');
-    for i = 1:ntrials
-        data_all.trialinfo{i} = trialinfo;
-        data_all.time{i} = time;
-    end
-    
-    data_all.label = data_all.label';
+     data_all =  rmfield(data_all, 'trialinfo');
+     data_all =  rmfield(data_all, 'time');
+     for i = 1:ntrials
+          data_all.trialinfo{i} = trialinfo;
+          data_all.time{i} = time;
+     end
+%      data_all.trialinfo = trialinfo;
+%     data_all.time = data_all.time;
+%     data_all.label = data_all.label';
     
 else
     
