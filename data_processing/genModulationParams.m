@@ -14,7 +14,7 @@ switch project_name
         mod_par.conds = conds;
         mod_par.column = column;
         mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'OperandMin', 'OperandMin', 'initial', 'total'};
-        mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'initial', 'integral', 'RT', 'RT'};
+        mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'initial', 'total', 'RT', 'RT'};
 
     case 'Memoria'
         mod_par.task_win = [0 1.5];
