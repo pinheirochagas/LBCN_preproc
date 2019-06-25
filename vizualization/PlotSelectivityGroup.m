@@ -1,4 +1,4 @@
-function PlotSelectivityGroup(dirs, project_name, coords, elect_select, cortex_space, correction_factor)
+function PlotSelectivityGroup(dirs, project_name, coords, elect_select, cfg)
 
 
 %% Load comon brain (replace by fsaverage)
@@ -6,8 +6,8 @@ function PlotSelectivityGroup(dirs, project_name, coords, elect_select, cortex_s
 % cmcortex.left = cortex;
 % load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
 % cmcortex.right = cortex;
-% 
-% 
+%
+%
 % [DOCID,GID] = getGoogleSheetInfo('math_network', project_name);
 % googleSheet = GetGoogleSpreadsheet(DOCID, GID);
 % implant = googleSheet.implant{strcmp(googleSheet.subject_name, sbj_name)};
@@ -18,22 +18,24 @@ elect_select = flip(elect_select);
 coords = coords(idx,:);
 coords = flip(coords);
 
-fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf/'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
-
-[cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
-[cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
-
+fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
+if strcmp(cfg.Cortex, 'MNI')
+    [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
+    [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
+elseif  strcmp(cfg.Cortex, 'native')
+    cmcortex = subjVar.cortex;
+else
+    error('you must specify the cortical space to plot, either MNI or native.')
+end
 
 
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(13, length(elect_select), 1);
+elect_size = repmat(cfg.MarkerSize, length(elect_select), 1);
 elect_size(strcmp(elect_select, 'no selectivity')) = 1;
 
-
 for i = 1:length(elect_select)
-
     if strcmp(elect_select{i}, 'math only')
         elect_col(i,:) = cdcol.indian_red;
         elect_col_edge(i,:) = [0 0 0];
@@ -56,13 +58,11 @@ for i = 1:length(elect_select)
 end
 
 
-
-%% Plot electrodes as dots in native space 
+%% Plot electrodes as dots in native space
 figureDim = [0 0 1 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
 views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
-
 
 views = {'lateral', 'lateral', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right'};
@@ -70,17 +70,9 @@ hemis = {'left', 'right', 'left', 'right'};
 
 for i = 1:length(views)
     subplot(2,2,i)
-    if strcmp(cortex_space, 'MNI')
-        coords_plot = CorrectElecLoc(coords, views{i}, hemis{i}, correction_factor);
-        ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})        
-    elseif strcmp(cortex_space, 'native')
-        coords_plot = CorrectElecLoc(coords, views{i}, hemis{i}, correction_factor);
-        ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
-    else
-        error('you must specify the cortical space to plot, either MNI or native.')
-    end
+    coords_plot = CorrectElecLoc(coords, views{i}, hemis{i}, cfg.CorrectFactor);
+    ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     
-
     for ii = 1:length(coords_plot)
         % Only plot on the relevant hemisphere
         if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
@@ -88,45 +80,13 @@ for i = 1:length(views)
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', elect_col(ii,:));
         end
     end
-    alpha(0.8)
-%     if strcmp(implant, 'sEEG') || strcmp(implant, 'ECoG')
-% %     if strcmp(implant, 'sEEG') 
-%         alpha(0.5)
-%     else
-%     end
-    if i == 2
-        yl = ylim;
-        xl = xlim;
-        zl = zlim;
-        fx = get(f1, 'Position');
-%         text(sum(xl)/2,sum(yl)/2,zl(2)+zl(2)*0.2,sbj_name, 'Interpreter', 'none', 'FontSize', 30, 'HorizontalAlignment', 'Center')
-    else
-    end
+    alpha(cfg.alpha)
 end
 
-% savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity4_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
-% close all
-
+if cfg.save
+    savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity4_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+    close all
+else
 end
 
-%% Function to optimize electrode location for plotting
-function coords_plot = CorrectElecLoc(coords, views, hemisphere, correction_factor)
-coords_plot = coords;
-% correction_factor = 0;
-switch views
-    case 'lateral'
-        if strcmp(hemisphere, 'right')
-            coords_plot(:,1) = coords_plot(:,1) + correction_factor;
-        elseif strcmp(hemisphere, 'left')
-            coords_plot(:,1) = coords_plot(:,1) - correction_factor;
-        end
-    case 'medial'
-        if strcmp(hemisphere, 'right')
-            coords_plot(:,1) = coords_plot(:,1) - correction_factor;
-        elseif strcmp(hemisphere, 'left')
-            coords_plot(:,1) = coords_plot(:,1) + correction_factor;
-        end
-    case 'ventral'
-            coords_plot(:,3) = coords_plot(:,3) - correction_factor;
-end
 end
