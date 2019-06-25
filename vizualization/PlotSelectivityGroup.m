@@ -1,4 +1,4 @@
-function PlotSelectivityGroup(dirs,coords, project_name, elect_select, cortex_space, correction_factor)
+function PlotSelectivityGroup(dirs, project_name, coords, elect_select, cortex_space, correction_factor)
 
 
 %% Load comon brain (replace by fsaverage)
@@ -20,31 +20,16 @@ coords = flip(coords);
 
 fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf/'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
 
-cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.pial']);
-cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.pial']);
-
-cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.inflated_avg']);
-cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.inflated_avg']);
-
-cmcortex.right = ft_read_headshape([fsaverage_dir 'rh.pial_semi_inflated']);
-cmcortex.left  = ft_read_headshape([fsaverage_dir 'lh.pial_semi_inflated']);
-
-
-cmcortex.right.vert =  cmcortex.right.pos;
-cmcortex.left.vert =  cmcortex.left.pos;
-
-% ctmr_gauss_plot(cmcortex.left ,[0 0 0], 0, 'left', 'ventral')
-
+[cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
+[cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
 
 
 
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(7, length(elect_select), 1);
+elect_size = repmat(13, length(elect_select), 1);
 elect_size(strcmp(elect_select, 'no selectivity')) = 1;
-
-
 
 
 for i = 1:length(elect_select)
@@ -52,16 +37,16 @@ for i = 1:length(elect_select)
     if strcmp(elect_select{i}, 'math only')
         elect_col(i,:) = cdcol.indian_red;
         elect_col_edge(i,:) = [0 0 0];
-    elseif strcmp(elect_select{i}, 'math selective')
+    elseif strcmp(elect_select{i}, 'math selective and autobio act')
         elect_col(i,:) = cdcol.raspberry_red;
         elect_col_edge(i,:) = [0 0 0];
-    elseif strcmp(elect_select{i}, 'math and memory')
+    elseif strcmp(elect_select{i}, 'math and autobio')
         elect_col(i,:) = cdcol.manganese_violet;
         elect_col_edge(i,:) = [0 0 0];
-    elseif strcmp(elect_select{i}, 'memory only')
+    elseif strcmp(elect_select{i}, 'autobio only')
         elect_col(i,:) = cdcol.marine_blue;
         elect_col_edge(i,:) = [0 0 0];
-    elseif strcmp(elect_select{i}, 'memory selective')
+    elseif strcmp(elect_select{i}, 'autobio selective and math act')
         elect_col(i,:) = cdcol.azurite_blue;
         elect_col_edge(i,:) = [0 0 0];
     else
@@ -73,12 +58,18 @@ end
 
 
 %% Plot electrodes as dots in native space 
-figureDim = [0 0 .4 1];
+figureDim = [0 0 1 1];
 f1 = figure('units', 'normalized', 'outerposition', figureDim);
 views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
 hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+
+
+views = {'lateral', 'lateral', 'ventral', 'ventral'};
+hemis = {'left', 'right', 'left', 'right'};
+
+
 for i = 1:length(views)
-    subplot(3,2,i)
+    subplot(2,2,i)
     if strcmp(cortex_space, 'MNI')
         coords_plot = CorrectElecLoc(coords, views{i}, hemis{i}, correction_factor);
         ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})        
@@ -97,7 +88,7 @@ for i = 1:length(views)
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', elect_size(ii), 'MarkerFaceColor', elect_col(ii,:), 'MarkerEdgeColor', elect_col(ii,:));
         end
     end
-    alpha(0.7)
+    alpha(0.8)
 %     if strcmp(implant, 'sEEG') || strcmp(implant, 'ECoG')
 % %     if strcmp(implant, 'sEEG') 
 %         alpha(0.5)

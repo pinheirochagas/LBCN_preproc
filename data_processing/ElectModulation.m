@@ -20,6 +20,9 @@ for ii = 1%:length(mod_par.preds.(conds{i}))
             dep_n = mod_par.dep_vars.(conds{ii}){imod};
             pred_n = mod_par.preds.(conds{ii}){imod};
             [dep_var, pred] = getDepPred(data_sbj, datatype, el, dep_n, pred_n, conds{ii}, mod_par);
+            % zscore variables to get standardized coef
+            dep_var = zscore(dep_var);
+            pred = zscore(pred);
             try
                 regstats_tmp = regstats(dep_var,pred, 'linear', 'all');
                 reg_stats.(conds{ii}).([dep_n '_' pred_n]).all{el} = regstats_tmp;

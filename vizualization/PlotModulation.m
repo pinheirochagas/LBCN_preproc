@@ -1,26 +1,21 @@
-function PlotCoverageROL(elinfo, ROLs, cortex_space, correction_factor, dirs)
+function PlotModulation(elinfo, ind, cortex_space, correction_factor, dirs)
 
 
 
 %% Load comon brain
-% load([dirs.code_root filesep 'vizualization/Colin_cortex_left.mat']);
-% cmcortex.left = cortex;
-% load([dirs.code_root filesep 'vizualization/Colin_cortex_right.mat']);
-% cmcortex.right = cortex;
 [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
 [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
-
 
 % basic parameters:
 decimate = true;
 final_fs = 50;
 
 % Get color indices
-[col_idx,colors_plot] = colorbarFromValues(ROLs, 'viridis', [], false);
+[col_idx,colors_plot] = colorbarFromValues(ind, 'RedBlue', [], true);
 
 
 %% Plot electrodes as dots in native space 
-marker_size = 13;
+marker_size = abs(ind)*1000;
 figureDim = [0 0 1 1];
 % figureDim = [0 0 1 .4];
 
@@ -56,7 +51,7 @@ for i = 1:length(views)
         if ~isnan(col_idx(ii))
             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
             else
-                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
             end
 %                 plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
         else
