@@ -26,7 +26,7 @@ for ii = 1%:length(mod_par.preds.(conds{i}))
             try
                 regstats_tmp = regstats(dep_var,pred, 'linear', 'all');
                 reg_stats.(conds{ii}).([dep_n '_' pred_n]).all{el} = regstats_tmp;
-                reg_stats.(conds{ii}).([dep_n '_' pred_n]).betas(el,1) = regstats_tmp.beta(1);
+                reg_stats.(conds{ii}).([dep_n '_' pred_n]).betas(el,1) = regstats_tmp.beta(2);
                 reg_stats.(conds{ii}).([dep_n '_' pred_n]).pvals(el,1) = regstats_tmp.fstat.pval;
             catch
                 reg_stats.(conds{ii}).([dep_n '_' pred_n]).all{el} = {};
