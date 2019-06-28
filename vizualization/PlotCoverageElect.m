@@ -12,14 +12,16 @@ marker_size_high = 14;
 
 
 MarkerFaceColor = cdcol.light_cadmium_red;
+MarkerFaceColor_high = MarkerFaceColor
 
 
-% [0.1 0.1 0.1];
-if isempty(cfg.highlight_col)
-    MarkerFaceColor_high = cfg.highlight_col;
-else
-    MarkerFaceColor_high = repmat([1 0 0],length(cfg.chan_highlight),1);
-end
+% % [0.1 0.1 0.1];
+% if isempty(cfg.highlight_col)
+%     MarkerFaceColor_high = cfg.highlight_col;
+% else
+%     MarkerFaceColor_high = repmat([1 0 0],length(cfg.chan_highlight),1);
+% end
+% 
 
 
 figureDim = [0 0 .5 1];
