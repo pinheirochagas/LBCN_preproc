@@ -24,6 +24,8 @@ cortex = getcort(dirs);
 % native_coord = importCoordsFreesurfer(dirs);
 % fs_chan_names = importElectNames(dirs);
 [MNI_coord, chanInfo, RAS_coord] = sub2AvgBrainCustom([],dirs, sbj_name, dirs.fsDir_local);
+[MGRID_coord, elect_names] = getmgrid(dirs);
+
 
 
 fs_chan_names = chanInfo.Name;
@@ -79,7 +81,7 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     fs_chan_names = fs_chan_names(in_chan_cmp);
     RAS_coord = RAS_coord(in_chan_cmp,:);
     MNI_coord = MNI_coord(in_chan_cmp,:);
-    
+    MGRID_coord = MGRID_coord(in_chan_cmp,:);
     % 2: More channels in EDF/TDT
 elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     fs_chan_names_tmp = cell(nchan_cmp,1);
@@ -94,6 +96,12 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     MNI_coord_tmp = nan(nchan_cmp,3,1);
     MNI_coord_tmp(in_fs,:) = MNI_coord;
     MNI_coord = MNI_coord_tmp;
+    
+    MGRID_coord_tmp = nan(nchan_cmp,3,1);
+    MGRID_coord_tmp(in_fs,:) = MGRID_coord;
+    MGRID_coord = MGRID_coord_tmp;
+
+    
     % More in
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     
@@ -112,6 +120,7 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         fs_chan_names = fs_chan_names(in_chan_cmp);
         RAS_coord = RAS_coord(in_chan_cmp,:);
         MNI_coord = MNI_coord(in_chan_cmp,:);
+        MGRID_coord =  MGRID_coord(in_chan_cmp,:);
         
         % Second add the EDF/TDT which are not in FS
         fs_chan_names_tmp = cell(nchan_cmp,1);
@@ -122,10 +131,12 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         %         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
         RAS_coord_tmp = nan(size(RAS_coord,1),size(RAS_coord,2),1);
         MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
-        
+        MGRID_coord = nan(size(MGRID_coord,1),size(MGRID_coord,2),1);
+
         if in_fs(end) == 0
             RAS_coord_tmp(end+1,:) = nan;
             MNI_coord_tmp(end+1,:) = nan;
+            MGRID_coord_tmp(end+1,:) = nan;
         else
         end
         
@@ -134,6 +145,9 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         
         MNI_coord_tmp(in_fs,:) = MNI_coord;
         MNI_coord = MNI_coord_tmp;
+        
+        MGRID_coord_tmp(in_fs,:) = MGRID_coord;
+        MGRID_coord = MGRID_coord_tmp;        
     else
         warning('channel labels not fixed, please double check PPT/FS')
         mismatch_labels = 1;
@@ -152,7 +166,7 @@ if ~exist('mismatch_labels')
     
     subjVar.LEPTO_coord = RAS_coord(new_order,:);
     subjVar.MNI_coord = MNI_coord(new_order,:);
-    
+    subjVar.MGRID_coord = MGRID_coord(new_order,:);
     
     % labels mean the corrected names
     if strcmp(data_format, 'TDT')
