@@ -6,13 +6,13 @@ function PlotCoverageElect(subjVar, cfg)
 
 
 load('cdcol_2018.mat')
-marker_size = 30;
-marker_size_high = 14;
+marker_size = 16;
+marker_size_high = 10;
 
 
 
 MarkerFaceColor = cdcol.light_cadmium_red;
-MarkerFaceColor_high = MarkerFaceColor
+MarkerFaceColor_high = MarkerFaceColor;
 
 
 % % [0.1 0.1 0.1];

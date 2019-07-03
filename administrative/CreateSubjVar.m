@@ -1,4 +1,5 @@
-function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format)
+function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, comp_root, server_root, code_root)
+% function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format)
 
 %% Coordinate systems
 % LEPTO_coord and native_coord the same
@@ -6,6 +7,11 @@ function [subjVar, subjVar_created]  = CreateSubjVar(sbj_name, dirs, data_format
 % MNI_coord for when ploting in fsaverage
 
 % Sometimes the empty means cut channel (literaly physically cut from the grid)
+
+% Maybe remove this after
+data_format = GetFSdataFormat(sbj_name, 'Stanford');
+dirs = InitializeDirs('MMR', sbj_name, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+sprintf('creating subjVar for subject %s', sbj_name)
 
 
 if strcmp(data_format, 'edf')
@@ -131,7 +137,7 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         %         native_coord_tmp = nan(size(native_coord,1),size(native_coord,2),1);
         RAS_coord_tmp = nan(size(RAS_coord,1),size(RAS_coord,2),1);
         MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
-        MGRID_coord = nan(size(MGRID_coord,1),size(MGRID_coord,2),1);
+        MGRID_coord_tmp = nan(size(MGRID_coord,1),size(MGRID_coord,2),1);
 
         if in_fs(end) == 0
             RAS_coord_tmp(end+1,:) = nan;
