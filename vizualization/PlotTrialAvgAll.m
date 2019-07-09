@@ -194,7 +194,7 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
 %             save2pdf(fn_out, gcf, 300)
             close
         else
-            fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name_generic,elec_names_all,title_conds,project_name,freq_band,locktype);
+            fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name,elec_names_all,title_conds,project_name,freq_band,locktype);
             savePNG(gcf, 300, fn_out)
             close
         end
