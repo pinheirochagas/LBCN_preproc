@@ -24,7 +24,7 @@ MarkerFaceColor_high = MarkerFaceColor;
 % 
 
 
-figureDim = [0 0 .5 1];
+figureDim = [0.1230 0.6361 0.4355 0.1965];
 % figureDim = [0 0 1 .4];
 
 
@@ -44,8 +44,15 @@ end
 
 
 figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+
+% figure('units', 'normalized', 'outerposition', figureDim)
+views = {'lateral','medial', 'ventral'};
+
+if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
+    hemis = {'left','left','left'};
+else
+    hemis = {'right', 'right', 'right'};
+end
 % 
 % views = {'lateral', 'lateral', 'posterior', 'posterior'};
 % hemis = {'left', 'right', 'left', 'right'};
@@ -64,7 +71,7 @@ hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 % end
 
 for i = 1:length(views)
-      subplot(3,2,i)
+      subplot(1,3,i)
 %     subplot(1,2,i)    
     
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, cfg.correction_factor);

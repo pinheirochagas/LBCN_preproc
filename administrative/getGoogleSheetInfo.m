@@ -85,6 +85,14 @@ switch table
                 GID = '0';
                 
         end
+        
+    case 'simulatenous_coverage_math'
+        DOCID = '1UKqc0m6guvx5-tuXtfapWkZun4Hx7lJBbl0y7gfyGOs';
+         switch sheet
+            case 'math_selective_only'
+                GID = '486842448';
+         end
+        
 end
 
 end

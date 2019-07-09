@@ -163,8 +163,10 @@ for ei = 1:length(elecs)
 %                 save2pdf(fn_out, gcf, 300)
                 close
             else
-                fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name_generic,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+%                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype);
                 savePNG(gcf, 300, fn_out)
+                close
             end
         end
 %         close
@@ -190,9 +192,11 @@ if plot_params.multielec  % if plotting multiple elecs, create legend based on e
             fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',dir_out,sbj_name_generic,elec_names_all,title_conds,project_name,freq_band,locktype);
             savePNG(gcf, 300, fn_out)
 %             save2pdf(fn_out, gcf, 300)
+            close
         else
             fn_out = sprintf('%s/%s_%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name_generic,elec_names_all,title_conds,project_name,freq_band,locktype);
             savePNG(gcf, 300, fn_out)
+            close
         end
     end
     

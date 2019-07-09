@@ -1,6 +1,6 @@
-function PlotSelectivity(dirs, subjVar, einfo, cfg)
+function PlotSelectivity(dirs, subjVar, elinfo, cfg)
 
-coords = einfo.LEPTO_coord;
+coords = elinfo.LEPTO_coord;
 
 %% Load comon brain (replace by fsaverage)
 % [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
@@ -14,27 +14,35 @@ subj = subj.name;
 %% Define elect size and color
 load('cdcol_2018.mat')
 
-elect_size = repmat(9, length(einfo.elect_select), 1);
-elect_size(strcmp(einfo.elect_select, 'no selectivity')) = 2;
-elect_size(strcmp(einfo.elect_select, 'math and autobio')) = 7;
 
-marker_size = repmat(10,length(einfo.elect_select), 1);
-for i = 1:length(einfo.elect_select)
-    if strcmp(einfo.elect_select{i}, 'math only')
-        elect_col(i,:) = cdcol.carmine;
-    elseif strcmp(einfo.elect_select{i}, 'math selective')
-        elect_col(i,:) = cdcol.pink;
-    elseif strcmp(einfo.elect_select{i}, 'math and autobio')
-        elect_col(i,:) = cdcol.mauve;
-    elseif strcmp(einfo.elect_select{i}, 'autobio only')
-        elect_col(i,:) = cdcol.ultramarine;
-    elseif strcmp(einfo.elect_select{i}, 'autobio selective')
-        elect_col(i,:) = cdcol.light_blue;
+
+elect_select = elinfo.elect_select;
+marker_size = repmat(10,length(elinfo.elect_select), 1);
+marker_size(strcmp(elinfo.elect_select, 'no selectivity')) = 5;
+marker_size(strcmp(elinfo.elect_select, 'math and autobio')) = 7.5;
+
+for i = 1:length(elect_select)
+    if strcmp(elect_select{i}, 'math only')
+        elect_col(i,:) = cdcol.indian_red;
+        elect_col_edge(i,:) = [0 0 0];
+    elseif (strcmp(elect_select{i}, 'math selective and autobio act')) || (strcmp(elect_select{i}, 'math selective and autobio deact'))
+        elect_col(i,:) = cdcol.raspberry_red;
+        elect_col_edge(i,:) = [0 0 0];
+    elseif strcmp(elect_select{i}, 'math and autobio')
+        elect_col(i,:) = cdcol.manganese_violet;
+        elect_col_edge(i,:) = [0 0 0];
+    elseif strcmp(elect_select{i}, 'autobio only')
+        elect_col(i,:) = cdcol.marine_blue;
+        elect_col_edge(i,:) = [0 0 0];
+    elseif (strcmp(elect_select{i}, 'autobio selective and math act')) || (strcmp(elect_select{i}, 'autobio selective and math deact'))
+        elect_col(i,:) = cdcol.azurite_blue;
+        elect_col_edge(i,:) = [0 0 0];
     else
         elect_col(i,:) = [0 0 0];
-        marker_size(i) = 6;
+        elect_col_edge(i,:) = [0 0 0];
     end
 end
+
 
 %% Plot electrodes as dots in native space
 figureDim = [0 0 .4 1];
@@ -82,7 +90,7 @@ for i = 1:length(views)
     alpha(0.7)   
 end
 
-% savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep subjVar.sbj_name '_selectivity_' project_name '_' cfg.cortex_space '.png']); % ADD TASK AND CONDITION
+savePNG(gcf, 300, [dirs.result_root filesep 'selectivity/individual' filesep subjVar.sbj_name '_selectivity_' cfg.project_name '_' cfg.cortex_space '.png']); % ADD TASK AND CONDITION
 
 % savePNG(gcf, 300, [dirs.result_root filesep '57_yeo7_ventral.png']); % ADD TASK AND CONDITION
 
