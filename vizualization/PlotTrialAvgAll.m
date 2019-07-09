@@ -133,12 +133,15 @@ for ei = 1:length(elecs)
     end
     
     if plot_params.multielec % if  multiple elecs in same figure (will group all conditions together)
+        load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat']);
+        
         plot_params.col = col_tmp(ei,:); % plot each elec in diff color
         h(ei) = PlotTrialAvg(data_all,column,conds,plot_params);
         hold on
         ymin(ei) = (min(h(ei).YData) - (std(h(ei).YData)/sqrt(size(h(ei).YData,2)))) / 1.2;
         ymax(ei) = (max(h(ei).YData) + (std(h(ei).YData)/sqrt(size(h(ei).YData,2)))) * 1.2;
         elec_names{ei} = [data_all.label,tagchan];
+        elec_loc{ei} = [subjVar.elinfo.Destr_ind{elecs(ei)} ' ' subjVar.elinfo.Destrieux{elecs(ei)}] ;
         elec_names_all = [elec_names_all,'_',data_all.label];
     else
         PlotTrialAvg(data_all,column,conds,plot_params);
@@ -178,7 +181,9 @@ end
 if plot_params.multielec  % if plotting multiple elecs, create legend based on elec #
     ylim([min(ymin) max(ymax)])
     plot([0 0],ylim,'Color', [0 0 0], 'LineWidth',2)
-    leg = legend(h,elec_names);
+%     leg = legend(h,elec_names);
+    leg = legend(h,elec_loc);
+    
     legend boxoff
     set(leg,'fontsize',14);
     title_conds = conds{1};
