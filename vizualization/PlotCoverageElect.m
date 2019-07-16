@@ -88,9 +88,9 @@ for i = 1:length(views)
     if ~isempty(cfg.chan_highlight)
         for hi = 1:length(cfg.chan_highlight)
             if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'L'))
-                plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', MarkerFaceColor_high(hi,:), 'MarkerEdgeColor', MarkerFaceColor(ii,:));
+                plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', cfg.highlight_col(hi,:), 'MarkerEdgeColor',  cfg.highlight_col(hi,:));
             elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'R'))
-                plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', MarkerFaceColor_high(hi,:), 'MarkerEdgeColor',MarkerFaceColor(ii,:));
+                plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', cfg.highlight_col(hi,:), 'MarkerEdgeColor', cfg.highlight_col(hi,:));
             else
             end
         end

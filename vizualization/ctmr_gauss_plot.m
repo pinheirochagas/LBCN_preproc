@@ -119,6 +119,8 @@ if strcmp(hemi,'left')
             loc_view(45,0)
         case 'medio-anterior'
             loc_view(135,0)
+        case 'frontal'
+            loc_view(-110,10)
     end
 %     set(l,'Position',[-1 0 1])   
 elseif strcmp(hemi,'right')
@@ -147,6 +149,8 @@ elseif strcmp(hemi,'right')
             loc_view(315,0)
         case 'medio-anterior'
             loc_view(225,0)  
+        case 'frontal'
+            loc_view(110,10)
     end
     
 else
