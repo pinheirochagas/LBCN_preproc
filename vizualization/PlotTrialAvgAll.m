@@ -167,7 +167,7 @@ for ei = 1:length(elecs)
                 close
             else
 %                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-                fn_out = sprintf('%s/%s_%s_%s_%s_%slock.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype);
+                fn_out = sprintf('%s%s_%02d_%s_%s_%slock.png',plot_params.save_dir,sbj_name,el,project_name,freq_band,locktype);
                 savePNG(gcf, 300, fn_out)
                 close
             end

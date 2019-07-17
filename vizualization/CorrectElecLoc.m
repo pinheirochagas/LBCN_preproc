@@ -5,7 +5,7 @@ function coords_plot = CorrectElecLoc(coords, views, hemisphere, correction_fact
 coords_plot = coords;
 % correction_factor = 0;
 switch views
-    case {'lateral', 'frontal'}
+    case {'lateral', 'frontal', 'parietal'}
         if strcmp(hemisphere, 'right')
             coords_plot(:,1) = coords_plot(:,1) + correction_factor;
         elseif strcmp(hemisphere, 'left')
