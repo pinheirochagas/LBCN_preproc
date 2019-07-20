@@ -53,7 +53,7 @@ for bi = 1:length(block_names)
         case 'MMR'
             for i = 1:size(data.trialinfo,1)
                 if data.trialinfo.isCalc(i) == 1
-                    if data.trialinfo.AbsDeviant(i) == 1
+                    if data.trialinfo.AbsDeviant(i) == 0
                         data.trialinfo.correctness{i} = 'correct';
                     elseif data.trialinfo.AbsDeviant(i) > 0
                         data.trialinfo.correctness{i} = 'incorrect';

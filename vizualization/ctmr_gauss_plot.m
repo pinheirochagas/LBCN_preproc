@@ -120,7 +120,7 @@ if strcmp(hemi,'left')
         case 'medio-anterior'
             loc_view(135,0)
         case 'frontal'
-            loc_view(-110,10)
+            loc_view(-120,10)
         case 'parietal'
             loc_view(-70,10)
             
@@ -151,7 +151,7 @@ elseif strcmp(hemi,'right')
         case 'medio-anterior'
             loc_view(225,0)  
         case 'frontal'
-            loc_view(70,10)
+            loc_view(120,10)
         case 'parietal'
             loc_view(70,10)
     end

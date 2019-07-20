@@ -25,12 +25,10 @@ end
 
 
 %% Plot electrodes as dots in native space
-views = {'lateral', 'lateral', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right'};
+% views = {'lateral', 'lateral', 'ventral', 'ventral'};
+% hemis = {'left', 'right', 'left', 'right'};
 
-views = {'frontal', 'frontal'};
-views = {'parietal', 'parietal'};
-
+views = {cfg.lobe, cfg.lobe};
 hemis = {'left', 'right'};
 
 figure('units', 'normalized', 'outerposition', [0 0 1 1]); %[0 0 .5 .5]
