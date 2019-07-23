@@ -58,6 +58,9 @@ switch table
             case 'Numblet'
                 GID = '371325198';
                 
+            case 'math_network_cohort'
+                GID = '1325879124';
+                
         end
         
     case 'subjects_by_task'
