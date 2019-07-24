@@ -99,10 +99,28 @@ for ei = 1:length(elecs)
 %         suptitle(['Elec ',num2str(el),tagchan])
 %     else
 %     end
-    fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-    savePNG(gcf, 100, fn_out)
-    fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.pdf',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-    save2pdf(fn_out, gcf, 100)
+%     fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+%     savePNG(gcf, 100, fn_out)
+%     fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.pdf',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+%     save2pdf(fn_out, gcf, 100)
+
+if plot_params.save == true
+            if isempty(plot_params.save_dir)
+%                 dir_out = '/Volumes/LBCN8T/Stanford/data/Results/Logo/S14_73_AY/Figures/BandData/HFB/stimlock/logo';
+%                 folder_name = 'logo';
+                fn_out = sprintf('%s/ERP_%s_%s_%s_%s_%slock_%s%s.png',dir_out,sbj_name_generic,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                savePNG(gcf, 300, fn_out)
+                fn_out = sprintf('%s/ERP_%s_%s_%s_%s_%slock_%s%s.pdf',dir_out,sbj_name_generic,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+%                 save2pdf(fn_out, gcf, 300)
+                close
+            else
+%                 fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s.png',plot_params.save_dir,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+                fn_out = sprintf('%s%s_%02d_%s_%s_%slock_ERP.png',plot_params.save_dir,sbj_name,el,project_name,freq_band,locktype);
+                savePNG(gcf, 300, fn_out)
+                close
+            end
+        end
+
 
     %% Video
     if plot_params.video == true
@@ -115,15 +133,15 @@ for ei = 1:length(elecs)
     close
 end
 
-
-% fig = figure;
-% movie(fig,F,1)
-fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s_video.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
-videoRSA = VideoWriter(fn_out);
-videoRSA.FrameRate = 5;  % Default 30
-videoRSA.Quality = 100;    % Default 75
-open(videoRSA);
-writeVideo(videoRSA, [F,F,F,F,F,F,F,F,F,F,F]);
-close(videoRSA);
+% 
+% % fig = figure;
+% % movie(fig,F,1)
+% fn_out = sprintf('%s/%s_%s_%s_%s_%slock_%s%s_video.png',dir_out,sbj_name,data_all.label,project_name,freq_band,locktype,folder_name,plottag);
+% videoRSA = VideoWriter(fn_out);
+% videoRSA.FrameRate = 5;  % Default 30
+% videoRSA.Quality = 100;    % Default 75
+% open(videoRSA);
+% writeVideo(videoRSA, [F,F,F,F,F,F,F,F,F,F,F]);
+% close(videoRSA);
 end
 

@@ -90,7 +90,7 @@ for i = 1:length(views)
     alpha(0.7)   
 end
 
-savePNG(gcf, 300, [dirs.result_root filesep 'selectivity/individual' filesep subjVar.sbj_name '_selectivity_' cfg.project_name '_' cfg.cortex_space '.png']); % ADD TASK AND CONDITION
+savePNG(gcf, 300, [dirs.result_root filesep cfg.project_name filesep 'selectivity/individual' filesep subjVar.sbj_name '_selectivity_' cfg.project_name '_' cfg.cortex_space '.png']); % ADD TASK AND CONDITION
 
 % savePNG(gcf, 300, [dirs.result_root filesep '57_yeo7_ventral.png']); % ADD TASK AND CONDITION
 
