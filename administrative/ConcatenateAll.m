@@ -167,7 +167,7 @@ if isfield(concat_params, 'exclude_nan_chan') && concat_params.exclude_nan_chan
     data_all.label = data_all.label{good_chans};
 end
 
-if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
+if strcmp(concat_params.data_format, 'fieldtrip_raw') 
     
 %     Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
@@ -182,9 +182,9 @@ if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
-    %    trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+      trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
 %     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
-    trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
+%     trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
     time = data_all.time;
     ntrials = size(data_all.trialinfo,1);
      data_all =  rmfield(data_all, 'trialinfo');
@@ -197,11 +197,17 @@ if isfield(concat_params, 'fieldtrip') && concat_params.fieldtrip
 %     data_all.time = data_all.time;
 %     data_all.label = data_all.label';
     
+elseif strcmp(concat_params.data_format, 'fieldtrip_fq') 
+    
+    data_all.trial = data_all.wave;
+    data_all.trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+    data_all = rmfield(data_all, 'wave');
+    data_all = rmfield(data_all, 'badChan');
+    data_all = rmfield(data_all, 'project_name');
+    data_all = rmfield(data_all, 'trialinfo_all');
+    data_all.dimord = 'rpt_chan_time';
 else
+  
+end
     
 end
-
-
-
-end
-
