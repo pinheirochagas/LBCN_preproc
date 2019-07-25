@@ -200,7 +200,7 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
 elseif strcmp(concat_params.data_format, 'fieldtrip_fq') 
     
     data_all.trial = data_all.wave;
-    data_all.trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+    data_all.trialinfo = data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
     data_all = rmfield(data_all, 'wave');
     data_all = rmfield(data_all, 'badChan');
     data_all = rmfield(data_all, 'project_name');
