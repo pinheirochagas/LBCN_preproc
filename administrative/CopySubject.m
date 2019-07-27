@@ -41,8 +41,8 @@ for i = 1:length(block_names)
     %% Copy globalVar
     global_var_s_path = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',s_neuralData,sbj_name,project_name,sbj_name,bn);
     global_var_d_path = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',d_neuralData,sbj_name,project_name,sbj_name,bn);
+    copyfile(global_var_s_path, global_var_d_path)
     if ~exist(global_var_d_path)
-        copyfile(global_var_s_path, global_var_d_path)
     else
     end
     
