@@ -102,7 +102,10 @@ elseif strcmp(epoch_params.locktype,'resp')
         lockevent = trialinfo.RT_lock;
     end
     
+elseif strcmp(epoch_params.locktype,'resp_press')
+        lockevent = trialinfo.response_time;
 else
+    
     lockevent = [];
 end
 

@@ -6,8 +6,8 @@ function PlotCoverageElect(subjVar, cfg)
 
 
 load('cdcol_2018.mat')
-marker_size = 16;
-marker_size_high = 10;
+marker_size = 20;
+marker_size_high = 15;
 
 
 
@@ -25,7 +25,7 @@ MarkerFaceColor_high = MarkerFaceColor;
 
 
 figureDim = [0.1230 0.6361 0.4355 0.1965];
-% figureDim = [0 0 1 .4];
+ figureDim = [0 0 1 .4];
 
 
 for i = 1:size(subjVar.elinfo,1)
@@ -46,7 +46,7 @@ end
 figure('units', 'normalized', 'outerposition', figureDim)
 
 % figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral','medial', 'ventral'};
+views = {'lateral', 'anterior', 'posterior'};
 
 if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
     hemis = {'left','left','left'};
@@ -71,7 +71,7 @@ end
 % end
 
 for i = 1:length(views)
-      subplot(1,3,i)
+       subplot(1,3,i)
 %     subplot(1,2,i)    
     
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, cfg.correction_factor);
