@@ -33,7 +33,7 @@ else
 end
 
 for el = elects
-data = ConcatenateAll(sbj_name,project_name,block_names,dirs, el,'CAR','CAR','stim', concat_params);
+data = ConcatenateAll(sbj_name,project_name,block_names,dirs, 25,'CAR','CAR','stim', concat_params);
 
 if strcmp(project_name, 'MMR')
     % filter math trials
@@ -104,15 +104,26 @@ set(gca,'fontsize',fontsize)
 legend('Fractal component', 'Power spectrum');
 
 % 
-% % plot the full-width half-maximum of the oscillatory component
-% f    = fit(osci.freq', osci.powspctrm', 'gauss1');
-% mean = f.b1;
-% std  = f.c1/sqrt(2)*2.3548;
-% fwhm = [mean-std/2 mean+std/2];
-%  yl   = get(gca, 'YLim');
-% p = patch([fwhm flip(fwhm)], [yl(1) yl(1) yl(2) yl(2)], [1 1 1]);
-% uistack(p, 'bottom');
-% legend('FWHM oscillation', 'Fractal component', 'Power spectrum');
+% plot the full-width half-maximum of the oscillatory component
+f    = fit(osci.freq', osci.powspctrm', 'gauss2');
+% See why negative, if negative set to 0. 
+
+mean1= f.b1;
+mean2= f.b2;
+
+std1  = f.c1/sqrt(2)*2.3548;
+std2  = f.c2/sqrt(2)*2.3548;
+
+fwhm1 = [mean1-std1/2 mean1+std1/2];
+fwhm2 = [mean2-std2/2 mean2+std2/2];
+
+yl   = get(gca, 'YLim');
+p = patch([fwhm flip(fwhm)], [yl(1) yl(1) yl(2) yl(2)], [1 1 1]);
+uistack(p, 'bottom');
+p = patch([fwhm2 flip(fwhm2)], [yl(1) yl(1) yl(2) yl(2)], [1 1 1]);
+uistack(p, 'bottom');
+
+legend('FWHM oscillation', 'Fractal component', 'Power spectrum');
 xlabel('Frequency'); ylabel('Power');
 % set(gca, 'YLim', yl);
 set(gca,'fontsize',fontsize)
