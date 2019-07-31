@@ -92,33 +92,36 @@ for ei = 1:length(elecs)
     data_all.trialinfo_all{el} = [data_bn.trialinfo];
     %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
+    data_all.label = subjVar.elinfo.FS_label(ei);
 end
 
 
 %% Correct for the actual recorded channels
-if size(data_all.wave, 2) ~= size(subjVar.elinfo,1)
-    if ~isempty(str2num(globalVar.channame{1}))
-        disp('Correctig for the actual recorded channels')
-        nchan_fs = size(subjVar.elinfo,1);
-        in_chan_cmp = false(1,nchan_fs);
-        for i = 1:nchan_fs
-            in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+if size(data_all.wave, 2) > 1
+    if size(data_all.wave, 2) ~= size(subjVar.elinfo,1)
+        if ~isempty(str2num(globalVar.channame{1}))
+            disp('Correctig for the actual recorded channels')
+            nchan_fs = size(subjVar.elinfo,1);
+            in_chan_cmp = false(1,nchan_fs);
+            for i = 1:nchan_fs
+                in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+            end
+            % If TDT, channels are all in freesurfer?
+        else
+            nchan_cmp = size(globalVar.channame,2);
+            in_fs = false(1,nchan_cmp);
+            for i = 1:nchan_cmp
+                in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+            end
+            data_all.wave = data_all.wave(:, in_fs, :);
+            data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
+            data_all.label = subjVar.elinfo.FS_label;
         end
-        % If TDT, channels are all in freesurfer?
     else
-        nchan_cmp = size(globalVar.channame,2);
-        in_fs = false(1,nchan_cmp);
-        for i = 1:nchan_cmp
-            in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
-        end
-        data_all.wave = data_all.wave(:, in_fs, :);
-        data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
         data_all.label = subjVar.elinfo.FS_label;
     end
 else
-        data_all.label = subjVar.elinfo.FS_label;
 end
-
 
 
 
@@ -171,7 +174,7 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
     
 %     Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
-        waveOrg{i} = squeeze(data_all.wave(i,:,:));
+        waveOrg{i} = squeeze(data_all.wave(i,:,:))';
     end
     
     data_all.trial =  waveOrg;
@@ -182,7 +185,7 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
-      trialinfo = data_all.trialinfo.int_cue_targ_time; % be carefull with that, simple solution for EglyDriver, only including one column
+      trialinfo =  data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
 %     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
 %     trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
     time = data_all.time;
@@ -190,9 +193,10 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
      data_all =  rmfield(data_all, 'trialinfo');
      data_all =  rmfield(data_all, 'time');
      for i = 1:ntrials
-          data_all.trialinfo{i} = trialinfo;
+%           data_all.trialinfo{i} = trialinfo;
           data_all.time{i} = time;
      end
+     data_all.trialinfo = trialinfo;
 %      data_all.trialinfo = trialinfo;
 %     data_all.time = data_all.time;
 %     data_all.label = data_all.label';
