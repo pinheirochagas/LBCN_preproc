@@ -28,6 +28,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
         case 'VTCLoc'
             n_stim_per_trial = 1;
+        case 'GradCPT'
+            n_stim_per_trial = 1;
     end
     
     %% Load globalVar
@@ -43,10 +45,11 @@ for i = 1:length(block_names)
         if strcmp(sbj_name, 'S18_124_JR2')
             n_initpulse_onset = 0;
             n_initpulse_offset = 0;
-        else
+        else 
             n_initpulse_onset = 12;
             n_initpulse_offset = 12;
         end
+
     else
         [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     end
@@ -55,6 +58,7 @@ for i = 1:length(block_names)
     
     %% Add exceptions
     [n_initpulse_onset, n_initpulse_offset] = EventIdentifierExceptions(sbj_name, project_name, bn, n_initpulse_onset, n_initpulse_offset);
+   
     
     %% Thresholding the signal
     if strcmp(project_name, 'Calculia_production')
@@ -209,6 +213,7 @@ all_stim_onset = EventIdentifierExceptions_oneTrialLess(all_stim_onset,sbj_name,
 % Add another exception for subjects who have additional photo/trigger trials in the middle
 % and visual inspection shows good correspondence between photo/trigger and psychtoolbox output
 all_stim_onset = EventIdentifierExceptions_extraTrialsMiddle(all_stim_onset, StimulusOnsetTime, sbj_name, project_name, bn);
+
 
 
 

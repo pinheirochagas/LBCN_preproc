@@ -89,22 +89,9 @@ cfg               = [];
 cfg.parameter     = 'powspctrm';
 cfg.operation     = 'x2-x1';
 osci = ft_math(cfg, frac, orig);
+osci.powspctrm(osci.powspctrm < 0) = 0;
 
-%% plot the fractal component and the power spectrum
-figure('units', 'normalized', 'outerposition', [0 0 .5 .5]) % [0 0 .6 .3]
-fontsize = 16;
-
-subplot(2,2,1)
-plot(frac.freq, frac.powspctrm, ...
-    'linewidth', 3, 'color', [0 0 0])
-hold on; plot(orig.freq, orig.powspctrm, ...
-    'linewidth', 3, 'color', [.6 .6 .6])
-title(subjVar.labels_EDF{el})
-set(gca,'fontsize',fontsize)
-legend('Fractal component', 'Power spectrum');
-
-% 
-% plot the full-width half-maximum of the oscillatory component
+% Fit the gaussian to find the peaks
 f    = fit(osci.freq', osci.powspctrm', 'gauss2');
 % See why negative, if negative set to 0. 
 
@@ -114,48 +101,17 @@ mean2= f.b2;
 std1  = f.c1/sqrt(2)*2.3548;
 std2  = f.c2/sqrt(2)*2.3548;
 
-fwhm1 = [mean1-std1/2 mean1+std1/2];
-fwhm2 = [mean2-std2/2 mean2+std2/2];
-
-yl   = get(gca, 'YLim');
-p = patch([fwhm flip(fwhm)], [yl(1) yl(1) yl(2) yl(2)], [1 1 1]);
-uistack(p, 'bottom');
-p = patch([fwhm2 flip(fwhm2)], [yl(1) yl(1) yl(2) yl(2)], [1 1 1]);
-uistack(p, 'bottom');
-
-legend('FWHM oscillation', 'Fractal component', 'Power spectrum');
-xlabel('Frequency'); ylabel('Power');
-% set(gca, 'YLim', yl);
-set(gca,'fontsize',fontsize)
-
-% plot the fractal component and the power spectrum
-subplot(2,2,2)
-plot(frac.freq,orig.powspctrm - frac.powspctrm, 'linewidth', 3, 'color', [0 0 1])
-xlabel('Frequency'); ylabel('Power');
-set(gca,'fontsize',fontsize)
-title('Power - Fractal (oscillatory component)')
+%% Calculate the average power within each peak:
+oscipeaks.peak1.meanfreq = mean1;
+oscipeaks.peak1.stdfreq = std1;
+oscipeaks.peak1.meanpower = mean(orig.powspctrm(min(find(orig.freq>=mean1-std1)):max(find(orig.freq<=mean1+std1))));
+oscipeaks.peak2.meanfreq = mean2;
+oscipeaks.peak2.stdfreq = std2;
+oscipeaks.peak2.meanpower = mean(orig.powspctrm(min(find(orig.freq>=mean2-std2)):max(find(orig.freq<=mean2+std2))));
+oscipeaks.powspctrm = osci.powspctrm';
+oscipeaks.freq =osci.freq'; 
+fout = sprintf('%s/%s/%s/signal_properties/oscillatory_%s.mat', dirs.result_root, project_name, sbj_name, subjVar.labels_EDF{el});
+save(fout, 'oscipeaks', 'osci', 'orig')
 
 
-subplot(2,2,3)
-plot(frac.freq, frac.powspctrm, ...
-    'linewidth', 3, 'color', [0 0 0])
-hold on; plot(orig.freq, orig.powspctrm, ...
-    'linewidth', 3, 'color', [.6 .6 .6])
-title(subjVar.labels_EDF{el})
-xlabel('Log(Frequency)'); ylabel('Log(Power)');
-set(gca, 'YScale', 'log')
-set(gca, 'XScale', 'log')
-set(gca,'fontsize',fontsize)
-
-
-subplot(2,2,4)
-plot(log(frac.freq), log(orig.powspctrm) - log(frac.powspctrm), 'linewidth', 3, 'color', [0 0 1])
-xlabel('Log(Frequency)'); ylabel('Log(Power)');
-xlim([0 max(log(orig.freq))])
-title('Power - Fractal (oscillatory component)')
-set(gca,'fontsize',fontsize)
-
-fout = sprintf('%s/%s/%s/signal_properties/oscillatory_%s.png', dirs.result_root, project_name, sbj_name, subjVar.labels_EDF{el});
-savePNG(gcf, 300, fout)
-close all
 end
