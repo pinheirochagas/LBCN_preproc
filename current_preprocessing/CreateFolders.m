@@ -96,10 +96,13 @@ for bn = 1:length(block_name)
             globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
         else
         end
-        % Behavioral data
-        waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
-        [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
-        globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
+        if ~strcmp(project_name, 'rest')
+            % Behavioral data
+            waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
+            [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
+            globalVar.behavioral_data_server_path = [PATHNAME, FILENAME];
+        else
+        end
     end
     
     % Save globalVariable

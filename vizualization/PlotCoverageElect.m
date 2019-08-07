@@ -46,7 +46,8 @@ end
 figure('units', 'normalized', 'outerposition', figureDim)
 
 % figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral', 'anterior', 'posterior'};
+% views = {'lateral', 'anterior', 'posterior'};
+views = {'lateral', 'ventral', 'temporal'};
 
 if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
     hemis = {'left','left','left'};

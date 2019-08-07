@@ -17,7 +17,7 @@ switch views
         elseif strcmp(hemisphere, 'left')
             coords_plot(:,1) = coords_plot(:,1) + correction_factor;
         end
-    case 'ventral'
+    case {'ventral', 'temporal'}
         coords_plot(:,3) = coords_plot(:,3) - correction_factor;
 end
 end

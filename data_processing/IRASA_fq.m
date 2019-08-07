@@ -33,7 +33,7 @@ else
 end
 
 for el = elects
-data = ConcatenateAll(sbj_name,project_name,block_names,dirs, 25,'CAR','CAR','stim', concat_params);
+data = ConcatenateAll(sbj_name,project_name,block_names,dirs, el,'CAR','CAR','stim', concat_params);
 
 if strcmp(project_name, 'MMR')
     % filter math trials
@@ -111,7 +111,7 @@ oscipeaks.peak2.meanpower = mean(orig.powspctrm(min(find(orig.freq>=mean2-std2))
 oscipeaks.powspctrm = osci.powspctrm';
 oscipeaks.freq =osci.freq'; 
 fout = sprintf('%s/%s/%s/signal_properties/oscillatory_%s.mat', dirs.result_root, project_name, sbj_name, subjVar.labels_EDF{el});
-save(fout, 'oscipeaks', 'osci', 'orig')
+save(fout, 'oscipeaks', 'osci', 'orig', 'frac')
 
 
 end

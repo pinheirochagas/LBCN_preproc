@@ -30,9 +30,11 @@ elseif strcmp(data_format, 'edf')
 else
 end
 
-%%Copy behavioral file
-copyfile(globalVar.behavioral_data_server_path, globalVar.psych_dir)
-fprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir)
-
+if ~strcmp(project_name, 'rest')
+    %%Copy behavioral file
+    copyfile(globalVar.behavioral_data_server_path, globalVar.psych_dir)
+    fprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir)
+else
+end
 end
 

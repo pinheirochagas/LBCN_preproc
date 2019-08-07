@@ -169,8 +169,12 @@ if ~plot_params.single_trial
     else
         time_events = plot_params.xlines;
     end
-    for i = 1:length(time_events)
-        plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+    
+    if ~isempty(time_events)
+        for i = 1:length(time_events)
+            plot([time_events(i) time_events(i)],y_lim,'Color', [.5 .5 .5], 'LineWidth',1)
+        end
+    else
     end
     
     
