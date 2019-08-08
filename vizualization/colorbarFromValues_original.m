@@ -3,7 +3,7 @@ function [col_idx,cols] = colorbarFromValues(values, color_map)
 %
 min_value_symetric = -(max([max(values) abs(min(values))]));
 % col_idx=floor((values-min_value_symetric)/(-2*min_value_symetric) * 100) + 1;
-col_idx=floor((values-min(values))/range(values) * 100) + 1;
+col_idx=floor((values-min(values))/range(values) * length(values)) + 1;
 
 
 if strcmp(color_map, 'parula') == 1

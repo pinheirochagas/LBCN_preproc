@@ -125,7 +125,6 @@ if strcmp(hemi,'left')
             loc_view(-120,10)
         case 'parietal'
             loc_view(-70,10)
-            
     end
 %     set(l,'Position',[-1 0 1])   
 elseif strcmp(hemi,'right')
