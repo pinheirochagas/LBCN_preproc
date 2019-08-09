@@ -1,4 +1,4 @@
-function data_all = ConcatenateAvgTrials(sbj_names,project_name, conds_avg_field, conds_avg_conds,concat_params, bad_chan_reject, dirs, badchan_vis)
+function data_all = ConcatenateAvgTrials(sbj_names,project_name, conds_avg_field, conds_avg_conds,concat_params, bad_chan_reject, dirs, badchan_vis, locktype)
 
 %% Avg task
 % conditions to average
@@ -20,11 +20,11 @@ for i = 1:length(sbj_names)
     disp(['concatenating subject ' sbj_names{i}])
     %% Concatenate trials from all blocks
     block_names = BlockBySubj(sbj_names{i},project_name);
-    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
-    if ~isempty(badchan_vis)
-        data_sbj.badChan = badchan_vis{i};
-    else
-    end
+    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB',locktype, concat_params);
+%     if ~isempty(badchan_vis)
+%         data_sbj.badChan = badchan_vis{i};
+%     else
+%     end
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
         data_tmp_mean = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode

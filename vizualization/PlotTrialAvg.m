@@ -133,7 +133,11 @@ for ci = 1:ncategs
                 hold on
                 %                 plot(data.time,nanmean(plot_data{ci}) + nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
                 %                 plot(data.time,nanmean(plot_data{ci}) - nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)), 'Color', plot_params.col(ci,:), 'LineWidth', 1)
-                mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+                if ~isempty(plot_data{ci})
+                    mseb(data.time,nanmean(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
+                else
+                    plot(data.time,zeros(size(data.time,2),1)');
+                end
                 %                mseb(data.time,nanmedian(plot_data{ci}),nanstd(plot_data{ci})/sqrt(size(plot_data{ci},1)),lineprops,1);
                 hold on
             else %'std'
@@ -145,7 +149,11 @@ for ci = 1:ncategs
             %             ylim([-1 y_lim(2)])
         end
     end
-    h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
+    if ~isempty(plot_data{ci})
+        h(ci)=plot(data.time,nanmean(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
+    else
+        h(ci) = plot(data.time,zeros(size(data.time,2),1)');
+    end
     %     h(ci)=plot(data.time,nanmedian(plot_data{ci}),'LineWidth',plot_params.lw,'Color',plot_params.col(ci,:));
     hold on
 end
@@ -165,6 +173,7 @@ if ~plot_params.single_trial
         if size(data.trialinfo.allonsets,2) > 1
             time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
         else
+            time_events = [0 0];
         end
     else
         time_events = plot_params.xlines;
