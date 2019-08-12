@@ -12,7 +12,7 @@ elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
 
 if wavelet_flag
     for bi = 1:length(block_names)
-        parfor ei = 1:length(elecs)
+        for ei = 1:length(elecs)
             WaveletFilterAll(sbj_name, project_name, block_names{bi}, dirs, elecs(ei), 'HFB', [], [], [], 'Band') % only for HFB
 %             WaveletFilterAll(sbj_name, project_name, block_names{bi}, dirs, elecs(ei), 'SpecDense', [], [], true, 'Spec') % across frequencies of interest
         end
@@ -22,9 +22,10 @@ end
 
 if epoch_flag
     % Branch 6 - Epoching, identification of bad epochs and baseline correction
-    epoch_params = genEpochParams(project_name, 'stim'); % stim or resp
+    epoch_params = genEpochParams(project_name, 'resp'); % stim or resp
+    epoch_params.compare_bad = false;
     for bi = 1:length(block_names)
-        parfor ei = 1:length(elecs)
+        for ei = 1:length(elecs)
             EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
 %             EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
         end
@@ -43,7 +44,9 @@ if plot_flag
     plot_params = genPlotParams(project_name,'timecourse');
     plot_params.noise_method = 'trials'; %'trials','timepts','none'
     plot_params.noise_fields_trials = {'bad_epochs_HFO','bad_epochs_raw_HFspike'};
-    PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','stim','condNames',[],plot_params,'Band') % condNames
+    
+    plot_params.xlim = [-5 1]
+    PlotTrialAvgAll(sbj_name,project_name,block_names,dirs,[],'HFB','resp','condNames',[],plot_params,'Band') % condNames
     %
     % plot ERSP (event-related spectral perturbations) for each electrode
 %     disp(['plotting subject ' sbj_name ' SpecDense'])
