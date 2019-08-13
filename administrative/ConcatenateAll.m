@@ -36,7 +36,6 @@ end
 %% loop through electrodes
 data_all.trialinfo = [];
 concatfields = {'wave'}; % type of data to concatenate
-
 for ei = 1:length(elecs)
     el = elecs(ei);
     
@@ -45,28 +44,31 @@ for ei = 1:length(elecs)
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
     elseif strcmp(concat_params.noise_method,'none')
-    elseif strcmp(concat_params.noise_method,'trial')
+    elseif strcmp(concat_params.noise_method,'trials')
         bad_trials = [];
         for i = 1:length(concat_params.noise_fields_trials)
             bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
+            bad_trials = reshape(bad_trials,length(bad_trials),1);
         end
         if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
             data_bn.wave(bad_trials,:) = NaN;
         else
             data_bn(bad_trials,:,:) = NaN;
         end
+        % Define bad channels as a function of number of good trials.
+               
     end
     
     if concat_params.decimate % smooth and downsample (optional)
         ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz.
         data_all.fsample = data_bn.fsample/ds_rate;
         data_all.time = data_bn.time(1:ds_rate:end);
-%         if concat_params.sm_win > 0 % if smoothing first
-%             winSize = floor(data_bn.fsample*concat_params.sm_win);
-%             gusWin= gausswin(winSize)/sum(gausswin(winSize));
-%             data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension
-%         else
-%         end
+        %         if concat_params.sm_win > 0 % if smoothing first
+        %             winSize = floor(data_bn.fsample*concat_params.sm_win);
+        %             gusWin= gausswin(winSize)/sum(gausswin(winSize));
+        %             data_bn.wave = convn(data_bn.wave,shiftdim(gusWin,-tdim),'same'); % convolve data w/gaussian along time dimension
+        %         else
+        %         end
         % downsample
         if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
             data_bn.wave = data_bn.wave(:,1:ds_rate:end);
@@ -93,6 +95,10 @@ for ei = 1:length(elecs)
     %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
     data_all.label = subjVar.elinfo.FS_label(ei);
+    if strcmp(concat_params.noise_method,'trials')
+            data_all.bad_trials{el} = bad_trials;
+    else
+    end
 end
 
 
@@ -170,38 +176,38 @@ if isfield(concat_params, 'exclude_nan_chan') && concat_params.exclude_nan_chan
     data_all.label = data_all.label{good_chans};
 end
 
-if strcmp(concat_params.data_format, 'fieldtrip_raw') 
+if strcmp(concat_params.data_format, 'fieldtrip_raw')
     
-%     Reshape to trials and then channelsXtimes
+    %     Reshape to trials and then channelsXtimes
     for i = 1:size(data_all.wave,1)
         waveOrg{i} = squeeze(data_all.wave(i,:,:))';
     end
     
     data_all.trial =  waveOrg;
-%     data_all.trial =  data_all.wave;
-
+    %     data_all.trial =  data_all.wave;
+    
     data_all = rmfield(data_all, 'wave');
     data_all = rmfield(data_all, 'badChan');
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
-      trialinfo =  data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
-%     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
-%     trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
+    trialinfo =  data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
+    %     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
+    %     trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
     time = data_all.time;
     ntrials = size(data_all.trialinfo,1);
-     data_all =  rmfield(data_all, 'trialinfo');
-     data_all =  rmfield(data_all, 'time');
-     for i = 1:ntrials
-%           data_all.trialinfo{i} = trialinfo;
-          data_all.time{i} = time;
-     end
-     data_all.trialinfo = trialinfo;
-%      data_all.trialinfo = trialinfo;
-%     data_all.time = data_all.time;
-%     data_all.label = data_all.label';
+    data_all =  rmfield(data_all, 'trialinfo');
+    data_all =  rmfield(data_all, 'time');
+    for i = 1:ntrials
+        %           data_all.trialinfo{i} = trialinfo;
+        data_all.time{i} = time;
+    end
+    data_all.trialinfo = trialinfo;
+    %      data_all.trialinfo = trialinfo;
+    %     data_all.time = data_all.time;
+    %     data_all.label = data_all.label';
     
-elseif strcmp(concat_params.data_format, 'fieldtrip_fq') 
+elseif strcmp(concat_params.data_format, 'fieldtrip_fq')
     
     data_all.trial = data_all.wave;
     data_all.trialinfo = data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
@@ -211,7 +217,7 @@ elseif strcmp(concat_params.data_format, 'fieldtrip_fq')
     data_all = rmfield(data_all, 'trialinfo_all');
     data_all.dimord = 'rpt_chan_time';
 else
-  
-end
     
+end
+
 end

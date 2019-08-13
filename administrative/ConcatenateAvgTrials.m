@@ -26,6 +26,7 @@ for i = 1:length(sbj_names)
 %     else
 %     end
     % Average across trials, normalize and concatenate across subjects
+       
     for ii = 1:length(conds_avg_conds)
         data_tmp_mean = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
         data_tmp_trimmean = squeeze(trimmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),10,1)); % average trials by electrode
@@ -41,7 +42,6 @@ for i = 1:length(sbj_names)
         data_all.wave_mean.(conds_avg_conds{ii}) = [data_all.wave_mean.(conds_avg_conds{ii});data_tmp_mean]; % concatenate across subjects
         data_all.wave_trimmean.(conds_avg_conds{ii}) = [data_all.wave_trimmean.(conds_avg_conds{ii});data_tmp_trimmean]; % concatenate across subjects
         data_all.wave_trimmean_norm.(conds_avg_conds{ii}) = [data_all.wave_trimmean_norm.(conds_avg_conds{ii});data_tmp_trimmean_norm]; % concatenate across subjects
-        
     end
     % Concatenate bad channels
     if i == 1
