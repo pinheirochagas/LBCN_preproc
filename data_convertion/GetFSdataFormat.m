@@ -1,4 +1,3 @@
-% function [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center)
 function [fs_iEEG, fs_Pdio, data_format] = GetFSdataFormat(sbj_name, center)
 
 %% FIX THAT, china etc
