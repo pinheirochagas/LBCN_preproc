@@ -37,7 +37,7 @@ load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,'CAR',bn,elec));
 
 fs=data.fsample;
 wave=data.wave;
-[psd, freq] = pwelch(wave, 1000, [], [], fs);
+[psd, freq] = pwelch(wave, 4000, [], [], 1000);
 
 % Transpose, to make FOOOF inputs row vectors
 freq = freq';
@@ -45,7 +45,7 @@ psd = psd';
 
 % FOOOF settings
 settings = struct();  % Use defaults
-f_range = [1, 59];
+f_range = [1, 60];
 
 % Run FOOOF
 fooof_results = fooof(freq, psd, f_range, settings,1);
@@ -53,11 +53,16 @@ fooof_results = fooof(freq, psd, f_range, settings,1);
 % Print out the FOOOF Results
 fooof_results
 
-plot(fooof_results.fooofed_spectrum)
+plot(fooof_results.freqs,fooof_results.fooofed_spectrum)
 hold on
-plot(fooof_results.power_spectrum)
-plot(fooof_results.bg_fit)
+plot(fooof_results.freqs,fooof_results.power_spectrum)
+plot(fooof_results.freqs,fooof_results.bg_fit)
 hold off
+
+
+plot(fooof_results.fooofed_spectrum - fooof_results.bg_fit)
+
+
 
 
 

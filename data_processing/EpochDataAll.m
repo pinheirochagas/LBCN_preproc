@@ -251,11 +251,10 @@ end
 %% Inspect bad epochs
 be.bad_epochs_HFO = data.trialinfo.bad_epochs_HFO;
 %     InspectBadEpochs(bad_epochs_raw, spkevtind, spkts, data_CAR.wave', data.fsample);
-
-if epoch_params.compare_bad
-    CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
-else
-end
+% if epoch_params.compare_bad
+CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
+% else
+% end
 %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
 if strcmp(datatype, 'CAR')
     epoch_params.blc.run = 0;
