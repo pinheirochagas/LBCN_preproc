@@ -1,21 +1,20 @@
-function PlotCoverage(subjVar , dirs_save, plot_label, correction_factor)
+function PlotCoverage(subjVar , dirs_save, plot_label, correction_factor, views, hemis, subplot_dim, figure_dim)
 
 
 load('cdcol_2018.mat')
 marker_size = 8;
-figureDim = [0 0 .4 1];
 % figureDim = [0 0 1 .4];
 
 
-figure('units', 'normalized', 'outerposition', figureDim)
-views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
-hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
+figure('units', 'normalized', 'outerposition', figure_dim)
+% views = {'lateral', 'lateral', 'medial', 'medial', 'ventral', 'ventral'};
+% hemis = {'left', 'right', 'left', 'right', 'left', 'right'};
 % 
 % views = {'lateral', 'ventral'};
 % hemis = {'left', 'left'};
 
 for i = 1:length(views)
-    subplot(3,2,i)
+    subplot(subplot_dim(1),subplot_dim(2),i)
 %     subplot(1,2,i)
     
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, correction_factor);
@@ -36,7 +35,7 @@ for i = 1:length(views)
             hold on
             if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
             else
-                text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.labels(it), 'FontSize', 7);
+                text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.FS_label(it), 'FontSize', 7, 'Color', 'r');
             end
         end
     else
