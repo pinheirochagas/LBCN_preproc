@@ -1,4 +1,5 @@
 function WaveletFilterAll(sbj_name, project_name, bn, dirs,el,freq_band,span,fs_targ, norm, datatype)
+
 %% INPUTS
 %   sbj_name:               subject name
 %   project_name:           name of task
@@ -45,9 +46,9 @@ fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,pr
 load(fn,'globalVar');
 
 if strcmp(datatype,'Band')
-    data_root=globalVar.BandData;  
+    data_root=fullfile(dirs.data_root,'BandData');%globalVar.BandData;  
 else
-    data_root=globalVar.SpecData; 
+    data_root=fullfile(dirs.data_root,'SpecData');%globalVar.SpecData; 
 end
 % dir_out = [data_root,freq_band,'Data',filesep,sbj_name,filesep,bn];c
 dir_out = [data_root,freq_band,filesep,sbj_name,filesep,bn];
@@ -67,13 +68,18 @@ if isempty(fs_targ)
 end
 
 %% Per electrode
-load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
+load(sprintf('%s/%s/%s/%s/CARiEEG%s_%.2d.mat',dirs.data_root,'/CARData/CAR',sbj_name,bn,bn,el));
+
+%load(sprintf('%s/CARiEEG%s_%.2d.mat',globalVar.CARData,bn,el));
 
 data = WaveletFilter(data.wave,data.fsample,fs_targ,freqs,span,norm,avgfreq);
 data.label = globalVar.channame{el};
+data_root= sprintf('%s/%s/%s/%s/%s/',dirs.data_root,([datatype,'Data']),freq_band,sbj_name,bn);
+fn_out = sprintf('%s/%s/%s/%s/%s/%siEEG%s_%.2d.mat',dirs.data_root,([datatype,'Data']),freq_band,sbj_name,bn,freq_band,bn,el);
 
-fn_out = sprintf('%s%s%s%s%s%s%s%siEEG%s_%.2d.mat',globalVar.([datatype,'Data']),freq_band,filesep,sbj_name,filesep,bn,filesep,freq_band,bn,el);
-% fn_out = [globalVar.([datatype,'Data']),filesep,freq_band,filesep,
+if ~exist(data_root)
+   mkdir(data_root) 
+end
 
 save(fn_out,'data')
 disp(['Wavelet filtering: Block ', bn,', Elec ',num2str(el)])

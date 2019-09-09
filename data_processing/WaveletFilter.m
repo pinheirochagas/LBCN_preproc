@@ -34,6 +34,12 @@ end
 if isempty(norm)
     norm = true;
 end
+
+if strcmp(freqs,'HFB')
+    spans = ones(numel(freqs),1)*span;  %% if HFB  use the same value
+else
+    spans = linspace(0.3,1.2,numel(freqs))*span; %% if spec  use linspace
+end
 %%
 
 ds = round(fsample/fs_targ); % factor by which to downsample
@@ -46,8 +52,13 @@ if ~avgfreq
 end
 wave_out.spectrum = zeros(1,numel(freqs)); % power spectrum (before normalizing)
 % Spectral data, frequencies saved separately 
+
+
 for f = 1:numel(freqs)
     freq = freqs(f);
+    %% need to discuss
+    span=spans(f); 
+    %%
     sigma = span/freq;
     t = -4*sigma:1/fsample:4*sigma;
     wavelet = exp(-(t.^2)/(2*sigma^2)).*exp(1i*2*pi*freq*t);    % wavelet = gaussian * complex sinusoid
