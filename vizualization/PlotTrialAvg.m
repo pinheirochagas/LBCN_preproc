@@ -169,6 +169,7 @@ if ~plot_params.single_trial
     
     %% Plot lines to mark events
     y_lim = ylim;
+    
     if isempty(plot_params.xlines)
         if size(data.trialinfo.allonsets,2) > 1
             time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));

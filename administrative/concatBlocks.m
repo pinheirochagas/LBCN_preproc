@@ -82,10 +82,9 @@ for bi = 1:length(block_names)
             %             data.trialinfo.condNames_interval = cellstr(num2str(interval_tmp));
             for i = 1:size(data.trialinfo,1)
                 if data.trialinfo.cue_pos(i) == 1 || data.trialinfo.cue_pos(i) == 2
-                    data.trialinfo.CondNamesCueLoc{i} = 'cue_left';
-%                     data.trialinfo.CondNamesCueLoc{i} = [data.trialinfo.CondNames{i} '_left'];
+                     data.trialinfo.CondNamesCueLoc{i} = [data.trialinfo.CondNames{i} '_cue_left'];
                 else
-                    data.trialinfo.CondNamesCueLoc{i} = 'cue_right';
+                     data.trialinfo.CondNamesCueLoc{i} = [data.trialinfo.CondNames{i} '_cue_right'];
                 end
                 
                 

@@ -38,7 +38,7 @@ for i = 1:length(block_name)
         ecog_ds = round(fs/target_fs); % decimate factor
     end
     
-    % pdio_ds = 1; % do not downsample for photodiode signals
+     pdio_ds = 1; % do not downsample for photodiode signals
     pdio_ds=ecog_ds; %downsample for photodiode signals
     
     % Take the indices of the channels of interest
@@ -89,8 +89,9 @@ for i = 1:length(block_name)
     for pi = 1:length(pdio_oldinds)
         if strcmp(globalVar.center, 'Stanford')
             chanlbl = ['0',num2str(pdio_newinds(pi))];
+        else
+            chanlbl=dclabel{pi}(end-1:end);
         end
-        chanlbl=dclabel{pi}(end-1:end);
         fp = sprintf('%s/Pdio%s_%s.mat',data_dir,bn,chanlbl);
         anlg = squeeze(D(pdio_oldinds(pi),:,1));
         if (pdio_ds > 1)

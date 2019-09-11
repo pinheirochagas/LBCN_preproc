@@ -63,9 +63,9 @@ cfg.keeptrials = 'yes';
 spike = ft_timelockanalysis(cfg, spike);
 spike.time = data.time;
 
-spike = rmfield(spike, 'avg');
-spike = rmfield(spike, 'var');
-spike = rmfield(spike, 'dof');
+% spike = rmfield(spike, 'avg');
+% spike = rmfield(spike, 'var');
+% spike = rmfield(spike, 'dof');
 
 all = ft_appenddata([], data, spike);
 
