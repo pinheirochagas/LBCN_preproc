@@ -47,16 +47,18 @@ for i = 1:length(bns)
     % Run algorithm
     %% ----- STEP 1: based on deviations on the raw signal -----
     bad_chans=[globalVar.refChan globalVar.badChan globalVar.epiChan globalVar.emptyChan];
+    disp(['Bad electrodes inputed by user:' int2str(bad_chans)]);
+
     a=var(data);
-    b=find(a>(5*median(a))); % 5 * greated than median.
-    c=find(a<(median(a)/5));
+    b=find(a>(5*median(a))); % 5 * higher than median.
+    c=find(a<(median(a)/5)); % 5 * lower than median.
+    bad_cha_tmp = [b c];
+
     if ~isempty([b c])
-        disp(['additional bad channels: ' int2str(setdiff([b c],bad_chans))]);
+        disp(['Bad electrodes based on raw power: ' int2str(bad_cha_tmp)]);
     end
-    disp('add additional bad channel to subj_info-bad_channels2 if you want to cut them')
     
     % %Plot bad channels
-    bad_cha_tmp = setdiff([b c],[globalVar.badChan globalVar.epiChan]);
     figureDim = [0 0 .5 .5];
     figure('units', 'normalized', 'outerposition', figureDim)
     subplot(2,1,1)
@@ -68,12 +70,14 @@ for i = 1:length(bns)
     xlabel('Time (s)')
     ylabel('Electrode number')
     % Update the globalVar.badChan
-    globalVar.badChan = [bad_cha_tmp globalVar.badChan];
-    
+    globalVar.badChan = unique([bad_cha_tmp globalVar.badChan]);
+    globalVar.badChan_specs.deviation_raw = bad_cha_tmp;
+
     % remove bad channels
     chan_lbls=1:size(data,2);
     data(:,globalVar.badChan)=[];
     chan_lbls(globalVar.badChan)=[];
+
     
     %% ----- STEP 2: based on the number of spikes on the raw signal -----
     nr_jumps=zeros(1,size(data,2));
@@ -88,7 +92,11 @@ for i = 1:length(bns)
     ej= floor(globalVar.chanLength/globalVar.iEEG_rate);% 1 jump per second in average
     jm=find(nr_jumps>ej);% Find channels with more than ... jumps
     clcl=chan_lbls(jm);% Real channel numbers of outliers
-    disp(['spiky channels: ' int2str(clcl)]);
+    disp(['spiky electrodes: ' int2str(clcl)]);
+    % Update globalVar.badChan
+    globalVar.badChan = unique([clcl globalVar.badChan]);
+    globalVar.badChan_specs.number_of_spikes = clcl;
+
     
     %% ----- STEP 3: based on deviations on the power spectrum -----
     set_ov=0; % overlap
@@ -122,7 +130,8 @@ for i = 1:length(bns)
     %     close all
     
     % Update globalVar.badChan
-    globalVar.badChan = [bad_chan_spec globalVar.badChan];
+    globalVar.badChan = unique([bad_chan_spec globalVar.badChan]);
+    globalVar.badChan_specs.power_spectrum = bad_chan_spec;
     
     %% ----- STEP 4: based on HFOs, Su's code -----
     [pathological_chan_id,pathological_event] = find_paChan(data_all,globalVar.channame,globalVar.iEEG_rate, 1.5);
@@ -153,6 +162,7 @@ for i = 1:length(bns)
     % Update globalVar.badChan
     globalVar.badChan = unique([pathological_chan_id globalVar.badChan]);
     globalVar.pathological_event_bipolar_montage = pathological_event;
+    globalVar.badChan_specs.epileptic_hfo_spike = pathological_chan_id;
     
     %% Eyeball the rereferenced data after removing the bad channels
     % This should be interactive - ask Su to help creating a gui.

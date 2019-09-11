@@ -47,13 +47,23 @@ figure('units', 'normalized', 'outerposition', figureDim)
 
 % figure('units', 'normalized', 'outerposition', figureDim)
 % views = {'lateral', 'anterior', 'posterior'};
-views = {'lateral', 'ventral', 'temporal'};
+views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
 
-if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
-    hemis = {'left','left','left'};
-else
-    hemis = {'right', 'right', 'right'};
-end
+
+% if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
+%     hemis = {'left','left','left'};
+% else
+%     hemis = {'right', 'right', 'right'};
+% end
+
+hemis = {'left','left','left', 'right', 'right', 'right'};
+% 
+% 
+% if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
+%     hemis = {'left','left','left'};
+% else
+%     hemis = {'right', 'right', 'right'};
+% end
 % 
 % views = {'lateral', 'lateral', 'posterior', 'posterior'};
 % hemis = {'left', 'right', 'left', 'right'};
@@ -72,7 +82,7 @@ end
 % end
 
 for i = 1:length(views)
-       subplot(1,3,i)
+       subplot(2,3,i)
 %     subplot(1,2,i)    
     
     coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, cfg.correction_factor);
