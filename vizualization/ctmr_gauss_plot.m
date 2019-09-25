@@ -89,7 +89,7 @@ lighting gouraud; %play with lighting...
 material([.2 .9 .15 10 1]);
 %material([.3 1 .2 10 1]);
 
-axis off
+axis on
 set(gcf,'Renderer', 'zbuffer')
 
 % hemi- 'l' for left hemipshere, 'r' for right hemisphere
