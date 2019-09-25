@@ -27,6 +27,12 @@ for bi = 1:length(block_names)
     
     load(sprintf('%s/%siEEG_%s_%s_%.2d.mat',dir_in,freq_band,tag,bn,el));
     
+    %% Specifics of each project
+    % Complement or fix ttrialinfo
+    data.trialinfo = CompTrialinfo(data.trialinfo, project_name);
+    data.trialinfo.block = cell(height(data.trialinfo),1);
+    data.trialinfo.block(:) = {bn}; % keep track of which trials coming from which block
+
     % concatenante EEG data across blocks
     for i = 1:length(concatfields)
         if strcmp(datatype,'Spec')
@@ -35,12 +41,6 @@ for bi = 1:length(block_names)
             data_all.(concatfields{i}) = cat(1,data_all.(concatfields{i}),data.(concatfields{i}));
         end
     end
-    data.trialinfo.block = cell(height(data.trialinfo),1);
-    data.trialinfo.block(:) = {bn}; % keep track of which trials coming from which block
-    
-    %% Specifics of each project
-    % Complement or fix ttrialinfo
-    data.trialinfo = CompTrialinfo(data.trialinfo, project_name);
     
     % concatenate trial info across blocks
     data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
