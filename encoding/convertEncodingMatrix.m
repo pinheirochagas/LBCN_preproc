@@ -6,7 +6,7 @@ function convertEncodingMatrix(data, subjVar, cfg)
 %        brain (e.g. HFB); taks (e.g. Math vs. Memory); behavioral (e.g. RT) or subject.
 %
 
-% To be defined
+% To be defined outside the function
 cfg = []
 cfg.time_window = [0 2] % in secs
 
@@ -22,6 +22,7 @@ end
 size_wave = size(data.wave);
 
 enc_matrix = table;
+ti = unifyTrialinfoEncoding(data.trialinfo);
 
 % Band data
 if length(size_wave) == 3
@@ -46,9 +47,7 @@ if length(size_wave) == 3
     enc_matrix.task_name = repmat(data.project_name,n_trials*n_time, 1);
     
     % specifics
-    switch data.project_name
-        case 'MMR'
-            task = 
+   
     
     enc_matrix.trial = reshape(repmat(1:n_trials, n_time,1), n_trials*n_time, 1);
     enc_matrix.time = repmat(data.time, 1, n_trials)';
@@ -56,7 +55,7 @@ if length(size_wave) == 3
     
     
     % trialinfo
-    trialinfo_concat = repelem(data.trialinfo,n_time,1);
+    trialinfo_concat = repelem(ti,n_time,1);
 
     
     enc_matrix = [enc_matrix trialinfo_concat];
