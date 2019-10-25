@@ -2,7 +2,7 @@ function ti = unifyTrialinfoEncoding(project_name, ti)
 %%
 
 % Task general_cond_name
-% number_reading ---------------- 1                  
+% number_reading ---------------- 1
 % number_identification --------- 2
 % calculation_simoultaneous ----- 3
 % calculation_sequential -------- 4
@@ -10,14 +10,14 @@ function ti = unifyTrialinfoEncoding(project_name, ti)
 % memory_sequential ------------- 6
 % rest  ------------------------- 7
 % attention --------------------- 8
-% 
-% 
+%
+%
 % Number format
 % digit ------------------------- 1
 % number_dot -------------------- 2
 % number_word ------------------- 3
-% 
-% 
+%
+%
 % Calculation specs
 % operand_1
 % operand_2
@@ -30,12 +30,12 @@ function ti = unifyTrialinfoEncoding(project_name, ti)
 % abs_deviant
 % cross_decade ----------------- 1 (no) 2 (yes)
 % ls_sl ------------------------ 1 (l+s) 2 (s+l)
-% 
+%
 % Number specs
 % number_of_digits
 % number_ids
 % size_on_screen - visual angle - to be calculatesd
-% 
+%
 % Memory specs
 % memory type
 %        autobio --------------- 1
@@ -43,7 +43,7 @@ function ti = unifyTrialinfoEncoding(project_name, ti)
 %        self-external  -------- 3
 %        self-internal  -------- 4
 
-%        
+%
 % autobio_general
 % autobio_medical
 % fact
@@ -192,7 +192,7 @@ switch project_name
         accuracy = ti.Accuracy;
         accuracy(~strcmp(ti.condNames, 'math'),:) = nan;
         accuracy(accuracy == 0) = 2;
-
+        
         
         
     case 'Context'
@@ -200,7 +200,7 @@ switch project_name
         %% Basics
         task_general_cond_name = cellstr(repmat('calculation_sequential', size(ti,1), 1));
         task_type = cellstr(repmat('active', size(ti,1), 1));
-
+        
         %% Math
         % Number format
         for i = 1:size(ti,1)
@@ -245,13 +245,13 @@ switch project_name
         
         % Smaller + larger or larger + smaller
         for i = 1:size(ti,1)
-                if operand_1(i) > operand_2(i)
-                    ls_sl{i,1} = 'l+s';
-                elseif operand_1(i) < operand_2(i)
-                    ls_sl{i,1} = 's+l';
-                else
-                    ls_sl{i,1} = 'tie';
-                end
+            if operand_1(i) > operand_2(i)
+                ls_sl{i,1} = 'l+s';
+            elseif operand_1(i) < operand_2(i)
+                ls_sl{i,1} = 's+l';
+            else
+                ls_sl{i,1} = 'tie';
+            end
         end
         
         % Digits ID
@@ -266,9 +266,9 @@ switch project_name
         
         
         %% Memory
-            for i = 1:size(ti,1)
-                memory_type{i, 1} = nan;
-            end
+        for i = 1:size(ti,1)
+            memory_type{i, 1} = nan;
+        end
         
         %% Behavioral performance
         for i = 1:size(ti,1)
@@ -293,10 +293,10 @@ switch project_name
         
         
     case 'MFA'
-         %% Basics
+        %% Basics
         task_general_cond_name = cellstr(repmat('calculation_simultaneous', size(ti,1), 1));
         task_type = cellstr(repmat('active', size(ti,1), 1));
-
+        
         %% Math
         % Number format
         for i = 1:size(ti,1)
@@ -325,14 +325,14 @@ switch project_name
                 operation(i,1) = 3; % 1 for addition and
             end
         end
-         
+        
         
         
         result = ti.CorrectResult;
         presented_result = ti.PresResult;
         deviant = ti.Deviant;
         abs_deviant = ti.AbsDeviant;
-
+        
         
         for i = 1:size(ti,1)
             if deviant(i) == 0
@@ -341,7 +341,7 @@ switch project_name
             end
         end
         
-         % Cross decade
+        % Cross decade
         for i = 1:size(ti,1)
             max_tmp = num2str(operand_max(i));
             res_tmp = num2str(result(i));
@@ -359,13 +359,13 @@ switch project_name
         
         % Smaller + larger or larger + smaller
         for i = 1:size(ti,1)
-                if operand_1(i) > operand_2(i)
-                    ls_sl{i,1} = 'l+s';
-                elseif operand_1(i) < operand_2(i)
-                    ls_sl{i,1} = 's+l';
-                else
-                    ls_sl{i,1} = 'tie';
-                end
+            if operand_1(i) > operand_2(i)
+                ls_sl{i,1} = 'l+s';
+            elseif operand_1(i) < operand_2(i)
+                ls_sl{i,1} = 's+l';
+            else
+                ls_sl{i,1} = 'tie';
+            end
         end
         
         % Digits ID
@@ -380,9 +380,9 @@ switch project_name
         
         
         %% Memory
-            for i = 1:size(ti,1)
-                memory_type{i, 1} = nan;
-            end
+        for i = 1:size(ti,1)
+            memory_type{i, 1} = nan;
+        end
         
         %% Behavioral performance
         for i = 1:size(ti,1)
@@ -409,11 +409,11 @@ switch project_name
     case 'ReadNumWord'
         
         a = 1
-                
+        
 end
 
 
-
+ti_copy = ti;
 % Unified trialinfo
 ti = table;
 ti.task_general_cond_name = task_general_cond_name;
@@ -444,12 +444,17 @@ ti.memory_type = memory_type;
 ti.RT = RT;
 ti.accuracy = accuracy;
 
+% Original timing info
+ti.StimulusOnsetTime = ti_copy.StimulusOnsetTime;
+ti.allonsets = ti_copy.allonsets;
+ti.RT_lock = ti_copy.RT_lock;
 
 %% Convert trialinfo table to numerical matrix
+ti_n = ti;
 sc = struct;
 sc.task_type = {'active', 'passive'}';
-sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simoultaneous', ... 
-                               'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
+sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simoultaneous', ...
+    'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
 sc.number_format = {'digit', 'number_dot', 'number_word'}';
 sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
 sc.ls_sl = {'l+s', 's+l', 'tie'}';
@@ -467,13 +472,21 @@ for i = 1:length(sc_vars)
             tmp.(sc_vars{i})(ii,1) = nan;
         end
     end
+    ti_n.(sc_vars{i}) = tmp.(sc_vars{i});
+end
+
+%% merge back to original table
+for i = 1:length(sc_vars)
     ti.(sc_vars{i}) = tmp.(sc_vars{i});
 end
 
-% Convert to matrix
-ti = ti{:,:};
-% replace NaN for zeros;
-ti(isnan(ti)) = 0;
+% Convert NaN to 0.
+ti_names = ti.Properties.VariableNames;
+for i = 1:length(ti_names)
+    ti.(ti_names{i})(isnan(ti.(ti_names{i}))) = 0;
+end
+
+
 
 end
 
