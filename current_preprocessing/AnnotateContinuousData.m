@@ -1,4 +1,4 @@
-function AnnotateContinuousData(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
+function [em, ti, lockevent, data_fsample] = AnnotateContinuousData(sbj_name, project_name, bn, dirs,el,freq_band,datatype)
 %% INPUTS:
 %   sbj_name: subject name
 %   project_name: name of task
@@ -40,7 +40,7 @@ end
 load([dirs.psych_root,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'])
 
 ti = unifyTrialinfoEncoding(project_name, trialinfo);
-lockevent = ti.allonsets(:,1)
+lockevent = ti.allonsets(:,1);
 
 
 
@@ -48,9 +48,9 @@ lockevent = ti.allonsets(:,1)
 load(sprintf('%s/%siEEG%s_%.2d.mat',dir_in,freq_band,bn,el));
 
 
-data.fsample = floor(data.fsample);
-inds_stim = floor(lockevent*data.fsample);
-inds_RT = floor(ti.RT_lock*data.fsample);
+data_fsample = floor(data.fsample);
+inds_stim = floor(lockevent*data_fsample);
+inds_RT = floor(ti.RT_lock*data_fsample);
 
 
 
@@ -69,20 +69,20 @@ for i = 1:size(inds_stim,1)
     end
 end
 
-em_math = em;
-em_math(em_math(:,2)~=4,1) = nan;
-lockevent_math = lockevent(ti.task_general_cond_name ==4);
-inds_stim_math = floor(lockevent_math*data.fsample);
-
-em_memo = em;
-em_memo(em_memo(:,2)~=6,1) = nan;
-lockevent_memo = lockevent(ti.task_general_cond_name ==6);
-inds_stim_memo = floor(lockevent_memo*data.fsample);
-
-hold on
-plot(em(:,1), 'Color', [.7 .7 .7])
-plot(em_memo(:,1),'b')
-plot(em_math(:,1), 'r')
+% em_math = em;
+% em_math(em_math(:,2)~=4,1) = nan;
+% lockevent_math = lockevent(ti.task_general_cond_name ==4);
+% inds_stim_math = floor(lockevent_math*data.fsample);
+% 
+% em_memo = em;
+% em_memo(em_memo(:,2)~=6,1) = nan;
+% lockevent_memo = lockevent(ti.task_general_cond_name ==6);
+% inds_stim_memo = floor(lockevent_memo*data.fsample);
+% 
+% hold on
+% plot(em(:,1), 'Color', [.7 .7 .7])
+% plot(em_memo(:,1),'b')
+% plot(em_math(:,1), 'r')
 
 
 

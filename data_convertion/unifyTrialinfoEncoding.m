@@ -42,6 +42,7 @@ function ti = unifyTrialinfoEncoding(project_name, ti)
 %        other  ---------------- 2
 %        self-external  -------- 3
 %        self-internal  -------- 4
+%        fact ------------------ 5
 
 %
 % autobio_general
