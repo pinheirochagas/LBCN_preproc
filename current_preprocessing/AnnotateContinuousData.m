@@ -20,9 +20,9 @@ function AnnotateContinuousData(sbj_name, project_name, bn, dirs,el,freq_band,th
 %               .noise_fields_trials  (which trials to exclude- if method = 'trials')
 %               .noise_fields_timepts (which timepts to exclude- if method = 'timepts')
 
-datatype = 'Band'
-freq_band = 'HFB'
-el = 1
+% datatype = 'Band'
+% freq_band = 'HFB'
+% el = 1
 
 %% Load globalVar
 fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
@@ -52,7 +52,7 @@ data.fsample = floor(data.fsample);
 inds_stim = floor(lockevent*data.fsample);
 inds_RT = floor(ti.RT_lock*data.fsample);
 
-inds_RT
+
 
 %% Complete encoding matrix
 em = zeros(size(data.wave,2), size(ti,2)+1); % +1 .is because of HFB. it should be + how many brain features... 
@@ -60,14 +60,29 @@ ti_m = ti{:,:};
 % Add HFB
 em(:,1) = data.wave;
 
-for i = 1:size(inds,1)
+for i = 1:size(inds_stim,1)
     if inds_RT(i) ~= 0
-    duration = inds(i):inds_RT(i);
+    duration = inds_stim(i):inds_RT(i);
     em(duration, 2:size(ti_m,2)+1) = repmat(ti_m(i,:), length(duration), 1);  
     else
        % here need to complete with the stim duration for the rest condition 
     end
 end
+
+em_math = em;
+em_math(em_math(:,2)~=4,1) = nan;
+lockevent_math = lockevent(ti.task_general_cond_name ==4);
+inds_stim_math = floor(lockevent_math*data.fsample);
+
+em_memo = em;
+em_memo(em_memo(:,2)~=6,1) = nan;
+lockevent_memo = lockevent(ti.task_general_cond_name ==6);
+inds_stim_memo = floor(lockevent_memo*data.fsample);
+
+hold on
+plot(em(:,1), 'Color', [.7 .7 .7])
+plot(em_memo(:,1),'b')
+plot(em_math(:,1), 'r')
 
 
 

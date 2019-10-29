@@ -453,7 +453,7 @@ ti.RT_lock = ti_copy.RT_lock;
 ti_n = ti;
 sc = struct;
 sc.task_type = {'active', 'passive'}';
-sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simoultaneous', ...
+sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
     'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
 sc.number_format = {'digit', 'number_dot', 'number_word'}';
 sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
