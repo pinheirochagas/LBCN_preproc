@@ -443,7 +443,7 @@ ti.memory_type = memory_type;
 
 % Behavioral performance
 ti.RT = RT;
-ti.accuracy = accuracy;
+ti.accuracy = accuracy % just to avoid 0;
 
 % Original timing info
 ti.StimulusOnsetTime = ti_copy.StimulusOnsetTime;
