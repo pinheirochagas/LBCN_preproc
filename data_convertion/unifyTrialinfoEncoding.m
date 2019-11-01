@@ -431,8 +431,8 @@ ti.ls_sl = ls_sl;
 ti.result = result;
 ti.cross_decade = cross_decade;
 ti.presented_result = presented_result;
-ti.deviant = deviant;
-ti.abs_deviant = abs_deviant;
+% ti.deviant = deviant + 1; % just to avoid 0
+ti.abs_deviant = abs_deviant + 1;
 
 % Number
 ti.number_of_digits = number_of_digits;
