@@ -103,31 +103,31 @@ end
 
 
 %% Correct for the actual recorded channels
-if size(data_all.wave, 2) > 1
-    if size(data_all.wave, 2) ~= size(subjVar.elinfo,1)
-        if ~isempty(str2num(globalVar.channame{1}))
-            disp('Correctig for the actual recorded channels')
-            nchan_fs = size(subjVar.elinfo,1);
-            in_chan_cmp = false(1,nchan_fs);
-            for i = 1:nchan_fs
-                in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
-            end
-            % If TDT, channels are all in freesurfer?
-        else
-            nchan_cmp = size(globalVar.channame,2);
-            in_fs = false(1,nchan_cmp);
-            for i = 1:nchan_cmp
-                in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
-            end
-            data_all.wave = data_all.wave(:, in_fs, :);
-            data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
-            data_all.label = subjVar.elinfo.FS_label;
-        end
-    else
-        data_all.label = subjVar.elinfo.FS_label;
-    end
-else
-end
+% if size(data_all.wave, 2) > 1
+%     if size(data_all.wave, 2) ~= size(subjVar.elinfo,1)
+%         if ~isempty(str2num(globalVar.channame{1}))
+%             disp('Correctig for the actual recorded channels')
+%             nchan_fs = size(subjVar.elinfo,1);
+%             in_chan_cmp = false(1,nchan_fs);
+%             for i = 1:nchan_fs
+%                 in_chan_cmp(i) = ismember(subjVar.elinfo.FS_label(i),globalVar.channame);
+%             end
+%             % If TDT, channels are all in freesurfer?
+%         else
+%             nchan_cmp = size(globalVar.channame,2);
+%             in_fs = false(1,nchan_cmp);
+%             for i = 1:nchan_cmp
+%                 in_fs(i) = ismember(globalVar.channame(i),subjVar.elinfo.FS_label);
+%             end
+%             data_all.wave = data_all.wave(:, in_fs, :);
+%             data_all.trialinfo_all = data_all.trialinfo_all(in_fs);
+%             data_all.label = subjVar.elinfo.FS_label;
+%         end
+%     else
+%         data_all.label = subjVar.elinfo.FS_label;
+%     end
+% else
+% end
 
 
 
