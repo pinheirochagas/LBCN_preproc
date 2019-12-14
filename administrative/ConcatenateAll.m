@@ -40,6 +40,7 @@ for ei = 1:length(elecs)
     el = elecs(ei);
     
     data_bn = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
+    elecnans(ei) = sum(sum(isnan(data_bn.wave)));
     
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);

@@ -52,8 +52,7 @@ if length(size_wave) == 3
     enc_matrix_el = cell(n_elects,1);
     for i = 1:n_elects
         enc_matrix_el{i} = enc_matrix;
-        enc_matrix_el{i}.HFB = reshape(data.wave(:,i,:), n_trials*n_time,1);
-        enc_matrix_el{i}.HFB = reshape(data.wave(:,i,:), n_trials*n_time,1);
+        enc_matrix_el{i}.HFB = reshape(squeeze(data.wave(:,i,:))', n_trials*n_time,1);
     end
     
     % Convert to matrix 
