@@ -1,4 +1,4 @@
-function enc_matrix_el = convertEncodingMatrix(data, subjVar, cfg);
+function [enc_matrix_el, col_names]= convertEncodingMatrix(data, cfg);
 %% Converts data structure into a encoding matrix
 % Here this matrix is represented as a table, for easy access to the fields.
 % Each row represents a given time unit.
@@ -59,7 +59,6 @@ if length(size_wave) == 3
     trialinfo_concat = repelem(ti,n_time,1);
     trialinfo_concat = table2array(trialinfo_concat);
     
-    
     for i = 1:n_elects
         enc_matrix_el{i} =  enc_matrix_el{i}{:,:};
         % Set all nans to zeros
@@ -68,15 +67,15 @@ if length(size_wave) == 3
         enc_matrix_el{i} = [enc_matrix_el{i} trialinfo_concat];
     end
     
-    % Set all nans to zeros
-    enc_matrix_binary = enc_matrix_el{61};
-    enc_matrix_binary(enc_matrix_binary ~= 0) = 1;
-    imagesc(enc_matrix_binary)
-    xticks([1:size(enc_matrix_binary,2)]);
-    colormap(flipud(gray))
+%     % Set all nans to zeros
+%     enc_matrix_binary = enc_matrix_el{61};
+%     enc_matrix_binary(enc_matrix_binary ~= 0) = 1;
+%     imagesc(enc_matrix_binary)
+%     xticks([1:size(enc_matrix_binary,2)]);
+%     colormap(flipud(gray))
 %     enc_matrix.Properties.VariableNames{strcmp(enc_matrix.Properties.VariableNames, 'wlist')} = 'stim';
     
-  
+     col_names = horzcat({'task','trial', 'time', 'HFB'}, ti.Properties.VariableNames);
     
     % Spec data
 else
