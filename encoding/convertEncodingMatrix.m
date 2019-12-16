@@ -57,6 +57,9 @@ if length(size_wave) == 3
     
     % Convert to matrix 
     trialinfo_concat = repelem(ti,n_time,1);
+    trialinfo_concat = table2array(trialinfo_concat);
+    
+    
     for i = 1:n_elects
         enc_matrix_el{i} =  enc_matrix_el{i}{:,:};
         % Set all nans to zeros
