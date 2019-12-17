@@ -1,4 +1,4 @@
-function [enc_matrix_el, col_names]= convertEncodingMatrix(data, cfg);
+function [enc_matrix_el, trialinfo_concat, col_names]= convertEncodingMatrix(data, cfg);
 %% Converts data structure into a encoding matrix
 % Here this matrix is represented as a table, for easy access to the fields.
 % Each row represents a given time unit.
@@ -57,14 +57,14 @@ if length(size_wave) == 3
     
     % Convert to matrix 
     trialinfo_concat = repelem(ti,n_time,1);
-    trialinfo_concat = table2array(trialinfo_concat);
+    trialinfo_concat_array = table2array(trialinfo_concat);
     
     for i = 1:n_elects
         enc_matrix_el{i} =  enc_matrix_el{i}{:,:};
         % Set all nans to zeros
         enc_matrix_el{i}(isnan(enc_matrix_el{i})) = 0;
         % Plug in stimuli features;
-        enc_matrix_el{i} = [enc_matrix_el{i} trialinfo_concat];
+        enc_matrix_el{i} = [enc_matrix_el{i} trialinfo_concat_array];
     end
     
 %     % Set all nans to zeros

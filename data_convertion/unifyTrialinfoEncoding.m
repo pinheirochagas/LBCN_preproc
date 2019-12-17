@@ -417,6 +417,7 @@ end
 ti_copy = ti;
 % Unified trialinfo
 ti = table;
+ti.block = double(categorical(ti_copy.block));
 ti.task_general_cond_name = task_general_cond_name;
 ti.task_type = task_type;
 
@@ -436,7 +437,7 @@ ti.abs_deviant = abs_deviant + 1;
 
 % Number
 ti.number_of_digits = number_of_digits;
-ti.number_ids = number_of_digits;
+% ti.number_ids = number_of_digits;
 
 % Memory
 ti.memory_type = memory_type;
@@ -475,6 +476,7 @@ for i = 1:length(sc_vars)
     end
     ti_n.(sc_vars{i}) = tmp.(sc_vars{i});
 end
+
 
 %% merge back to original table
 for i = 1:length(sc_vars)
