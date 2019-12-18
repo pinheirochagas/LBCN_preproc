@@ -41,7 +41,7 @@ if length(size_wave) == 3
     % Basic matrix with task features
 %     enc_matrix.subj_name = repmat(subjVar.sbj_name(1:6),n_trials*n_time, 1);
     task_names = {'VTC', 'Scramble', 'AllCateg', 'Logo', '7Heaven', 'UCLA', 'MMR', 'MFA', 'Context', 'Calculia', 'Memoria', 'GradCPT'}';
-    task = find(strcmp(data.project_name, task_names));
+    task = find(strcmp(data.project_name, task_names));    
     enc_matrix.task = repmat(task,n_trials*n_time, 1);
     
     % specifics
@@ -52,6 +52,7 @@ if length(size_wave) == 3
     enc_matrix_el = cell(n_elects,1);
     for i = 1:n_elects
         enc_matrix_el{i} = enc_matrix;
+        enc_matrix_el{i}.elec = repmat(data.elecs(i),n_trials*n_time, 1);
         enc_matrix_el{i}.HFB = reshape(squeeze(data.wave(:,i,:))', n_trials*n_time,1);
     end
     
@@ -75,7 +76,7 @@ if length(size_wave) == 3
 %     colormap(flipud(gray))
 %     enc_matrix.Properties.VariableNames{strcmp(enc_matrix.Properties.VariableNames, 'wlist')} = 'stim';
     
-     col_names = horzcat({'task','trial', 'time', 'HFB'}, ti.Properties.VariableNames);
+     col_names = horzcat({'task','trial', 'time', 'elect', 'HFB'}, ti.Properties.VariableNames);
     
     % Spec data
 else
