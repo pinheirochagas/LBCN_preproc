@@ -80,7 +80,8 @@ if ~exist(dir_out,'dir')
 end
 
 % Group trials by condition
-data_tmp = concatBlocks(sbj_name,block_names,dirs,elecnums_p(1),freq_band,'Spec',{'phase'},tag);
+data_tmp = concatBlocks(sbj_name,project_name,block_names,dirs,elecnums_p(1),freq_band,'Spec',{'phase'},tag);
+
 if isempty(conds)
     tmp = find(~cellfun(@isempty,(data_tmp.trialinfo.(column))));
     conds = unique(data_tmp.trialinfo.(column)(tmp));
@@ -91,8 +92,8 @@ for ei = 1:length(elecnums_p)
     elp = elecnums_p(ei); % electrode for phase
     ela = elecnums_a(ei); % electrode for amp
     % concatenate data across blocks
-    data_phase = concatBlocks(sbj_name,block_names,dirs,elp,freq_band,'Spec',{'phase'},tag);
-    data_amp = concatBlocks(sbj_name,block_names,dirs,ela,freq_band,'Spec',{'wave'},tag);
+    data_phase = concatBlocks(sbj_name,project_name,block_names,dirs,elp,freq_band,'Spec',{'phase'},tag);
+    data_amp = concatBlocks(sbj_name,project_name,block_names,dirs,ela,freq_band,'Spec',{'wave'},tag);
     [grouped_trials_phase,~] = groupConds(conds,data_phase.trialinfo,column,pac_params.noise_method,pac_params.noise_fields_trials,false);    
     [grouped_trials_amp,~] = groupConds(conds,data_amp.trialinfo,column,pac_params.noise_method,pac_params.noise_fields_trials,false);
     for ci = 1:length(grouped_trials_all)

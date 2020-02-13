@@ -10,7 +10,9 @@ end
 
 for el = 1:140 %
     
-    load(sprintf('%s/%s/%s/signal_properties/oscillatory_%s.mat', dirs.result_root, project_name, sbj_name, subjVar.labels_EDF{el}))
+%     load(sprintf('%s/%s/%s/signal_properties/oscillatory_%s.mat', dirs.result_root, project_name, sbj_name, subjVar.labels_EDF{el}))
+    load(sprintf('%s/%s/%s/signal_properties/oscillatory_%s.mat', dirs.result_root, project_name, sbj_name, subjVar.elinfo.FS_label{el}))
+
     
     %% plot the fractal component and the power spectrum
     figure('units', 'normalized', 'outerposition', [0 0 .5 .25]) % [0 0 .6 .3]
