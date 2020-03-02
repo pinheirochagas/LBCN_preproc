@@ -68,12 +68,16 @@ elseif strcmp(epoch_params.noise.method,'timepts')
             bad_inds = cellfun(@union,bad_inds,data.trialinfo.(epoch_params.noise.noise_fields_timepts{i}),'UniformOutput',false);
         end
     end
-    if ~sep_bl % only count bad inds within baseline period
-        bad_inds = cellfun(@intersect,bad_inds,bl_inds,'UniformOutput',false); 
-    end
+%     if ~sep_bl % only count bad inds within baseline period
+%         bad_inds = cellfun(@intersect,bad_inds,bl_inds,'UniformOutput',false); % 
+%         
+%         intersect(intersect,bad_inds,bl_inds,)
+%         
+%     end
     % create array of size of baseline data, where all noisy inds are set to 1, 0 elsewhere
     bad_inds2 = false(ntrials,ntime_bl);
     for ti = 1:ntrials
+        bad_inds{ti}(bad_inds{ti}==0) = []; %temporary fix
         bad_inds2(ti,bad_inds{ti})=true;
     end
     if strcmp(datatype,'Spec')
@@ -135,7 +139,7 @@ else % e.g. HFB data, no frequency dimension
     if strcmp(epoch_params.noise.method,'trials')
         bl_data(bad_trials,:) = NaN;
     elseif strcmp(epoch_params.noise.method,'timepts')
-        bl_data(bad_inds2) = NaN;
+%         bl_data(bad_inds2) = NaN;
     end
     bl_data_all = bl_data(:);
 %     bl_data(zscore(bl_data)>bl_reject_thr)=NaN; 

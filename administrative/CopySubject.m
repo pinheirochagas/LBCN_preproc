@@ -29,6 +29,9 @@ for i = 1:length(block_names)
         elseif strcmp(neuralData_folders{ii}, 'BandData')
             tmp_neural_folder_d = [d_neuralData filesep neuralData_folders{ii} filesep 'HFB' filesep sbj_name filesep bn];
             tmp_neural_folder_s = [s_neuralData filesep neuralData_folders{ii} filesep 'HFB' filesep sbj_name filesep bn];
+        elseif strcmp(neuralData_folders{ii}, 'SpecData')
+            tmp_neural_folder_d = [d_neuralData filesep neuralData_folders{ii} filesep 'SpecDense' filesep sbj_name filesep bn];
+            tmp_neural_folder_s = [s_neuralData filesep neuralData_folders{ii} filesep 'SpecDense' filesep sbj_name filesep bn];    
         else
             tmp_neural_folder_d = [d_neuralData filesep neuralData_folders{ii} filesep sbj_name filesep bn];
             tmp_neural_folder_s = [s_neuralData filesep neuralData_folders{ii} filesep sbj_name filesep bn];            

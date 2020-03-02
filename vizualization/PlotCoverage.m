@@ -35,7 +35,9 @@ for i = 1:length(views)
             hold on
             if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
             else
-                text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.FS_label(it), 'FontSize', 7, 'Color', 'r');
+                text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), num2str(subjVar.elinfo.chan_num(it)), 'FontSize', 20, 'Color', 'r');
+%                                 text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.elinfo.FS_label(it), 'FontSize', 7, 'Color', 'r');
+
             end
         end
     else

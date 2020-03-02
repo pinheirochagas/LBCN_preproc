@@ -178,7 +178,7 @@ set(gcf,'color','w')
 % %exportfig
 % exportfig(gcf, strcat(cd,'\figout.png'), 'format', 'png', 'Renderer', 'painters', 'Color', 'cmyk', 'Resolution', 600, 'Width', 4, 'Height', 3);
 % disp('figure saved as "figout"');
-
+axis off
 
 
 %%

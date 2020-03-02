@@ -14,8 +14,10 @@ function [sta_erp, sta_freq] = HFBNested(hfa, data, latency, timwin)
 
 cfg = [];
 cfg.latency = latency;
-hfa = ft_selectdata(cfg, hfa);
 trialinfo = hfa.trialinfo(:,1);
+
+hfa = ft_selectdata(cfg, hfa);
+
 
 spike = [];
 % bring data into spike format
@@ -66,6 +68,8 @@ spike.time = data.time;
 % spike = rmfield(spike, 'avg');
 % spike = rmfield(spike, 'var');
 % spike = rmfield(spike, 'dof');
+% spike = rmfield(spike, 'sampleinfo');
+
 
 all = ft_appenddata([], data, spike);
 

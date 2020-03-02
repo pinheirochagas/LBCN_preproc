@@ -417,7 +417,7 @@ end
 ti_copy = ti;
 % Unified trialinfo
 ti = table;
-ti.block = double(categorical(ti_copy.block));
+% ti.block = double(categorical(ti_copy.block));
 ti.task_general_cond_name = task_general_cond_name;
 ti.task_type = task_type;
 

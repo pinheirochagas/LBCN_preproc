@@ -216,6 +216,9 @@ elseif strcmp(concat_params.data_format, 'fieldtrip_fq')
     data_all = rmfield(data_all, 'badChan');
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
+    
+    data_all = rmfield(data_all, 'bad_trials');
+
     data_all.dimord = 'rpt_chan_time';
 else
     
