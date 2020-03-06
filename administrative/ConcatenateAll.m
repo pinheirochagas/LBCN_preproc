@@ -95,7 +95,7 @@ for ei = 1:length(elecs)
     data_all.trialinfo_all{el} = [data_bn.trialinfo];
     %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
-    data_all.label = subjVar.elinfo.FS_label(ei);
+    data_all.label(ei) = subjVar.elinfo.FS_label(ei); % just modified that
     if strcmp(concat_params.noise_method,'trials')
             data_all.bad_trials{el} = bad_trials;
     else
