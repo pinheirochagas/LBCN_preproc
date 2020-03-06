@@ -1,4 +1,4 @@
-function ti = unifyTrialinfoEncoding(project_name, ti)
+function [ti, ti_string] = unifyTrialinfoEncoding(project_name, ti)
 %%
 
 % Task general_cond_name
@@ -417,7 +417,7 @@ end
 ti_copy = ti;
 % Unified trialinfo
 ti = table;
-% ti.block = double(categorical(ti_copy.block));
+ti.block = double(categorical(ti_copy.block));
 ti.task_general_cond_name = task_general_cond_name;
 ti.task_type = task_type;
 
@@ -452,6 +452,7 @@ ti.allonsets = ti_copy.allonsets;
 ti.RT_lock = ti_copy.RT_lock;
 
 %% Convert trialinfo table to numerical matrix
+ti_string = ti;
 ti_n = ti;
 sc = struct;
 sc.task_type = {'active', 'passive'}';
