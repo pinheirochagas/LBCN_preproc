@@ -114,10 +114,9 @@ for iel = 1:length(elecnums)
         oscipeaks = struct;
         for iii = 1:length(parameters)
             model = ['gauss', num2str(iii)];
-            options = fitoptions('gauss2');
-            options.StartPoint = [5,7,9];
             try
-                [f,goodness]    = fit(osci.freq', osci.powspctrm', model, options);
+%                 [f,goodness] = fit(osci.freq', osci.powspctrm', model);
+                [f,goodness] = fit(osci.freq', osci.powspctrm'-frac.powspctrm', model); % is this correct?
                 oscipeaks.model.(model).fit = f;
                 oscipeaks.model.(model).goodness = goodness;
                 for iiii = 1:iii
