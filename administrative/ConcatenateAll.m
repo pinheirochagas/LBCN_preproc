@@ -192,6 +192,11 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
     data_all = rmfield(data_all, 'project_name');
     data_all = rmfield(data_all, 'trialinfo_all');
     
+    %% Filterout bad trials 
+    bad_trials = find(data_all.trialinfo.bad_epochs == 1);
+    data_all.trialinfo(bad_trials,:)=[];
+    data_all.trial(bad_trials)=[];
+
     trialinfo =  data_all.trialinfo.(concat_params.trialinfo_var); % be carefull with that, simple solution for EglyDriver, only including one column
     %     trialinfo = data_all.trialinfo; % be carefull with that, simple solution for EglyDriver, only including one column
     %     trialinfo = [data_all.trialinfo.RT data_all.trialinfo.isCalc]; % be carefull with that, simple solution for EglyDriver, only including one column
