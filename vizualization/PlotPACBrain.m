@@ -18,8 +18,8 @@ MarkerEdgeColor = 'w';
 [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
 
 % Plot cortex
-figureDim = [0 0 .3 .5];
-figure('units', 'normalized', 'outerposition', figureDim)
+% figureDim = [0 0 .3 .5];
+% figure('units', 'normalized', 'outerposition', figureDim)
 ctmr_gauss_plot(cmcortex.left,[0 0 0], 0, 'left', 'lateral')
 alpha(cfg.alpha)
 
@@ -30,9 +30,9 @@ for ii = 1:size(el,1)
     plot3(el.e2(ii,1),el.e2(ii,2),el.e2(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', MarkerFaceColor, 'MarkerEdgeColor', MarkerEdgeColor);
     
     if sum(el.dir(ii,:) == [2,1]) == 2
-        mArrow3(el.e1(ii,:), el.e2(ii,:), 'LineWidth', 1, 'FaceColor', 'red');
+        mArrow3(el.e1(ii,:), el.e2(ii,:), 'stemWidth', 0.5, 'tipWidth', 3, 'FaceColor', cfg.arrow_col);
     else
-        mArrow3(el.e1(ii,:), el.e2(ii,:), 'LineWidth', 1, 'FaceColor', 'red');
+        mArrow3(el.e1(ii,:), el.e2(ii,:), 'stemWidth', 0.5, 'tipWidth', 3, 'FaceColor', cfg.arrow_col);
     end
 %     set(gcf,'Color',[0.1 0.1 0.1])
 end
