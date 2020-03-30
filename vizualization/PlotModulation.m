@@ -17,7 +17,9 @@ final_fs = 50;
 
 % Get color indices
 % [col_idx,colors_plot] = colorbarFromValues(ind, 'RedBlue', [], true);
-[col_idx,colors_plot] = colorbarFromValues(ind, cfg.Colormap, [], false);
+[col_idx,colors_plot] = colorbarFromValues(ind, cfg.Colormap, cfg.clim, false);
+col_idx(col_idx==0)=1; % dirty fix
+
 
 %% Plot electrodes as dots in native space
 marker_size = abs(ind)*cfg.MarkerSize;
@@ -38,7 +40,7 @@ hemis = {'left', 'right', 'left', 'right'};
 
 for i = 1:length(views)
     subplot(2,2,i)
-    coords_plot = CorrectElecLoc(elinfo.MNI_coord, views{i}, hemis{i}, cfg.CorrectFactor);
+    coords_plot = CorrectElecLoc(elinfo.MNI_coord, views{i}, hemis{i}, cfg.CorrectFactor); %
     ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
         
     for ii = 1:length(coords_plot)
@@ -46,7 +48,7 @@ for i = 1:length(views)
         if ~isnan(col_idx(ii))
             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
             else
-                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'k');
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'none');
             end
         else
         end

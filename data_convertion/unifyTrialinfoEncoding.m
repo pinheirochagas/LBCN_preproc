@@ -178,10 +178,14 @@ switch project_name
             if isempty(ti.keys{i})
                 keys(i,1) = nan;
             else
-                if isempty(str2num(ti.keys{i}))
-                    keys(i,1) = nan;
+                if iscell(ti.keys{i})
+                    ti.keys{i} = ti.keys{i}{1}
                 else
-                    keys(i,1) = str2num(ti.keys{i});
+                    if isempty(str2num(ti.keys{i}))
+                        keys(i,1) = nan;
+                    else
+                        keys(i,1) = str2num(ti.keys{i});
+                    end
                 end
             end
         end
