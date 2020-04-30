@@ -25,6 +25,14 @@ for i = 1:length(block_names)
     %getting correct keys
     stim_key.correct(stim_key.correct==0) = 2;
     for i=1:length(K.theData)
+        if strcmp(sbj_name, 'S12_41_KS')
+            if strcmp(K.theData(i).keys, 'End')
+                K.theData(i).keys = '1';
+            elseif strcmp(K.theData(i).keys, 'DownArrow')
+                K.theData(i).keys = '2';
+            end
+        else
+        end
         sub_resp(i)= str2double(K.theData(i).keys);
     end
    

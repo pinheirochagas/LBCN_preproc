@@ -61,6 +61,9 @@ switch table
             case 'math_network_cohort'
                 GID = '1325879124';
                 
+            case 'cohort'
+                GID = '282063015';
+                
         end
         
     case 'subjects_by_task'
@@ -89,12 +92,18 @@ switch table
                 
         end
         
+        
+        
+        
     case 'simulatenous_coverage_math'
         DOCID = '1UKqc0m6guvx5-tuXtfapWkZun4Hx7lJBbl0y7gfyGOs';
          switch sheet
             case 'math_selective_only'
                 GID = '486842448';
          end
+         
+         
+         
         
 end
 

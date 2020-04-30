@@ -1,7 +1,13 @@
-function PlotModulation(dirs, project_name, subjVar, ind, cfg)
+ function PlotModulation(dirs, subjVar, cfg)
 
 %% Load comon brain
 elinfo = subjVar.elinfo;
+
+% Decide if project left
+if cfg.project_left
+    elinfo.MNI_coord(:,1) = -abs(elinfo.MNI_coord(:,1));
+    elinfo.LvsR = repmat({'L'}, size(elinfo,1),1);
+end
 
 fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
 if strcmp(cfg.Cortex, 'MNI')
@@ -15,11 +21,7 @@ else
     error('you must specify the cortical space to plot, either MNI or native.')
 end
 
-% Decide if project left
-if cfg.project_left
-    elinfo.MNI_coord(:,1) = -abs(elinfo.MNI_coord(:,1));
-    elinfo.LvsR = repmat({'L'}, size(elinfo,1),1);
-end
+
 
 % basic parameters:
 decimate = true;
@@ -27,13 +29,20 @@ final_fs = 50;
 
 % Get color indices
 % [col_idx,colors_plot] = colorbarFromValues(ind, 'RedBlue', [], true);
-[col_idx,colors_plot] = colorbarFromValues(ind, cfg.Colormap, cfg.clim, cfg.color_center_zero);
-col_idx(col_idx==0)=1; % dirty fix
 
+if ~isempty(cfg.ind)
+    [col_idx,colors_plot] = colorbarFromValues(cfg.ind, cfg.Colormap, cfg.clim, cfg.color_center_zero);
+    col_idx(col_idx==0)=1; % dirty fix
+    MarkerEdgeColor = 'none';
+else
+    col_idx = ones(size(elinfo,1),1);
+    colors_plot = repmat(cfg.MarkerColor, size(elinfo,1), 1);
+    MarkerEdgeColor = [0 0 0];
+end
 
 %% Plot electrodes as dots in native space
 if cfg.MarkerSize_mod
-    marker_size = abs(ind)*cfg.MarkerSize;
+    marker_size = abs(cfg.ind)*cfg.MarkerSize;
 else
     marker_size = repmat(cfg.MarkerSize,size(elinfo,1),1);
 end
@@ -48,12 +57,12 @@ for i = 1:length(views)
     coords_plot = CorrectElecLoc(coords_plot, views{i}, hemis{i}, cfg.CorrectFactor); %
     ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     
-    for ii = 1:length(coords_plot)
+    for ii = 1:size(coords_plot,1)
         % Only plot on the relevant hemisphere
         if ~isnan(col_idx(ii))
             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
             else
-                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', 'none');
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', MarkerEdgeColor);
             end
         else
         end
@@ -71,10 +80,22 @@ for i = 1:length(views)
         end
     end
     
+    
+    if cfg.plot_label
+        for ii = 1:length(coords_plot)
+            hold on
+            if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
+            else
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.chan_num(ii)), 'FontSize', 6, 'Color', 'r', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+            end
+        end
+    else
+    end
+    
     alpha(cfg.alpha)
 end
 if cfg.save
-    savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity4_' project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
+    savePNG(gcf, 300, [dirs.result_root filesep 'selectivity' filesep 'group_selectivity4_' cfg.project_name '_' cortex_space '.png']); % ADD TASK AND CONDITION
     close all
 else
 end

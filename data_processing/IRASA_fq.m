@@ -112,7 +112,7 @@ for iel = 1:length(elecnums)
             osci.powspctrm(osci.powspctrm < 0) = 0;
             
             % Fit the gaussian to find the peaks
-            parameters = 1:3; % gaussians for 1-8 free parameters
+            parameters = 1:3; % gaussians for 1-3 free parameters
             oscipeaks = struct;
             for iii = 1:length(parameters)
                 model = ['gauss', num2str(iii)];

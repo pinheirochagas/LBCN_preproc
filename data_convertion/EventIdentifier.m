@@ -32,6 +32,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
          case 'ReadNumWord'
             n_stim_per_trial = 1;
+         case 'MFA'
+            n_stim_per_trial = 1;            
     end
     
     %% Load globalVar

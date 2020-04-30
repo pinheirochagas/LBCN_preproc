@@ -29,10 +29,25 @@ for i1 = 1:length(block_names)
     trialinfo = table;
     for i = 1:length(K.theData)
         trialinfo.wlist = reshape(K.wlist,length(K.wlist),1);
-    end 
-    for i = 1:length(K.theData)
-        trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
     end
+    for i = 1:length(K.theData)
+        temp_key = num2str(K.theData(i).keys);
+        switch temp_key
+            case 'DownArrow'
+                K.theData(i).keys='2';
+            case 'End'
+                K.theData(i).keys='1';
+            case 'noanswer'
+                K.theData(i).keys='NaN';
+            case '2@'
+                K.theData(i).keys='2';
+            case '1!'
+                K.theData(i).keys='1';
+        end
+        trialinfo.keys{i,1} = vertcat(K.theData(i).keys);        
+    end
+    
+     
     
     for i=1:length(K.theData)
         RTa=K.theData(i).RT;

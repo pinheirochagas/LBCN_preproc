@@ -257,7 +257,7 @@ CompareBadEpochs(be, data_CAR, data, datatype, bn, el, globalVar)
 % end
 %% Run baseline correction (either calculate from data if locktype = stim or uses these values when locktype = 'resp')
 if strcmp(datatype, 'CAR')
-    epoch_params.blc.run = 0;
+%     epoch_params.blc.run = 0;
 else
 end
 

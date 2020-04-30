@@ -42,9 +42,16 @@ for ei = 1:length(elecs)
     data_bn = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
     elecnans(ei) = sum(sum(isnan(data_bn.wave)));
     
+    %% Add extra spike detector
+    for it = 1:size(data_bn.wave,1)
+        s = data_bn.wave(it,:);
+        data_bn.trialinfo.spike_hfb(it) = sum(s>prctile(s,99)*5);        
+    end
+    
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
     elseif strcmp(concat_params.noise_method,'none')
+        
     elseif strcmp(concat_params.noise_method,'trials')
         bad_trials = [];
         for i = 1:length(concat_params.noise_fields_trials)
@@ -96,6 +103,7 @@ for ei = 1:length(elecs)
     %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
     data_all.label(ei) = subjVar.elinfo.FS_label(ei); % just modified that
+    data_all.chan_num(ei) = subjVar.elinfo.chan_num(ei); % just modified that
     if strcmp(concat_params.noise_method,'trials')
             data_all.bad_trials{el} = bad_trials;
     else
@@ -180,8 +188,14 @@ end
 if strcmp(concat_params.data_format, 'fieldtrip_raw')
     
     %     Reshape to trials and then channelsXtimes
-    for i = 1:size(data_all.wave,1)
-        waveOrg{i} = squeeze(data_all.wave(i,:,:))';
+    if size(data_all.wave,2) == 1
+        for i = 1:size(data_all.wave,1)
+            waveOrg{i} = squeeze(data_all.wave(i,:,:))';
+        end
+    else
+        for i = 1:size(data_all.wave,1)
+            waveOrg{i} = squeeze(data_all.wave(i,:,:));
+        end
     end
     
     data_all.trial =  waveOrg;
@@ -193,7 +207,7 @@ if strcmp(concat_params.data_format, 'fieldtrip_raw')
     data_all = rmfield(data_all, 'trialinfo_all');
     
     %% Filterout bad trials 
-    bad_trials = find(data_all.trialinfo.bad_epochs == 1);
+    bad_trials = find(data_all.trialinfo.bad_epochs == 99999999999); % temp
     data_all.trialinfo(bad_trials,:)=[];
     data_all.trial(bad_trials)=[];
 
