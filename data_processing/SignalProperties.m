@@ -4,9 +4,9 @@ function prop_sig = SignalProperties(data)
 for i = 1:size(data.wave,2)
     trialinfo = data.trialinfo_all{i};
     % check massive spikes
-    max_hfb = max(squeeze(data.wave(:,i,:)),[],2);
-    goodtrials =  trialinfo.bad_epochs == 1 &  trialinfo.RT > 0.1 &  trialinfo.RT < 10 & max_hfb < 100;
-    trialinfo.goodtrials = goodtrials;
+%     max_hfb = max(squeeze(data.wave(:,i,:)),[],2);
+%     goodtrials =  trialinfo.bad_epochs == 1 &  trialinfo.RT > 0.1 &  trialinfo.RT < 10 & max_hfb < 100;
+    trialinfo.goodtrials = trialinfo.bad_epochs_HFO == 0 & trialinfo.spike_hfb == 0 & (trialinfo.RT > 0.1 | trialinfo.RT < 10) & trialinfo.spike_hfb == 0;
     conds = unique(trialinfo.condNames(trialinfo.goodtrials == 1));
     for ic = 1:length(conds)
         trialinfo_cond = trialinfo(strcmp(trialinfo.condNames, conds{ic}) & trialinfo.goodtrials == 1,:);

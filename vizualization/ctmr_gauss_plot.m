@@ -33,7 +33,7 @@ function ctmr_gauss_plot(cortex,electrodes,weights,hemi,viewside)
 %load in colormap
 %load('loc_colormap')
 
-M = 72;
+M = 10;
 G = fliplr(linspace(.8,1,M)) .';
 cm = horzcat(G, G, G);
 
@@ -86,8 +86,8 @@ lighting gouraud; %play with lighting...
 %lighting flat; %play with lighting...
 % material shiny;
 % material([.2 .8 .1 10 1]);
-material([.2 .9 .15 10 1]);
-%material([.3 1 .2 10 1]);
+material([0.1 1 1 1 1])
+%material([.2 1 .2 10 1]);
 
 axis on
 set(gcf,'Renderer', 'zbuffer')

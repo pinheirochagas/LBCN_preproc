@@ -1,15 +1,21 @@
-function PlotInspectSingleTrialsPerCond(data, task, sbj_name, save_dir)
+function PlotInspectSingleTrialsPerCond(data, task, task_version, sbj_name, save_dir)
 
 
-trials_cat = {'goodtrials', 'badtrials_rt', 'badtrials_badepochs', 'badtrials_spike'};
+trials_cat = {'goodtrials', 'badtrials_rt', 'badtrials_badepochs_hfo', 'badtrials_spike'};
 
 
 for i = 1:size(data.wave,2)
     figure('units', 'normalized', 'outerposition', [0 0 1 1])
     trialinfo = data.trialinfo_all{i};
-    trialinfo.goodtrials =  trialinfo.bad_epochs_HFO == 0  & trialinfo.spike_hfb == 0 & (trialinfo.RT > 0.1 | trialinfo.RT < 10); % trialinfo.bad_epochs_raw_HFspike == 0
-    trialinfo.badtrials_rt =  trialinfo.RT < 0.1 | trialinfo.RT > 10;
-    trialinfo.badtrials_badepochs = trialinfo.bad_epochs_raw_HFspike == 1; %(trialinfo.bad_epochs_HFO == 1 |  trialinfo.bad_epochs_raw_HFspike == 1)
+    
+    if strcmp(task_version, 'active')
+        trialinfo.goodtrials =  trialinfo.bad_epochs_HFO == 0 & trialinfo.spike_hfb == 0 & (trialinfo.RT > 0.1 | trialinfo.RT < 10); % trialinfo.bad_epochs_raw_HFspike == 0
+        trialinfo.badtrials_rt =  trialinfo.RT < 0.1 | trialinfo.RT > 10;
+    else
+        trialinfo.goodtrials =  trialinfo.bad_epochs_HFO == 0  & trialinfo.spike_hfb == 0; % trialinfo.bad_epochs_raw_HFspike == 0
+        trialinfo.badtrials_rt =  zeros(size(trialinfo,1),1,1);
+    end
+    trialinfo.badtrials_badepochs_hfo = trialinfo.bad_epochs_HFO == 1;
     trialinfo.badtrials_spike = trialinfo.spike_hfb == 1;
     
     % list conditions
@@ -27,15 +33,23 @@ for i = 1:size(data.wave,2)
             wave_cond = squeeze(wave(strcmp(ti.condNames, conds{ic}), :));
             if size(trialinfo_cond, 1) > 1
                 for it = 1:size(wave_cond,1)
-                    if trialinfo_cond.RT(it) >= data.time
-                        times = 1:length(data.time);
+                    
+                    if strcmp(task_version, 'active')
+                        if trialinfo_cond.RT(it) >= data.time
+                            times = 1:length(data.time);
+                        else
+                            times = 1:(round(trialinfo_cond.RT(it)*data.fsample) - min(data.time)*data.fsample);
+                        end
+                        % Plot
+                        hold on
+                        plot(data.time(times), wave_cond(it,times), 'color', [.6 .6 .6])
+                        wave_cond(it,data.time>trialinfo_cond.RT(it)) = nan;
                     else
-                        times = 1:(round(trialinfo_cond.RT(it)*data.fsample) - min(data.time)*data.fsample);
+                        times = 1:length(data.time);
+                        hold on
+                        plot(data.time(times), wave_cond(it,times), 'color', [.6 .6 .6])
                     end
-                    % Plot
-                    hold on
-                    plot(data.time(times), wave_cond(it,times), 'color', [.6 .6 .6])
-                    wave_cond(it,data.time>trialinfo_cond.RT(it)) = nan;
+                    
                 end
                 % plot average
                 plot(data.time, nanmean(wave_cond(trialinfo_cond.goodtrials == 1,:)), 'color', [0 1 0], 'LineWidth', 2)
@@ -45,7 +59,7 @@ for i = 1:size(data.wave,2)
                 xlabel('Time sec.')
                 ylabel('HFB')
                 title([conds{ic} '  ' trials_cat{ip}], 'interpreter', 'none')
-%                 ylim([-2 20])
+                %                 ylim([-2 20])
                 alpha(0.5)
             else
             end

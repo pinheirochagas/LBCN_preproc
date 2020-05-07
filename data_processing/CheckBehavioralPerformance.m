@@ -7,7 +7,7 @@ else
 end
 
 switch task
-    case {'MMR', 'UCLA', 'MFA', 'Memoria', 'Calculia'}
+    case {'MMR', 'UCLA', 'MFA', 'Memoria', 'Calculia', 'Context', 'VTCLoc'}
         ti = trialinfo(~contains(trialinfo.condNames, 'rest'),:);
         conds = unique(ti.condNames);
         s_beh = table;
@@ -38,7 +38,11 @@ switch task
             else
                 good_beh =  0;
             end
-        else
+        elseif contains(task, {'Context'})
+            if sum(s_beh.valid_trials)/sum(s_beh.n_trials)>.25 && sum(s_beh.correct_trials)/sum(s_beh.valid_trials)>.6
+                good_beh =  1;
+            else
+                good_beh =  0;                
         end
 end
 

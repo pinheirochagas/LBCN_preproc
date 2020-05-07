@@ -43,10 +43,49 @@ for ei = 1:length(elecs)
     elecnans(ei) = sum(sum(isnan(data_bn.wave)));
     
     %% Add extra spike detector
-    for it = 1:size(data_bn.wave,1)
-        s = data_bn.wave(it,:);
-        data_bn.trialinfo.spike_hfb(it) = sum(s>prctile(s,99)*5);        
+    %% if task is active, set sample after RT to nan
+    for iout = 1:size(data_bn.wave, 1) 
+        data_tmp(iout,:) = data_bn.wave(iout,:);
+        data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
     end
+    max_val = max(data_tmp, [], 2);
+    if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
+        thrhold = 4;
+    else
+        thrhold = 3;
+    end
+    data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
+    
+    %% Add extra spike detector
+%     for it = 1:size(data_bn.wave,1)
+%         data_tmp_out = data_tmp;
+%         max_val = max(data_tmp_out, [], 2);
+% %         var_val = nanvar(data_tmp_out, [], 2)
+% %         boxplot(max_val)
+% %         plot(data_tmp_out')
+% % %         out_max = isoutlier(max(data_tmp_out, [], 2), 'gesd')
+% % %         f_out_max = find(max_val == max(max_val(out_max ==1)));
+% %         mad_m = mad_median(max_val)
+% % 
+% %         f_out_max = find(max_val>median(max_val)*3);
+%         if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
+%             thrhold = 4;
+%         else
+%             thrhold = 3;
+%         end
+%         
+%         f_out_max = find(zscore(log(max_val))>thrhold);
+% %         f_out_var = find(zscore(log(var_val))>thrhold);
+%         
+%         data_tmp_out(f_out_max,:) = [];
+%         
+%                 plot(data_tmp_out')
+% 
+%         
+%         
+%         s = data_bn.wave(it,:);
+%         data_bn.trialinfo.spike_hfb(it) = sum(s>prctile(s,99)*5);        
+%     end
     
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
