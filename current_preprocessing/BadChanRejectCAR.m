@@ -126,9 +126,11 @@ for i = 1:length(bns)
     ylabel('Power')
     
     % Prompt for bad channels
-    bad_chan_spec = promptBadChanSpec; % of the remaining channels
-    %     close all
-    
+    if ~strcmp(project_name, 'Rest')
+        bad_chan_spec = promptBadChanSpec; % of the remaining channels
+    else
+        bad_chan_spec = [];
+    end
     % Update globalVar.badChan
     globalVar.badChan = unique([bad_chan_spec globalVar.badChan]);
     globalVar.badChan_specs.power_spectrum = bad_chan_spec;
@@ -200,6 +202,7 @@ for i = 1:length(bns)
     %% Save globalVar (For the last time; don't re-write after this point!)
     fn = sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn);
     save(fn,'globalVar');
+    close all
 end
 
 end

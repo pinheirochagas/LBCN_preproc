@@ -24,7 +24,7 @@ for el = 1:length(all_elecs) %
     for ic = 1:length(irasa_params.conds)
         dtc = dt.(irasa_params.conds{ic});
         %% plot the fractal component and the power spectrum
-        subplot(1,2,ic)
+        subplot(1,2,1)
         if isstruct(dtc.frac)
             plot(dtc.frac.freq, dtc.frac.powspctrm, 'linewidth', 3, 'color', [0 0 0])
             hold on; plot(dtc.orig.freq, dtc.orig.powspctrm, 'linewidth', 3, 'color', [.6 .6 .6])

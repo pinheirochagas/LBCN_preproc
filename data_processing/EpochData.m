@@ -39,7 +39,7 @@ for i = 1:ntrials
     if isnan(start_inds(i)) %%%%
     else
         if (siglength>=start_inds(i)+aft_ind)
-            inds = (start_inds(i)+bef_ind):(start_inds(i)+aft_ind);
+            inds = (start_inds(i)+bef_ind):(start_inds(i)+aft_ind)
         else  % if recording ended before the of the full last epoch
             inds = (start_inds(i)+bef_ind):siglength;
         end

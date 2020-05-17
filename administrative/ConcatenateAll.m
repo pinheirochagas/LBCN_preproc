@@ -44,18 +44,19 @@ for ei = 1:length(elecs)
     
     %% Add extra spike detector
     %% if task is active, set sample after RT to nan
-    for iout = 1:size(data_bn.wave, 1) 
-        data_tmp(iout,:) = data_bn.wave(iout,:);
-        data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
+    if ~strcmp(project_name, 'Rest')
+        for iout = 1:size(data_bn.wave, 1)
+            data_tmp(iout,:) = data_bn.wave(iout,:);
+            data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
+        end
+        max_val = max(data_tmp, [], 2);
+        if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
+            thrhold = 4;
+        else
+            thrhold = 3;
+        end
+        data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
     end
-    max_val = max(data_tmp, [], 2);
-    if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
-        thrhold = 4;
-    else
-        thrhold = 3;
-    end
-    data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
-    
     %% Add extra spike detector
 %     for it = 1:size(data_bn.wave,1)
 %         data_tmp_out = data_tmp;
@@ -97,11 +98,12 @@ for ei = 1:length(elecs)
             bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
             bad_trials = reshape(bad_trials,length(bad_trials),1);
         end
-        if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
-            data_bn.wave(bad_trials,:) = NaN;
-        else
-            data_bn(bad_trials,:,:) = NaN;
-        end
+        % dont do this... seriously... 
+%         if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
+%             data_bn.wave(bad_trials,:) = NaN;
+%         else
+%             data_bn(bad_trials,:,:) = NaN;
+%         end
         % Define bad channels as a function of number of good trials.
                
     end

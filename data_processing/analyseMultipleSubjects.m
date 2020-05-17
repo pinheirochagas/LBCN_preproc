@@ -24,11 +24,11 @@ if epoch_flag
     % Branch 6 - Epoching, identification of bad epochs and baseline correction
     epoch_params = genEpochParams(project_name, 'stim'); % stim or resp
     epoch_params.compare_bad = false;
-    for bi = 1:length(block_names)
+    parfor bi = 1:length(block_names)
         for ei = 1:length(elecs)
-%           EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
+           EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'HFB', [],[], epoch_params,'Band')
 %           EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'SpecDense', [],[], epoch_params,'Spec')
-            EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'CAR', [],[], epoch_params,'CAR')
+%             EpochDataAll(sbj_name, project_name, block_names{bi}, dirs,elecs(ei), 'CAR', [],[], epoch_params,'CAR')
 
         end
     end

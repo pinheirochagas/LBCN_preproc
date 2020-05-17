@@ -51,7 +51,7 @@ else
     data_root=fullfile(dirs.data_root,'SpecData');%globalVar.SpecData; 
 end
 % dir_out = [data_root,freq_band,'Data',filesep,sbj_name,filesep,bn];c
-dir_out = [data_root,freq_band,filesep,sbj_name,filesep,bn];
+dir_out = [data_root,filesep,freq_band,filesep,sbj_name,filesep,bn];
 if ~exist(dir_out, 'dir')
     mkdir(dir_out)
 end

@@ -10,6 +10,10 @@ end
 cfg = [];
 cfg.decimate = false;
 concat_params = genConcatParams(project_name, cfg);
+if ~isfield(concat_params, 'data_format')
+    concat_params.data_format = 'regular';
+else
+end
 data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],datatype,freq_band,tag, concat_params);
 
 % Average data and baseline windows
@@ -62,9 +66,17 @@ for ii = 1:size(data_sbj.wave,2)
         fprintf('calculating stats for subject %s\n', sbj_name)
     else
     end
+    trialinfo_tmp = data_sbj.trialinfo_all{ii};
     
-    data_cond1_avg = data_all_avg.(conds{1})(:,ii);
-    data_cond2_avg = data_all_avg.(conds{2})(:,ii);
+    trialinfo_tmp_cond1 = trialinfo_tmp(strcmp(trialinfo_tmp.(column), conds{1}),:);
+    goodtrials_cond1 = trialinfo_tmp_cond1.bad_epochs_HFO == 0 & trialinfo_tmp_cond1.spike_hfb == 0;
+    
+    trialinfo_tmp_cond2 = trialinfo_tmp(strcmp(trialinfo_tmp.(column), conds{2}),:);
+    goodtrials_cond2 = trialinfo_tmp_cond2.bad_epochs_HFO == 0 & trialinfo_tmp_cond2.spike_hfb == 0;
+
+    
+    data_cond1_avg = data_all_avg.(conds{1})(goodtrials_cond1,ii);
+    data_cond2_avg = data_all_avg.(conds{2})(goodtrials_cond2,ii);
     data_baseline = baseline_all(:,ii);
     
     fprintf('calculating stats for channel %d\n', ii)
