@@ -42,7 +42,8 @@ switch color_map
         cols = cmBluesWhite(ncols);
     otherwise
         cols = cbrewer2(color_map, ncols+1);
-        cols = cols(end:-1:1,:);
+%         cols = flip(cols);
+%         cols = cols(end:-1:1,:);
 end
 
 % 

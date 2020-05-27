@@ -8,7 +8,7 @@ function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_fo
 %     sbj_name_generic = sbj_name;
 % end
 
-     sbj_name_generic = sbj_name;
+sbj_name_generic = sbj_name;
 
 
 folder_names = {'originalData'};

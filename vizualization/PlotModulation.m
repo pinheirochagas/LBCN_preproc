@@ -33,11 +33,14 @@ final_fs = 50;
 if ~isempty(cfg.ind)
     [col_idx,colors_plot] = colorbarFromValues(cfg.ind, cfg.Colormap, cfg.clim, cfg.color_center_zero);
     col_idx(col_idx==0)=1; % dirty fix
-    MarkerEdgeColor = 'none';
+    MarkerEdgeColor = [.3 .3 .3];
+%     MarkerEdgeColor = 'none';
 else
     col_idx = ones(size(elinfo,1),1);
     colors_plot = repmat(cfg.MarkerColor, size(elinfo,1), 1);
     MarkerEdgeColor = [.3 .3 .3];
+    MarkerEdgeColor = 'none';
+
 %     MarkerEdgeColor =  'none';
 end
 
