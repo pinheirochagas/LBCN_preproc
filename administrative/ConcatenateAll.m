@@ -44,19 +44,19 @@ for ei = 1:length(elecs)
     
     %% Add extra spike detector
     %% if task is active, set sample after RT to nan
-    if ~strcmp(project_name, 'Rest')
-        for iout = 1:size(data_bn.wave, 1)
-            data_tmp(iout,:) = data_bn.wave(iout,:);
-            data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
-        end
-        max_val = max(data_tmp, [], 2);
-        if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
-            thrhold = 4;
-        else
-            thrhold = 3;
-        end
-        data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
-    end
+%     if ~strcmp(project_name, 'Rest') 
+%         for iout = 1:size(data_bn.wave, 1)
+%             data_tmp(iout,:) = data_bn.wave(iout,:);
+%             data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
+%         end
+%         max_val = max(data_tmp, [], 2);
+%         if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
+%             thrhold = 4;
+%         else
+%             thrhold = 3;
+%         end
+%         data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
+%     end
     %% Add extra spike detector
 %     for it = 1:size(data_bn.wave,1)
 %         data_tmp_out = data_tmp;
@@ -109,9 +109,16 @@ for ei = 1:length(elecs)
     end
     
     if concat_params.decimate % smooth and downsample (optional)
-        ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz.
-        data_all.fsample = data_bn.fsample/ds_rate;
-        data_all.time = data_bn.time(1:ds_rate:end);
+        if data_bn.fsample == 999
+            ds_rate = 2; % FIX THIS, it assumes fs = 1000Hz.
+            data_all.fsample =concat_params.fs_targ ;
+            data_all.time = data_bn.time(1:ds_rate:end);
+        else
+            ds_rate = floor(data_bn.fsample/concat_params.fs_targ); % FIX THIS, it assumes fs = 1000Hz.
+            data_all.fsample = data_bn.fsample/ds_rate;
+            data_all.time = data_bn.time(1:ds_rate:end);
+        end
+
         %         if concat_params.sm_win > 0 % if smoothing first
         %             winSize = floor(data_bn.fsample*concat_params.sm_win);
         %             gusWin= gausswin(winSize)/sum(gausswin(winSize));
