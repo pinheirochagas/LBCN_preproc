@@ -1,7 +1,7 @@
  function PlotModulation(dirs, subjVar, cfg)
 
 %% Load comon brain
-elinfo = subjVar.elinfo;
+elinfo = subjVar;
 
 % Decide if project left
 if cfg.project_left

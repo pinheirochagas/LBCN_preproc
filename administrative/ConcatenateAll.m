@@ -42,21 +42,21 @@ for ei = 1:length(elecs)
     data_bn = concatBlocks(sbj_name,project_name,block_names,dirs,el,freq_band,datatype,concatfields,tag);
     elecnans(ei) = sum(sum(isnan(data_bn.wave)));
     
-    %% Add extra spike detector
-    %% if task is active, set sample after RT to nan
-%     if ~strcmp(project_name, 'Rest') 
-%         for iout = 1:size(data_bn.wave, 1)
-%             data_tmp(iout,:) = data_bn.wave(iout,:);
-%             data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
-%         end
-%         max_val = max(data_tmp, [], 2);
-%         if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
-%             thrhold = 4;
-%         else
-%             thrhold = 3;
-%         end
-%         data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
-%     end
+    % Add extra spike detector
+    % if task is active, set sample after RT to nan
+    if ~strcmp(project_name, 'Rest') 
+        for iout = 1:size(data_bn.wave, 1)
+            data_tmp(iout,:) = data_bn.wave(iout,:);
+            data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
+        end
+        max_val = max(data_tmp, [], 2);
+        if strcmp(subjVar.elinfo.DK_lobe{el}, 'Occipital')
+            thrhold = 4;
+        else
+            thrhold = 3;
+        end
+        data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
+    end
     %% Add extra spike detector
 %     for it = 1:size(data_bn.wave,1)
 %         data_tmp_out = data_tmp;
