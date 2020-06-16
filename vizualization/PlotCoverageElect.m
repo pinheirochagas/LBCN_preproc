@@ -24,8 +24,7 @@ MarkerFaceColor_high = MarkerFaceColor;
 % 
 
 
-figureDim = [0.1230 0.6361 0.4355 0.1965];
- figureDim = [0 0 1 .4];
+
 
 
 for i = 1:size(subjVar.elinfo,1)
@@ -43,37 +42,35 @@ for i = 1:size(subjVar.elinfo,1)
 end
 
 
-figure('units', 'normalized', 'outerposition', figureDim)
+figure('units', 'normalized', 'outerposition', cfg.figureDim)
 
 % figure('units', 'normalized', 'outerposition', figureDim)
-% views = {'lateral', 'anterior', 'posterior'};
-% views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
-views = {'lateral', 'ventral', 'medial'};
+% cfg.views = {'lateral', 'anterior', 'posterior'};
+% cfg.views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
+cfg.views = {'lateral', 'ventral', 'medial'};
 
 if ~isempty(cfg.chan_highlight)
     if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
-        hemis = {'left','left','left'};
+        cfg.hemis = {'left','left','left'};
     else
-        hemis = {'right', 'right', 'right'};
+        cfg.hemis = {'right', 'right', 'right'};
     end
 else
 end
 
-hemis = {'left','left','left', 'right', 'right', 'right'};
-views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
  
 % 
 % if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
-%     hemis = {'left','left','left'};
+%     cfg.hemis = {'left','left','left'};
 % else
-%     hemis = {'right', 'right', 'right'};
+%     cfg.hemis = {'right', 'right', 'right'};
 % end
 % 
-% views = {'lateral', 'lateral', 'posterior', 'posterior'};
-% hemis = {'left', 'right', 'left', 'right'};
+% cfg.views = {'lateral', 'lateral', 'posterior', 'posterior'};
+% cfg.hemis = {'left', 'right', 'left', 'right'};
 
-% views = {'lateral', 'ventral'}
-% hemis = {'left', 'left'};
+% cfg.views = {'lateral', 'ventral'}
+% cfg.hemis = {'left', 'left'};
 
 % 
 % if nargin == 1
@@ -85,26 +82,26 @@ views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
 %     savefold = uigetdir('/Volumes/');
 % end
 
-for i = 1:length(views)
-       subplot(2,3,i)
+for i = 1:length(cfg.views)
+       subplot(cfg.subplots(1),cfg.subplots(2),i)
 %     subplot(1,2,i)    
     
-    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, views{i}, hemis{i}, cfg.correction_factor);
-    ctmr_gauss_plot(subjVar.cortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
+    coords_plot = CorrectElecLoc(subjVar.elinfo.LEPTO_coord, cfg.views{i}, cfg.hemis{i}, cfg.correction_factor);
+    ctmr_gauss_plot(subjVar.cortex.(cfg.hemis{i}),[0 0 0], 0, cfg.hemis{i}, cfg.views{i})
     
     for ii = 1:length(coords_plot)
-        if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
+        if (strcmp(cfg.hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{ii},'L'))
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), '.', 'MarkerSize', marker_size, 'MarkerFaceColor', MarkerFaceColor(ii,:), 'MarkerEdgeColor', MarkerFaceColor(ii,:));
-        elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
+        elseif (strcmp(cfg.hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{ii},'R'))
             plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), '.', 'MarkerSize', marker_size, 'MarkerFaceColor', MarkerFaceColor(ii,:), 'MarkerEdgeColor', MarkerFaceColor(ii,:));
         end
     end
     
     if ~isempty(cfg.chan_highlight)
         for hi = 1:length(cfg.chan_highlight)
-            if (strcmp(hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'L'))
+            if (strcmp(cfg.hemis{i}, 'left') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'L'))
                 plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', cfg.highlight_col(hi,:), 'MarkerEdgeColor',  cfg.highlight_col(hi,:));
-            elseif (strcmp(hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'R'))
+            elseif (strcmp(cfg.hemis{i}, 'right') && strcmpi(subjVar.elinfo.LvsR{cfg.chan_highlight(hi)},'R'))
                 plot3(coords_plot(cfg.chan_highlight(hi),1),coords_plot(cfg.chan_highlight(hi),2),coords_plot(cfg.chan_highlight(hi),3), 'o', 'MarkerSize', marker_size_high, 'MarkerFaceColor', cfg.highlight_col(hi,:), 'MarkerEdgeColor', cfg.highlight_col(hi,:));
             else
             end
@@ -153,7 +150,7 @@ end
 % if plot_label
 %         for it = 1:length(coords_plot)
 %             hold on
-%             if (strcmp(hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
+%             if (strcmp(cfg.hemis{i}, 'left') == 1 && coords_plot(ii,1) > 0) || (strcmp(cfg.hemis{i}, 'right') == 1 && coords_plot(ii,1) < 0)
 %             else
 %                 text(coords_plot(it,1),coords_plot(it,2),coords_plot(it,3), subjVar.labels(it), 'FontSize', 7);
 %             end

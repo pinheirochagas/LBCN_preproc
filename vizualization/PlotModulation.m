@@ -1,7 +1,7 @@
  function PlotModulation(dirs, subjVar, cfg)
 
 %% Load comon brain
-elinfo = subjVar;
+elinfo = subjVar.elinfo;
 
 % Decide if project left
 if cfg.project_left
@@ -38,8 +38,7 @@ if ~isempty(cfg.ind)
 else
     col_idx = ones(size(elinfo,1),1);
     colors_plot = repmat(cfg.MarkerColor, size(elinfo,1), 1);
-    MarkerEdgeColor = [.3 .3 .3];
-    MarkerEdgeColor = 'none';
+    MarkerEdgeColor = cfg.MarkerEdgeColor;
 
 %     MarkerEdgeColor =  'none';
 end
@@ -52,7 +51,7 @@ else
 end
 % figureDim = [0 0 1 .4];
 
-cfg.col_label = repmat([1 0 0], size(elinfo,1),1);
+col_label = repmat(cfg.col_label, size(elinfo,1),1);
 if cfg.bad_chans
     cfg.col_label(cfg.bad_chans,:) = repmat([1 0 0], length(cfg.bad_chans),1);
     colors_plot(cfg.bad_chans,:) = repmat([1 1 1], length(cfg.bad_chans),1);
@@ -99,7 +98,12 @@ for i = 1:length(views)
             hold on
             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
             else
-                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), num2str(subjVar.elinfo.chan_num(ii)), 'FontSize', 6, 'Color', cfg.col_label(ii,:), 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
+                if strcmp(cfg.colum_label, 'chan_num')
+                    label = num2str(subjVar.elinfo.(cfg.colum_label)(ii));
+                else
+                    label = subjVar.elinfo.(cfg.colum_label){ii};
+                end
+                text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), label, 'FontSize', cfg.label_font_size, 'Color', col_label(ii,:), 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
             end
         end
     else

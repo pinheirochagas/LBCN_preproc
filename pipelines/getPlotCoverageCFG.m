@@ -22,7 +22,10 @@ cfg.plot_label = 0;
 cfg.alpha = 0;
 cfg.project_name = [];
 cfg.ind = []; % indices for modulation
-
+cfg.MarkerEdgeColor = [0 0 0];
+cfg.colum_label = 'chan_num';
+cfg.colum_label = [1 0 0];
+cfg.label_font_size = 6;
 switch type
     case 'full'
         cfg.MarkerSize = 3;

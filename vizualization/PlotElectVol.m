@@ -1,5 +1,7 @@
-function PlotElectVol(elecMatrix, elecRgb, V,elecId, slice2d_axes)
+function PlotElectVol(elecMatrix, elecRgb, V,elecId, slice2d_axes, elec_label)
 
+% h(1) = subplot(1,3,1); h(2) = subplot(1,3,2); h(3) = subplot(1,3,3);
+%slice2d_axes = h;
 % h(1) = subplot(1,3,1); h(2) = subplot(1,3,2); h(3) = subplot(1,3,3);
 % slice2d_axes = h;
 
@@ -17,6 +19,8 @@ xyz(:,2)=elecMatrix(:,1);
 xyz(:,3)=sVol(3)-elecMatrix(:,3);
 
 imshow(squeeze(mri.vol(:,xyz(elecId,1),:)),[mn mx],'parent',slice2d_axes(1));
+title(elec_label, 'Fontsize', 40)
+
 % imshow(rot90(rot90(squeeze(mri.vol(:,xyz(elecId,1),:)))),[mn mx],'parent',slice2d_axes(1));
 set(slice2d_axes(1),'nextplot','add');
 plot(xyz(elecId,3),xyz(elecId,2),'.','color',elecRgb(elecId,:),'markersize',30,'parent',slice2d_axes(1));
@@ -38,6 +42,8 @@ set(slice2d_axes(1),'xtick',[],'ytick',[],'xdir','reverse');
 
 %axes(slice2d_axes(2))
 imshow(squeeze(mri.vol(xyz(elecId,2),:,:)),[mn mx],'parent',slice2d_axes(2));
+title(elec_label, 'Fontsize', 40)
+
 set(slice2d_axes(2),'nextplot','add');
 plot(slice2d_axes(2),xyz(elecId,3),xyz(elecId,1),'.','color',elecRgb(elecId,:),'markersize',30);
 axis(slice2d_axes(2),'square');
@@ -63,6 +69,7 @@ set(slice2d_axes(2),'xtick',[],'ytick',[]);
 
 %axes(slice2d_axes(3))
 imshow(squeeze(mri.vol(:,:,xyz(elecId,3)))',[mn mx],'parent',slice2d_axes(3));
+title(elec_label, 'Fontsize', 40)
 set(slice2d_axes(3),'nextplot','add');
 plot(slice2d_axes(3),xyz(elecId,2),xyz(elecId,1),'.','color',elecRgb(elecId,:),'markersize',30);
 axis(slice2d_axes(3),'square');
