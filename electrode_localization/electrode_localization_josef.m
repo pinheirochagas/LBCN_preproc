@@ -30,11 +30,15 @@ subjects(contains(subjects, 'S12_32_JTb')) = []
 % Load Josef's table, load subjVar and integrate 
 for i = 1:length(subjects)
     s = subjects{i};
+%     s
     j_table = readtable(sprintf('%s%s%s.xlsx',subj_josef_dir, 'subjects/',  s));
     last_col = find(strcmp(j_table.Properties.VariableNames, 'Destr_long'));
     j_table = j_table(:,last_col+1);
-%     j_table = j_table(:,last_col+1:last_col+2);
     j_table.Properties.VariableNames = {'DK_long_josef'};
+
+    j_table = CorrectNamesJosef(j_table);
+%     j_table(1:10,:)
+%     j_table = j_table(:,last_col+1:last_col+2);
 %     j_table.Properties.VariableNames = {'DK_long_josef', 'LBCN_josef'};
 
 %     load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
@@ -43,7 +47,7 @@ for i = 1:length(subjects)
     disp(['saved copy of subjVar of subject ' s])
     subjVar.elinfo = [subjVar.elinfo j_table];
     save([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat'], 'subjVar');
-    disp(['raplaced subjVar with josef localization of subject ' s])    
+    disp(['raplaced subjVar with josef localization of subject ' s])
 end
 
 %problem with     'S18_131_CB'
@@ -51,7 +55,7 @@ end
 % did not do 'S16_100_AF'
 % problem with 'S16_95_JOB'
 
-vars = {'chan_num', 'FS_label', 'WMvsGM', 'LvsR', 'sEEG_ECoG', 'DK_lobe', 'Destr_long', 'DK_long_josef', 'LBCN_josef', 'MNI_coord'};
+vars = {'sbj_name','chan_num', 'FS_label', 'WMvsGM', 'LvsR', 'sEEG_ECoG', 'DK_lobe', 'Destr_long', 'DK_long_josef', 'MNI_coord'};
 subjVar_all = ConcatSubjVarsTasks(subjects, dirs, vars);
 writetable(subjVar_all, sprintf('%sfull_cohort_electrode_localization.xlsx',subj_josef_dir))
 
@@ -143,8 +147,8 @@ PlotModulation(dirs, plot_elects, cfg)
 
 % ROIs math 
 
-math_rois = {'IPS', 'AG', 'ITG', 'SPL', 'SFG', 'MFG', 'IFG', 'mPFC', 'Hippocampus Posterior'};
-elecs = subjVar_all(contains(subjVar_all.LBCN_josef, math_rois) & ~contains(subjVar_all.LBCN_josef, {'DYSPLASIA TISSUE'}) & ~contains(subjVar_all.LBCN_josef, {'/'}) & ~contains(subjVar_all.LBCN_josef, {'AGA'}) & subjVar_all.MMR == 1,:);
+math_rois = {'IPS', 'AG', 'ITG', 'SPL', 'SFG', 'MFG', 'IFG', 'mPFC', 'HIPPOCAMPUS'};
+elecs = subjVar_all(contains(subjVar_all.DK_long_josef, math_rois),:);
 
 
 
@@ -152,18 +156,18 @@ elecs = subjVar_all(contains(subjVar_all.LBCN_josef, math_rois) & ~contains(subj
 
 cfg = getPlotCoverageCFG('full');
 cfg.alpha = 0.5;
-cfg.MarkerSize = 10;
+cfg.MarkerSize = 8;
 plot_elects.elinfo = elecs
 cfg.MarkerEdgeColor = [0 0 0]
 
 colors = hsv(length(math_rois))
 for i = 1:length(math_rois)
-    elecs_tmp = elecs(contains(elecs.LBCN_josef, math_rois{i}),:);
+    elecs_tmp = elecs(contains(elecs.DK_long_josef, math_rois{i}),:);
     cfg.MarkerColor = colors(i,:);
-    cfg.plot_label = 0;
-    cfg.colum_label = 'LBCN_josef';
+    cfg.plot_label = 1;
+    cfg.colum_label = {'sbj_name', 'FS_label'};
     cfg.col_label = [0 0 0];
-    cfg.label_font_size = 10;
+    cfg.label_font_size = 6;
     plot_elects.elinfo = elecs_tmp;
     PlotModulation(dirs, plot_elects, cfg)
     savePNG(gcf, 300, sprintf('%scoverage_%s.png', subj_josef_dir,math_rois{i}))
@@ -176,8 +180,9 @@ MMR_rois_all = MMR_rois_all(contains(MMR_rois_all,))
 
 subj_josef_dir
 
-
-
-
-
-
+a = tabulate(subjVar_all.DK_long_josef)
+josef = table
+josef.name = a(:,1)
+josef.count = a{:,2}
+josef.count = vertcat(a{:,2})
+josef = sortrows(josef, 'name')

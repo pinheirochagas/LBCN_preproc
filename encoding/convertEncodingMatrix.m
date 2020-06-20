@@ -40,7 +40,7 @@ if length(size_wave) == 3
     
     % Basic matrix with task features
 %     enc_matrix.subj_name = repmat(subjVar.sbj_name(1:6),n_trials*n_time, 1);
-    task_names = {'VTC', 'Scramble', 'AllCateg', 'Logo', '7Heaven', 'UCLA', 'MMR', 'MFA', 'Context', 'Calculia', 'Memoria', 'GradCPT'}';
+    task_names = {'VTCLoc', 'Scramble', 'AllCateg', 'Logo', '7Heaven', 'UCLA', 'MMR', 'MFA', 'Context', 'Calculia', 'Memoria', 'GradCPT'}';
     task = find(strcmp(data.project_name, task_names));    
     enc_matrix.task = repmat(task,n_trials*n_time, 1);
     

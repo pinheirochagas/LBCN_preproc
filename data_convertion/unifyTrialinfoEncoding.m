@@ -415,57 +415,85 @@ switch project_name
         
         a = 1
         
+    case 'VTCLoc'
+        task_general_cond_name = ti.condNames;
+        task_type = cellstr(repmat('active', size(ti,1), 1));
+        
+        
+        
 end
 
 
 ti_copy = ti;
-% Unified trialinfo
 ti = table;
 ti.block = double(categorical(ti_copy.block));
 ti.task_general_cond_name = task_general_cond_name;
 ti.task_type = task_type;
-
-% Math
-ti.number_format = number_format;
-ti.operand_1 = operand_1;
-ti.operand_2 = operand_2;
-ti.operand_min = operand_min;
-ti.operand_max = operand_max;
-ti.operation = operation; % 1 for addition and -1 for subtraction
-ti.ls_sl = ls_sl;
-ti.result = result;
-ti.cross_decade = cross_decade;
-ti.presented_result = presented_result;
-% ti.deviant = deviant + 1; % just to avoid 0
-ti.abs_deviant = abs_deviant + 1;
-
-% Number
-ti.number_of_digits = number_of_digits;
-% ti.number_ids = number_of_digits;
-
-% Memory
-ti.memory_type = memory_type;
-
-% Behavioral performance
-ti.RT = RT;
-ti.accuracy = accuracy % just to avoid 0;
 
 % Original timing info
 ti.StimulusOnsetTime = ti_copy.StimulusOnsetTime;
 ti.allonsets = ti_copy.allonsets;
 ti.RT_lock = ti_copy.RT_lock;
 
-%% Convert trialinfo table to numerical matrix
-ti_string = ti;
-ti_n = ti;
-sc = struct;
-sc.task_type = {'active', 'passive'}';
-sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
-    'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
-sc.number_format = {'digit', 'number_dot', 'number_word'}';
-sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
-sc.ls_sl = {'l+s', 's+l', 'tie'}';
-sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
+switch project_name
+    case 'MMR'
+
+    % Unified trialinfo
+
+    % Math
+    ti.number_format = number_format;
+    ti.operand_1 = operand_1;
+    ti.operand_2 = operand_2;
+    ti.operand_min = operand_min;
+    ti.operand_max = operand_max;
+    ti.operation = operation; % 1 for addition and -1 for subtraction
+    ti.ls_sl = ls_sl;
+    ti.result = result;
+    ti.cross_decade = cross_decade;
+    ti.presented_result = presented_result;
+    % ti.deviant = deviant + 1; % just to avoid 0
+    ti.abs_deviant = abs_deviant + 1;
+
+    % Number
+    ti.number_of_digits = number_of_digits;
+    % ti.number_ids = number_of_digits;
+
+    % Memory
+    ti.memory_type = memory_type;
+
+    % Behavioral performance
+    ti.RT = RT;
+    ti.accuracy = accuracy; % just to avoid 0;
+    
+    
+    
+    %% Convert trialinfo table to numerical matrix
+    ti_string = ti;
+    ti_n = ti;
+    sc = struct;
+    sc.task_type = {'active', 'passive'}';
+    sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
+        'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
+    sc.number_format = {'digit', 'number_dot', 'number_word'}';
+    sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
+    sc.ls_sl = {'l+s', 's+l', 'tie'}';
+    sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
+
+    case 'VTCLoc'
+        
+        conditions = unique(ti.task_general_cond_name)
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}))
+            
+        end
+        
+        ti_string = ti;
+        ti_n = ti;
+        sc = struct;
+        sc.task_type = {'active', 'passive'}';
+        sc.task_general_cond_name  = conditions;
+
+end
 
 sc_vars = fieldnames(sc);
 
