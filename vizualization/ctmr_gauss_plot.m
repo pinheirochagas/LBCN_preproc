@@ -86,8 +86,8 @@ lighting gouraud; %play with lighting...
 %lighting flat; %play with lighting...
 % material shiny;
 % material([.2 .8 .1 10 1]);
-material([0.1 1 1 1 1])
-%material([.2 1 .2 10 1]);
+%material([0.1 1 1 1 1])
+material([.2 1 .2 10 1]);
 
 axis on
 set(gcf,'Renderer', 'zbuffer')

@@ -70,9 +70,9 @@ end
 if plot_params.single_trial
     figureDim = [0 0 .5 1];
 else
-    figureDim = [0 0 .3 .4];
+    figureDim = [0 0 .4 .5];
 end
-% figure('units', 'normalized', 'outerposition', figureDim)
+figure('units', 'normalized', 'outerposition', figureDim)
 
 
 hold on
