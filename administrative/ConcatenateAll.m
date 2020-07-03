@@ -44,7 +44,7 @@ for ei = 1:length(elecs)
     
     % Add extra spike detector
     % if task is active, set sample after RT to nan
-    if ~strcmp(project_name, 'Rest') 
+    if (~strcmp(project_name, 'Rest') && ~strcmp(project_name, 'EglyDriver'))
         for iout = 1:size(data_bn.wave, 1)
             data_tmp(iout,:) = data_bn.wave(iout,:);
             data_tmp(iout,data_bn.time>data_bn.trialinfo.RT(iout)) = nan;
