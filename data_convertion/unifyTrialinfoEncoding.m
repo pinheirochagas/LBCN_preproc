@@ -71,6 +71,7 @@ switch project_name
                 task_type{i,1} = 'active';
             end
         end
+        condNames = ti.condNames;
         
         
         %% Math
@@ -418,6 +419,7 @@ switch project_name
     case 'VTCLoc'
         task_general_cond_name = ti.condNames;
         task_type = cellstr(repmat('active', size(ti,1), 1));
+        oneback = ti.oneback;
         
         
     case 'Memoria'
@@ -534,8 +536,27 @@ ti.RT_lock = ti_copy.RT_lock;
 
 switch project_name
     case 'MMR'
-        
         % Unified trialinfo
+        %% Add conditions general
+        conditions = unique(ti.task_general_cond_name);
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+            
+        end
+        
+        %% Add conditions specifics
+        task_specific_cond_name = ti_copy.condNames;
+        conditions = task_specific_cond_name;
+        for i = 1:length(conditions)
+            condition_tmp = strsplit(conditions{i}, '-');
+            if length(condition_tmp) == 2
+                condition_tmp = [condition_tmp{1} '_' condition_tmp{2}];
+            else
+                condition_tmp = condition_tmp{1};
+            end
+            ti.(condition_tmp) = double(strcmp(task_specific_cond_name, conditions{i}));
+        end
+        
         
         % Math
         ti.number_format = number_format;
@@ -571,18 +592,19 @@ switch project_name
         sc.task_type = {'active', 'passive'}';
         sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
             'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
-        sc.number_format = {'digit', 'number_dot', 'number_word'}';
+        sc.number_format = {'digit'}';
         sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
         sc.ls_sl = {'l+s', 's+l', 'tie'}';
         sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
         
     case 'VTCLoc'
         
-        conditions = unique(ti.task_general_cond_name)
+        conditions = unique(ti.task_general_cond_name);
         for i = 1:length(conditions)
-            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}))
-            
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
         end
+        ti.oneback = ti_copy.oneback;
+
         
         ti_string = ti;
         ti_n = ti;
@@ -591,6 +613,13 @@ switch project_name
         sc.task_general_cond_name  = conditions;
         
     case 'Memoria'
+        
+        conditions = unique(ti.task_general_cond_name);
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+            
+        end
+        
         % Math
         ti.number_format = number_format;
         ti.operand_1 = operand_1;
@@ -622,7 +651,7 @@ switch project_name
         sc.task_type = {'active', 'passive'}';
         sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
             'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
-        sc.number_format = {'digit', 'number_dot', 'number_word'}';
+        sc.number_format = {'digit', 'number_word', 'number_dot'}';
         sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
         sc.ls_sl = {'l+s', 's+l', 'tie'}';
         sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
@@ -635,7 +664,7 @@ sc_vars = fieldnames(sc);
 tmp = table;
 for i = 1:length(sc_vars)
     for ii = 1:size(ti,1)
-        tmp_val = find(strcmp(ti.(sc_vars{i}){ii}, sc.(sc_vars{i})));
+        tmp_val = find(strcmp(ti.(sc_vars{i}){ii}, sc.(sc_vars{i})))-1;
         if ~isempty(tmp_val)
             tmp.(sc_vars{i})(ii,1) = tmp_val;
         else
