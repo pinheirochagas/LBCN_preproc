@@ -16,6 +16,7 @@ else
 end
 data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],datatype,freq_band,tag, concat_params);
 
+
 % Average data and baseline windows
 data_all_avg = [];
 data_all = [];
@@ -83,9 +84,13 @@ for ii = 1:size(data_sbj.wave,2)
 
     
     [H,P,CI,STATS] = ttest2(data_cond1_avg,data_cond2_avg); STATS.H = H; STATS.P = P; STATS.CI = CI;
-    STATS.P_perm = permutation_unpaired(data_cond1_avg, data_cond2_avg, stats_params.nreps);
-    sc1c2(ii,:) = STATS;
-    
+    try
+        STATS.P_perm = permutation_unpaired(data_cond1_avg, data_cond2_avg, stats_params.nreps);
+        sc1c2(ii,:) = STATS;
+    catch
+        STATS.P_perm = 999
+        sc1c2(ii,:) = STATS;
+    end
     
 %     % ---------------------------------------------------------------------
 %     %Cluster based
@@ -115,15 +120,24 @@ for ii = 1:size(data_sbj.wave,2)
 %     
 %     [pval, t_orig, clust_info, seed_state, est_alpha] = clust_perm2(data_cond1, data_cond2,chan_hood);
 %     % ---------------------------------------------------------------------
-    
+
     [H,P,CI,STATS] = ttest2(data_cond1_avg,data_baseline); STATS.H = H; STATS.P = P; STATS.CI = CI;
-    STATS.P_perm = permutation_unpaired(data_cond1_avg, data_baseline, stats_params.nreps);
-    sc1b1(ii) = STATS;
+    try
+        STATS.P_perm = permutation_unpaired(data_cond1_avg, data_baseline, stats_params.nreps);
+        sc1b1(ii) = STATS;
+    catch
+        STATS.P_perm = 999
+        sc1b1(ii) = STATS;
+    end
     
     [H,P,CI,STATS] = ttest2(data_cond2_avg,data_baseline); STATS.H = H; STATS.P = P; STATS.CI = CI;
-    STATS.P_perm = permutation_unpaired(data_cond2_avg, data_baseline, stats_params.nreps);
-    sc2b2(ii) = STATS;
-    
+    try
+        STATS.P_perm = permutation_unpaired(data_cond2_avg, data_baseline, stats_params.nreps);
+        sc2b2(ii) = STATS; 
+    catch
+        STATS.P_perm = 999;
+        sc2b2(ii) = STATS; 
+    end
     sm_data.mean(ii,:) = [nanmean(data_cond1_avg) nanmean(data_cond2_avg) nanmean(data_baseline)];
     sm_data.std(ii,:) = [nanstd(data_cond1_avg) nanstd(data_cond2_avg) nanstd(data_baseline)];
     
@@ -172,6 +186,8 @@ for ii = 1:size(data_sbj.wave,2)
     end
     
 end
+
+
 
 
 % Activation vs. deactivations

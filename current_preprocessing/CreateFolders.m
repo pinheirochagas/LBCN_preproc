@@ -90,8 +90,13 @@ for bn = 1:length(block_name)
     %% Original folders from the server
     % iEEG data
     if strcmp(import_server, 'auto') == 1
+        if strcmp(project_name, 'SevenHeaven')
+            project_name_server = '7Heaven';
+        else
+            project_name_server = project_name;
+        end
         %iEEG file
-        block_folder = sprintf('%s/%s/Data/%s/%s/',dirs.server_root, sbj_folder_name, project_name, block_name{bn});
+        block_folder = sprintf('%s/%s/Data/%s/%s/',dirs.server_root, sbj_folder_name, project_name_server, block_name{bn});
         globalVar.iEEG_data_server_path = sprintf('%s%s.edf',block_folder,block_name{bn});
         disp(sprintf('identified iEEG file %s', globalVar.iEEG_data_server_path));
         

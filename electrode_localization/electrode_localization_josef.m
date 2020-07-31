@@ -18,13 +18,8 @@ for i = 1:length(subj_josef)
         count = count + 1;
     end
 end
-subjects(contains(subjects, 'S18_131_CB')) = []
 subjects(contains(subjects, 'S11_31_DZa')) = []
-subjects(contains(subjects, 'S16_100_AF')) = []
-subjects(contains(subjects, 'S16_95_JOB')) = []
 subjects(contains(subjects, 'S12_32_JTb')) = []
-
-
 
 
 % Load Josef's table, load subjVar and integrate 
@@ -41,8 +36,8 @@ for i = 1:length(subjects)
 %     j_table = j_table(:,last_col+1:last_col+2);
 %     j_table.Properties.VariableNames = {'DK_long_josef', 'LBCN_josef'};
 
-%     load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
-%     save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
+    load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
+      save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
     load([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'])
     disp(['saved copy of subjVar of subject ' s])
     subjVar.elinfo = [subjVar.elinfo j_table];

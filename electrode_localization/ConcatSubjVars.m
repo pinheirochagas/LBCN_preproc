@@ -5,6 +5,14 @@ for is = 1:length(subjects)
     load([dirs.original_data filesep  subjects{is} filesep 'subjVar_'  subjects{is} '.mat']);
     subjVar_tmp = subjVar.elinfo(:, contains(subjVar.elinfo.Properties.VariableNames, vars));
     subjVar_all = [subjVar_all; subjVar_tmp];
+    
+    
 end
+
+if sum(contains(vars, 'DK_lobe')) > 0
+    subjVar_all.DK_lobe_generic = DK_lobe_generic(subjVar_all);
+else
+end
+
 end
 

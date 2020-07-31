@@ -13,8 +13,10 @@ end
 
 fsaverage_dir = '/Applications/freesurfer/subjects/fsaverage/surf'; % correct that:'/Applications/freesurfer/freesurfer/subjects/fsaverage/surf/rh.pial'
 if strcmp(cfg.Cortex, 'MNI')
-    [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
-    [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));
+    [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'inflated_avg']));
+    [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'inflated_avg']));
+%     [cmcortex.right.vert cmcortex.right.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['rh.' 'pial']));
+%     [cmcortex.left.vert cmcortex.left.tri]=read_surf(fullfile('/Applications/freesurfer/subjects/fsaverage/surf',['lh.' 'pial']));    
     coords_plot = elinfo.MNI_coord;
 elseif  strcmp(cfg.Cortex, 'native')
     cmcortex = subjVar.cortex;
@@ -38,11 +40,14 @@ if ~isempty(cfg.ind)
     MarkerEdgeColor = [.3 .3 .3];
 %     colors_plot = flip(colors_plot);
 %     MarkerEdgeColor = 'none';
-else
+elseif length(cfg.MarkerColor) == 1
     col_idx = ones(size(elinfo,1),1);
     colors_plot = repmat(cfg.MarkerColor, size(elinfo,1), 1);
     MarkerEdgeColor = cfg.MarkerEdgeColor;
-
+elseif length(cfg.MarkerColor) > 1 
+    col_idx = 1:size(elinfo,1);
+    colors_plot = cfg.MarkerColor;
+    MarkerEdgeColor = cfg.MarkerEdgeColor;
 %     MarkerEdgeColor =  'none';
 end
 
@@ -52,6 +57,7 @@ end
 %% Plot electrodes as dots in native space
 if cfg.MarkerSize_mod
     marker_size = abs(cfg.ind)*cfg.MarkerSize;
+    marker_size(marker_size<=0) = 0.0001;
 else
     marker_size = repmat(cfg.MarkerSize,size(elinfo,1),1);
 end

@@ -432,7 +432,8 @@ switch project_name
             end
         end        
         task_type = cellstr(repmat('active', size(ti,1), 1));
-        
+        condNames = ti.conds_all;
+
         %% Math
         % Number format
         for i = 1:size(ti,1)
@@ -617,6 +618,16 @@ switch project_name
         conditions = unique(ti.task_general_cond_name);
         for i = 1:length(conditions)
             ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+            
+        end
+        
+        task_specific_cond_name = ti_copy.conds_all;
+        conditions = task_specific_cond_name;
+        for i = 1:length(conditions)
+            if ~isempty(conditions{i})
+                ti.(conditions{i}) = double(strcmp(task_specific_cond_name, conditions{i}));
+            else
+            end
             
         end
         
