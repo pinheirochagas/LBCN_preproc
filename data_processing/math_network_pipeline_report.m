@@ -539,9 +539,17 @@ savePNG(gcf, 300, [figure_dir, 'math_all_frequencies_hemi_stacked.png'])
 
 
 
+[DOCID,GID] = getGoogleSheetInfo('math_network','cohort');
+sinfo = GetGoogleSpreadsheet(DOCID, GID);
+subject_names = sinfo.sbj_name;
+sinfo = sinfo(strcmp(sinfo.subjVar, '1'),:);
+% Filer for usable dat
+subjects = unique(sinfo.sbj_name);
 
 
-
+parfor i = 1:length(subjects)
+    CreateSubjVar(subjects{i}, comp_root, server_root, code_root)
+end
 
 
 

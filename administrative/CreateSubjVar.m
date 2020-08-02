@@ -224,14 +224,14 @@ if ~exist('mismatch_labels')
         %         ID = input(prompt,'s');
         ID = 'y';
         if strcmp(ID, 'y')
-            save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
+            save([dirs.original_data filesep sbj_name filesep 'subjVar_Serdar' sbj_name '.mat'], 'subjVar')
             disp(['subjVar saved for ' sbj_name])
             subjVar_created = 1;
         else
             warning(['subjVar NOT saved for ' sbj_name])
         end
     else
-        save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
+        save([dirs.original_data filesep sbj_name filesep 'subjVar' sbj_name '.mat'], 'subjVar')
         disp(['subjVar saved for ' sbj_name])
         subjVar_created = 1;
     end
