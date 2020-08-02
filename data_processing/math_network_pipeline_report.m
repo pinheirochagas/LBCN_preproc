@@ -440,4 +440,137 @@ PlotModulation(dirs, el_selectivity_only, cfg)
 savePNG(gcf, 300, [figure_dir, 'Calculia_only_brain_selective.png'])
 
 
+%% Viz proportions
+el_selectivity = simplify_selectivity(el_selectivity_all_calc, 'MMR');
+sort_tabulate(el_selectivity.elect_select, 'descend')
+
+el_selectivity_only = el_selectivity(contains(el_selectivity.elect_select, 'only'), :)
+el_selectivity_only = el_selectivity_only(~contains(el_selectivity_only.Yeo7, 'Depth'),:)
+
+
+conditions = {'math', 'memory'};
+Yeo7_networks = {'Frontoparietal', 'Dorsal Attention', 'Default', 'Limbic',  'Ventral Attention','Visual', 'Somatomotor'};
+
+frequencies = [];
+for i = 1:length(conditions)
+    tmp_Yeo7 = el_selectivity_only(contains(el_selectivity_only.elect_select, conditions{i}),:);
+    tmp_Yeo7 = sort_tabulate(tmp_Yeo7.Yeo7, 'descend');
+    for in = 1:length(Yeo7_networks)
+        frequencies(i,in) = tmp_Yeo7{strcmp(tmp_Yeo7.value, Yeo7_networks{in}), 2};
+    end
+end
+frequencies = frequencies'
+
+% frequencies = flip(frequencies');
+[frequencies, idx] = sortrows(frequencies, 1, 'descend')
+frequencies = flip(frequencies);
+Yeo7_networks = Yeo7_networks(idx)
+Yeo7_networks = flip(Yeo7_networks)
+
+ba = barh(frequencies, 'stacked' ,'EdgeColor', 'k','LineWidth',2)
+ba(1).FaceColor = cdcol.light_cadmium_red;
+ba(2).FaceColor = cdcol.sapphire_blue
+
+set(gca,'fontsize',16)
+xlabel('Number of electrodes')
+yticks(1:length(Yeo7_networks))
+ylim([0, length(Yeo7_networks)+1])
+yticklabels(Yeo7_networks)
+set(gca,'TickLabelInterpreter','none')
+
+for i = 1:length(conditions)
+    for in = 1:length(Yeo7_networks)
+        if i == 1
+            txt = text(frequencies(in,i)-1,in, num2str(frequencies(in,i)), 'FontSize', 20, 'HorizontalAlignment', 'right', 'Color', 'w');
+        elseif i > 1
+            txt = text(frequencies(in,i)+sum(frequencies(in,1:i-1))-1,in, num2str(frequencies(in,i)), 'FontSize', 20, 'HorizontalAlignment', 'right', 'Color', 'w');
+        end
+    end
+end
+title('Frequency of math vs. memory only sites per intrinsic network')
+savePNG(gcf, 300, [figure_dir, 'math_all_frequencies_Yeo7_stacked.png'])
+
+
+
+
+
+
+conditions = {'math', 'memory'};
+hemis = {'L', 'R'};
+
+frequencies = [];
+for i = 1:length(conditions)
+    LvsR = el_selectivity_only(contains(el_selectivity_only.elect_select, conditions{i}),:);
+    LvsR = sort_tabulate(LvsR.LvsR, 'descend');
+    for in = 1:length(hemis)
+        frequencies(i,in) = LvsR{strcmp(LvsR.value, hemis{in}), 2};
+    end
+end
+frequencies = frequencies'
+
+% frequencies = flip(frequencies');
+[frequencies, idx] = sortrows(frequencies, 1, 'descend')
+frequencies = frequencies;
+hemis = hemis(idx)
+hemis = flip(hemis)
+
+ba = bar(frequencies, 'stacked' ,'EdgeColor', 'k','LineWidth',2)
+ba(1).FaceColor = cdcol.light_cadmium_red;
+ba(2).FaceColor = cdcol.sapphire_blue
+
+set(gca,'fontsize',16)
+ylabel('Number of electrodes')
+xlim([0, length(hemis)+1])
+xlabel('Hemispheres')
+xticklabels({'Left', 'Right'})
+set(gca,'TickLabelInterpreter','none')
+
+for i = 1:length(conditions)
+    for in = 1:length(Yeo7_networks)
+        if i == 1
+            txt = text(in, frequencies(in,i)-1, num2str(frequencies(in,i)), 'FontSize', 20, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'top', 'Color', 'w');
+        elseif i > 1
+            txt = text(in, frequencies(in,i)+sum(frequencies(in,1:i-1))-1, num2str(frequencies(in,i)), 'FontSize', 20, 'HorizontalAlignment', 'center',  'VerticalAlignment', 'top', 'Color', 'w');
+        end
+    end
+end
+title('Frequency of math vs. memory only sites per hemi network')
+savePNG(gcf, 300, [figure_dir, 'math_all_frequencies_hemi_stacked.png'])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
