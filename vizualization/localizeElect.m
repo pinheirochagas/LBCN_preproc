@@ -199,9 +199,9 @@ for i = 1:length(elinfo.Destrieux)
 end
 
 % Add PTD index info to the table
-elinfo.PTD_ind = PTD_idx.PTD;
-elinfo.surr_GM_vox = PTD_idx.nb_Gpix;
-elinfo.surr_WM_vox = PTD_idx.nb_Wpix;
+elinfo.PTD_ind = cellstr(num2str(PTD_idx.PTD));
+elinfo.surr_GM_vox = cellstr(num2str(PTD_idx.nb_Gpix));
+elinfo.surr_WM_vox = cellstr(num2str(PTD_idx.nb_Wpix));
 
 % Arranging elinfo according to subjVar.label:
 cell_elinfo = table2cell(elinfo);
@@ -222,8 +222,14 @@ end
 for i=1:size(subjVar_final.elinfo,1)
     if ~contains(subjVar_final.elinfo.FS_ind{i},{'empty','NaN'},'IgnoreCase',true)
         subjVar_final.elinfo.FS_ind{i} = str2double(subjVar_final.elinfo.FS_ind(i));
+        subjVar_final.elinfo.PTD_ind{i} = str2double(subjVar_final.elinfo.PTD_ind(i));
+        subjVar_final.elinfo.surr_GM_vox{i} = str2double(subjVar_final.elinfo.surr_GM_vox(i));
+        subjVar_final.elinfo.surr_WM_vox{i} = str2double(subjVar_final.elinfo.surr_WM_vox(i));
     elseif contains(subjVar_final.elinfo.FS_ind{i},'NaN','IgnoreCase',true)
         subjVar_final.elinfo.FS_ind{i} = NaN;
+        subjVar_final.elinfo.PTD_ind{i} = NaN;
+        subjVar_final.elinfo.surr_GM_vox{i} = NaN;
+        subjVar_final.elinfo.surr_WM_vox{i} = NaN;
     end
 end
 
