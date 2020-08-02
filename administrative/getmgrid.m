@@ -5,7 +5,6 @@ subj = dir(dirs.freesurfer);
 subj = subj(end).name;
 subDir = [subDir subj];
 
-[mgrid_coord, elect_names, elecRgb] = mgrid2matlab_custom(subj,0, dirs.freesurfer);
-
+[mgrid_coord, elect_names, elecRgb,~,elecPresent] = mgrid2matlab_custom(subj,0, dirs.freesurfer);
+mgrid_coord = mgrid_coord(elecPresent==1,:);
 end
-
