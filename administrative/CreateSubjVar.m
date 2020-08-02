@@ -148,10 +148,10 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         
         if in_fs(end) == 0
             trailing_empty_count = length(in_fs)-find(in_fs,1,'last'); % in several cases there are more than 1 empty channels at the end, adding only one line of NaNs wasn't enough
-            RAS_coord_tmp(end+trailing_empty_count,:) = nan;
-            MNI_coord_tmp(end+trailing_empty_count,:) = nan;
-            MGRID_coord_tmp(end+trailing_empty_count,:) = nan;
-            INF_coord_tmp(end+trailing_empty_count,:) = nan;
+            RAS_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
+            MNI_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
+            MGRID_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
+            INF_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
         else
         end
         
