@@ -241,9 +241,10 @@ subjVar_final.elinfo = [array2table(chan_num),subjVar_final.elinfo];
 subjVar_final.elinfo.LEPTO_coord = subjVar_final.LEPTO_coord;
 subjVar_final.elinfo.MNI_coord = subjVar_final.MNI_coord;
 subjVar_final.elinfo.MGRID_coord = subjVar_final.MGRID_coord;
-subjVar_final.elinfo.INF_coord = subjVar_final.INF_coord;
+subjVar_final.elinfo.subINF_coord = subjVar_final.subINF_coord;
+subjVar_final.elinfo.fsaverageINF_coord = subjVar_final.fsaverageINF_coord;
 
-subjVar_final = rmfield(subjVar_final, {'labels','LEPTO_coord', 'MNI_coord', 'MGRID_coord', 'INF_coord'});
+subjVar_final = rmfield(subjVar_final, {'labels','LEPTO_coord', 'MNI_coord', 'MGRID_coord', 'subINF_coord', 'fsaverageINF_coord'});
 end
 
 

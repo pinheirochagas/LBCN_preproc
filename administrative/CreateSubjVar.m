@@ -33,7 +33,8 @@ cortex = getcort(dirs);
 [MGRID_coord, elect_names] = getmgrid(dirs);
 
 % get inflated brain coordinates
-INF_coord = pial2InfBrain_custom(dirs);
+subINF_coord = pial2InfBrain_custom(dirs);
+fsaverageINF_coord = fsaverage_pial2Inf(dirs,MNI_coord,chanInfo.Hem);
 
 fs_chan_names = chanInfo.Name;
 close all
@@ -89,7 +90,8 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) == length(in_fs)
     RAS_coord = RAS_coord(in_chan_cmp,:);
     MNI_coord = MNI_coord(in_chan_cmp,:);
     MGRID_coord = MGRID_coord(in_chan_cmp,:);
-    INF_coord = INF_coord(in_chan_cmp,:);
+    subINF_coord = subINF_coord(in_chan_cmp,:);
+    fsaverageINF_coord = fsaverageINF_coord(in_chan_cmp,:);
     % 2: More channels in EDF/TDT
 elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     fs_chan_names_tmp = cell(nchan_cmp,1);
@@ -109,10 +111,13 @@ elseif sum(in_chan_cmp) == length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     MGRID_coord_tmp(in_fs,:) = MGRID_coord;
     MGRID_coord = MGRID_coord_tmp;
     
-    INF_coord_tmp = nan(nchan_cmp,3,1);
-    INF_coord_tmp(in_fs,:) = INF_coord;
-    INF_coord = INF_coord_tmp;
+    subINF_coord_tmp = nan(nchan_cmp,3,1);
+    subINF_coord_tmp(in_fs,:) = subINF_coord;
+    subINF_coord = subINF_coord_tmp;
     
+    fsaverageINF_coord_tmp = nan(nchan_cmp,3,1);
+    fsaverageINF_coord_tmp(in_fs,:) = fsaverageINF_coord;
+    fsaverageINF_coord = fsaverageINF_coord_tmp;
     % More in
 elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
     
@@ -132,7 +137,8 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         RAS_coord = RAS_coord(in_chan_cmp,:);
         MNI_coord = MNI_coord(in_chan_cmp,:);
         MGRID_coord =  MGRID_coord(in_chan_cmp,:);
-        INF_coord =  INF_coord(in_chan_cmp,:);
+        subINF_coord =  subINF_coord(in_chan_cmp,:);
+        fsaverageINF_coord =  fsaverageINF_coord(in_chan_cmp,:);
         
         % Second add the EDF/TDT which are not in FS
         fs_chan_names_tmp = cell(nchan_cmp,1);
@@ -144,14 +150,16 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         RAS_coord_tmp = nan(size(RAS_coord,1),size(RAS_coord,2),1);
         MNI_coord_tmp = nan(size(MNI_coord,1),size(MNI_coord,2),1);
         MGRID_coord_tmp = nan(size(MGRID_coord,1),size(MGRID_coord,2),1);
-        INF_coord_tmp = nan(size(INF_coord,1),size(INF_coord,2),1);
+        subINF_coord_tmp = nan(size(subINF_coord,1),size(subINF_coord,2),1);
+        fsaverageINF_coord_tmp = nan(size(fsaverageINF_coord,1),size(fsaverageINF_coord,2),1);
         
         if in_fs(end) == 0
             trailing_empty_count = length(in_fs)-find(in_fs,1,'last'); % in several cases there are more than 1 empty channels at the end, adding only one line of NaNs wasn't enough
             RAS_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
             MNI_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
             MGRID_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
-            INF_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
+            subINF_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
+            fsaverageINF_coord_tmp(end+1:end+trailing_empty_count,:) = nan;
         else
         end
         
@@ -164,8 +172,11 @@ elseif sum(in_chan_cmp) < length(in_chan_cmp) && sum(in_fs) < length(in_fs)
         MGRID_coord_tmp(in_fs,:) = MGRID_coord;
         MGRID_coord = MGRID_coord_tmp;
         
-        INF_coord_tmp(in_fs,:) = INF_coord;
-        INF_coord = INF_coord_tmp;  
+        subINF_coord_tmp(in_fs,:) = subINF_coord;
+        subINF_coord = subINF_coord_tmp;
+        
+        fsaverageINF_coord_tmp(in_fs,:) = fsaverageINF_coord;
+        fsaverageINF_coord = fsaverageINF_coord_tmp;  
     else
         warning('channel labels not fixed, please double check PPT/FS')
         mismatch_labels = 1;
@@ -185,7 +196,8 @@ if ~exist('mismatch_labels')
     subjVar.LEPTO_coord = RAS_coord(new_order,:);
     subjVar.MNI_coord = MNI_coord(new_order,:);
     subjVar.MGRID_coord = MGRID_coord(new_order,:);
-    subjVar.INF_coord = INF_coord(new_order,:);
+    subjVar.subINF_coord = subINF_coord(new_order,:);
+    subjVar.fsaverageINF_coord = fsaverageINF_coord(new_order,:);
     
     % labels mean the corrected names
     if strcmp(data_format, 'TDT')
