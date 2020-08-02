@@ -251,8 +251,8 @@ for i=1:length(ROI)
     PTD_idx.nb_Wpix(i,1)  = cell2mat(ROI(i,3));
     PTD_idx.PTD (i,1)     = (cell2mat(ROI(i,2)) - cell2mat(ROI(i,3))) / (cell2mat(ROI(i,2)) + cell2mat(ROI(i,3)));
     if (cell2mat(ROI(i,2)) + cell2mat(ROI(i,3))) ~= power(offset+1,3)
-        warning(['channel ' label{e} ' has in its surrounding voxels that are neither labelled Gray or White matter; ' char(10)...
-            'those voxels were not taking into account in PTD computation (see field nb_Gpix and nb_Wpix in the output)']);
+%         warning(['channel ' label{e} ' has in its surrounding voxels that are neither labelled Gray or White matter; ' char(10)...
+%             'those voxels were not taking into account in PTD computation (see field nb_Gpix and nb_Wpix in the output)']);
     end
     % % otherwise a less strict version of the PTD taking into account the surrounding voxels that do not belong to Gray or White matter
     %     PTD_idx.PTD (i,1)     = (cell2mat(ROI(i,2)) - cell2mat(ROI(i,3))) / power(offset+1,3);
