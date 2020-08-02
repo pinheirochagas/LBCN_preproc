@@ -84,8 +84,12 @@ elinfo.FS_ind = FS_vol(:,3);
 % arranging FS_vol into WMvsGM, LvsR, and sEEG_ECoG
 [elinfo.WMvsGM, elinfo.LvsR, elinfo.sEEG_ECoG] = filterRegion(FS_vol,FS_folder,FS_name);
 
-% find all subdural electrodes and depth electrodes which are in GM:
-GM_depths = elinfo.FS_label(strcmp(elinfo.WMvsGM,'GM'),1);
+% get custom PTD index results (looking for any voxels for ctx or several
+% subcortical structures in the surrounding) and...
+fprintf('Getting PTD index (how many gray and white matter voxels there are in the surrounding).\n')
+PTD_idx = getPtdIndex_custom(dirs);
+% find all subdural electrodes and depth electrodes which are "CLOSE TO" GM:
+GM_depths = elinfo.FS_label(PTD_idx.nb_Gpix>0);
 
 % organize code looping and not repeating atlas 
 % atlases = {'Desikan_Killiany', };
@@ -194,6 +198,11 @@ for i = 1:length(elinfo.Destrieux)
     end
 end
 
+% Add PTD index info to the table
+elinfo.PTD_ind = PTD_idx.PTD;
+elinfo.surr_GM_vox = PTD_idx.nb_Gpix;
+elinfo.surr_WM_vox = PTD_idx.nb_Wpix;
+
 % Arranging elinfo according to subjVar.label:
 cell_elinfo = table2cell(elinfo);
 subjVar_final.elinfo = elinfo;
@@ -226,8 +235,9 @@ subjVar_final.elinfo = [array2table(chan_num),subjVar_final.elinfo];
 subjVar_final.elinfo.LEPTO_coord = subjVar_final.LEPTO_coord;
 subjVar_final.elinfo.MNI_coord = subjVar_final.MNI_coord;
 subjVar_final.elinfo.MGRID_coord = subjVar_final.MGRID_coord;
+subjVar_final.elinfo.INF_coord = subjVar_final.INF_coord;
 
-subjVar_final = rmfield(subjVar_final, {'labels','LEPTO_coord', 'MNI_coord', 'MGRID_coord'});
+subjVar_final = rmfield(subjVar_final, {'labels','LEPTO_coord', 'MNI_coord', 'MGRID_coord', 'INF_coord'});
 end
 
 
@@ -402,7 +412,7 @@ anatLabel_ind = num2mstr(tbl{1}(id));
 end
 
 %% Subfunction3: WMvsGM
-function [WMvsGM, LvsR, sEEG_ECoG] = filterRegion(FS_vol, FS_folder,FS_name)
+function [WMvsGM, LvsR, sEEG_ECoG] = filterRegion(use2classify, FS_folder,FS_name)
 % This subfunction gets information if electrode is in gray matter vs white
 % matter, Left vs Right and anatomical location in Desikan-Killiany atlas
 % if surface electrode or in aseg+aparc.mgz if depth electrode. 
@@ -420,20 +430,36 @@ LvsR = elecLabels(:,3);
 % LvsR = cell2table(LvsR);
 
 % WMvsGM & anatLoc & sEEG_ECoG:
-nElec=length(FS_vol);
+nElec=length(use2classify);
 WMvsGM{nElec,1}='';
 sEEG_ECoG{nElec,1}='';
 
-for i=1:length(FS_vol)
-    if strcmp(elecLabels{i,2},'S') || strcmp(elecLabels{i,2},'G')
-        WMvsGM{i,1} = 'GM';
-        sEEG_ECoG{i,1} = 'ECoG';
-    elseif strcmp(elecLabels{i,2},'D')
-        sEEG_ECoG{i,1} = 'sEEG';
-        if contains(FS_vol{i,2}, 'ctx-')
+if isnumeric(use2classify)
+    for i=1:length(use2classify)
+        if strcmp(elecLabels{i,2},'S') || strcmp(elecLabels{i,2},'G')
             WMvsGM{i,1} = 'GM';
-        else
-            WMvsGM{i,1} = 'WM';
+            sEEG_ECoG{i,1} = 'ECoG';
+        elseif strcmp(elecLabels{i,2},'D')
+            sEEG_ECoG{i,1} = 'sEEG';
+            if use2classify(i) > 0
+                WMvsGM{i,1} = 'GM';
+            else
+                WMvsGM{i,1} = 'WM';
+            end
+        end
+    end
+else
+    for i=1:length(use2classify)
+        if strcmp(elecLabels{i,2},'S') || strcmp(elecLabels{i,2},'G')
+            WMvsGM{i,1} = 'GM';
+            sEEG_ECoG{i,1} = 'ECoG';
+        elseif strcmp(elecLabels{i,2},'D')
+            sEEG_ECoG{i,1} = 'sEEG';
+            if contains(use2classify{i,2}, {'ctx','cortex'})
+                WMvsGM{i,1} = 'GM';
+            else
+                WMvsGM{i,1} = 'WM';
+            end
         end
     end
 end
