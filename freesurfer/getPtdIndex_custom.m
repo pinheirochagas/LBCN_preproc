@@ -91,21 +91,7 @@ parc_file=fullfile(FS_folder,'mri','aparc+aseg.mgz');
 mri=MRIread(parc_file);
 
 % load electrodes name
-files=dir(fullfile(recon_folder,'*.electrodeNames'));
-n=size(files,1);
-if n==1
-    label_file=fullfile(recon_folder,files.name);
-elseif n==0
-    disp('No electrodeNames file found. Please do it manualy.');
-    [temp_file,elec_dir]=uigetfile(fullfile(recon_folder,'*.electrodeNames'),'select electrode names file');
-    label_file=fullfile(elec_dir,temp_file);
-    clear elec_dir temp_file files n
-elseif n>1
-    disp('More than one electrodeNames file found. Please do it manualy.');
-    [temp_file,elec_dir]=uigetfile(fullfile(recon_folder,'*.electrodeNames'),'select electrode names file');
-    label_file=fullfile(elec_dir,temp_file);
-    clear elec_dir temp_file files n
-end
+label_file=fullfile(recon_folder,[FS_name '.electrodeNames']);
 fid=fopen(label_file);
 tmp=textscan(fid,'%s %s %s');
 fclose(fid);
@@ -115,21 +101,7 @@ end
 clear tmp;
 
 % load electrodes coordinate
-files=dir(fullfile(recon_folder,'*.LEPTOVOX'));
-n=size(files,1);
-if n==1
-    elec_file=fullfile(recon_folder,files.name);
-elseif n==0
-    disp('No *.LEPTOVOX file found. Please do it manualy');
-    [temp_file,elec_dir]=uigetfile(fullfile(recon_folder,'*.LEPTOVOX'),'select electrode coordinate file');
-    elec_file=fullfile(elec_dir,temp_file);
-    clear elec_dir temp_file files n
-elseif n>1
-    disp('More than one *.LEPTOVOX file found. Please choose it manualy');
-    [temp_file,elec_dir]=uigetfile(fullfile(recon_folder,'*.LEPTOVOX'),'select electrode coordinate file');
-    elec_file=fullfile(elec_dir,temp_file);
-    clear elec_dir temp_file files n
-end
+elec_file=fullfile(recon_folder,[FS_name '.LEPTOVOX']);
 fid=fopen(elec_file);
 tmp=textscan(fid,'%s %s %s');
 fclose(fid);
