@@ -76,7 +76,7 @@ end
 %% Univariate Selectivity
 tag = 'stim';
 tasks = unique(sinfo.task);
-tasks = {'Memoria'};
+tasks = {'ReadNumWord'};
 dirs = InitializeDirs(tasks{1}, sinfo.sbj_name{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 dirs.result_dir = result_dir;
 for it = 1:length(tasks)
@@ -538,7 +538,7 @@ title('Frequency of math vs. memory only sites per hemi network')
 savePNG(gcf, 300, [figure_dir, 'math_all_frequencies_hemi_stacked.png'])
 
 
-
+%%
 [DOCID,GID] = getGoogleSheetInfo('math_network','cohort');
 sinfo = GetGoogleSpreadsheet(DOCID, GID);
 subject_names = sinfo.sbj_name;
@@ -547,29 +547,123 @@ sinfo = sinfo(strcmp(sinfo.subjVar, '1'),:);
 subjects = unique(sinfo.sbj_name);
 
 
-parfor i = 1:length(subjects)
-    CreateSubjVar(subjects{i}, comp_root, server_root, code_root)
+for i = 1:length(subjects)
+    try
+        CreateSubjVar(subjects{i}, comp_root, server_root, code_root)
+    catch
+        fname = sprintf('%s/%s_subjVar_error.csv',dirs.comp_root, subjects{i});
+        csvwrite(fname, 's')
+    end
 end
 
 
+CreateSubjVar('S14_64_SP', comp_root, server_root, code_root)
+
+
+
+%% VTCLoc
+%% Univariate Selectivity
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
+        'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
+        'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
+    
+    
+task = 'VTCLoc';    
+sinfo_VTCLoc = sinfo(strcmp(sinfo.task, task),:);   
+sinfo_VTCLoc(strcmp(sinfo_VTCLoc.sbj_name,'S17_118_TW'),:) = [];
+sinfo_VTCLoc(strcmp(sinfo_VTCLoc.sbj_name,'S15_91_RP'),:) = [];
+
+
+
+
+el_selectivity_VTCloc_faces = concat_elect_select(sinfo_VTCLoc.sbj_name, task, dirs, vars);
+el_selectivity_VTCloc_numbers = concat_elect_select(sinfo_VTCLoc.sbj_name, task, dirs, vars);
+el_selectivity_VTCloc_words = concat_elect_select(sinfo_VTCLoc.sbj_name, task, dirs, vars);
+
+el_selectivity_VTC = el_selectivity_VTCloc_faces
+el_selectivity_VTC.elect_select_faces = el_selectivity_VTC.elect_select
+el_selectivity_VTC.elect_select_words = el_selectivity_VTCloc_words.elect_select
+el_selectivity_VTC.elect_select_numbers = el_selectivity_VTCloc_numbers.elect_select
+
+
+VTC_selective = el_selectivity_VTC(contains(el_selectivity_VTC.elect_select_faces, {'faces only', 'faces selective'}) | contains(el_selectivity_VTC.elect_select_numbers, {'numbers only', 'numbers selective'}) | contains(el_selectivity_VTC.elect_select_words, {'words only', 'words selective'}),:);
+sort_tabulate(VTC_selective.elect_select, 'descend')
+
+cfg = getPlotCoverageCFG('tasks_group'); 
+cfg.MarkerSize = 10;
+cfg.alpha = 0.4;
+cfg.views = {'lateral', 'lateral', 'ventral', 'medial', 'medial', 'ventral',};
+cfg.hemis = {'left', 'right', 'left', 'left', 'right', 'right', };
+cfg.subplots = [2,3];
+cfg.figureDim = [0 0 1 1];
+cfg.CorrectFactor = 10;
+        
+load('cdcol_2018.mat')
+for i = 1:size(VTC_selective,1)
+    if contains(VTC_selective.elect_select_faces{i}, {'faces only', 'faces selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.grass_green;
+    elseif contains(VTC_selective.elect_select_words{i}, {'words only', 'words selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.orange;
+    elseif contains(VTC_selective.elect_select_numbers{i}, {'numbers only', 'numbers selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.light_cadmium_red;
+    end
+    
+end
+PlotModulation(dirs, VTC_selective, cfg)
+savePNG(gcf, 300, [figure_dir, 'Calculia_only_brain_selective.png'])
+
+
+
+
+%% ReadNumWord
+%% Univariate Selectivity
+
+
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
+        'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
+        'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
+    
+    
+task = 'ReadNumWord';    
+sinfo_ReadNumWord_numbers = sinfo(strcmp(sinfo.task, task),:);   
+sinfo_ReadNumWord_numbers(strcmp(sinfo_ReadNumWord_numbers.sbj_name,'S12_36_SrS'),:) = [];
 
 
 
 
 
+el_selectivity_ReadNumWord_numbers = concat_elect_select(sinfo_VTCLoc.sbj_name, task, dirs, vars);
+
+
+ReadNumWord_selective = el_selectivity_ReadNumWord_numbers(contains(el_selectivity_ReadNumWord_numbers.elect_select, {'numbers selective', 'numbers only'}),:);
+sort_tabulate(ReadNumWord_selective.elect_select, 'descend')
+
+cfg = getPlotCoverageCFG('tasks_group'); 
+cfg.MarkerSize = 10;
+cfg.alpha = 0.4;
+cfg.views = {'lateral', 'lateral', 'ventral', 'medial', 'medial', 'ventral',};
+cfg.hemis = {'left', 'right', 'left', 'left', 'right', 'right', };
+cfg.subplots = [2,3];
+cfg.figureDim = [0 0 1 1];
+cfg.CorrectFactor = 10;
+        
+load('cdcol_2018.mat')
+for i = 1:size(VTC_selective,1)
+    if contains(VTC_selective.elect_select_faces{i}, {'faces only', 'faces selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.grass_green;
+    elseif contains(VTC_selective.elect_select_words{i}, {'words only', 'words selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.orange;
+    elseif contains(VTC_selective.elect_select_numbers{i}, {'numbers only', 'numbers selective'}) == 1
+        cfg.MarkerColor(i,:) = cdcol.light_cadmium_red;
+    end
+    
+end
+PlotModulation(dirs, VTC_selective, cfg)
+savePNG(gcf, 300, [figure_dir, 'Calculia_only_brain_selective.png'])
 
 
 
-
-
-
-
-
-
-
-
-
-
+%%
 
 
 

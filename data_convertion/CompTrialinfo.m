@@ -63,6 +63,62 @@ switch project_name
                 trialinfo.CondNames{i} = [trialinfo.CondNames{i} '_nostim'];
             end
         end
+        
+    case 'VTCLoc'
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'numbers') == 1
+                trialinfo.condNames_numbers{i} = 'numbers';
+            else
+                trialinfo.condNames_numbers{i} = 'other';
+            end
+        end
+        
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'faces') == 1
+                trialinfo.condNames_faces{i} = 'faces';
+            else
+                trialinfo.condNames_faces{i} = 'other';
+            end
+        end  
+        
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'words') == 1
+                trialinfo.condNames_words{i} = 'words';
+            else
+                trialinfo.condNames_words{i} = 'other';
+            end
+        end           
+      
+        
+    case 'ReadNumWord'
+        
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'number') == 1
+                trialinfo.condNames_number{i} = 'numbers';
+            else
+                trialinfo.condNames_number{i} = 'other';
+            end
+        end
+        
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'words') == 1
+                trialinfo.condNames_words{i} = 'words';
+            else
+                trialinfo.condNames_words{i} = 'other';
+            end
+        end    
+        
+        for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'number_word') == 1
+                trialinfo.condNames_number_words{i} = 'number_words';
+            else
+                trialinfo.condNames_number_words{i} = 'other';
+            end
+        end     
+        
+        
+        
+        
 end
 
 end
