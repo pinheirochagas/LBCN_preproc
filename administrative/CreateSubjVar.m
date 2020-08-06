@@ -14,7 +14,15 @@ dirs = InitializeDirs('MMR', sbj_name, comp_root, server_root, code_root); % 'Pe
 sprintf('creating subjVar for subject %s', sbj_name)
 
 
-if strcmp(data_format, 'edf')
+% if strcmp(data_format, 'edf')
+%     % Load a given globalVar
+%     gv_dir = dir(fullfile([dirs.data_root filesep 'originalData/' sbj_name]));
+%     gv_inds = arrayfun(@(x) contains(x.name, 'global') && ~contains(x.name, '._'), gv_dir);
+%     fn_tmp = gv_dir(gv_inds);
+%     load([fn_tmp(1).folder filesep fn_tmp(1).name])
+% else
+% end
+if strcmp(sbj_name, 'S17_117_MC')
     % Load a given globalVar
     gv_dir = dir(fullfile([dirs.data_root filesep 'originalData/' sbj_name]));
     gv_inds = arrayfun(@(x) contains(x.name, 'global') && ~contains(x.name, '._'), gv_dir);
@@ -63,6 +71,7 @@ if strcmp(sbj_name, 'S17_117_MC')
     chan_comp = globalVar.channame;
     nchan_cmp = length(globalVar.channame);
 else
+    globalVar=[];
     chan_comp = ppt_chan_names;
     nchan_cmp = length(ppt_chan_names);
 end
@@ -236,14 +245,14 @@ if ~exist('mismatch_labels')
         %         ID = input(prompt,'s');
         ID = 'y';
         if strcmp(ID, 'y')
-            save([dirs.original_data filesep sbj_name filesep 'subjVar_Serdar' sbj_name '.mat'], 'subjVar')
+            save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
             disp(['subjVar saved for ' sbj_name])
             subjVar_created = 1;
         else
             warning(['subjVar NOT saved for ' sbj_name])
         end
     else
-        save([dirs.original_data filesep sbj_name filesep 'subjVar_Serdar' sbj_name '.mat'], 'subjVar')
+        save([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'], 'subjVar')
         disp(['subjVar saved for ' sbj_name])
         subjVar_created = 1;
     end
