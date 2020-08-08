@@ -24,9 +24,10 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 %            FS_ind: index of aparc+aseg labeling in
 %            FreeSurferColorLUTnoFormat.txt.
 %            WMvsGM: classification of electrodes either in gray matter or
-%            white matter. GM if surface electrode or in cortex as
-%            annotated in aparc+aseg. WM, if noncortical depth electrodes
-%            (includes subcortical and medical temporal structures).
+%            white matter. GM if it is a surface electrode or a depth
+%            electrode that has at least 1 cortex (or amygdala or
+%            hippocampus) voxel in any of the adjacent 2 voxels. WM, if
+%            depth electrodes, far from cortex.
 %            LvsR: lateralizing electrodes according to iELVis labeling.
 %            Desikan_Killiany: outputs of Desikan-Killiany atlas labeling
 %            for surface electrodes and depth electrodes in gray matter
@@ -50,6 +51,11 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 %            Yeo17_ind: index of Yeo17.
 %            LEPTO_coord: MNI coordinates of electrodes in native brain.
 %            MNI_coord: MNI coordinates of electrodes in fsaverage brain.
+%            PTD_ind: Calculated based on method described in Mercier et
+%            al., 2017 (Neuroimage). Basically, calculating how many cortex
+%            and white matter electrodes in the adjacent 2 voxel.
+%            surr_GM_vox: how many gray matter voxels there are.
+%            surr_WM_vox: how many white matter voxels there are.
 %
 %
 % Written and edited by Serdar Akkol and Pedro Pinheiro-Chagas.
@@ -57,6 +63,10 @@ function [subjVar_final] = localizeElect(subjVar,dirs)
 % Areas of improvement: organize the atlases using loop and not repeating
 % for each atlas.(line 90)
 % 
+% Updates: 
+% - August 2020: PTD_index and related numbers are added to elinfo table.
+% Currently, GM-WM distinction is made based on PTD index. If there are at
+% least 1 GM voxel. 
 
 
 subjVar_final=subjVar;
@@ -81,13 +91,14 @@ elinfo.FS_label = FS_vol(:,1);
 elinfo.FS_vol = FS_vol(:,2);
 elinfo.FS_ind = FS_vol(:,3);
 
-% arranging FS_vol into WMvsGM, LvsR, and sEEG_ECoG
-[elinfo.WMvsGM, elinfo.LvsR, elinfo.sEEG_ECoG] = filterRegion(FS_vol,FS_folder,FS_name);
-
 % get custom PTD index results (looking for any voxels for ctx or several
 % subcortical structures in the surrounding) and...
 fprintf('Getting PTD index (how many gray and white matter voxels there are in the surrounding).\n')
 PTD_idx = getPtdIndex_custom(dirs);
+
+% arranging PTD index into WMvsGM and FS_vol into LvsR and sEEG_ECoG
+[elinfo.WMvsGM, elinfo.LvsR, elinfo.sEEG_ECoG] = filterRegion(PTD_idx.nb_Gpix,FS_folder,FS_name);
+
 % find all subdural electrodes and depth electrodes which are "CLOSE TO" GM:
 GM_depths = elinfo.FS_label(PTD_idx.nb_Gpix>0);
 
