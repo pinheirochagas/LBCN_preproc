@@ -11,7 +11,7 @@ for is = 1:length(subjects)
     else
     end
     el_selectivity_tmp = el_selectivity(:, contains(el_selectivity.Properties.VariableNames, vars));   
-    el_selectivity_tmp.subj_name = repmat({s},size(el_selectivity_tmp,1),1);
+    el_selectivity_tmp.sbj_name = repmat({s},size(el_selectivity_tmp,1),1);
     %% Add HFO info
     
 %     el_selectivity = get_HFO_electrodes(dirs, el_selectivity_tmp, s, task)    
@@ -28,4 +28,6 @@ end
 
 
 end
+
+
 

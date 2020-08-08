@@ -23,7 +23,7 @@ subjects(contains(subjects, 'S12_32_JTb')) = []
 
 
 % Load Josef's table, load subjVar and integrate 
-for i = 1:length(subjects)
+for i = 79:length(subjects)
     s = subjects{i};
 %     s
     j_table = readtable(sprintf('%s%s%s.xlsx',subj_josef_dir, 'subjects/',  s));
@@ -37,7 +37,7 @@ for i = 1:length(subjects)
 %     j_table.Properties.VariableNames = {'DK_long_josef', 'LBCN_josef'};
 
     load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
-      save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
+    save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
     load([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'])
     disp(['saved copy of subjVar of subject ' s])
     subjVar.elinfo = [subjVar.elinfo j_table];

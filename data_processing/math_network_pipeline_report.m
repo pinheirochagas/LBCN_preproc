@@ -664,14 +664,38 @@ savePNG(gcf, 300, [figure_dir, 'Calculia_only_brain_selective.png'])
 
 
 %%
+vars = {'sbj_name', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17'};
+subjVars = ConcatSubjVars(subjects, dirs, vars);
+
+sort_tabulate(subjVars.Yeo7, 'descend')
 
 
 
 
 
+for i = 1:size(subjVars,1)
+    str_tmp = strsplit(subjVars.sbj_name{i}, '_');
+    
+    subjVars.sbj_number(i) = str2num(str_tmp{2});
+end
+
+for i = 1:size(subjVars_old,1)    
+    subjVars_old.sbj_number(i) = str2num(subjVars_old.sbj_name{i});
+end
+
+
+subjVars = subjVars(ismember(subjVars.sbj_number, subjVars_old.sbj_number),:);
 
 
 
+
+subjVars(contains(subjVars.WMvsGM, {'empty', 'FreeSurfer_Defined_Medial_Wall', 'EMPTY'} ),:) = []
+subjVars_old(contains(subjVars_old.WMvsGM, {'empty', 'FreeSurfer_Defined_Medial_Wall', 'EMPTY'} ),:) = []
+
+
+
+sort_tabulate(subjVars.WMvsGM, 'descend')
+sort_tabulate(subjVars_old.WMvsGM, 'descend')
 
 
 
