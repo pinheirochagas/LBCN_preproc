@@ -557,6 +557,12 @@ for i = 1:length(subjects)
 end
 
 
+parfor i = 1:length(subjects)
+    CreateSubjVar(subjects{i}, comp_root, server_root, code_root)
+end
+
+
+
 CreateSubjVar('S16_100_AF', comp_root, server_root, code_root)
 
 
