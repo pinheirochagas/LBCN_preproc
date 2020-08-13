@@ -15,7 +15,6 @@ lineprops.width = plot_params.lw;
 lineprops.edgestyle = '-';
 
 load('cdcol_2018.mat')
-color = [cdcol.carmine; cdcol.ultramarine];
 
 h = [];
 for i = 1:length(plot_data)

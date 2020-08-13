@@ -93,9 +93,9 @@ for ie = 1:size(elec_list,1)
     data_all.trialinfo_all{ie} = [data_bn.trialinfo];
     %     data_all.labels{ei} = data_bn.label;
     disp(['concatenating elec ',num2str(el)])
-    data_all.label(ie) = subjVar.elinfo.FS_label(ie); % just modified that
+    data_all.label(ie) = subjVar.elinfo.FS_label(el); % just modified that
     data_all.subj_name{ie} = s;
-    data_all.chan_num(ie) = subjVar.elinfo.chan_num(ie); % just modified that
+    data_all.chan_num(ie) = subjVar.elinfo.chan_num(el); % just modified that
     if strcmp(concat_params.noise_method,'trials')
         data_all.bad_trials{ie} = bad_trials;
     else

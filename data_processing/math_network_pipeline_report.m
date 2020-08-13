@@ -14,7 +14,8 @@ dirs = InitializeDirs(' ', ' ', comp_root, server_root, code_root); % 'Pedro_Neu
 %% Paper folder
 result_dir = '/Users/pinheirochagas/Pedro/Stanford/papers/spatiotempoal_dynamics_math/results/';
 figure_dir = '/Users/pinheirochagas/Pedro/Stanford/papers/spatiotempoal_dynamics_math/figures/';
-
+dirs = InitializeDirs(' ', ' ', comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+dirs.result_dir = result_dir;
 %% Define final cohorts
 % Read the google sheets
 [DOCID,GID] = getGoogleSheetInfo('math_network','cohort');
@@ -76,7 +77,7 @@ end
 %% Univariate Selectivity
 tag = 'stim';
 tasks = unique(sinfo.task);
-tasks = {'ReadNumWord'};
+tasks = {'MMR', 'UCLA', 'Memoria', 'Calculia'};
 dirs = InitializeDirs(tasks{1}, sinfo.sbj_name{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 dirs.result_dir = result_dir;
 for it = 1:length(tasks)
@@ -86,6 +87,8 @@ for it = 1:length(tasks)
         ElecSelectivityAll(sinfo_tmp.sbj_name{i}, dirs, task, 'stim', 'Band', 'HFB')
     end
 end
+
+%% Proportion selectivity Calc simultaneous
 
 
 vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
@@ -704,5 +707,141 @@ sort_tabulate(subjVars.WMvsGM, 'descend')
 sort_tabulate(subjVars_old.WMvsGM, 'descend')
 
 
+%% Group analyses
+
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
+        'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
+        'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
+    
+    
+regions = {'ITG','IPS', 'SPL', 'MFG'};
+task = 'MMR';
+sinfo_task = sinfo(strcmp(sinfo.task, task),:);    
+el_selectivity = concat_elect_select(sinfo_task.sbj_name, task, dirs, vars);
+el_selectivity = el_selectivity(strcmp(el_selectivity.WMvsGM, 'GM') | strcmp(el_selectivity.WMvsGM, 'WM'), :);
+el_selectivity = el_selectivity(~strcmp(el_selectivity.Yeo7, 'FreeSurfer_Defined_Medial_Wall'),:);
+el_selectivity = el_selectivity(contains(el_selectivity.elect_select, 'math only'),:);
 
 
+for i = 1:length(regions)
+    el_selec_tmp = el_selectivity(strcmp(el_selectivity.DK_long_josef, regions{i}),[1,end-1]);
+    if isempty(el_selec_tmp)
+    else
+        data_all = concatenate_multiple_elect(el_selec_tmp, task, dirs, 'Band', 'HFB', 'stim');
+        cond_names = {'autobio', 'math'};
+        column = 'condNames';
+        subplot(length(regions),1, i)
+        plot_group_elect(data_all,task, cond_names, column);
+        if strcmp(regions{i} , 'ITG')
+            ylim([-0.4 2])
+        else
+            ylim([-0.2 1])
+        end
+        title([regions{i} ': ' num2str(length(data_all.wave)), ' electrodes'])
+    end
+end
+savePNG(gcf, 600, [figure_dir, task, '_group_regions_selective.png'])
+
+
+data_all = concatenate_multiple_elect(el_selectivity, task, dirs, 'Band', 'HFB', 'stim');
+
+
+el_selec_tmp = el_selectivity(strcmp(el_selectivity.DK_long_josef, regions{2}),[1,end-1]);
+data_all = concatenate_multiple_elect(el_selec_tmp, task, dirs, 'Band', 'HFB', 'stim');
+cond_names = {'autobio', 'math'};
+column = 'condNames';
+stats_params = genStatsParams(task);
+STATS = stats_group_elect(data_all,data_all.time, task,cond_names, column, stats_params);
+
+
+% Group analyses
+
+1. Select which electrodes to include
+-Statistical
+    Compare all trails agains baseline
+    permutation test between avg baseline period whithin trial vs. avg 1s period within trial
+-Anatomical
+    ROIS
+After these steps you should have the electrode_list
+
+2. Concatenate all electrodes of interest
+data_all = concatenate_multiple_elect(electrode_list, task, dirs, 'Band', 'HFB', 'stim');
+
+3. Compare two conditions across electrodes
+-Define conditions and time window
+    cond_names = {'autobio', 'math'};
+    column = 'condNames';
+    stats_params = genStatsParams(task);
+-Average each electrode per condition within the 1s period
+    (now you have a single value per electrode per condition)
+    Ready to compare electrodes with independent sample t-test
+STATS = stats_group_elect(data_all,data_all.time, task,cond_names, column, stats_params);
+
+
+
+
+%% Vizualize proportions
+
+
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', 'elect_select'};
+elec_select = concat_selectivity_tasks(sinfo, 'calc_simultaneous', vars, dirs);
+
+
+
+cond_names = {'math only', 'memory only'};
+brain_group_list = {'Frontoparietal', 'Dorsal Attention', 'Default', 'Limbic',  'Ventral Attention','Visual', 'Somatomotor'};
+brain_group_list = {'Depth', 'Frontoparietal', 'Dorsal Attention', 'Default', 'Limbic',  'Ventral Attention','Visual', 'Somatomotor'};
+
+brain_group = 'Yeo7';
+
+
+plot_proportion_selectivity(elec_select, 'MMR', cond_names, brain_group, brain_group_list)
+
+brain_group_list = {'L','R'};
+brain_group = 'LvsR';
+plot_proportion_selectivity(el_selectivity_calc_sim, 'MMR', cond_names, brain_group, brain_group_list)
+
+
+
+%% MMR and memoria comparison electrode by electrode
+sinfo_MMR = sinfo(strcmp(sinfo.task, 'MMR'),:);
+sinfo_Memoria = sinfo(strcmp(sinfo.task, 'Memoria'),:);
+subjects_MMR_Memoria = intersect(sinfo_MMR.sbj_name, sinfo_Memoria.sbj_name);
+
+el_selectivity_MMR = concat_elect_select(subjects_MMR_Memoria, 'MMR', dirs, vars);
+el_selectivity_Memoria = concat_elect_select(subjects_MMR_Memoria, 'Memoria', dirs, vars);
+elect_select_MMR = el_selectivity_MMR.elect_select;
+elect_select_Memoria = el_selectivity_Memoria.elect_select;
+
+elec_select = el_selectivity_MMR(:,[1:12,end-1])
+elec_select.elect_select_MMR = elect_select_MMR;
+elec_select.elect_select_Memoria = elect_select_Memoria;
+elec_select = elec_select(strcmp(elec_select.WMvsGM, 'GM') | strcmp(elec_select.WMvsGM, 'WM'), :);
+elec_select = elec_select(~strcmp(elec_select.Yeo7, 'FreeSurfer_Defined_Medial_Wall'),:);
+
+sort_tabulate(elec_select.elect_select_Memoria(strcmp(elec_select.elect_select_MMR, 'math only')), 'descend')
+sort_tabulate(elec_select.elect_select_MMR(strcmp(elec_select.elect_select_Memoria, 'math only')), 'descend')
+
+
+
+corrcoef([el_selectivity_MMR.sc1c2_tstat, el_selectivity_Memoria.sc1c2_tstat], 'rows','complete')
+
+
+scatter(plotvals(:,1),plotvals(:,2),40,c,'filled'),colorbar;
+
+
+
+scatter_kde(el_selectivity_MMR.sc1c2_tstat, el_selectivity_Memoria.sc1c2_tstat,  'filled', 'MarkerSize', 50)
+colormap viridis
+
+sum_t = nansum([el_selectivity_MMR.sc1c2_tstat, el_selectivity_Memoria.sc1c2_tstat], 2);
+rgb = vals2colormap(sum_t*-1, 'cmRedBlue', [-10 10]);
+
+scatter(el_selectivity_MMR.sc1c2_tstat, el_selectivity_Memoria.sc1c2_tstat, 100, rgb, 'filled')
+xlabel('T-value Calc simultaneous')
+ylabel('T-value Calc sequential')
+set(gca,'fontsize',16)
+box on
+axis square
+
+savePNG(gcf, 600, [figure_dir, task, 'MMR_Memoria_correspondence.png'])
