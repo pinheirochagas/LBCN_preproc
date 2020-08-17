@@ -2,8 +2,8 @@
 [server_root, comp_root, code_root] = AddPaths('Pedro_iMAC');
 dirs = InitializeDirs(' ', ' ', comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
 
-subj_josef_dir = '/Volumes/LBCN8T/Stanford/data/electrode_localization/';
-subj_josef = dir(fullfile([ subj_josef_dir 'subjects'] ))
+subj_josef_dir = '/Volumes/LBCN8T/Stanford/data/electrode_localization/subjects/second/';
+subj_josef = dir(fullfile([subj_josef_dir]))
 
 subjects = [];
 count = 1
@@ -18,37 +18,75 @@ for i = 1:length(subj_josef)
         count = count + 1;
     end
 end
-subjects(contains(subjects, 'S11_31_DZa')) = []
-subjects(contains(subjects, 'S12_32_JTb')) = []
 
 
-% Load Josef's table, load subjVar and integrate 
-for i = 79:length(subjects)
+% Load Josef's table, load subjVar and integrate
+for i = 1:length(subjects)
     s = subjects{i};
-%     s
-    j_table = readtable(sprintf('%s%s%s.xlsx',subj_josef_dir, 'subjects/',  s));
-    last_col = find(strcmp(j_table.Properties.VariableNames, 'Destr_long'));
-    j_table = j_table(:,last_col+1);
-    j_table.Properties.VariableNames = {'DK_long_josef'};
-
-    j_table = CorrectNamesJosef(j_table);
-%     j_table(1:10,:)
-%     j_table = j_table(:,last_col+1:last_col+2);
-%     j_table.Properties.VariableNames = {'DK_long_josef', 'LBCN_josef'};
-
     load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
-    save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
-    load([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'])
-    disp(['saved copy of subjVar of subject ' s])
-    subjVar.elinfo = [subjVar.elinfo j_table];
+    col = find(strcmp(subjVar.elinfo.Properties.VariableNames, 'DK_long_josef'));
+
+    josef_tmp = CorrectNamesJosef(subjVar.elinfo(:,col));
+    josef_tmp = table2cell(josef_tmp);
+    
+    subjVar.elinfo.DK_long_josef = [];
+    subjVar.elinfo.DK_long_josef = josef_tmp;
     save([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat'], 'subjVar');
     disp(['raplaced subjVar with josef localization of subject ' s])
 end
 
-%problem with     'S18_131_CB'
-% did not do DZA
-% did not do 'S16_100_AF'
-% problem with 'S16_95_JOB'
+
+% Load Josef's table, load subjVar and integrate
+for i = 11:length(subjects)
+    s = subjects{i};
+    %     s
+    j_table = readtable(sprintf('%s%s.xlsx',subj_josef_dir,  s));
+    last_col = find(strcmp(j_table.Properties.VariableNames, 'Destr_long'));
+    j_table = j_table(:,last_col+1);
+    j_table.Properties.VariableNames = {'DK_long_josef'};
+    
+    j_table = CorrectNamesJosef(j_table);
+    %     j_table(1:10,:)
+    %     j_table = j_table(:,last_col+1:last_col+2);
+    %     j_table.Properties.VariableNames = {'DK_long_josef', 'LBCN_josef'};
+    
+    
+    load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
+    
+    %     save([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'], 'subjVar')
+    %     load([dirs.original_data filesep  s filesep 'subjVar_pre_josef_'  s '.mat'])
+    %     disp(['saved copy of subjVar of subject ' s])
+    %     if sum(strcmp(subjVar.elinfo.Properties.VariableNames, 'DK_long_josef'))  == 0
+    %         subjVar.elinfo = [subjVar.elinfo j_table];
+    josef_tmp = table2cell(j_table);
+    
+    subjVar.elinfo.DK_long_josef = [];
+    subjVar.elinfo.DK_long_josef = josef_tmp;
+    
+    save([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat'], 'subjVar');
+    disp(['raplaced subjVar with josef localization of subject ' s])
+    %     else
+    %     end
+end
+
+subjects_missing = {'S13_56_THS'};
+
+for i = 1:length(subjects_missing)
+    s = subjects_missing{i};
+    load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
+    fname = sprintf('%s/%s.xlsx',dirs.comp_root, s);
+    writetable(subjVar.elinfo, fname)
+end
+
+
+
+
+Problem with S13_56_THS, excel sheet does not contain all channels
+Problem with S11_31_DZa, excel sheet does not contain all channels
+Problem with S18_131_CB, excel sheet does not contain all channels
+
+
+
 
 vars = {'sbj_name','chan_num', 'FS_label', 'WMvsGM', 'LvsR', 'sEEG_ECoG', 'DK_lobe', 'Destr_long', 'DK_long_josef', 'MNI_coord'};
 subjVar_all = ConcatSubjVarsTasks(subjects, dirs, vars);
@@ -183,7 +221,7 @@ josef.count = vertcat(a{:,2})
 josef = sortrows(josef, 'name')
 
 
-
+%% Check which subjects contain Josef label\
 
 
 

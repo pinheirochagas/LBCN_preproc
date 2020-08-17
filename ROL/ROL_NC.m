@@ -1,17 +1,15 @@
 %% ROL from Jessica and Omri NC
 project_name = 'MMR';
-project_name = 'race_encoding_simple';
-sbj_name = 'C19_62';
 block_names = BlockBySubj(sbj_name,project_name);
 dirs = InitializeDirs(project_name, sbj_name, comp_root, server_root, code_root); % 
 % load subjVar
 load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat']);
 
 ROL_params = genROLParams_NC(project_name);
-ROL_NC2 = getROLALL_NC(sbj_name,project_name,block_names,dirs,[],'HFB',ROL_params,'condNames',[]) ;% condNames
+ROL_NC2 = getROLALL_NC(sbj_name,project_name,block_names,dirs,[],'HFB',ROL_params,'condNames',{'autobio', 'math'}) ;% condNames
 %%%%%%%%
 cond_names = 'condNames';%???
-sub_cond = {'asian','black','white'};
+sub_cond = {'math'};
 
 % go to the working folder
 dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/ROL_NC/'];
@@ -19,16 +17,18 @@ cd(dir_out)
 
 ROL_NC_fig = ROL_NC2;%%%%%%%%
 % Inspect results
-elec_inspect =7;
+elec_inspect = [105 16 61] ;
 
 twin = [0.05 1];
 %chao plot the distribution of ROL
 plot_params = genPlotParams(project_name,'timecourse');
 figure('units', 'normalized', 'outerposition', [0 0 0.2 0.4])
-for i = 1:length(sub_cond)
-ROL_NC_fig.(sub_cond{i}).onsets{elec_inspect}(ROL_NC_fig.(sub_cond{i}).onsets{elec_inspect} < twin(1) | ROL_NC_fig.(sub_cond{i}).onsets{elec_inspect} > twin(2)) = nan;
-h(i) = plot(sort(ROL_NC_fig.(sub_cond{i}).onsets{elec_inspect},'descend'), 1:length(ROL_NC_fig.(sub_cond{i}).onsets{elec_inspect}),'o','Color',plot_params.col(i,:),'LineWidth',1);
-hold on
+for i = 1:length(elec_inspect)
+    elec = elec_inspect(i)
+    ROL_NC_fig.(sub_cond{1}).onsets{elec}(ROL_NC_fig.(sub_cond{1}).peaks{elec} < twin(1) | ROL_NC_fig.(sub_cond{1}).peaks{elec} > twin(2)) = nan;
+    
+    h(i) = plot(sort(ROL_NC_fig.(sub_cond{1}).peaks{elec},'descend'), 1:length(ROL_NC_fig.(sub_cond{1}).peaks{elec}),'o','Color',plot_params.col(i,:),'LineWidth',1);
+    hold on
 end
 title('Single trial ROL NC')
 suptitle(subjVar.labels_EDF{elec_inspect})

@@ -20,6 +20,14 @@ function ROL = getROLAll_NC(sbj_name,project_name,block_names,dirs,elecs,datatyp
 %                       'timepts':  set noisy timepoints to NaN but don't exclude entire trials
 %       ROLparams:    (see genROLParams.m script)
 
+if isempty(block_names)
+    block_names = BlockBySubj(sbj_name,project_name);
+else
+end
+% load subjVar
+
+load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat']);
+
 %load elecs info.
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
@@ -34,7 +42,7 @@ end
 
 %set the ROL_params
 if isempty(ROL_params)
-    ROL_params = genROLParams_chao(project_name);
+    ROL_params = genROLParams_NC(project_name);
 end
 
 %load the globalVar
@@ -102,7 +110,7 @@ for ei = 1:length(elecs)
     end
     %[grouped_trials,grouped_condnames] = groupConds(conds,data_all.trialinfo,column,noise_method,false);
     %chao
-    [grouped_trials,grouped_condnames] = groupConds(conds,data_all.trialinfo,column,'trials',{'bad_epochs_HFO','bad_epochs_raw_HFspike'},false);
+    [grouped_trials,grouped_condnames] = groupConds(conds,data_all.trialinfo,column,'none',{''},false);
     nconds = length(grouped_trials);
     for ci = 1:nconds
         cond = grouped_condnames{ci};
@@ -132,15 +140,13 @@ for ei = 1:length(elecs)%chao
     disp(['Computing ROL for elec: ',num2str(el)])
 end
 
-ROL_NC = ROL;
+dir_out = [dirs.result_dir 'ROL' filesep];
 
-dir_out = [dirs.result_root,'/',project_name,'/',sbj_name,'/'];
-if ~exist([dir_out,'ROL_NC'])
-    mkdir(dir_out,'ROL_NC')
+if ~exist(dir_out)
+    mkdir(dir_out)
 end
-    fileROL = 'ROL_NC';
     
-    fn_out = sprintf('%s/%s/%s_%s_%s.mat',dir_out,fileROL,sbj_name,project_name,[fileROL,'2']);%
-    save(fn_out,'ROL_NC');
-
+fn_out = sprintf('%s%s_%s_ROL.mat',dir_out,sbj_name,project_name);
+save(fn_out,'ROL');
+end
 

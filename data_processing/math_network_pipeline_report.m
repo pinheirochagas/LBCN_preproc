@@ -36,7 +36,7 @@ vizualize_task_subject_coverage(sinfo, 'task_group')
 savePNG(gcf, 600, [figure_dir, 'tasks_break_group_down_subjects.png'])
  
 % Plot full coverage
-vars = {'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17'};
+vars = {'LvsR','MNI_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef'};
 subjVar_all_all = ConcatSubjVars(subjects, dirs, vars);
 subjVar_all = subjVar_all_all(strcmp(subjVar_all_all.WMvsGM, 'GM') | strcmp(subjVar_all_all.WMvsGM, 'WM'), :);
 sort_tabulate(subjVar_all.WMvsGM)
@@ -754,6 +754,9 @@ stats_params = genStatsParams(task);
 STATS = stats_group_elect(data_all,data_all.time, task,cond_names, column, stats_params);
 
 
+        title([regions{2} ': ' num2str(length(data_all.wave)), ' electrodes'])
+
+
 % Group analyses
 
 1. Select which electrodes to include
@@ -845,3 +848,140 @@ box on
 axis square
 
 savePNG(gcf, 600, [figure_dir, task, 'MMR_Memoria_correspondence.png'])
+
+
+
+
+
+
+
+
+%% ROL
+%% ROL from Jessica and Omri NC
+
+project_name = 'MMR';
+
+parfor i = 1:size(sinfo_MMR,1)
+    getROLALL_NC(sinfo_MMR.sbj_name{i},project_name,[],dirs,[],'HFB',[],'condNames',{'autobio', 'math'}) ;% condNames
+end
+
+plot_ROL_scatter
+
+
+ROL_var = {'onsets', 'peaks'};
+elecs = [105, 16, 61];
+col = cbrewer2('Blues',6)
+col = col(3:end,:)
+col = cool(3)
+cond_names = {'math'};
+plot_ROL_scatter(ROL, ROL_var, elecs, cond_names, 'each column separately', 2,col)
+plot_ROL_scatter(ROL, ROL_var, elecs, cond_names, 'by one column', 3,col)
+
+
+
+    getROLALL_NC('S20_151_HT',project_name,[],dirs,[1:156],'HFB',[],'condNames',{'autobio', 'math'}) ;% condNames
+
+getROLALL_NC('S13_57_TVD',project_name,[],dirs,[105,16,61],'HFB',[],'condNames',{'math'}) ;% condNames
+
+
+%% Integrate selectivity and ROL
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'fsaverageINF_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
+        'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
+        'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
+
+task = 'MMR';    
+sinfo_MMR = sinfo(strcmp(sinfo.task, task),:);    
+el_selectivity_MMR = concat_elect_select(sinfo_MMR.sbj_name, task, dirs, vars);
+
+
+el_selectivity_MMR_ROL = concat_elect_select_rol(sinfo_MMR.sbj_name, task, dirs, vars);
+
+
+el_selectivity = el_selectivity_MMR_ROL(strcmp(el_selectivity_MMR_ROL.elect_select, 'math only'), :)
+el_selectivity = el_selectivity(~strcmp(el_selectivity.Yeo7, 'FreeSurfer_Defined_Medial_Wall'),:);
+el_selectivity = el_selectivity(~contains(el_selectivity.DK_long_josef, {'OUT OF BRAIN', 'WHITE MATTER', 'EXCLUDE', 'POSTCENTRAL GYRUS', 'PRECENTRAL GYRUS'}),:);
+
+el_selectivity.ROL_math_avg = cellfun(@nanmean, el_selectivity.ROL_math_onsets)
+el_selectivity = el_selectivity(~isnan(el_selectivity.ROL_math_avg),:);
+
+
+dir_save = '/Volumes/LBCN8T/Stanford/data/electrode_localization/plots/';
+
+col_group = 'task_group'; % or task_group
+cols = hsv(length(labels_josef));
+cfg = getPlotCoverageCFG('tasks_group');
+cfg.figureDim = [0 0 1 0.7];
+cfg.views = {'lateral', 'lateral', 'ventral', 'ventral', 'medial', 'medial', 'posterior', 'posterior'}; %{'lateral', 'lateral', 'ventral', 'ventral'};
+cfg.hemis = {'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right'}; %{'left', 'right', 'left', 'right'};
+cfg.subplots = [2,4];  % 2,2
+cfg.plot_label = 0;
+cfg.colum_label = {'sbj_name', 'FS_label'};
+cfg.alpha = 0.1;
+cfg.MarkerSize = 10;
+cfg.MarkerColor = cols(i,:);
+
+PlotModulation(dirs, el_selectivity, cfg)
+fname = sprintf('%selectrodes_%s.png', dir_save, labels_josef{i});
+savePNG(gcf, 300, fname)
+close all
+
+
+el_selectivity.LvsR = repmat({'L'}, size(el_selectivity,1),1,1)
+el_selectivity.MNI_coord(:,1) = abs(el_selectivity.MNI_coord(:,1))*-1
+
+cfg.ind = cellfun(@nanmean, el_selectivity.ROL_math_onsets)
+cfg.MarkerColor = [];
+cfg.views = {'lateral', 'ventral'};
+cfg.hemis = {'left', 'left'};
+cfg.subplots = [1,2];  % 2,2
+cfg.MarkerSize = 20;
+cfg.Colormap = 'Reds'
+cfg.Cortex = 'MNI';
+PlotModulation(dirs, el_selectivity, cfg)
+
+
+
+sort_tabulate(el_selectivity.DK_long_josef, 'descend')
+labels_plot = {'MFG', 'IPS', 'ITG', 'SPL', 'FG', 'IFG'}
+el_selectivity = el_selectivity(contains(el_selectivity.DK_long_josef, labels_plot) & ~strcmp(el_selectivity.DK_long_josef, {'mSFG'}),:);
+mean_labels = varfun(@median,el_selectivity,'InputVariables','ROL_math_avg', 'GroupingVariables','DK_long_josef');
+[mean_labels, idx] = sortrows(mean_labels, 3);
+% rol per region
+el_selectivity.DK_long_josef_sort = el_selectivity.DK_long_josef;
+
+for i = 1:length(mean_labels)
+    labels_tmp = el_selectivity.DK_long_josef_sort(strcmp(el_selectivity.DK_long_josef_sort, mean_labels.DK_long_josef{i})) = 
+    
+end
+
+ROL_vars = {'ROL_math_onsets', 'ROL_math_peaks'};
+
+for i = 1:length(ROL_vars)
+    subplot(1,2,i)
+    el_selectivity.ROL_tmp = cellfun(@nanmean, el_selectivity.(ROL_vars{i}))
+    ROL_tmp = varfun(@median,el_selectivity,'InputVariables','ROL_tmp', 'GroupingVariables','DK_long_josef');
+    [~, idx] = sortrows(ROL_tmp, 3);
+    vi = violinplot(el_selectivity.ROL_tmp, el_selectivity.DK_long_josef, idx); % accuracy Min Max Result Abs deviant decade cross order;
+    for iiii = 1:length(vi)
+        cols_vi = cbrewer2('Reds', length(vi)+2);
+        cols_vi(1:2,:) = [];
+        cols_vi = flip(cols_vi);
+        vi(iiii).ViolinPlot.FaceColor = 'none';
+        vi(iiii).ViolinAlpha =  1;
+        vi(iiii).ScatterPlot.MarkerFaceColor = cols_vi(iiii,:);
+        vi(iiii).EdgeColor = cols_vi(iiii,:);
+        vi(iiii).BoxColor = cols_vi(iiii,:);
+        vi(iiii).ViolinPlot.LineWidth = 2;
+    end
+    set(gca,'FontSize', 16)
+    xtickangle(45)
+    if contains(ROL_vars{i}, 'onsets')
+        ylabel('ROL (ms)');
+    elseif contains(ROL_vars{i}, 'peaks')
+        
+        ylabel('Time to peak (ms)');
+    end
+end
+suptitle('Math only electrodes timing', 'FontSize', 20)
+
+
