@@ -955,17 +955,22 @@ for i = 1:length(mean_labels)
 end
 
 ROL_vars = {'ROL_math_onsets', 'ROL_math_peaks'};
+ROL_vars = {'sc1c2_tstat', 'sc1b1_tstat'};
+
+
 
 for i = 1:length(ROL_vars)
     subplot(1,2,i)
-    el_selectivity.ROL_tmp = cellfun(@nanmean, el_selectivity.(ROL_vars{i}))
-    ROL_tmp = varfun(@median,el_selectivity,'InputVariables','ROL_tmp', 'GroupingVariables','DK_long_josef');
+    %     el_selectivity.ROL_tmp = cellfun(@nanmean, el_selectivity.(ROL_vars{i}))
+    %     ROL_tmp = varfun(@median,el_selectivity,'InputVariables','ROL_tmp', 'GroupingVariables','DK_long_josef');
+    ROL_tmp = varfun(@median,el_selectivity,'InputVariables',ROL_vars{i}, 'GroupingVariables','DK_long_josef');
+    
     [~, idx] = sortrows(ROL_tmp, 3);
-    vi = violinplot(el_selectivity.ROL_tmp, el_selectivity.DK_long_josef, idx); % accuracy Min Max Result Abs deviant decade cross order;
+    vi = violinplot(el_selectivity.(ROL_vars{i}), el_selectivity.DK_long_josef, idx); % accuracy Min Max Result Abs deviant decade cross order;
     for iiii = 1:length(vi)
-        cols_vi = cbrewer2('Reds', length(vi)+2);
+        cols_vi = cbrewer2('Greens', length(vi)+2);
         cols_vi(1:2,:) = [];
-        cols_vi = flip(cols_vi);
+%         cols_vi = flip(cols_vi);
         vi(iiii).ViolinPlot.FaceColor = 'none';
         vi(iiii).ViolinAlpha =  1;
         vi(iiii).ScatterPlot.MarkerFaceColor = cols_vi(iiii,:);
@@ -981,7 +986,144 @@ for i = 1:length(ROL_vars)
         
         ylabel('Time to peak (ms)');
     end
+    if contains(ROL_vars{i}, 'sc1c2_tstat')
+        ylabel('T-stat math vs. memory');
+    else
+        ylabel('T-stat math vs. baseline');
+    end
+    axis square
 end
+
+
 suptitle('Math only electrodes timing', 'FontSize', 20)
 
+%% Single subject simultaneous
+labels_plot = {'FG', 'ITG', 'SPL', 'IPS', 'IFG', 'MFG', 'SFG'}
+lobes_plot = {'Temporal', 'Parietal', 'Frontal'}
+el_selectivity = el_selectivity_MMR_ROL(strcmp(el_selectivity_MMR_ROL.elect_select, {'math only', }), :)
+el_selectivity = el_selectivity(contains(el_selectivity.DK_long_josef, labels_plot) & ~strcmp(el_selectivity.DK_long_josef, {'mSFG'}),:);
+
+el_selectivity = el_selectivity(~strcmp(el_selectivity.Yeo7, 'FreeSurfer_Defined_Medial_Wall'),:);
+el_selectivity = el_selectivity(~contains(el_selectivity.DK_long_josef, {'OUT OF BRAIN', 'WHITE MATTER', 'EXCLUDE', 'POSTCENTRAL GYRUS', 'PRECENTRAL GYRUS'}),:);
+el_selectivity = el_selectivity(contains(el_selectivity.DK_long_josef, labels_plot) & ~strcmp(el_selectivity.DK_long_josef, {'mSFG'}),:);
+el_selectivity.ROL_math_avg = cellfun(@nanmean, el_selectivity.ROL_math_onsets)
+
+
+el_selectivity.labels_num = [];
+el_selectivity.lobes_num = [];
+for i = 1:size(el_selectivity,1)
+    el_selectivity.labels_num(i) = find(strcmp(el_selectivity.DK_long_josef{i}, labels_plot));
+
+end
+
+el_tmp_all = [];
+for i = 1:length(subjects)
+    el_tmp = el_selectivity(strcmp(el_selectivity.sbj_name, subjects{i}),:);
+    if size(el_tmp,1) > 1 & std(el_tmp.labels_num) > 0
+        el_tmp_all = [el_tmp_all; el_tmp];
+    else
+    end
+end
+
+subjects = unique(el_tmp_all.sbj_name);
+cols = hsv(length(subjects));
+
+
+for i = 1:length(subjects)
+%     subplot(6,5,i)
+    el_tmp = el_tmp_all(strcmp(el_tmp_all.sbj_name, subjects{i}),:);
+    plot(el_tmp.labels_num, el_tmp.ROL_math_avg, 'o', 'MarkerFaceColor', cols(i,:), 'MarkerEdgeColor', cols(i,:), 'Color', cols(i,:), 'MarkerSize', 10)
+    boxplot([el_tmp.labels_num, el_tmp.ROL_math_avg],'PlotStyle','compact')
+
+    hold on
+    xlim([0.5 7.5])
+    ylim([0 .4])
+    set(gca,'xticklabels', labels_plot)
+    set(gca,'FontSize', 12)
+    ylabel('ROL (ms)')
+end
+
+
+cols = viridis(length(subjects));
+
+
+sub_oder = []
+for i = 1:length(subjects)
+    el_tmp = el_selectivity(strcmp(el_selectivity.sbj_name, subjects{i}),:);
+        
+    means = varfun(@nanmean,el_tmp,'InputVariables','ROL_math_avg', 'GroupingVariables','labels_num');
+    stds =  varfun(@nanstd,el_tmp,'InputVariables','ROL_math_avg', 'GroupingVariables','labels_num');
+    sub_oder(i,1) = round(sum(means.labels_num)+std(means.labels_num));
+    
+end
+[~, idx] = sort(sub_oder, 'ascend');
+subjects = subjects(idx);
+
+for i = 1:length(subjects)
+    subplot(2,13,i)
+    el_tmp = el_selectivity(strcmp(el_selectivity.sbj_name, subjects{i}),:);
+    
+    %     plot(el_tmp.labels_num, el_tmp.ROL_math_avg, '-o', 'MarkerFaceColor', cols(i,:), 'MarkerEdgeColor', cols(i,:), 'Color', cols(i,:), 'MarkerSize', 10)
+    hold on
+    
+    means = varfun(@nanmean,el_tmp,'InputVariables','ROL_math_avg', 'GroupingVariables','labels_num');
+    stds =  varfun(@nanstd,el_tmp,'InputVariables','ROL_math_avg', 'GroupingVariables','labels_num');
+    plot(means.labels_num, means.nanmean_ROL_math_avg, '-o', 'MarkerFaceColor', cols(i,:), 'MarkerEdgeColor', cols(i,:), 'Color', cols(i,:), 'MarkerSize', 7, 'LineWIdth', 2)
+    for ii = 1:size(means,1)
+        mt = means.nanmean_ROL_math_avg(ii);
+        st = stds.nanstd_ROL_math_avg(ii);
+        %         plot(means.labels_num(ii), mt, '-o', 'MarkerFaceColor', cols(i,:), 'MarkerEdgeColor', cols(i,:), 'Color', cols(i,:), 'MarkerSize', 10)
+        if st > 0
+            line([means.labels_num(ii) means.labels_num(ii)], [mt-st mt+st], 'Color', cols(i,:), 'LineWidth', 2)
+        else
+        end
+    end
+    xlim([0.5 7.5])
+    ylim([0 0.45])
+    
+    set(gca,'xticklabels', labels_plot)
+    
+    set(gca,'FontSize', 8)
+    if i == 1 || i == 14
+        ylabel('ROL (ms)')
+    else
+        set(gca,'ytick',[])
+        xtickangle(45)
+        set(gca,'xtick',1:7)
+    end
+    
+    if i < 14
+        set(gca,'xtick',[])
+        
+    else
+    end
+%     set(gca,'color', [.9 .9 .9]);
+%     set(gcf,'color', [.9 .9 .9]);
+    set(gcf,'color', 'w')
+%     grid on
+end
+
+
+cfg.chan_highlight = 1;
+cfg.highlight_col = [1 0 0];
+
+cfg.views = {'ventral', 'ventral', 'lateral', 'lateral'};
+cfg.hemis = {'right', 'left', 'left', 'right'};
+cfg.figureDim = [0 0 .5 1];
+cfg.subplots = [2, 2];
+cfg.alpha = 0.6;
+cfg.MarkerSize = 15;
+cfg.MarkerSize_chan_highlight = 10;
+
+for i = 1:length(subjects)
+    s = subjects{i};
+    el_tmp = el_selectivity(strcmp(el_selectivity.sbj_name, s),:);
+    load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
+    for ii = 1:size(el_tmp,1)
+        cfg.chan_highlight = el_tmp.chan_num(ii);
+        PlotCoverageElect(subjVar, cfg)
+        fname = sprintf('%scoverage/%s_%s_%s_coverage_math_%s.png',dirs.result_dir, el_tmp.DK_long_josef{ii}, num2str(el_tmp.chan_num(ii)), s, task);
+        savePNG(gcf, 300, fname)
+    end
+end
 
