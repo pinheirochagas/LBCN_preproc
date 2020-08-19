@@ -5,7 +5,7 @@ colcafe.mid_orange = [235 124 83]/255
 colcafe.light_red = [208 97 104]/255
 colcafe.mid_red = [220 86 95]/255
 
-colhsv.orange = [223 116 85]/255
+colhsv.orangee = [223 116 85]/255
 
 
 colors.green = [97, 231, 134]/255
