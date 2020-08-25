@@ -41,9 +41,7 @@ for CH = 1:length(hfa.label)
         spike.trial{CH} = [spike.trial{CH}, tr * ones(1,length(idx))];
         
     end
-    
     spike.label{CH} = [hfa.label{CH}, '_sp'];
-    
 end
 
 clear val idx
@@ -66,6 +64,10 @@ spike.time = data.time;
 % spike = rmfield(spike, 'avg');
 % spike = rmfield(spike, 'var');
 % spike = rmfield(spike, 'dof');
+% spike = rmfield(spike, 'sampleinfo');
+
+% DIRTY FIX!
+% spike.trial = spike.trial (:,:,1:350);
 
 all = ft_appenddata([], data, spike);
 

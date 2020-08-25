@@ -19,7 +19,17 @@ for i = 1:length(block_names)
     trialinfo.wlist = reshape(K.wlist,length(K.wlist),1); % 
     
     for i = 1:length(K.theData)
+        if strcmp(sbj_name, 'S11_22_EG')
+            if strcmp(K.theData(i).keys, 'End')
+                K.theData(i).keys = '1';
+            elseif strcmp(K.theData(i).keys, 'DownArrow')
+                K.theData(i).keys = '2';
+            end
+        else
+        end
         trialinfo.keys{i,1} = vertcat(K.theData(i).keys);
+
+        
     end
     
     for i = 1:length(K.theData)

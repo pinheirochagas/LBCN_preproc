@@ -91,6 +91,7 @@ for ei = 1:length(elecs)
         tagchan = ' (good)';
     end
     
+    plot_params.group_conds = {'condNames'};
     PlotTrialRTSorted(data_all,column,conds,plot_params);
     
 %     if strcmp(plot_params.label,'name')

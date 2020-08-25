@@ -32,6 +32,8 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
          case 'ReadNumWord'
             n_stim_per_trial = 1;
+         case 'MFA'
+            n_stim_per_trial = 1;            
     end
     
     %% Load globalVar
@@ -40,7 +42,7 @@ for i = 1:length(block_names)
     
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
-    
+%     anlg = abs(anlg);
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
     if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim')
@@ -82,6 +84,20 @@ for i = 1:length(block_names)
         ind_above= pdio > 0.5;
     end
     
+    
+    if strcmp(sbj_name,'S20_152_HT') 
+            globalVar.Pdio_rate = 10000;
+            if strcmp(bn, 'E20-580_0010') 
+                ind_above = pdio < -0.3;
+            else
+            end
+    else
+        
+    end
+    
+       
+    
+    
     ind_df= diff(ind_above);
     clear ind_above
     onset= find(ind_df==1);
@@ -95,7 +111,6 @@ for i = 1:length(block_names)
         offset = offset(1:20);
     else
     end 
-    
     pdio_onset= onset/globalVar.Pdio_rate;
     pdio_offset= offset/globalVar.Pdio_rate;
     if length(pdio_onset) < length(pdio_offset)

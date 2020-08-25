@@ -9,7 +9,7 @@ switch cfgl.atlas
         cm_plot = 'YLGnBu';        
     case 'Yeo_ind'
         cm_plot = 'YLOrRd';
-        elinfo_all.Yeo_ind(find(strcmp(elinfo_all.Yeo_ind, '0'))) = {'1'};
+        elinfo_all.Yeo_ind7(find(strcmp(elinfo_all.Yeo_ind7, '0'))) = {'1'};
 end
 
 

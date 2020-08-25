@@ -33,7 +33,7 @@ function ctmr_gauss_plot(cortex,electrodes,weights,hemi,viewside)
 %load in colormap
 %load('loc_colormap')
 
-M = 72;
+M = 10;
 G = fliplr(linspace(.8,1,M)) .';
 cm = horzcat(G, G, G);
 
@@ -86,8 +86,8 @@ lighting gouraud; %play with lighting...
 %lighting flat; %play with lighting...
 % material shiny;
 % material([.2 .8 .1 10 1]);
-material([.2 .9 .15 10 1]);
-%material([.3 1 .2 10 1]);
+%material([0.1 1 1 1 1])
+material([.2 1 .2 10 1]);
 
 axis on
 set(gcf,'Renderer', 'zbuffer')
@@ -100,7 +100,7 @@ if strcmp(hemi,'left')
         case 'medial'
             loc_view(90, 0)
         case 'lateral'
-            loc_view(270, 0)
+            loc_view(270, 25)
         case 'anterior'
             loc_view(180,0)
         case 'posterior'
@@ -132,7 +132,7 @@ elseif strcmp(hemi,'right')
         case 'medial'
             loc_view(270, 0)
         case 'lateral'
-            loc_view(90, 0)
+            loc_view(90, 25)
          case 'anterior'
             loc_view(180,0)
         case 'posterior'
@@ -178,7 +178,7 @@ set(gcf,'color','w')
 % %exportfig
 % exportfig(gcf, strcat(cd,'\figout.png'), 'format', 'png', 'Renderer', 'painters', 'Color', 'cmyk', 'Resolution', 600, 'Width', 4, 'Height', 3);
 % disp('figure saved as "figout"');
-
+axis off
 
 
 %%

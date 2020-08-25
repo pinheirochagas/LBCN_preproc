@@ -1,4 +1,4 @@
-function ti = unifyTrialinfoEncoding(project_name, ti)
+function [ti, ti_string] = unifyTrialinfoEncoding(project_name, ti)
 %%
 
 % Task general_cond_name
@@ -71,6 +71,7 @@ switch project_name
                 task_type{i,1} = 'active';
             end
         end
+        condNames = ti.condNames;
         
         
         %% Math
@@ -178,10 +179,14 @@ switch project_name
             if isempty(ti.keys{i})
                 keys(i,1) = nan;
             else
-                if isempty(str2num(ti.keys{i}))
-                    keys(i,1) = nan;
+                if iscell(ti.keys{i})
+                    ti.keys{i} = ti.keys{i}{1}
                 else
-                    keys(i,1) = str2num(ti.keys{i});
+                    if isempty(str2num(ti.keys{i}))
+                        keys(i,1) = nan;
+                    else
+                        keys(i,1) = str2num(ti.keys{i});
+                    end
                 end
             end
         end
@@ -411,63 +416,266 @@ switch project_name
         
         a = 1
         
+    case 'VTCLoc'
+        task_general_cond_name = ti.condNames;
+        task_type = cellstr(repmat('active', size(ti,1), 1));
+        oneback = ti.oneback;
+        
+        
+    case 'Memoria'
+        
+        for i = 1:size(ti,1)
+            if strcmp(ti.condNames{i}, 'math')
+                task_general_cond_name{i,1} = 'calculation_sequential';
+            else
+                task_general_cond_name{i,1} = 'memory_sequential';
+            end
+        end        
+        task_type = cellstr(repmat('active', size(ti,1), 1));
+        condNames = ti.conds_all;
+
+        %% Math
+        % Number format
+        for i = 1:size(ti,1)
+            if strcmp(ti.mathtype{i}, 'digit')
+                number_format{i,1} = 'digit';
+            else
+                number_format{i,1} = 'number_word';
+            end
+        end
+        
+        operand_1 = ti.Operand1;
+        operand_2 = ti.Operand2;
+        operand_min = ti.OperandMin;
+        operand_max = ti.OperandMax;
+        operation = ti.Operator; % 1 for addition and -1 for subtraction
+        result = ti.CorrectResult;
+        presented_result = ti.PresResult;
+        deviant = ti.Deviant;
+        abs_deviant = ti.AbsDeviant;
+        for i = 1:size(ti,1)
+            if deviant(i) == 0
+                deviant(i) = 100;
+                abs_deviant(i) = 100;
+            end
+        end
+        
+        % Cross decade
+        for i = 1:size(ti,1)
+            max_tmp = num2str(operand_max(i));
+            res_tmp = num2str(result(i));
+            
+            if length(res_tmp)==1
+                cross_decade{i,1} = 'no_cross_decade';
+            else
+                if strcmp(max_tmp(1), res_tmp(1))
+                    cross_decade{i,1} = 'no_cross_decade';
+                else
+                    cross_decade{i,1} = 'cross_decade';
+                end
+            end
+        end
+        
+        % Smaller + larger or larger + smaller
+        for i = 1:size(ti,1)
+            if operand_1(i) > operand_2(i)
+                ls_sl{i,1} = 'l+s';
+            elseif operand_1(i) < operand_2(i)
+                ls_sl{i,1} = 's+l';
+            else
+                ls_sl{i,1} = 'tie';
+            end
+        end
+        
+        %% Memory
+        memory_type = ti.condNames;
+        
+        for i = 1:size(ti,1)
+            if ~strcmp(ti.condNames{i}, 'autobio')
+                memory_type{i} = nan;
+            else
+            end
+        end
+        
+        
+        %% Behavioral performance
+        for i = 1:size(ti,1)
+            % Keys
+            if isempty(ti.keys(i))
+                keys(i,1) = nan;
+            else
+                if isempty(ti.keys(i))
+                    keys(i,1) = nan;
+                else
+                    keys(i,1) = ti.keys(i);
+                end
+            end
+        end
+        % RT
+        RT = ti.RT;
+        RT(RT == 0) = nan;
+        
+        % Accuracy
+        accuracy = ti.Accuracy;
+        accuracy(accuracy == 0) = 2;
+        
+        
+        
 end
 
 
 ti_copy = ti;
-% Unified trialinfo
 ti = table;
 ti.block = double(categorical(ti_copy.block));
 ti.task_general_cond_name = task_general_cond_name;
 ti.task_type = task_type;
-
-% Math
-ti.number_format = number_format;
-ti.operand_1 = operand_1;
-ti.operand_2 = operand_2;
-ti.operand_min = operand_min;
-ti.operand_max = operand_max;
-ti.operation = operation; % 1 for addition and -1 for subtraction
-ti.ls_sl = ls_sl;
-ti.result = result;
-ti.cross_decade = cross_decade;
-ti.presented_result = presented_result;
-% ti.deviant = deviant + 1; % just to avoid 0
-ti.abs_deviant = abs_deviant + 1;
-
-% Number
-ti.number_of_digits = number_of_digits;
-% ti.number_ids = number_of_digits;
-
-% Memory
-ti.memory_type = memory_type;
-
-% Behavioral performance
-ti.RT = RT;
-ti.accuracy = accuracy % just to avoid 0;
 
 % Original timing info
 ti.StimulusOnsetTime = ti_copy.StimulusOnsetTime;
 ti.allonsets = ti_copy.allonsets;
 ti.RT_lock = ti_copy.RT_lock;
 
-%% Convert trialinfo table to numerical matrix
-ti_n = ti;
-sc = struct;
-sc.task_type = {'active', 'passive'}';
-sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
-    'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
-sc.number_format = {'digit', 'number_dot', 'number_word'}';
-sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
-sc.ls_sl = {'l+s', 's+l', 'tie'}';
-sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
+switch project_name
+    case 'MMR'
+        % Unified trialinfo
+        %% Add conditions general
+        conditions = unique(ti.task_general_cond_name);
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+            
+        end
+        
+        %% Add conditions specifics
+        task_specific_cond_name = ti_copy.condNames;
+        conditions = task_specific_cond_name;
+        for i = 1:length(conditions)
+            condition_tmp = strsplit(conditions{i}, '-');
+            if length(condition_tmp) == 2
+                condition_tmp = [condition_tmp{1} '_' condition_tmp{2}];
+            else
+                condition_tmp = condition_tmp{1};
+            end
+            ti.(condition_tmp) = double(strcmp(task_specific_cond_name, conditions{i}));
+        end
+        
+        
+        % Math
+        ti.number_format = number_format;
+        ti.operand_1 = operand_1;
+        ti.operand_2 = operand_2;
+        ti.operand_min = operand_min;
+        ti.operand_max = operand_max;
+        ti.operation = operation; % 1 for addition and -1 for subtraction
+        ti.ls_sl = ls_sl;
+        ti.result = result;
+        ti.cross_decade = cross_decade;
+        ti.presented_result = presented_result;
+        % ti.deviant = deviant + 1; % just to avoid 0
+        ti.abs_deviant = abs_deviant + 1;
+        
+        % Number
+        ti.number_of_digits = number_of_digits;
+        % ti.number_ids = number_of_digits;
+        
+        % Memory
+        ti.memory_type = memory_type;
+        
+        % Behavioral performance
+        ti.RT = RT;
+        ti.accuracy = accuracy; % just to avoid 0;
+        
+        
+        
+        %% Convert trialinfo table to numerical matrix
+        ti_string = ti;
+        ti_n = ti;
+        sc = struct;
+        sc.task_type = {'active', 'passive'}';
+        sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
+            'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
+        sc.number_format = {'digit'}';
+        sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
+        sc.ls_sl = {'l+s', 's+l', 'tie'}';
+        sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
+        
+    case 'VTCLoc'
+        
+        conditions = unique(ti.task_general_cond_name);
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+        end
+        ti.oneback = ti_copy.oneback;
+
+        
+        ti_string = ti;
+        ti_n = ti;
+        sc = struct;
+        sc.task_type = {'active', 'passive'}';
+        sc.task_general_cond_name  = conditions;
+        
+    case 'Memoria'
+        
+        conditions = unique(ti.task_general_cond_name);
+        for i = 1:length(conditions)
+            ti.(conditions{i}) = double(strcmp(ti.task_general_cond_name, conditions{i}));
+            
+        end
+        
+        task_specific_cond_name = ti_copy.conds_all;
+        conditions = task_specific_cond_name;
+        for i = 1:length(conditions)
+            if ~isempty(conditions{i})
+                ti.(conditions{i}) = double(strcmp(task_specific_cond_name, conditions{i}));
+            else
+            end
+            
+        end
+        
+        % Math
+        ti.number_format = number_format;
+        ti.operand_1 = operand_1;
+        ti.operand_2 = operand_2;
+        ti.operand_min = operand_min;
+        ti.operand_max = operand_max;
+        ti.operation = operation; % 1 for addition and -1 for subtraction
+        ti.ls_sl = ls_sl;
+        ti.result = result;
+        ti.cross_decade = cross_decade;
+        ti.presented_result = presented_result;
+        % ti.deviant = deviant + 1; % just to avoid 0
+        ti.abs_deviant = abs_deviant + 1;
+        
+        % Number
+        %         ti.number_of_digits = number_of_digits;
+        % ti.number_ids = number_of_digits;
+        
+        % Memory
+        ti.memory_type = memory_type;
+        
+        % Behavioral performance
+        ti.RT = RT;
+        ti.accuracy = accuracy; % just to avoid 0;
+        
+        ti_string = ti;
+        ti_n = ti;
+        sc = struct;
+        sc.task_type = {'active', 'passive'}';
+        sc.task_general_cond_name = {'n_back', 'symbol_identification', 'symbol_reading', 'calculation_simultaneous', ...
+            'calculation_sequential', 'memory_simultaneous', 'memory_sequential', 'rest', 'attention'}';
+        sc.number_format = {'digit', 'number_word', 'number_dot'}';
+        sc.cross_decade = {'no_cross_decade', 'cross_decade'}';
+        sc.ls_sl = {'l+s', 's+l', 'tie'}';
+        sc.memory_type = {'autobio', 'other', 'self-external', 'self-internal'}';
+        
+        
+end
 
 sc_vars = fieldnames(sc);
 
 tmp = table;
 for i = 1:length(sc_vars)
     for ii = 1:size(ti,1)
-        tmp_val = find(strcmp(ti.(sc_vars{i}){ii}, sc.(sc_vars{i})));
+        tmp_val = find(strcmp(ti.(sc_vars{i}){ii}, sc.(sc_vars{i})))-1;
         if ~isempty(tmp_val)
             tmp.(sc_vars{i})(ii,1) = tmp_val;
         else

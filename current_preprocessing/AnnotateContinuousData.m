@@ -1,4 +1,4 @@
-function [em, ti, lockevent, data_fsample] = AnnotateContinuousData(sbj_name, project_name, bn, dirs,el,freq_band,datatype)
+function [em, ti_number, ti_string, lockevent, data_fsample] = AnnotateContinuousData(sbj_name, project_name, bn, dirs,el,freq_band,datatype)
 %% INPUTS:
 %   sbj_name: subject name
 %   project_name: name of task
@@ -39,7 +39,12 @@ end
 %% Load and unify trialinfo
 load([dirs.psych_root,filesep,sbj_name,filesep,bn,filesep,'trialinfo_',bn,'.mat'])
 
-ti = unifyTrialinfoEncoding(project_name, trialinfo);
+% Add block_name 
+trialinfo.block = repmat(str2double(bn(regexp(bn,'\d'))), size(trialinfo,1), 1);
+
+
+[ti_number, ti_string] = unifyTrialinfoEncoding(project_name, trialinfo);
+ti = ti_number;
 lockevent = ti.allonsets(:,1);
 
 

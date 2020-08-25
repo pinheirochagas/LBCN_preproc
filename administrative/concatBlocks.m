@@ -33,6 +33,11 @@ for bi = 1:length(block_names)
     data.trialinfo.block = cell(height(data.trialinfo),1);
     data.trialinfo.block(:) = {bn}; % keep track of which trials coming from which block
 
+    if strcmp(sbj_name, 'S20_149_DR') && strcmp(datatype, 'CAR') && strcmp(freq_band, 'CAR')
+        data.wave = data.wave(:,1:2100);
+    else
+    end
+    
     % concatenante EEG data across blocks
     for i = 1:length(concatfields)
         if strcmp(datatype,'Spec')
@@ -43,8 +48,15 @@ for bi = 1:length(block_names)
     end
     
     % concatenate trial info across blocks
+    if sum(strcmp(data.trialinfo.Properties.VariableNames, 'allstimdur')) > 0
+        data.trialinfo.allstimdur = [];
+    else
+    end
     data_all.trialinfo = [data_all.trialinfo; data.trialinfo];
-    
+    if sum(strcmp(data_all.trialinfo.Properties.VariableNames, 'allstimdur')) > 0
+        data_all.trialinfo.allstimdur = [];
+    else
+    end
     
     
 end

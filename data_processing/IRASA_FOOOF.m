@@ -22,7 +22,7 @@ for el = 1:length(subjVar.labels_EDF)
 end
 
 %% Plot
-plotIRASA(sbj_name, project_name, [], dirs)
+plotIRASA(sbj_name, project_name, 61, dirs)
 
 
 %% FOOF
