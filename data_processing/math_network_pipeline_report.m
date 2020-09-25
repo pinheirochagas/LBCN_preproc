@@ -100,6 +100,7 @@ for it = 1:length(tasks)
     end
 end
 
+      
 %% Proportion selectivity Calc simultaneous
 
 
@@ -871,10 +872,10 @@ savePNG(gcf, 600, [figure_dir, task, 'MMR_Memoria_correspondence.png'])
 %% ROL
 %% ROL from Jessica and Omri NC
 
-project_name = 'MMR';
+project_name = 'UCLA';
 
-parfor i = 1:size(sinfo_MMR,1)
-    getROLALL_NC(sinfo_MMR.sbj_name{i},project_name,[],dirs,[],'HFB',[],'condNames',{'autobio', 'math'}) ;% condNames
+parfor i = 1:size(sinfo_UCLA,1)
+    getROLALL_NC(sinfo_UCLA.sbj_name{i},project_name,[],dirs,[],'HFB',[],'condNames',{'autobio', 'math'}) ;% condNames
 end
 
 plot_ROL_scatter
@@ -1034,8 +1035,7 @@ el_selectivity.ROL_math_avg = cellfun(@nanmean, el_selectivity.ROL_math_onsets)
 el_selectivity.labels_num = [];
 el_selectivity.lobes_num = [];
 for i = 1:size(el_selectivity,1)
-    el_selectivity.labels_num(i) = find(strcmp(el_selectivity.DK_long_josef{i}, labels_plot));
-    
+    el_selectivity.labels_num(i) = find(strcmp(el_selectivity.DK_long_josef{i}, labels_plot)); 
 end
 
 el_tmp_all = [];
@@ -1588,7 +1588,58 @@ for i =  1:length(labels_plot)
     end
     
     
+    
+    %% 
 end
+
+
+
+%% Salience error
+
+
+%% Univariate Selectivity
+tag = 'stim';
+task = 'MMR';
+dirs = InitializeDirs(task, sinfo_MMR.sbj_name{1}, comp_root, server_root, code_root); % 'Pedro_NeuroSpin2T'
+dirs.result_dir = result_dir;
+
+cfg = [];
+[cfg.column,cfg.conds] = getCondNames(task);
+
+cfg.column = 'correctness';
+cfg.conds = {'correct', 'incorrect'};
+
+cfg.stats_params = genStatsParams(task);
+cfg.stats_params.task_win = [1 2];
+
+parfor i = 1:size(sinfo_MMR,1)
+    ElecSelectivityAll(sinfo_MMR.sbj_name{i}, dirs, task, 'stim', 'Band', 'HFB', cfg)
+end
+
+
+subjects = sinfo_MMR.sbj_name;
+subjects(strcmp(subjects, 'S19_137_AF')) = [];
+subjects(strcmp(subjects, 'S20_149_DR')) = [];
+subjects(strcmp(subjects, 'S19_137_AF')) = [];
+subjects(strcmp(subjects, 'S19_137_AF')) = [];
+vars = {'chan_num', 'FS_label', 'LvsR','MNI_coord', 'LEPTO_coord', 'WMvsGM', 'sEEG_ECoG', 'DK_lobe', 'Yeo7', 'Yeo17', 'DK_long_josef', ...
+    'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
+    'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
+
+elect_select_all = concat_elect_select(subjects, task, dirs, vars, 'correctness');
+
+
+elect = elect_select_all(~strcmp(elect_select_all.elect_select, 'no selectivity'),:);
+
+elect_inc = elect_select_all(~strcmp(elect_select_all.elect_select, 'no selectivity'),:);
+
+
+
+
+
+
+
+
 
 
 

@@ -27,7 +27,7 @@ for i = 1:length(electrodes)
     data_el{i} = data_s;
 end
     
-figure('units', 'normalized', 'outerposition', [0 0 0.6 0.8])
+figure('units', 'normalized', 'outerposition', [0 0 0.45 0.65])
 corr_els = corr(data_el{1}, data_el{2});
 
 % do permutation
@@ -46,12 +46,22 @@ corr_els = corr(data_el{1}, data_el{2});
 %% Calculate stats
 
 %% Plot
- h = imagesc(corr_els)
-set(gca,'ytick',1:smooth_factor*5:max(h.YData))
-set(gca,'xtick',1:smooth_factor*5:max(h.YData))
+corr_els(corr_els<0.1) = 0;
+corr_lower = tril(corr_els(:));
+corr_lower(corr_lower==0) = [];
+corr_upper = triu(corr_els(:));
+corr_upper(corr_upper==0) = [];
 
-set(gca,'YTickLabel',round(linspace(time_window(1),time_window(2),length(h.Parent.YTick))*1000))
-set(gca,'XTickLabel',round(linspace(time_window(1),time_window(2),length(h.Parent.YTick))*1000))
+
+h = imagesc(corr_els);
+ticks = find(data.time == 0):150:length(data.time);
+
+set(gca,'ytick',ticks)
+set(gca,'xtick',ticks)
+
+set(gca,'YTickLabel',data.time(ticks)*1000)
+set(gca,'XTickLabel',data.time(ticks)*1000)
+
 
 % set(gca,'ytick',data.time(1:smooth_factor:end)*1000)
 axis xy
@@ -59,9 +69,9 @@ xlabel(['Times (ms) electrode ' electrodes_labels{2}])
 ylabel(['Times (ms) electrode ' electrodes_labels{1}])
 set(gcf,'color', 'w')
 set(gca,'FontSize', 16)
-colormap(flip(cbrewer2('RdBu')))
+colormap([1 1 1; cbrewer2('Reds')])
 ax = gca;
-ax.CLim = [-.5 .5];
+ax.CLim = [0 .5];
 colorbar
 h = colorbar;
 ylabel(h, 'Pearson r')
