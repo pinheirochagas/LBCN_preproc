@@ -85,7 +85,7 @@ hemis = cfg.hemis;
 
 for i = 1:length(views)
     subplot(cfg.subplots(1),cfg.subplots(2),i)
-    coords_plot = CorrectElecLoc(coords_plot, views{i}, hemis{i}, cfg.CorrectFactor); %
+    coords_plot = CorrectElecLoc(coords_plot, views{i}, hemis{i}, elinfo.sEEG_ECoG, cfg.CorrectFactor); %
     ctmr_gauss_plot(cmcortex.(hemis{i}),[0 0 0], 0, hemis{i}, views{i})
     
     for ii = 1:size(coords_plot,1)
