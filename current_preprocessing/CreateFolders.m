@@ -122,9 +122,9 @@ for bn = 1:length(block_name)
             
         elseif strcmp(project_name, 'Rest_pupil')
             if strcmp(data_format, 'edf')
-                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/' [block_name{bn} '.edf']];
+                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/' block_name{bn} filesep [block_name{bn} '.edf']];
             elseif strcmp(data_format, 'TDT')
-                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/' block_name{bn} filesep];
+                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/'  block_name{bn} filesep];
             end
         else
             
