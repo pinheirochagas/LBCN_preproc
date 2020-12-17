@@ -90,6 +90,14 @@ switch project_name
         end           
       
         
+         for i = 1:size(trialinfo,1)
+            if strcmp(trialinfo.condNames(i), 'bodies') == 1
+                trialinfo.condNames_bodies{i} = 'bodies';
+            else
+                trialinfo.condNames_bodies{i} = 'other';
+            end
+        end           
+        
     case 'ReadNumWord'
         
         for i = 1:size(trialinfo,1)

@@ -1,4 +1,4 @@
-function corr_els = corr_gen_time(sbj_name, project_name, dirs, electrodes, electrodes_labels, time_window, smooth_factor, cond_col, conds)
+function corr_els = corr_gen_time(sbj_name, project_name, dirs, electrodes, derivative, electrodes_labels, time_window, smooth_factor, cond_col, conds)
 % Correlation generalizing across time
 
 
@@ -19,12 +19,21 @@ for i = 1:length(electrodes)
     data.wave = data.wave(trial_idx, time_win);
     data.trialinfo = data.trialinfo(trial_idx,:);
     data.time = data.time(time_win);
-    % Smooth 
+    % Smooth and take the derivative if necessary
     data_s = [];
     for ii = 1:size(data.wave)
         data_s(ii,:) = smoothdata(data.wave(ii,:),'gaussian', smooth_factor);
+        if derivative == i
+            data_s(ii,:) = [0 diff(data_s(ii,:))];
+        else
+        end           
     end
     data_el{i} = data_s;
+end
+
+if ~isempty(derivative)
+    data_s = data_s(:,2:end);
+else
 end
     
 figure('units', 'normalized', 'outerposition', [0 0 0.45 0.65])
