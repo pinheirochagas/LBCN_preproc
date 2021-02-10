@@ -170,17 +170,20 @@ if ~plot_params.single_trial
     %% Plot lines to mark events
     y_lim = ylim;
     
-    if isempty(plot_params.xlines)
-        if size(data.trialinfo.allonsets,2) > 1
-            time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
-        else
-            time_events = [0 0];
-        end
+    if strcmp(conds{1}, 'digit_active_delayed')
+        time_events = [0 0.9 1.8 2.8 3.7 4.6];
     else
-        time_events = plot_params.xlines;
-    end
-    
+        if isempty(plot_params.xlines)
+            if size(data.trialinfo.allonsets,2) > 1
+                time_events = cumsum(nanmean(diff(data.trialinfo.allonsets,1,2)));
+            else
+                time_events = [0 0];
+            end
+        else
+            time_events = plot_params.xlines;
+        end
     time_events = time_events/10;
+    end
     
     if ~isempty(time_events)
         for i = 1:length(time_events)

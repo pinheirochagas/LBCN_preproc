@@ -11,6 +11,15 @@ switch project_name
             end
         end
         
+         for i = 1:size(trialinfo,1)
+            if trialinfo.isDelayed(i) == 1
+                trialinfo.condNames(i) = {[trialinfo.condNames{i} '_delayed']};
+            else
+                trialinfo.condNames(i) = {[trialinfo.condNames{i} '_non_delayed']};
+            end
+        end
+        
+        
     case 'MMR'
         for i = 1:size(trialinfo,1)
             if trialinfo.isCalc(i) == 1

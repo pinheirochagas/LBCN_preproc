@@ -2,7 +2,7 @@
 
 %% Load comon brain
 % elinfo = subjVar.elinfo;
-elinfo = subjVar;
+elinfo = subjVar.elinfo;
 
 
 % Decide if project left
