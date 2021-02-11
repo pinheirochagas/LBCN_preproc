@@ -1,4 +1,4 @@
-function PlotElectVol_single_slice_all(elecMatrix, elecRgb, V,elecId, all_labels, slice)
+function PlotElectVol_single_slice_all(elecMatrix, elecRgb, V,elecId, all_labels, slice, orientation)
 
 
 
@@ -43,8 +43,8 @@ if ~isempty(elecs)
     hold on
     for io = 1:length(elecs)
         ioo = elecs(io);
-        plot(xyz(ioo,coords(1)),xyz(ioo,coords(1)),'.','color',elecRgb(ioo,:),'markersize',marker_size,'parent',slice2d_axes(1));
-        text(xyz(ioo,coords(1)),xyz(ioo,coords(1)), all_labels{ioo}, 'HorizontalAlignment', 'Left', 'VerticalAlignment', 'Top', 'FontSize', font_size_label, 'Color', elecRgb(ioo,:), 'parent',slice2d_axes(1))
+        plot(slice2d_axes(1),xyz(ioo,coords(1)),xyz(ioo,coords(2)),'.','color',elecRgb(ioo,:),'markersize',marker_size,'parent',slice2d_axes(1));
+        text(slice2d_axes(1),xyz(ioo,coords(1)),xyz(ioo,coords(2)), all_labels{ioo}, 'HorizontalAlignment', 'Left', 'VerticalAlignment', 'Top', 'FontSize', font_size_label, 'Color', elecRgb(ioo,:), 'parent',slice2d_axes(1))
     end
 else
 end
@@ -110,4 +110,15 @@ switch slice
         
 end
 
-set(slice2d_axes(1),'xtick',[],'ytick',[],'xdir','reverse');
+if strcmp(slice, 'horizontal')
+    if strcmp(orientation, 'scientific') 
+    elseif strcmp(orientation, 'medical')
+        set(slice2d_axes(1),'xtick',[],'ytick',[],'xdir','reverse');
+    end
+else
+    if strcmp(orientation, 'medical')
+    elseif strcmp(orientation, 'scientific')
+        set(slice2d_axes(1),'xtick',[],'ytick',[],'xdir','reverse');
+    end
+end
+
