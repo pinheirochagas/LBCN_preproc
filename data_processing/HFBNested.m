@@ -67,7 +67,7 @@ spike.time = data.time;
 % spike = rmfield(spike, 'sampleinfo');
 
 % DIRTY FIX!
-% spike.trial = spike.trial (:,:,1:350);
+spike.trial = spike.trial (:,:,1:350);
 
 all = ft_appenddata([], data, spike);
 

@@ -10,7 +10,7 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
         case 'UCLA'
             n_stim_per_trial = 1;
-        case 'Memoria'
+        case {'Memoria', 'Calculia_verification_digit'}
             n_stim_per_trial = 5;
         case 'Calculia'
             n_stim_per_trial = 5;
@@ -38,10 +38,16 @@ for i = 1:length(block_names)
     
     %% Load globalVar
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
+    if strcmp(project_name, 'Calculia_production')
+        iEEG_rate = 10000;
+        globalVar.Pdio_rate = 10000;
+    else
     iEEG_rate=globalVar.iEEG_rate;
+    end
     
     %% reading analog channel from neuralData directory
     load(sprintf('%s/Pdio%s_%.2d.mat',globalVar.originalData, bn, pdio_chan)); % going to be present in the globalVar
+    
 %     anlg = abs(anlg);
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
@@ -58,6 +64,10 @@ for i = 1:length(block_names)
         [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     end
     
+    
+    
+    
+    
     clear anlg
     
     %% Add exceptions
@@ -66,7 +76,7 @@ for i = 1:length(block_names)
     
     %% Thresholding the signal
     if strcmp(project_name, 'Calculia_production')
-        ind_above= pdio < -5;
+        ind_above= pdio < -3;
     elseif strcmp(sbj_name, 'S16_102_MDO') && strcmp(bn, 'E16-993_0007')
         pdio = abs(pdio);
         ind_above= pdio > 2;
@@ -83,6 +93,14 @@ for i = 1:length(block_names)
     else
         ind_above= pdio > 0.5;
     end
+    
+    if  strcmp(sbj_name,'S21_160_PC') && (strcmp(bn, 'E21-179_0014'))
+        ind_above= pdio < -0.3;
+    else
+        ind_above= pdio < -3;
+    end
+    
+%     ind_above= pdio > 0.5;
     
     
     if strcmp(sbj_name,'S20_152_HT') 

@@ -182,7 +182,7 @@ if ~plot_params.single_trial
         else
             time_events = plot_params.xlines;
         end
-    time_events = time_events/10;
+    %time_events = time_events/10;
     end
     
     if ~isempty(time_events)
