@@ -15,9 +15,10 @@ for ii = 1:length(conds_avg_conds)
 end
 
 %% Group data
-decimate = true;
-final_fs = 200;
-concat_params = genConcatParams(decimate, final_fs);
+cfg = [];
+cfg.decimate = true;
+cfg.final_fs = 200;
+concat_params = genConcatParams(project_name, cfg);
 concat_params.noise_method = 'trials';
 
 plot_params = genPlotParams(project_name,'timecourse');
@@ -25,7 +26,7 @@ chan_plot = [];
 for i = 1:length(sbj_names)
     %% Concatenate trials from all blocks
     block_names = BlockBySubj(sbj_names{i},project_name);
-    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
+    data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);    
     % Average across trials, normalize and concatenate across subjects
     for ii = 1:length(conds_avg_conds)
         data_tmp_avg = squeeze(nanmean(data_sbj.wave(strcmp(data_sbj.trialinfo.(conds_avg_field), conds_avg_conds{ii}),:,:),1)); % average trials by electrode
@@ -64,6 +65,8 @@ chan_plot = chan_plot(nan_sum==0,:);
 
 %% Get indices for colloring
 [col_idx,cols] = colorbarFromValues(data_all.(cond_plot)(:), 'RedsWhite');
+
+
 col_idx = reshape(col_idx,size(data_all.(cond_plot),1), size(data_all.(cond_plot),2));
 % Highlight most active channels
 chan_plot(:,1) = chan_plot(:,1) - sum(data_all.(cond_plot),2);

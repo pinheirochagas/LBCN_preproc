@@ -20,7 +20,7 @@ for i = 1:length(sbj_names)
     disp(['concatenating subject ' sbj_names{i}])
     %% Concatenate trials from all blocks
     block_names = BlockBySubj(sbj_names{i},project_name);
-    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB',locktype, concat_params);
+    data_sbj = ConcatenateAll(sbj_names{i},project_name,block_names,dirs,[],'Band','HFB','stim', concat_params);
 %     if ~isempty(badchan_vis)
 %         data_sbj.badChan = badchan_vis{i};
 %     else

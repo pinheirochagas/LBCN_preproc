@@ -44,8 +44,17 @@ switch project_name
          end
          
          
-         
-         
+         for i = 1:size(trialinfo,1)
+             if trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 1
+                 trialinfo.correctness_simple(i) = {'digit_correct'};
+             elseif trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 0
+                 trialinfo.correctness_simple(i) = {'digit_incorrect'};
+             elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 1
+                 trialinfo.correctness_simple(i) = {'letter_correct'};
+             elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 0
+                 trialinfo.correctness_simple(i) = {'letter_incorrect'};
+             end
+         end
          
         
     case 'MMR'
@@ -111,6 +120,7 @@ switch project_name
                 trialinfo.correctness_basic{i} = 'incorrect_passive';
             end           
         end
+        
         
     case 'Calculia_verification_digit'
         

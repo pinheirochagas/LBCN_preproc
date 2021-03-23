@@ -1,4 +1,4 @@
-function EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
+ofunction EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
 
 %% INPUTS:
 %   sbj_name: subject name
