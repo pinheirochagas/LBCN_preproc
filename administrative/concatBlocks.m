@@ -35,7 +35,8 @@ for bi = 1:length(block_names)
 
     if strcmp(sbj_name, 'S20_149_DR') && strcmp(datatype, 'CAR') && strcmp(freq_band, 'CAR')
         data.wave = data.wave(:,1:2100);
-    else
+    elseif strcmp(sbj_name, 'S21_161_AO') && strcmp(datatype, 'CAR') && strcmp(freq_band, 'CAR')
+        data.wave = data.wave(:,1:2100);
     end
     
     % concatenante EEG data across blocks

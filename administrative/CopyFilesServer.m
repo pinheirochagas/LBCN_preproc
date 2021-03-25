@@ -30,7 +30,7 @@ elseif strcmp(data_format, 'edf')
 else
 end
 
-if ~strcmp(project_name, 'Rest')
+if ~contains(project_name, 'Rest')
     %%Copy behavioral file
     copyfile(globalVar.behavioral_data_server_path, globalVar.psych_dir)
     fprintf('Copied behavioral file %s to %s', fn, globalVar.psych_dir)

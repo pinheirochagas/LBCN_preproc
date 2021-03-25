@@ -38,7 +38,11 @@ if strcmp(datatype,'Spec')
     
 elseif strcmp(datatype,'Band')
     tdim = 3;
-    tag = [locktype,'lock_bl_corr']; % specifies type of data to load
+    if strcmp(project_name, 'GradCPT')
+        tag = [locktype,'lock']; % specifies type of data to load
+    else
+        tag = [locktype,'lock_bl_corr']; % specifies type of data to load
+    end
 elseif strcmp(datatype,'CAR')
     tdim = 3;
     tag = [locktype,'lock']; % specifies type of data to load

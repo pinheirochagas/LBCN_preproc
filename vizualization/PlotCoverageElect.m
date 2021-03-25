@@ -6,8 +6,8 @@ function PlotCoverageElect(subjVar, cfg)
 
 
 load('cdcol_2018.mat')
-marker_size = 20;
-marker_size_high = 15;
+marker_size = cfg.MarkerSize;
+marker_size_high = cfg.MarkerSize_chan_highlight;
 
 
 
@@ -28,14 +28,14 @@ MarkerFaceColor_high = MarkerFaceColor;
 
 
 for i = 1:size(subjVar.elinfo,1)
-    elec_init{i} =  subjVar.elinfo.FS_label{i}(1:2)    
+    elec_init{i} =  subjVar.elinfo.FS_label{i}(1:2);
 end
-elec_init = unique(elec_init)
-cols = hsv(length(elec_init))
+elec_init = unique(elec_init);
+cols = hsv(length(elec_init));
 
 for i = 1:size(subjVar.elinfo,1)
-    init = subjVar.elinfo.FS_label{i}(1:2)
-    MarkerFaceColor(i,:) = cols(find(strcmp(init, elec_init)),:)
+    init = subjVar.elinfo.FS_label{i}(1:2);
+    MarkerFaceColor(i,:) = cols(find(strcmp(init, elec_init)),:);
     MarkerFaceColor(i,:) = [0 0 0];
 
     
@@ -47,16 +47,16 @@ figure('units', 'normalized', 'outerposition', cfg.figureDim)
 % figure('units', 'normalized', 'outerposition', figureDim)
 % cfg.views = {'lateral', 'anterior', 'posterior'};
 % cfg.views = {'lateral', 'ventral', 'temporal', 'lateral', 'ventral', 'temporal'};
-cfg.views = {'lateral', 'ventral', 'medial'};
+% cfg.views = {'lateral', 'ventral', 'medial'};
 
-if ~isempty(cfg.chan_highlight)
-    if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
-        cfg.hemis = {'left','left','left'};
-    else
-        cfg.hemis = {'right', 'right', 'right'};
-    end
-else
-end
+% if ~isempty(cfg.chan_highlight)
+%     if strcmp(subjVar.elinfo.LvsR{cfg.chan_highlight}, 'L')
+%         cfg.hemis = {'left','left','left'};
+%     else
+%         cfg.hemis = {'right', 'right', 'right'};
+%     end
+% else
+% end
 
  
 % 

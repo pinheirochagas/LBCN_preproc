@@ -7,7 +7,8 @@ function CreateFolders(sbj_name, project_name, block_name, center, dirs, data_fo
 % else
 %     sbj_name_generic = sbj_name;
 % end
-
+% 
+% --
 sbj_name_generic = sbj_name;
 
 
@@ -46,6 +47,7 @@ for i = 1:length(fieldname_folders)
     end
 end
 
+%% --
 
 
 for bn = 1:length(block_name)
@@ -117,6 +119,13 @@ for bn = 1:length(block_name)
             elseif strcmp(data_format, 'TDT')
                 globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest/' block_name{bn} filesep];
             end
+            
+        elseif strcmp(project_name, 'Rest_pupil')
+            if strcmp(data_format, 'edf')
+                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/' block_name{bn} filesep [block_name{bn} '.edf']];
+            elseif strcmp(data_format, 'TDT')
+                globalVar.iEEG_data_server_path = ['/Volumes/neurology_jparvizi$/' sbj_folder_name filesep 'Data/Rest_pupil/'  block_name{bn} filesep];
+            end
         else
             
             if import_server == 1
@@ -129,7 +138,7 @@ for bn = 1:length(block_name)
                     globalVar.iEEG_data_server_path = [PATHNAME, FILENAME];
                 else
                 end
-                if ~strcmp(project_name, 'Rest')
+                if ~contains(project_name, 'Rest')
                     % Behavioral data
                     waitfor(msgbox(['Choose file of the behavioral data on the server for block ' block_name{bn}]));
                     [FILENAME, PATHNAME] = uigetfile(['/Volumes/neurology_jparvizi$/' sbj_folder_name]);
