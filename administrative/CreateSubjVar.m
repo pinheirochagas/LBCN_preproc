@@ -46,11 +46,11 @@ fsaverageINF_coord = fsaverage_pial2Inf(dirs,MNI_coord,chanInfo.Hem);
 
 fs_chan_names = chanInfo.Name;
 close all
-% V = importVolumes(dirs);
+V = importVolumes(dirs);
 
 subjVar.sbj_name = sbj_name;
 subjVar.cortex = cortex;
-% subjVar.V = V;
+subjVar.V = V;
 
 
 %% Correct channel name

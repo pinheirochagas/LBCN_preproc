@@ -10,7 +10,7 @@ for i = 1:length(block_names)
             n_stim_per_trial = 1;
         case 'UCLA'
             n_stim_per_trial = 1;
-        case {'Memoria', 'Calculia_verification_digit'}
+        case {'Memoria', 'Calculia_verification_digit', 'Memoria_stim'}
             n_stim_per_trial = 5;
         case 'Calculia'
             n_stim_per_trial = 5;
@@ -100,7 +100,7 @@ for i = 1:length(block_names)
         ind_above= pdio < -3;
     end
     
-%     ind_above= pdio > 0.5;
+     ind_above= pdio > 0.5;
     
     
     if strcmp(sbj_name,'S20_152_HT') 
@@ -215,7 +215,7 @@ for i = 1:length(block_names)
         stim_onset = all_stim_onset;                                  
         all_stim_onset = reshape(stim_onset,n_stim_per_trial,length(stim_onset)/n_stim_per_trial)';
         %% modified for Memoria
-    elseif strcmp(project_name, 'Memoria')
+    elseif strcmp(project_name, 'Memoria') || strcmp(project_name, 'Memoria_stim')
         if ismember('nstim',colnames) % for cases where each trial has diff # of stim
             all_stim_onset = nan(ntrials,max(trialinfo.nstim));
             

@@ -1,4 +1,4 @@
-ofunction EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
+function EpochDataAll(sbj_name, project_name, bn, dirs,el,freq_band,thr_raw,thr_diff,epoch_params,datatype)
 
 %% INPUTS:
 %   sbj_name: subject name
@@ -298,6 +298,5 @@ disp(['Data epoching: Block ', bn, ' ' bl_tag,' Elec ',num2str(el)])
 % fn = [dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',bn,'.mat'];
 % save(fn,'globalVar')
 
+
 end
-
-

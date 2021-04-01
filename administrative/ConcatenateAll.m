@@ -1,5 +1,9 @@
 function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,elecs, datatype, freq_band, locktype, concat_params)
 %% Define electrodes
+
+% Load subjectVar
+load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'])
+
 if strcmp(sbj_name, 'S20_151_HT') && strcmp(project_name, 'MMR') 
     original = load('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/S20_151_HT/global_Calculia_production_S20_151_HT_E20-540_0011.mat');
     mmr = load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat']);
@@ -12,7 +16,7 @@ else
     if isempty(elecs)
         % load globalVar (just to get ref electrode, # electrodes)
         load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
-        elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+        elecs = setdiff(1:size(subjVar.elinfo,1),globalVar.refChan);
     end
 end
 
@@ -22,8 +26,6 @@ if isempty(concat_params)
     concat_params = genConcatParams(false); % default: no downsampling
 end
 
-% Load subjectVar
-load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'])
 
 if ~isfield(subjVar, 'elinfo')
     data_format = GetFSdataFormat(sbj_name, 'Stanford');

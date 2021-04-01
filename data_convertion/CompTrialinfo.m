@@ -11,51 +11,51 @@ switch project_name
             end
         end
         
-         for i = 1:size(trialinfo,1)
+        for i = 1:size(trialinfo,1)
             if trialinfo.isDelayed(i) == 1
                 trialinfo.condNames(i) = {[trialinfo.condNames{i} '_delayed']};
             else
                 trialinfo.condNames(i) = {[trialinfo.condNames{i} '_non_delayed']};
             end
-         end
-         
-         for i = 1:size(trialinfo,1)
-             if trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness(i) = {'digit_correct_delayed'};
-             elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness(i) = {'digit_incorrect_delayed'};
-             elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness(i) = {'digit_correct_non_delayed'};
-             elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness(i) = {'digit_incorrect_non_delayed'};   
-                 
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness(i) = {'letter_correct_delayed'};
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness(i) = {'letter_incorrect_delayed'};
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness(i) = {'letter_correct_non_delayed'};
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness(i) = {'letter_incorrect_non_delayed'}; 
-                 
-                 
-                 
-             end
-         end
-         
-         
-         for i = 1:size(trialinfo,1)
-             if trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness_simple(i) = {'digit_correct'};
-             elseif trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness_simple(i) = {'digit_incorrect'};
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 1
-                 trialinfo.correctness_simple(i) = {'letter_correct'};
-             elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 0
-                 trialinfo.correctness_simple(i) = {'letter_incorrect'};
-             end
-         end
-         
+        end
+        
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness(i) = {'digit_correct_delayed'};
+            elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness(i) = {'digit_incorrect_delayed'};
+            elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness(i) = {'digit_correct_non_delayed'};
+            elseif trialinfo.isCalc(i) == 1 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness(i) = {'digit_incorrect_non_delayed'};
+                
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness(i) = {'letter_correct_delayed'};
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 1 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness(i) = {'letter_incorrect_delayed'};
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness(i) = {'letter_correct_non_delayed'};
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.isDelayed(i) == 0 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness(i) = {'letter_incorrect_non_delayed'};
+                
+                
+                
+            end
+        end
+        
+        
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness_simple(i) = {'digit_correct'};
+            elseif trialinfo.isCalc(i) == 1 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness_simple(i) = {'digit_incorrect'};
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 1
+                trialinfo.correctness_simple(i) = {'letter_correct'};
+            elseif trialinfo.isCalc(i) == 0 && trialinfo.Correctness(i) == 0
+                trialinfo.correctness_simple(i) = {'letter_incorrect'};
+            end
+        end
+        
         
     case 'MMR'
         for i = 1:size(trialinfo,1)
@@ -86,7 +86,7 @@ switch project_name
         
         trialinfo.correctness = trialinfo.condNames;
         trialinfo.correctness_basic = trialinfo.condNames;
-
+        
         trialinfo.condNamesBasic = trialinfo.condNames;
         for i = 1:size(trialinfo,1)
             if trialinfo.isActive(i) == 1 && trialinfo.Correctness(i) == 1 && strcmp(trialinfo.condition{i}, 'numerals')
@@ -110,15 +110,15 @@ switch project_name
         end
         
         for i = 1:size(trialinfo,1)
-            if trialinfo.isActive(i) == 1 && trialinfo.Correctness(i) == 1 
+            if trialinfo.isActive(i) == 1 && trialinfo.Correctness(i) == 1
                 trialinfo.correctness_basic{i} = 'correct_active';
-            elseif trialinfo.isActive(i) == 0 && trialinfo.Correctness(i) == 1 
+            elseif trialinfo.isActive(i) == 0 && trialinfo.Correctness(i) == 1
                 trialinfo.correctness_basic{i} = 'correct_passive';
-            elseif trialinfo.isActive(i) == 1 && trialinfo.Correctness(i) == 0 
+            elseif trialinfo.isActive(i) == 1 && trialinfo.Correctness(i) == 0
                 trialinfo.correctness_basic{i} = 'incorrect_active';
-            elseif trialinfo.isActive(i) == 0 && trialinfo.Correctness(i) == 0 
+            elseif trialinfo.isActive(i) == 0 && trialinfo.Correctness(i) == 0
                 trialinfo.correctness_basic{i} = 'incorrect_passive';
-            end           
+            end
         end
         
         
@@ -126,7 +126,7 @@ switch project_name
         
         trialinfo.correctness = trialinfo.condNames;
         trialinfo.delayed = trialinfo.condNames;
-
+        
         for i = 1:size(trialinfo,1)
             if trialinfo.correct(i) == 1 && trialinfo.delay(i) == 1
                 trialinfo.correctness{i} = 'correct_delay';
@@ -146,7 +146,7 @@ switch project_name
                 trialinfo.delayed{i} = 'no_delay';
             end
         end
-
+        
         
         
     case 'EglyDriver'
@@ -190,7 +190,7 @@ switch project_name
             else
                 trialinfo.condNames_faces{i} = 'other';
             end
-        end  
+        end
         
         for i = 1:size(trialinfo,1)
             if strcmp(trialinfo.condNames(i), 'words') == 1
@@ -198,16 +198,16 @@ switch project_name
             else
                 trialinfo.condNames_words{i} = 'other';
             end
-        end           
-      
+        end
         
-         for i = 1:size(trialinfo,1)
+        
+        for i = 1:size(trialinfo,1)
             if strcmp(trialinfo.condNames(i), 'bodies') == 1
                 trialinfo.condNames_bodies{i} = 'bodies';
             else
                 trialinfo.condNames_bodies{i} = 'other';
             end
-        end           
+        end
         
     case 'ReadNumWord'
         
@@ -225,7 +225,7 @@ switch project_name
             else
                 trialinfo.condNames_words{i} = 'other';
             end
-        end    
+        end
         
         for i = 1:size(trialinfo,1)
             if strcmp(trialinfo.condNames(i), 'number_word') == 1
@@ -233,15 +233,15 @@ switch project_name
             else
                 trialinfo.condNames_number_words{i} = 'other';
             end
-        end     
+        end
         
         
-case 'Memoria'
+    case 'Memoria'
         
         for i = 1:size(trialinfo,1)
-            if trialinfo.AbsDeviant(i) == 0 
+            if trialinfo.AbsDeviant(i) == 0
                 trialinfo.correctness{i} = 'correct';
-            elseif trialinfo.AbsDeviant(i) > 0 
+            elseif trialinfo.AbsDeviant(i) > 0
                 trialinfo.correctness{i} = 'incorrect';
             else
                 trialinfo.correctness{i} = ' ';
@@ -257,11 +257,47 @@ case 'Memoria'
             elseif trialinfo.AbsDeviant(i) > 0 && strcmp(trialinfo.mathtype{i}, 'digit')
                 trialinfo.correctness_math_type{i} = 'digit_incorrect';
             elseif trialinfo.AbsDeviant(i) > 0 && strcmp(trialinfo.mathtype{i}, 'numword')
-                trialinfo.correctness_math_type{i} = 'numword_incorrect';                
+                trialinfo.correctness_math_type{i} = 'numword_incorrect';
             else
                 trialinfo.correctness_math_type{i} = ' ';
             end
         end
+        
+        
+    case 'MFA'
+        for i = 1:size(trialinfo,1)
+            if contains(trialinfo.condNames(i), 'digit') == 0
+                trialinfo.math_type{i} = 'digit';
+            elseif contains(trialinfo.condNames(i), 'word') == 0
+                trialinfo.math_type{i} = 'word';
+            elseif contains(trialinfo.condNames(i), 'dots') == 0
+                trialinfo.math_type{i} = 'dot';
+            end
+        end
+        
+        
+        for i = 1:size(trialinfo,1)
+            if trialinfo.AbsDeviant(i) == 0
+                trialinfo.correctness{i} = 'correct';
+            elseif trialinfo.AbsDeviant(i) > 0
+                trialinfo.correctness{i} = 'incorrect';
+            else
+            end
+        end
+        
+        
+        for i = 1:size(trialinfo,1)
+            if ~contains(trialinfo.condNames(i), 'dots') == 0 && contains(trialinfo.condNames(i), 'mult') == 0
+                trialinfo.operation{i} = 'symbolic_mult';
+            elseif ~contains(trialinfo.condNames(i), 'dots') == 0 && contains(trialinfo.condNames(i), 'add') == 0
+                trialinfo.operation{i} = 'symbolic_add';
+            elseif contains(trialinfo.condNames(i), 'dots') == 0 && contains(trialinfo.condNames(i), 'mult') == 0
+                trialinfo.operation{i} = 'nonsymbolic_mult';
+            elseif contains(trialinfo.condNames(i), 'dots') == 0 && contains(trialinfo.condNames(i), 'add') == 0
+                trialinfo.operation{i} = 'nonsymbolic_add';
+            end
+        end
+        
         
         
 end
