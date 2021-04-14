@@ -96,6 +96,9 @@ for i = 1:length(sbj_names)
     else
     end
     
+    data_all.trialinfo{i} = data_sbj.trialinfo;
+    
+    
 end
 data_all.time = data_sbj.time;
 data_all.badchans_all = bad_chans;

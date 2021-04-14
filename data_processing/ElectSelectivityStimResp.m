@@ -64,7 +64,7 @@ for ii = 1:size(data_sbj.wave,2)
     goodtrials_cond2 = trialinfo_tmp_cond2.bad_epochs_HFO == 0 & trialinfo_tmp_cond2.spike_hfb == 0;
 
     
-    data_cond1_avg_stim = data_avg.stim.(conds{1})(goodtrials_cond1,ii);
+    data_cond1_avg_stim = data_avg.stim.(conds{1})(goodtrials_cond1,ii); % well, we actually want to be fare here with deactivations. 
     data_cond2_avg_stim = data_avg.stim.(conds{2})(goodtrials_cond2,ii);
     
     data_cond1_avg_resp = data_avg.resp.(conds{1})(goodtrials_cond1,ii);

@@ -60,7 +60,7 @@ for e = 1:10:length(time)
                 else
 %                     plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', MarkSizeEffect*abs(data.wave(ii,e)), 'MarkerFaceColor', cols(col_idx(ii,e),:), 'MarkerEdgeColor', 'k');
 %                     col_idx(ii,e)
-                    plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', round(MarkSizeEffect*(1+data.wave(ii,e)/4)), 'MarkerFaceColor', cols(col_idx(ii,e),:), 'MarkerEdgeColor', 'k');
+                    plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', round(MarkSizeEffect*(1+data.wave(ii,e)/5)), 'MarkerFaceColor', cols(col_idx(ii,e),:), 'MarkerEdgeColor', 'k');
                 end
             else
             end
@@ -78,25 +78,26 @@ for e = 1:10:length(time)
         
         if strcmp(time_tmp(1), '-')
             time_tmp = time_tmp(1:6);
-        elseif ~strcmp(time_tmp(1), '-') && ~strcmp(time_tmp, '000') && length(time_tmp) > 3
-            time_tmp = time_tmp(1:5);
-        elseif strcmp(time_tmp, '000')
-            time_tmp = time_tmp(1);
+        elseif ~strcmp(time_tmp(1), '-') & ~strcmp(time_tmp, '000')
+            if strcmp(time_tmp, '000')
+            else
+                time_tmp = time_tmp(1);
+            end
         end
         
         
         text(0, 0, -80, [time_tmp ' s'], 'FontSize', 40, 'HorizontalAlignment', 'center')
         
-        if time(e) > cfg.times(1) && time(e) < cfg.times(1) + .5
-           text(0, 0, 85, 'X', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(2) && time(e) < cfg.times(2) + .5
-           text(0, 0, 85, '+', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(3) && time(e) < cfg.times(3) + .5
-           text(0, 0, 85, 'Y', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(4) && time(e) < cfg.times(4) + .5
-           text(0, 0, 85, '=', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(5) && time(e) < cfg.times(5) + .5
-           text(0, 0, 85, 'Z', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+        if time(e) > cfg.times(1) && time(e) < cfg.times(1) + .4
+           text(0, 0, 85, 'X', 'FontSize', 40, 'HorizontalAlignment', 'center', 'Color', 'r')
+        elseif time(e) > cfg.times(2) && time(e) < cfg.times(2) + .4
+           text(0, 0, 85, '+', 'FontSize', 40, 'HorizontalAlignment', 'center', 'Color', 'r')
+        elseif time(e) > cfg.times(3) && time(e) < cfg.times(3) + .4
+           text(0, 0, 85, 'Y', 'FontSize', 40, 'HorizontalAlignment', 'center', 'Color', 'r')
+        elseif time(e) > cfg.times(4) && time(e) < cfg.times(4) + .4
+           text(0, 0, 85, '=', 'FontSize', 40, 'HorizontalAlignment', 'center', 'Color', 'r')
+        elseif time(e) > cfg.times(5)
+           text(0, 0, 85, '=', 'FontSize', 40, 'HorizontalAlignment', 'center', 'Color', 'r')
         else
         end
         

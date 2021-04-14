@@ -7,6 +7,7 @@ cfg.stats_params = genStatsParams(task, hypothesis);
 
 fname = sprintf('%scomputation/%s/%s_%s_%s.mat',dirs.paper_results, hypothesis, task, s, hypothesis);
 
+s
 if ~exist(fname,'file')
     load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);
     fprintf('processing subject %s\n', s)
@@ -18,10 +19,13 @@ if ~exist(fname,'file')
         el_selectivity = [subjVar.elinfo elect_select];
         save(fname, 'el_selectivity');
     catch
+        
         error_subject = 1;
         fname = sprintf('%scomputation/%s/error_%s_%s_%s.csv',dirs.paper_results, hypothesis, task, s, hypothesis);
         csvwrite(fname, error_subject)
     end
 else
+    fprintf(' for subject %s were already computed', s)
+
 end
 end

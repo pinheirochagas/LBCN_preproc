@@ -68,6 +68,9 @@ if cfg.MarkerSize_mod
 else
     marker_size = repmat(cfg.MarkerSize,size(elinfo,1),1);
 end
+marker_size = cfg.MarkerSize;
+
+
 % figureDim = [0 0 1 .4];
 
 % col_label = repmat(cfg.col_label, size(elinfo,1),1);

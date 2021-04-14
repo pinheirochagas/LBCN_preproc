@@ -72,6 +72,11 @@ for ie = 1:size(elec_list,1)
         data_all.fsample = data_bn.fsample;
     end
     
+    % smooth
+    for it = 1:size(data_bn.wave,1)
+        data_bn.wave(it,:) = smooth_wave_ieeg(data_bn.wave(it,:), data_bn.fsample, 0.1);
+    end
+    
     % Exclude bad trials
     if strcmp(concat_params.noise_method,'trials')
         data_bn.wave(bad_trials,:) = [];

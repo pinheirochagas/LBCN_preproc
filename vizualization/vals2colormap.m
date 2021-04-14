@@ -1,4 +1,4 @@
-function rgb = vals2colormap(vals, colormap, crange)
+function [valsN, rgb, cmap] = vals2colormap(vals, colormap, crange)
 % Take in a vector of N values and return and return a Nx3 matrix of RGB
 % values associated with a given colormap
 %

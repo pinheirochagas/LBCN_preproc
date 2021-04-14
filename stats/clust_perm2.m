@@ -1,4 +1,4 @@
-%[pval, t_orig, clust_info, seed_state, est_alpha]=clust_perm2(dataA,dataB,chan_hood,n_perm,fwer,tail,thresh_p,verblevel,seed_state,freq_domain)
+clust_perm2%[pval, t_orig, clust_info, seed_state, est_alpha]=clust_perm2(dataA,dataB,chan_hood,n_perm,fwer,tail,thresh_p,verblevel,seed_state,freq_domain)
 %
 % clust_perm2-Independent samples cluster-based permutation test using the "cluster
 %             mass" statistic and a null hypothesis of a mean of zero.  This
