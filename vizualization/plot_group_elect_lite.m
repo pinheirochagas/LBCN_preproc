@@ -1,4 +1,4 @@
-function plot_group_elect_lite(plot_data,task,cond_names, time)
+function plot_group_elect_lite(data,task,cond_names, time)
 
 % plot_data = [];
 % for i = 1:length(data.wave)
@@ -16,20 +16,64 @@ lineprops.edgestyle = '-';
 
 load('cdcol_2018.mat')
 
-h = [];
-for i = 1:length(plot_data)
-    lineprops.col{1} = plot_params.col(i,:);
-    mseb(time,nanmean(plot_data{i}),nanste(plot_data{i}),lineprops,1);
+figure('units', 'normalized', 'outerposition', [0 0 .4  .3])
+
+try
+    subplot(1,2,1)
+    h = [];
+    for i = 1:length(data.plot_data)
+        lineprops.col{1} = plot_params.col(i,:);
+        mseb(time,nanmean(data.plot_data{i}),nanste(data.plot_data{i}),lineprops,1);
+        hold on
+        h(i)=plot(time,nanmean(data.plot_data{i}),'LineWidth',plot_params.lw,'Color',plot_params.col(i,:));
+        
+        if strcmp(task, 'Memoria')
+            time_events = [1 2.1 3.2 4.3];
+            for ii = 1:length(time_events)
+                plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
+            end
+        else
+        end
+    end
+catch
+end
+
+try
+    
+    
+    xlim(plot_params.xlim)
+    xlabel(plot_params.xlabel)
+    ylabel(plot_params.ylabel)
+    set(gca,'fontsize',plot_params.textsize)
+    box off
+    xline(0, 'LineWidth',1.5);
+    yline(0, 'LineWidth',1.5);
+    set(gcf,'color','w');
+    leg = legend(h,cond_names,'Location','Northeast', 'AutoUpdate','off', 'Interpreter', 'none');
+    legend boxoff
+    set(leg,'fontsize',14, 'Interpreter', 'none')
+catch
+end
+
+
+subplot(1,2,2)
+
+colors = hsv(size(data.plot_data{2},1));
+for ie = 1:size(data.plot_data{2},1)
     hold on
-    h(i)=plot(time,nanmean(plot_data{i}),'LineWidth',plot_params.lw,'Color',plot_params.col(i,:));
+    plot(time, data.plot_data{2}(ie,:), 'LineWidth', 2, 'Color', colors(ie, :))
+    [v,idx] = max(data.plot_data{2}(ie,:));
+    text(time(idx),v,[data.subj_name{ie} ' - ' data.label{ie}], 'Interpreter', 'none', 'Color', colors(ie, :))
 end
 
-time_events = [1 2 3 4];
-for i = 1:length(time_events)
-    plot([time_events(i) time_events(i)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
+if strcmp(task, 'Memoria')
+    hold on
+    time_events = [1 2.1 3.2 4.3];
+    for ii = 1:length(time_events)
+        plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
+    end
+else
 end
-
-
 xlim(plot_params.xlim)
 xlabel(plot_params.xlabel)
 ylabel(plot_params.ylabel)
@@ -38,9 +82,9 @@ box off
 xline(0, 'LineWidth',1.5);
 yline(0, 'LineWidth',1.5);
 set(gcf,'color','w');
-leg = legend(h,cond_names,'Location','Northeast', 'AutoUpdate','off', 'Interpreter', 'none');
-legend boxoff
-set(leg,'fontsize',14, 'Interpreter', 'none')
+
+
+
 
 end
 
