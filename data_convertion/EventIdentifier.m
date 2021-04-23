@@ -81,8 +81,8 @@ for i = 1:length(block_names)
         pdio = abs(pdio);
         ind_above= pdio > 2;
         
-%     elseif strcmp(project_name, 'Calculia_production_stim')
-%         ind_above= pdio > 2.2;
+   elseif strcmp(project_name, 'Calculia_production_stim')
+       ind_above= pdio > 2.2;
         
     elseif strcmp(sbj_name,'S19_137_AF') &&  (strcmp(bn, 'E19-380_0078') || strcmp(bn, 'E19-380_0079'))
         ind_above= pdio > 2.7;
@@ -100,7 +100,7 @@ for i = 1:length(block_names)
         ind_above= pdio < -3;
     end
     
-     ind_above= pdio > 0.5;
+%      ind_above= pdio > 0.5;
     
     
     if strcmp(sbj_name,'S20_152_HT') 
