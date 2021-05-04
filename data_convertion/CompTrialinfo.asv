@@ -11,7 +11,13 @@ switch project_name
             end
         end
         
-        trialinfo.condNames_lite = trialinfo.condNames;
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isActive(i) == 1
+                trialinfo.condNames_lite(i) = {[trialinfo.condNames{i}};
+            else
+                trialinfo.condNames_lite(i) = {[trialinfo.condNames{i} '_passive']};
+            end
+        end
         
         
         

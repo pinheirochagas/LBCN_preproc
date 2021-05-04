@@ -117,28 +117,28 @@ for i = 1:length(views)
     end
     
     
-%     if cfg.plot_label
-%         for ii = 1:size(coords_plot,1)
-%             hold on
-%             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
-%             else
-%                 if strcmp(cfg.colum_label, 'chan_num')
-%                     label = num2str(elinfo.(cfg.colum_label)(ii));
-%                 else
-%                     if length(cfg.colum_label) > 1
-%                         label = [];
-%                         for il = 1:length(cfg.colum_label)
-%                             label{il}= elinfo.(cfg.colum_label{il}){ii};
-%                         end
-%                         label = strjoin(label, '_');
-%                     else
-%                     end
-%                 end
-%                 text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), label, 'FontSize', cfg.label_font_size, 'Color', 'k', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'Interpreter', 'none');
-%             end
-%         end
-%     else
-%     end
+        if cfg.plot_label 
+            for ii = 1:size(coords_plot,1)
+                hold on
+                if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
+                else
+                    if strcmp(cfg.colum_label, 'chan_num')
+                        label = num2str(elinfo.(cfg.colum_label)(ii));
+                    else
+                        if length(cfg.colum_label) > 1
+                            label = [];
+                            for il = 1:length(cfg.colum_label)
+                                label{il}= elinfo.(cfg.colum_label{il}){ii};
+                            end
+                            label = strjoin(label, '_');
+                        else
+                        end
+                    end
+                    text(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), label, 'FontSize', cfg.label_font_size, 'Color', 'k', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'Interpreter', 'none');
+                end
+            end
+        else
+        end
     
     alpha(cfg.alpha)
 end

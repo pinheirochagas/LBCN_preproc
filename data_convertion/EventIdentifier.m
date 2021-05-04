@@ -13,8 +13,8 @@ for i = 1:length(block_names)
         case {'Memoria', 'Calculia_verification_digit', 'Memoria_stim'}
             n_stim_per_trial = 5;
         case 'Calculia'
-            n_stim_per_trial = 5;
-        case {'Calculia_production', 'Calculia_production_stim'}
+            n_stim_per_trial = 5; 
+        case {'Calculia_production', 'Calculia_production_stim', 'Calculia_production_addsubmult'}
             n_stim_per_trial = 3;
         case 'Calculia_China'
             n_stim_per_trial = 5;
@@ -38,7 +38,7 @@ for i = 1:length(block_names)
     
     %% Load globalVar
     load(sprintf('%s/originalData/%s/global_%s_%s_%s.mat',dirs.data_root,sbj_name,project_name,sbj_name,bn));
-    if strcmp(project_name, 'Calculia_production')
+    if strcmp(project_name, {'Calculia_production', 'Calculia_production_addsubmult'})
         iEEG_rate = 10000;
         globalVar.Pdio_rate = 10000;
     else
@@ -51,7 +51,8 @@ for i = 1:length(block_names)
 %     anlg = abs(anlg);
     %% varout is anlg (single precision)
     pdio = anlg/max(double(anlg));
-    if strcmp(project_name, 'Calculia_production') || strcmp(project_name, 'Calculia_production_stim')
+    if strcmp(project_name, {'Calculia_production'}) || strcmp(project_name, 'Calculia_production_stim') || strcmp(project_name, {'Calculia_production_addsubmult'})
+
         if strcmp(sbj_name, 'S18_124_JR2')
             n_initpulse_onset = 0;
             n_initpulse_offset = 0;
@@ -63,8 +64,7 @@ for i = 1:length(block_names)
     else
         [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     end
-    
-    
+
     
     
     
@@ -75,7 +75,7 @@ for i = 1:length(block_names)
    
     
     %% Thresholding the signal
-    if strcmp(project_name, 'Calculia_production')
+    if strcmp(project_name, {'Calculia_production', 'Calculia_production_addsubmult'})
         ind_above= pdio < -3;
     elseif strcmp(sbj_name, 'S16_102_MDO') && strcmp(bn, 'E16-993_0007')
         pdio = abs(pdio);

@@ -32,7 +32,11 @@ try
             for ii = 1:length(time_events)
                 plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
             end
-        else
+        elseif strcmp(task, 'Calculia')
+             time_events = [0 0.9 1.8 2.8 3.7 4.6];
+             for ii = 1:length(time_events)
+                 plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
+             end
         end
     end
 catch
@@ -72,7 +76,12 @@ if strcmp(task, 'Memoria')
     for ii = 1:length(time_events)
         plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
     end
-else
+elseif strcmp(task, 'Calculia')
+    hold on
+    time_events = [0 0.9 1.8 2.8 3.7 4.6];
+    for ii = 1:length(time_events)
+        plot([time_events(ii) time_events(ii)],ylim,'Color', [.5 .5 .5], 'LineWidth',1)
+    end
 end
 xlim(plot_params.xlim)
 xlabel(plot_params.xlabel)

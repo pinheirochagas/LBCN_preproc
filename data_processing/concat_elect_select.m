@@ -44,7 +44,8 @@ if sum(contains(vars, 'DK_lobe')) > 0
 else
 end
 
-
+%% Add task
+elect_select_all.task = repmat({task}, size(elect_select_all,1), 1)
 end
 
 

@@ -103,6 +103,16 @@ switch table
          end
          
          
+    case 'outliear_electrodes_activity_profille'
+        DOCID = '19xXzOiIRMo1gTllONFLGepTIR5LULxoMwclPVLQaHBU';
+        switch sheet
+            case 'Memoria'
+                GID = '0';
+            case 'MMR'
+                GID = '640769189';
+        end
+         
+         
          
         
 end

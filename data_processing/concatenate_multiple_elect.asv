@@ -1,4 +1,4 @@
-function data_all = concatenate_multiple_elect(elec_list, dirs, datatype, freq_band, locktype)
+function data_all = concatenate_multiple_elect(elec_lis, dirs, datatype, freq_band, locktype)
 % function data_all = concatenate_multiple_elect(elec_list, project_name, dirs, datatype, freq_band, locktype)
 
 %% Concatenates data for multiple electrodes within or across subjects
@@ -31,6 +31,8 @@ for ie = 1:size(elec_list,1)
     cfg.decimate = false;
     concat_params = genConcatParams(elec_list.task{ie}, cfg);
     concat_params.noise_fields_trials(3)= {'spike_hfb'};
+    
+    
     
     
     
