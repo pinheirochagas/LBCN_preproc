@@ -22,27 +22,35 @@ elseif strcmp(datatype,'CAR')
     tag = [locktype,'lock']; % specifies type of data to load
 end
 
+cfg = [];
+cfg.decimate = false;
+
 
 data_all.trialinfo = [];
 concatfields = {'wave'}; % type of data to concatenate
 for ie = 1:size(elec_list,1)
     % Get concat params
-    cfg = [];
-    cfg.decimate = false;
     concat_params = genConcatParams(elec_list.task{ie}, cfg);
     concat_params.noise_fields_trials(3)= {'spike_hfb'};
-    
-    
-    
+
     s = elec_list.sbj_name{ie};
     % Load subject variable
     load([dirs.original_data filesep s filesep 'subjVar_' s '.mat'])
     block_names = BlockBySubj(s,elec_list.task{ie});
     el = elec_list.chan_num(ie);
     % Concat blocks of the same electrode
-    data_bn = concatBlocks(s,elec_list.task{ie},block_names,dirs,el,freq_band,datatype,concatfields,tag);
-    data_bn = spike_detector(data_bn,el,subjVar,elec_list.task{ie});
-
+    if strcmp(datatype, 'Spec')
+        data_bn = concatBlocks(s,elec_list.task{ie},block_names,dirs,el,'HFB','Band',concatfields,tag);
+        trialinfo = spike_detector(data_bn,el,subjVar,elec_list.task{ie});
+        data_bn = concatBlocks(s,elec_list.task{ie},block_names,dirs,el,freq_band,datatype,concatfields,tag);
+        data_bn.wave = data_bn.wave(:,:,find(data_bn.time == -0.2):end);
+        data_bn.time = data_bn.time(find(data_bn.time == -0.2):end);
+    else
+        data_bn = concatBlocks(s,elec_list.task{ie},block_names,dirs,el,freq_band,datatype,concatfields,tag);
+        trialinfo = spike_detector(data_bn,el,subjVar,elec_list.task{ie});
+    end
+    
+    
     % Filter bad trials
     if strcmp(concat_params.noise_method,'timepts')
         data_bn = removeBadTimepts(data_bn,concat_params.noise_fields_timepts);
@@ -51,8 +59,8 @@ for ie = 1:size(elec_list,1)
     elseif strcmp(concat_params.noise_method,'trials')
         bad_trials = [];
         for i = 1:length(concat_params.noise_fields_trials)
-            bad_trials = union(bad_trials,find(data_bn.trialinfo.(concat_params.noise_fields_trials{i})));
-%             bad_trials = unique([bad_trials find(data_bn.trialinfo.spike_hfb == true)]);
+            bad_trials = union(bad_trials,find(trialinfo.(concat_params.noise_fields_trials{i})));
+            %             bad_trials = unique([bad_trials find(data_bn.trialinfo.spike_hfb == true)]);
             bad_trials = reshape(bad_trials,length(bad_trials),1);
         end
     end
@@ -78,25 +86,52 @@ for ie = 1:size(elec_list,1)
         data_all.fsample = data_bn.fsample;
     end
     
-    % smooth
-    for it = 1:size(data_bn.wave,1)
-        data_bn.wave(it,:) = smooth_wave_ieeg(data_bn.wave(it,:), data_bn.fsample, 0.1);
+    if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
+        % smooth
+        for it = 1:size(data_bn.wave,1)
+            data_bn.wave(it,:) = smooth_wave_ieeg(data_bn.wave(it,:), data_bn.fsample, 0.1);
+        end
+        
+    elseif strcmp(datatype,'Spec')
+        for it = 1:size(data_bn.wave,1)
+            for itf = 1:size(data_bn.wave,1)
+                data_bn.wave(it,itf,:) = smooth_wave_ieeg(data_bn.wave(it,itf,:), data_bn.fsample, 0.1);
+            end
+        end
     end
     
-    % Exclude bad trials
-    if strcmp(concat_params.noise_method,'trials')
-        data_bn.wave(bad_trials,:) = [];
-        data_bn.trialinfo(bad_trials,:) = [];
-    else
+    if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
+        
+        % Exclude bad trials
+        if strcmp(concat_params.noise_method,'trials')
+            data_bn.wave(bad_trials,:) = [];
+            data_bn.trialinfo(bad_trials,:) = [];
+        else
+        end
+    elseif strcmp(datatype,'Spec')
+        if strcmp(concat_params.noise_method,'trials')
+            data_bn.wave(:,bad_trials,:) = [];
+            data_bn.trialinfo(bad_trials,:) = [];
+        else
+        end
     end
 
+    
+    
     
     
     % Concatenate all subjects all trials
     if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
         data_all.wave{ie} = data_bn.wave;
     elseif strcmp(datatype,'Spec')
-        data_all.wave(:,:,ie,:) = data_bn.wave;
+        
+        %% ADATP TO MEMORIA!
+        t_math = find(strcmp(data_bn.trialinfo.conds_math_memory, 'math'));
+        t_memory = find(strcmp(data_bn.trialinfo.conds_math_memory, 'memory'));
+        data_all.wave.math(ie,:,:) = squeeze(mean(data_bn.wave(:,t_math,:),2));
+        data_all.wave.memory(ie,:,:) = squeeze(mean(data_bn.wave(:,t_memory,:),2));
+
+%         data_all.wave(:,:,ie,:) = data_bn.wave;
     end
     
     %     data_all.label = data_bn.label;
@@ -114,8 +149,11 @@ for ie = 1:size(elec_list,1)
     
     % Exclude bad trials
     
-        
     
+    
+end
+data_all.freqs = data_bn.freqs;
+
 end
 
 

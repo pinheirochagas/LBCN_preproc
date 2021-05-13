@@ -1,4 +1,4 @@
-function elect_select_all = concat_elect_select_rol(subjects, task, dirs, vars)
+function elect_select_all = concat_elect_select_rol(subjects, task, hypothesis, dirs, vars)
 
 vars_selec = {'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR', 'sc1b1_FDR' , 'sc2b2_FDR', ...
     'sc1c2_Pperm', 'sc1b1_Pperm', 'sc2b2_Pperm', 'sc1c2_tstat', 'sc1b1_tstat', 'sc2b2_tstat'};
@@ -7,7 +7,9 @@ vars_selec = {'elect_select', 'act_deact_cond1', 'act_deact_cond2', 'sc1c2_FDR',
 elect_select_all = table;
 for is = 1:length(subjects)
     s = subjects{is};
-    fname = sprintf('%sel_selectivity/el_selectivity_%s_%s.mat',dirs.result_dir, s, task);
+    fname = sprintf('%scomputation/%s/%s_%s_%s.mat',dirs.paper_results, hypothesis, task, s, hypothesis);
+    
+    
     if exist(fname) == 2
         load(fname)
         load([dirs.original_data filesep  s filesep 'subjVar_'  s '.mat']);

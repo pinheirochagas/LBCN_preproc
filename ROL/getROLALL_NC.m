@@ -1,4 +1,4 @@
-function ROL = getROLAll_NC(sbj_name,project_name,block_names,dirs,elecs,datatype,ROL_params,column,conds)
+function ROL = getROLALL_NC(sbj_name,project_name,block_names,dirs,elecs,datatype,ROL_params,column,conds)
 %'Condnames',[]
 %% INPUTS
 %       sbj_name: subject name
@@ -31,8 +31,7 @@ load([dirs.original_data filesep  sbj_name filesep 'subjVar_'  sbj_name '.mat'])
 %load elecs info.
 if isempty(elecs)
     % load globalVar (just to get ref electrode, # electrodes)
-    load([dirs.data_root,'/OriginalData/',sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
-    elecs = setdiff(1:globalVar.nchan,globalVar.refChan);
+    elecs = 1:size(subjVar.elinfo,1);
 end
 
 %set the datatype
@@ -81,12 +80,12 @@ time = (befInd:aftInd)/fs;%%%%%%%.
 
 for ci = 1:length(conds)
     cond = conds{ci};
-    ROL.(cond).peaks = cell(globalVar.nchan,nstim);
-    ROL.(cond).onsets = cell(globalVar.nchan,nstim);
+    ROL.(cond).peaks = cell(length(elecs),nstim);
+    ROL.(cond).onsets = cell(length(elecs),nstim);
 %     HFB_trace_bc.(cond) = cell(globalVar.nchan,nstim);
    %%% ROL.(cond).HFB_trace_bc = cell(globalVar.nchan,nstim);
 %     HFB_trace_bs.(cond) = cell(globalVar.nchan,nstim);
-    sig.(cond) = cell(globalVar.nchan,nstim); % this will be the data
+    sig.(cond) = cell(length(elecs),nstim); % this will be the data
 end
 
 
@@ -137,16 +136,39 @@ for ei = 1:length(elecs)%chao
             %             ROL.(cond).HFB_trace_bc{el,ii}=Resp_data.trace_bc;
         end
     end
-    disp(['Computing ROL for elec: ',num2str(el)])
+    disp(['Computing ROL for elec: ',num2str(el)])    
 end
 
-dir_out = [dirs.result_dir 'ROL' filesep];
+%% Correct for too early or too late!
+rol_ext_peaks = [0.05 4];
+rol_ext_onsets = [0.05 2];
 
-if ~exist(dir_out)
-    mkdir(dir_out)
+
+for ei = 1:length(elecs)%chao
+    el = elecs(ei);
+    for ci = 1:length(conds)
+        cond = grouped_condnames{ci};
+        for ii = 1:nstim
+            if ~isempty(data.wave)
+                ROL.(cond).peaks{el,ii}(ROL.(cond).peaks{el,ii}<rol_ext_peaks(1) | ROL.(cond).peaks{el,ii}>rol_ext_peaks(2)) = nan;
+                ROL.(cond).onsets{el,ii}(ROL.(cond).onsets{el,ii}<rol_ext_onsets(1) | ROL.(cond).onsets{el,ii}>rol_ext_onsets(2)) = nan;
+            end
+            %             ROL.(cond).HFB_trace_bc{el,ii}=Resp_data.trace_bc;
+        end
+    end
 end
-    
-fn_out = sprintf('%s%s_%s_ROL.mat',dir_out,sbj_name,project_name);
-save(fn_out,'ROL');
+fname = sprintf('%sROL/%s_%s_ROL.mat',dirs.paper_results, sbj_name, project_name);
+save(fname, 'ROL');
+disp(['saved ROL for subject: ',sbj_name])
+
+% 
+% dir_out = [dirs.result_dir 'ROL' filesep];
+% 
+% if ~exist(dir_out)
+%     mkdir(dir_out)
+% end
+%     
+% fn_out = sprintf('%s%s_%s_ROL.mat',dir_out,sbj_name,project_name);
+% save(fn_out,'ROL');
 end
 

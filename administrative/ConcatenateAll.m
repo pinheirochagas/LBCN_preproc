@@ -5,11 +5,11 @@ function data_all = ConcatenateAll(sbj_name, project_name, block_names, dirs,ele
 load([dirs.original_data filesep sbj_name filesep 'subjVar_' sbj_name '.mat'])
 
 if strcmp(sbj_name, 'S20_151_HT') && strcmp(project_name, 'MMR') 
-    original = load('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/S20_151_HT/global_Calculia_production_S20_151_HT_E20-540_0011.mat');
-    mmr = load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat']);
-    elecs = 1:mmr.globalVar.nchan;
-    [~,idx] = setdiff(mmr.globalVar.channame, original.globalVar.channame);
-    elecs(idx) = [];
+%     original = load('/Volumes/LBCN8T/Stanford/data/neuralData/originalData/S20_151_HT/global_Calculia_production_S20_151_HT_E20-540_0011.mat');
+%     mmr = load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat']);
+%     elecs = 1:mmr.globalVar.nchan;
+%     [~,idx] = setdiff(mmr.globalVar.channame, original.globalVar.channame);
+%     elecs(idx) = [];
 else
     load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
     
@@ -17,6 +17,7 @@ else
         % load globalVar (just to get ref electrode, # electrodes)
         load([dirs.original_data, filesep, sbj_name,'/global_',project_name,'_',sbj_name,'_',block_names{1},'.mat'])
         elecs = setdiff(1:size(subjVar.elinfo,1),globalVar.refChan);
+        elecs = 1:size(subjVar.elinfo,1);
     end
 end
 

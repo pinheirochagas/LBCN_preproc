@@ -61,6 +61,9 @@ for i = 1:length(block_names)
             n_initpulse_offset = 12;
         end
 
+    elseif strcmp(project_name, {'Memoria'}) &&  strcmp(bn, 'E21-465_0004') 
+        n_initpulse_onset = 4;
+        n_initpulse_offset = 4;
     else
         [n_initpulse_onset, n_initpulse_offset] = find_skip(anlg, 0.001, globalVar.Pdio_rate);
     end
@@ -100,7 +103,7 @@ for i = 1:length(block_names)
         ind_above= pdio < -3;
     end
     
-%      ind_above= pdio > 0.5;
+      ind_above= pdio > 0.5;
     
     
     if strcmp(sbj_name,'S20_152_HT') 

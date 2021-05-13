@@ -1,4 +1,4 @@
-function data_bn = spike_detector(data_bn,el,subjVar,project_name)
+function trialinfo = spike_detector(data_bn,el,subjVar,project_name)
 
     if (~strcmp(project_name, 'Rest') && ~strcmp(project_name, 'EglyDriver'))
         for iout = 1:size(data_bn.wave, 1)
@@ -13,6 +13,7 @@ function data_bn = spike_detector(data_bn,el,subjVar,project_name)
         end
         data_bn.trialinfo.spike_hfb = zscore(log(max_val))>thrhold ;
     end
+    trialinfo = data_bn.trialinfo;
 
 end
 
