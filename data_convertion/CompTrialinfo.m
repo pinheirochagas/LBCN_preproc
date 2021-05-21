@@ -87,6 +87,106 @@ switch project_name
             end
         end
         
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isCalc(i) == 1
+                
+                wl_tmp = strsplit(trialinfo.wlist{i}, ' ');
+                trialinfo.wlist{i} = horzcat(wl_tmp{:});
+                
+                opmax_str = num2str(trialinfo.OperandMax(i));
+                result_str = num2str(trialinfo.CorrectResult(i));
+                
+                if length(result_str) == 1
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) < str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 2;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) == str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) == 1
+                    trialinfo.decadeCross(i) = 2;
+                end
+                
+                 if trialinfo.decadeCross(i) == 1
+                     trialinfo.decadeCross_str{i} = 'no_cross_decade';
+                elseif trialinfo.decadeCross(i) == 2
+                     trialinfo.decadeCross_str{i} = 'cross_decade';
+                end
+                
+                
+                if trialinfo.Operand1(i) > trialinfo.Operand2(i)
+                    trialinfo.ls_sl(i) = 2;
+                    trialinfo.ls_sl_str{i} = 'ls';
+                else
+                    trialinfo.ls_sl(i) = 1;
+                    trialinfo.ls_sl_str{i} = 'sl';
+                end
+                
+                
+            else
+                trialinfo.decadeCross(i) = nan;
+                trialinfo.ls_sl(i) = nan;
+                
+            end
+        end
+        
+        
+        case 'UCLA'
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isCalc(i) == 1
+                if trialinfo.AbsDeviant(i) == 0
+                    trialinfo.correctness{i} = 'correct';
+                elseif trialinfo.AbsDeviant(i) > 0
+                    trialinfo.correctness{i} = 'incorrect';
+                else
+                end
+            else
+                trialinfo.correctness{i} = 'no math';
+            end
+        end
+        
+        for i = 1:size(trialinfo,1)
+            if trialinfo.isCalc(i) == 1
+                
+                wl_tmp = strsplit(trialinfo.wlist{i}, ' ');
+                trialinfo.wlist{i} = horzcat(wl_tmp{:});
+                
+                opmax_str = num2str(trialinfo.OperandMax(i));
+                result_str = num2str(trialinfo.CorrectResult(i));
+                
+                if length(result_str) == 1
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) < str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 2;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) == str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) == 1
+                    trialinfo.decadeCross(i) = 2;
+                end
+                
+                if trialinfo.decadeCross(i) == 1
+                     trialinfo.decadeCross_str{i} = 'no_cross_decade';
+                elseif trialinfo.decadeCross(i) == 2
+                     trialinfo.decadeCross_str{i} = 'cross_decade';
+                end
+                
+                
+                if trialinfo.Operand1(i) > trialinfo.Operand2(i)
+                    trialinfo.ls_sl(i) = 2;
+                    trialinfo.ls_sl_str{i} = 'ls';
+                else
+                    trialinfo.ls_sl(i) = 1;
+                    trialinfo.ls_sl_str{i} = 'sl';
+                end
+                
+                
+            else
+                trialinfo.decadeCross(i) = nan;
+                trialinfo.ls_sl(i) = nan;
+                
+            end
+        end
+        
+        
         
     case 'Context'
         trialinfo.condNames2 = trialinfo.condNames;
@@ -269,6 +369,20 @@ switch project_name
         
         
         for i = 1:size(trialinfo,1)
+            if ~strcmp(trialinfo.condNames(i), 'autobio')
+                if strcmp(trialinfo.mathtype{i}, 'digit')
+                    trialinfo.format(i) = 1;
+                elseif strcmp(trialinfo.mathtype{i}, 'numword')
+                    trialinfo.format(i) = 2;
+                else
+                    trialinfo.format(i) = nan;
+                end
+            else
+                trialinfo.format(i) = nan;
+            end
+        end
+        
+        for i = 1:size(trialinfo,1)
             if trialinfo.AbsDeviant(i) == 0 && strcmp(trialinfo.mathtype{i}, 'digit')
                 trialinfo.correctness_math_type{i} = 'digit_correct';
             elseif trialinfo.AbsDeviant(i) == 0 && strcmp(trialinfo.mathtype{i}, 'numword')
@@ -281,6 +395,40 @@ switch project_name
                 trialinfo.correctness_math_type{i} = ' ';
             end
         end
+        
+        
+        
+        for i = 1:size(trialinfo,1)
+            if ~strcmp(trialinfo.condNames(i), 'autobio')
+                wl_tmp = strsplit(trialinfo.wlist{i}, ' ');
+                trialinfo.wlist{i} = horzcat(wl_tmp{:});
+                
+                opmax_str = num2str(trialinfo.OperandMax(i));
+                result_str = num2str(trialinfo.CorrectResult(i));
+                
+                if length(result_str) == 2
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) < str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 2;
+                elseif length(result_str) > 1 && length(opmax_str) > 1 && str2num(opmax_str(1)) == str2num(result_str(1))
+                    trialinfo.decadeCross(i) = 1;
+                elseif length(result_str) > 1 && length(opmax_str) == 1
+                    trialinfo.decadeCross(i) = 2;
+                end
+                
+                if trialinfo.Operand1(i) > trialinfo.Operand2(i)
+                    trialinfo.ls_sl(i) = 2;
+                    trialinfo.ls_sl_str{i} = 'ls';
+                else
+                    trialinfo.ls_sl(i) = 1;
+                    trialinfo.ls_sl_str{i} = 'sl';
+                end
+            else
+                trialinfo.decadeCross(i) = nan;
+                trialinfo.ls_sl(i) = nan;
+            end
+        end
+        
         
         
     case 'MFA'

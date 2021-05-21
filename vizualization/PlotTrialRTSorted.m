@@ -133,7 +133,7 @@ for ci = 1:ncategs
         
         
         plot([0 0],ylim,'k-','LineWidth',2)
-        title(cond_names{ci})
+%         title(cond_names{ci})
         xlabel(plot_params.xlabel)
         ylabel('RT-sorted trials')
         set(gca,'fontsize',plot_params.textsize)
@@ -147,39 +147,39 @@ for ci = 1:ncategs
         end
         
         % Add horizontal lines to separate conditions
-        if ~iscell(trial_data{ci}.(plot_params.group_conds))
-            trial_data{ci}.(plot_params.group_conds) = cellstr(num2str(trial_data{ci}.(plot_params.group_conds)));
-        else
-        end
-        tab_tmp = tabulate(trial_data{ci}.(plot_params.group_conds));
-        % FIX this, now only working for conditions with 2 names! 
-        for i = 1:size(tab_tmp,1)
-            if i == 1
-                line_loc = cell2mat(tab_tmp(i,2));
-                if line_loc == 1
-                    line_loc_lab = line_loc;
-                else
-                    line_loc_lab = line_loc/2;
-                end
-            else
-                line_loc = cell2mat(tab_tmp(i,2)) + cell2mat(tab_tmp(i-1,2));
-                    if line_loc == 1
-                        line_loc_lab = (cell2mat(tab_tmp(i,2))) + cell2mat(tab_tmp(i-1,2));
-                    else
-                        line_loc_lab = (cell2mat(tab_tmp(i,2)))/2 + cell2mat(tab_tmp(i-1,2));
-                    end
-            end
-            plot(xlim,[line_loc+0.5 line_loc+0.5],'k-','LineWidth',3)
-            lin_locs(i) = line_loc_lab;
-        end
-        yticks(lin_locs)
-        yticklabels(tab_tmp(:,1))
-        
+%         if ~iscell(trial_data{ci}.(plot_params.group_conds))
+%             trial_data{ci}.(plot_params.group_conds) = cellstr(num2str(trial_data{ci}.(plot_params.group_conds)));
+%         else
+%         end
+%         tab_tmp = tabulate(trial_data{ci}.(plot_params.group_conds));
+%         % FIX this, now only working for conditions with 2 names! 
+%         for i = 1:size(tab_tmp,1)
+%             if i == 1
+%                 line_loc = cell2mat(tab_tmp(i,2));
+%                 if line_loc == 1
+%                     line_loc_lab = line_loc;
+%                 else
+%                     line_loc_lab = line_loc/2;
+%                 end
+%             else
+%                 line_loc = cell2mat(tab_tmp(i,2)) + cell2mat(tab_tmp(i-1,2));
+%                     if line_loc == 1
+%                         line_loc_lab = (cell2mat(tab_tmp(i,2))) + cell2mat(tab_tmp(i-1,2));
+%                     else
+%                         line_loc_lab = (cell2mat(tab_tmp(i,2)))/2 + cell2mat(tab_tmp(i-1,2));
+%                     end
+%             end
+%             plot(xlim,[line_loc+0.5 line_loc+0.5],'k-','LineWidth',3)
+%             lin_locs(i) = line_loc_lab;
+%         end
+%         yticks(lin_locs)
+%         yticklabels(tab_tmp(:,1))
+%         
         
         
         box off
         hold on
-        colorbar
+%         colorbar('south')
     else
         h = imagesc(0);
     end

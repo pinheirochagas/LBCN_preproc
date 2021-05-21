@@ -44,7 +44,7 @@ count = 0;
 
 % cfg.stim_times = [0, 1, 2, 3]
 
-for e = 1:10:length(time)
+for e = 1:1:length(time)
     count = count+1;
     f1 = figure('units', 'normalized', 'outerposition', cfg.figureDim);
     
@@ -87,18 +87,24 @@ for e = 1:10:length(time)
         
         text(0, 0, -80, [time_tmp ' s'], 'FontSize', 40, 'HorizontalAlignment', 'center')
         
-        if time(e) > cfg.times(1) && time(e) < cfg.times(1) + .5
-           text(0, 0, 85, 'X', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(2) && time(e) < cfg.times(2) + .5
-           text(0, 0, 85, '+', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(3) && time(e) < cfg.times(3) + .5
-           text(0, 0, 85, 'Y', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(4) && time(e) < cfg.times(4) + .5
-           text(0, 0, 85, '=', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        elseif time(e) > cfg.times(5) && time(e) < cfg.times(5) + .5
-           text(0, 0, 85, 'Z', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
-        else
-        end
+%         if time(e) > cfg.times(1) && time(e) < cfg.times(1) + .5
+%            text(0, 0, 85, 'X', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         elseif time(e) > cfg.times(2) && time(e) < cfg.times(2) + .5
+%            text(0, 0, 85, '+', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         elseif time(e) > cfg.times(3) && time(e) < cfg.times(3) + .5
+%            text(0, 0, 85, 'Y', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         elseif time(e) > cfg.times(4) && time(e) < cfg.times(4) + .5
+%            text(0, 0, 85, '=', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         elseif time(e) > cfg.times(5) && time(e) < cfg.times(5) + .5
+%            text(0, 0, 85, 'Z', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         else
+%         end
+        
+%         if time(e) > cfg.times(1) 
+%            text(0, 0, 85, 'X+Y=Z', 'FontSize', 50, 'HorizontalAlignment', 'center', 'Color', 'k')
+%         else
+%         end
+        
         
         cdata = getframe(gcf);
         F(count).cdata = cdata.cdata;
@@ -116,7 +122,7 @@ fig = figure('units', 'normalized', 'outerposition', cfg.figureDim);
 movie(fig,F,1)
 
 dir_out = [dirs.paper_figures 'videos' filesep];
-videoRSA = VideoWriter([dir_out 'Memoria_math_only' '.avi']);
+videoRSA = VideoWriter([dir_out 'mmr_math_only' '.avi']);
 videoRSA.FrameRate = 30;  % Default 30
 videoRSA.Quality = 100;    % Default 75
 open(videoRSA);

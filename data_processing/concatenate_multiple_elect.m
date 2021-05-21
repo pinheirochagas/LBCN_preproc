@@ -124,12 +124,22 @@ for ie = 1:size(elec_list,1)
     if strcmp(datatype,'Band') || strcmp(datatype,'CAR')
         data_all.wave{ie} = data_bn.wave;
     elseif strcmp(datatype,'Spec')
+            data_all.freqs = data_bn.freqs;
+
         
         %% ADATP TO MEMORIA!
-        t_math = find(strcmp(data_bn.trialinfo.conds_math_memory, 'math'));
-        t_memory = find(strcmp(data_bn.trialinfo.conds_math_memory, 'memory'));
-        data_all.wave.math(ie,:,:) = squeeze(mean(data_bn.wave(:,t_math,:),2));
-        data_all.wave.memory(ie,:,:) = squeeze(mean(data_bn.wave(:,t_memory,:),2));
+        if strcmp(elec_list.task{1}, 'MMR') | strcmp(elec_list.task{1}, 'UCLA')
+            t_math = find(strcmp(data_bn.trialinfo.conds_math_memory, 'math'));
+            t_memory = find(strcmp(data_bn.trialinfo.conds_math_memory, 'memory'));
+            data_all.wave.math(ie,:,:) = squeeze(mean(data_bn.wave(:,t_math,:),2));
+            data_all.wave.memory(ie,:,:) = squeeze(mean(data_bn.wave(:,t_memory,:),2));
+        elseif  strcmp(strcmp(elec_list.task{1}, 'Memoria'), 'Memoria')
+            t_math = find(strcmp(data_bn.trialinfo.condNames, 'math'));
+            t_memory = find(strcmp(data_bn.trialinfo.condNames, 'autobio'));
+            data_all.wave.math(ie,:,:) = squeeze(mean(data_bn.wave(:,t_math,:),2));
+            data_all.wave.autobio(ie,:,:) = squeeze(mean(data_bn.wave(:,t_memory,:),2));
+        end
+
 
 %         data_all.wave(:,:,ie,:) = data_bn.wave;
     end
@@ -152,7 +162,6 @@ for ie = 1:size(elec_list,1)
     
     
 end
-data_all.freqs = data_bn.freqs;
 
 end
 
