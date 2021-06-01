@@ -19,6 +19,7 @@
 %   Revised 1/14/2007
 
 function save2pdf(pdfFileName,handle,dpi)
+f = gcf; f.RendererMode = 'manual'; f.Renderer = 'painters';
 
 % Verify correct number of arguments
 error(nargchk(0,3,nargin));

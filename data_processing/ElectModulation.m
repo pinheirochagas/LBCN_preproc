@@ -2,14 +2,19 @@ function reg_stats = ElectModulation(sbj_name,project_name, block_names, dirs, d
 
 % Get stats parameters
 if isempty(mod_par)
-    mod_par = genModulationParams(project_name);
+    mod_par = genModulationParams(project_name, hypothesis);
 end
 
 % Concatenate all trials all channels
 cfg = [];
 cfg.decimate = false;
 concat_params = genConcatParams(project_name, cfg);
+if ~isfield(concat_params, 'data_format')
+    concat_params.data_format = 'regular';
+else
+end
 data_sbj = ConcatenateAll(sbj_name,project_name,block_names,dirs,[],datatype,freq_band,mod_par.tag, concat_params);
+
 
 % Run regression across fields - 1 predictor!
 conds = mod_par.conds;

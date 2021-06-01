@@ -40,7 +40,7 @@ final_fs = 50;
 
 if ~isempty(cfg.ind)
 %     [col_idx,colors_plot] = colorbarFromValues(cfg.ind, cfg.Colormap, cfg.clim, cfg.color_center_zero);
-    colors_plot = vals2colormap(cfg.ind, cfg.Colormap, cfg.clim);
+    [col_idx, colors_plot] = vals2colormap(cfg.ind, cfg.Colormap, cfg.clim);
     col_idx = 1:size(colors_plot,1);
 
 %      col_idx(col_idx==0)=1; % dirty fix
@@ -63,12 +63,14 @@ end
 
 %% Plot electrodes as dots in native space
 if cfg.MarkerSize_mod
-    marker_size = abs(cfg.ind)*cfg.MarkerSize;
+%     marker_size = abs(cfg.ind).*cfg.MarkerSize; 
+    marker_size = abs(cfg.ind).*round(cfg.MarkSizeEffect*abs(cfg.ind));
     marker_size(marker_size<=0) = 0.0001;
 else
     marker_size = repmat(cfg.MarkerSize,size(elinfo,1),1);
+     marker_size = cfg.MarkerSize;
+
 end
-% marker_size = cfg.MarkerSize;
 
 
 % figureDim = [0 0 1 .4];

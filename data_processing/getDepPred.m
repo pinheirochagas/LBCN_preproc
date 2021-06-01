@@ -2,7 +2,7 @@ function [dep, pred] = getDepPred(data, datatype, el, dep, pred, conds, mod_par)
 
 dep_pred = {dep,pred};
 data_win = min(find(data.time>mod_par.task_win(1))):max(find(data.time<mod_par.task_win(2)));
-trial_idx = find(strcmp(data.trialinfo.(mod_par.column), conds));
+trial_idx = find(strcmp(data.trialinfo.(mod_par.column), conds) & data.trialinfo.bad_epochs_HFO == 0 & data.trialinfo.spike_hfb == 0);
 
 for i = 1:length(dep_pred)
     dep_pred_tmp = dep_pred{i};
@@ -13,6 +13,9 @@ for i = 1:length(dep_pred)
             
         case 'OperandMin'
             dep_pred_tmp_final{i} = data.trialinfo.OperandMin(trial_idx);
+            
+        case 'decadeCross'
+            dep_pred_tmp_final{i} = data.trialinfo.decadeCross(trial_idx);
             
         case 'initial'
             % Average across conds
