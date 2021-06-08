@@ -90,7 +90,11 @@ end
 % Take care of electrode names, hemisphere, and type
 if isempty(elecNames)
     % Import electrode names
-    elecFname=fullfile(subDir,'elec_recon',[subj '.electrodeNames']);
+    if contains(subj,'S14_78') && endsWith(subj,'b')
+        elecFname=fullfile(subDir,'elec_recon',[subj '_Custom.electrodeNames']);
+    else        
+        elecFname=fullfile(subDir,'elec_recon',[subj '.electrodeNames']);
+    end
     elecInfo=csv2Cell(elecFname,' ',2);
     elecInfo_table = table(elecInfo(:,1), elecInfo(:,2), elecInfo(:,3));
     elecInfo_table.Properties.VariableNames = {'Name', 'Depth_Strip_Grid', 'Hem'};
