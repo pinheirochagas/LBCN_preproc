@@ -30,13 +30,60 @@ switch project_name
                 mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'OperandMin', 'OperandMin', 'initial', 'total'};
                 mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'initial', 'total', 'RT', 'RT'};
                 
+   
+                
         end
     case 'Memoria'
         mod_par.task_win = [0 1.5];
         mod_par.bl_win = [-0.5 0];
-    case 'GradCPT'
-        mod_par.task_win = [0 0.8];
-        mod_par.bl_win = [-0.2 0];
+        
+        mod_par.tag = 'stim';
+        switch hypothesis
+            
+            
+            case 'correctness_mod'
+                mod_par.task_win = [4.3 5.5];
+                mod_par.conds = conds;
+                mod_par.column = column;
+                mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'correctness'};
+                mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'total'};
+                
+            case 'abs_deviant_mod'
+                mod_par.task_win = [4.3 5.5];
+                mod_par.conds = conds;
+                mod_par.column = column;
+                mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'AbsDeviant'};
+                mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'total'};
+                
+            case 'sl_ls_mod'
+                mod_par.task_win = [2.1 4.3];
+                mod_par.conds = conds;
+                mod_par.column = column;
+                mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'ls_sl'};
+                mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'total'};
+                
+            case 'operand_2_mod'
+                mod_par.task_win = [2.1 4.3];
+                mod_par.conds = conds;
+                mod_par.column = column;
+                mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'Operand2'};
+                mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'total'};
+                
+            case 'format_mod'
+                mod_par.task_win = [2.1 4.3];
+                mod_par.conds = conds;
+                mod_par.column = column;
+                mod_par.preds.(conds{find(strcmp(conds, 'math'))}) = {'mathtype'};
+                mod_par.dep_vars.(conds{find(strcmp(conds, 'math'))}) = {'total'};
+                
+                
+                
+                
+                
+            case 'GradCPT'
+                mod_par.task_win = [0 0.8];
+                mod_par.bl_win = [-0.2 0];
+        end
 end
 
 mod_par.nreps= 5000;

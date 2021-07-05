@@ -98,7 +98,8 @@ for i = 1:length(views)
         if ~isnan(col_idx(ii))
             if (strcmp(hemis{i}, 'left') == 1 && strcmp(elinfo.LvsR(ii), 'R') == 1) || (strcmp(hemis{i}, 'right') == 1 && strcmp(elinfo.LvsR(ii), 'L') == 1)
             else
-                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', MarkerEdgeColor);
+                plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size, 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', MarkerEdgeColor);
+%                 plot3(coords_plot(ii,1),coords_plot(ii,2),coords_plot(ii,3), 'o', 'MarkerSize', marker_size(ii), 'MarkerFaceColor', colors_plot(col_idx(ii),:), 'MarkerEdgeColor', MarkerEdgeColor);
             end
         else
         end

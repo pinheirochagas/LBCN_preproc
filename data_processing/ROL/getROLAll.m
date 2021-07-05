@@ -107,6 +107,10 @@ for ei = 1:length(elecs)
         data_all.wave = convn(data_all.wave,gusWin','same');
     end
     [grouped_trials,grouped_condnames] = groupConds(conds,data_all.trialinfo,column,ROLparams.noise_method,ROLparams.noise_fields_trials,false);
+    
+        [grouped_trials,grouped_condnames] = groupConds(conds,data_all.trialinfo,column,'none',{''},false);
+
+    
     [grouped_trials_all,~] = groupConds(conds,data_all.trialinfo,column,'none',ROLparams.noise_fields_trials,false);
     nconds = length(grouped_trials);
     for ci = 1:nconds

@@ -17,6 +17,12 @@ for i = 1:length(dep_pred)
         case 'decadeCross'
             dep_pred_tmp_final{i} = data.trialinfo.decadeCross(trial_idx);
             
+        case 'correctness'
+            dep_pred_tmp_final{i} = data.trialinfo.correctness(trial_idx);
+            
+        case 'AbsDeviant'
+            dep_pred_tmp_final{i} = data.trialinfo.AbsDeviant(trial_idx);            
+            
         case 'initial'
             % Average across conds
             data_field = 'wave';
@@ -29,7 +35,12 @@ for i = 1:length(dep_pred)
         case 'total'
             data_field = 'wave';
             for ii = 1:length(trial_idx)
-                tmp = data.(data_field)(trial_idx(ii),el,data_win(1):max(find(data.time <= data.trialinfo.RT(trial_idx(ii)))));
+                if strcmp(pred, 'correctness') || strcmp(pred, 'AbsDeviant') || strcmp(pred, 'format') || strcmp(pred, 'sl_ls') 
+                    tmp = squeeze(data.(data_field)(trial_idx(ii),el,data_win(1):data_win(2)));
+                else
+                    tmp = squeeze(data.(data_field)(trial_idx(ii),el,data_win(1):max(find(data.time <= data.trialinfo.RT(trial_idx(ii))))));
+                end
+                tmp = tmp+abs(min(tmp));
                 dep_pred_tmp_final{i}(ii,1) = trapz(tmp); 
                 % Should I only take the positive values? 
                 %  dep_pred_tmp_final{i}(ii) = trapz(tmp(tmp>0)); 

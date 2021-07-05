@@ -359,11 +359,15 @@ switch project_name
         
         for i = 1:size(trialinfo,1)
             if trialinfo.AbsDeviant(i) == 0
-                trialinfo.correctness{i} = 'correct';
+                trialinfo.correctness_str{i} = 'correct';
+                trialinfo.correctness(i) = 1;
+                
             elseif trialinfo.AbsDeviant(i) > 0
-                trialinfo.correctness{i} = 'incorrect';
+                trialinfo.correctness_str{i} = 'incorrect';
+                trialinfo.correctness(i) = 2;
             else
-                trialinfo.correctness{i} = ' ';
+                trialinfo.correctness_str{i} = ' ';
+                trialinfo.correctness(i)= nan;
             end
         end
         
